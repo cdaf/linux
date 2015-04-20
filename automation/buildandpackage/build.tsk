@@ -1,0 +1,18 @@
+echo "$0 : Building using ant"
+
+rm -fv MANIFEST.MF
+rm -fv postDeploy.log
+rm -rf build
+rm -rf target
+
+echo "if action is clean, do not perform any further action"
+
+echo "PROJECT = $PROJECT"
+echo "AUTOMATIONROOT = $AUTOMATIONROOT"
+echo "SOLUTIONROOT = $SOLUTIONROOT"
+
+terminate=$ACTION
+
+loadProperties="../$SOLUTIONROOT/propertiesForLocalTasks/$TARGET"
+
+ant

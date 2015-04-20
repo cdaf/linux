@@ -1,0 +1,4 @@
+# values used on the agent to determine target
+deployHost=localhost
+deployUser=deployer
+deployLand=/opt/packages

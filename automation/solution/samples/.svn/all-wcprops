@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples
+END
+public_key.pem
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/public_key.pem
+END
+DEV01
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/DEV01
+END
+DEV.test
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/DEV.test
+END
+DEV01a
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/DEV01a
+END
+private_key.pem
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/private_key.pem
+END
+DEV01.dat
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/lu-cdm/!svn/ver/24/automation/solution/samples/DEV01.dat
+END

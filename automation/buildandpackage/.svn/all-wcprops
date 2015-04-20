@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/lu-cdm/!svn/ver/42/automation/buildandpackage
+END
+build.sh
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/lu-cdm/!svn/ver/24/automation/buildandpackage/build.sh
+END
+packageRemote.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/lu-cdm/!svn/ver/24/automation/buildandpackage/packageRemote.sh
+END
+packageCopyArtefacts.sh
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/lu-cdm/!svn/ver/30/automation/buildandpackage/packageCopyArtefacts.sh
+END
+buildProjects.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/lu-cdm/!svn/ver/27/automation/buildandpackage/buildProjects.sh
+END
+build.tsk
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/lu-cdm/!svn/ver/27/automation/buildandpackage/build.tsk
+END
+package.sh
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/lu-cdm/!svn/ver/41/automation/buildandpackage/package.sh
+END
+packageLocal.sh
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/lu-cdm/!svn/ver/42/automation/buildandpackage/packageLocal.sh
+END

@@ -1,0 +1,9 @@
+echo "$0 : Retrieve Property to named variable ..."
+namedURL=$(./getProperty.sh "./propertiesForLocalTasks/$TARGET" "ftURL")
+
+echo "namedURL = $namedURL"
+
+echo "$0 : Load all properties ..."
+loadProperties="./propertiesForLocalTasks/$TARGET"
+
+echo "ftURL = $ftURL"

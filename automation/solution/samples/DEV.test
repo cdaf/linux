@@ -1,0 +1,3 @@
+# Automated Function Test
+runClasspath=.:./Testtool.jar:/usr/local/bin/selenium-server-standalone.jar
+ftURL=http://localhost/webapp-cd/

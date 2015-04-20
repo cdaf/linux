@@ -1,0 +1,6 @@
+echo "$0 : Load and verify properties for $TARGET ..."
+loadProperties="../$TARGET"
+
+echo "deployHost = $deployHost"
+echo "deployUser = $deployUser"
+echo "deployLand = $deployLand"

@@ -1,7 +1,0 @@
-# values used on the agent to determine target
-deployHost=localhost
-deployUser=deployer
-deployLand=/opt/packages/DEV02
-
-# Deploy script override 
-deployScriptOverride=../DeployCustom/hybrisStart.list

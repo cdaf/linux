@@ -1,68 +1,0 @@
-8
-
-dir
-42
-http://localhost:18080/svn/lu-cdm/automation
-http://localhost:18080/svn/lu-cdm
-
-
-
-2015-03-20T01:50:46.995970Z
-42
-jules
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-b0830df3-4bf4-411b-b46c-4a3ead163004
-
-Readme.md
-file
-
-
-
-
-2015-03-20T01:52:06.000000Z
-2559695807211fdfb164b1d557809f58
-2015-03-20T01:50:46.995970Z
-42
-jules
-
-buildandpackage
-dir
-
-cdEmulate.sh
-file
-
-
-
-
-2015-03-20T01:52:06.000000Z
-cf82731e7144bb7cff83304376c4318b
-2015-03-20T01:50:46.995970Z
-42
-jules
-has-props
-
-local
-dir
-
-provisioning
-dir
-
-remote
-dir
-
-solution
-dir
-

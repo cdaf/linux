@@ -61,28 +61,47 @@ mkdir -v $WORK_DIR_DEFAULT
 cp -av manifest.txt $WORK_DIR_DEFAULT
 cp -avR $AUTOMATIONROOT/local/* $WORK_DIR_DEFAULT
 
-if [ -d  "$localPropertiesDir" ]; then
-	printf "$0 :   Properties for local tasks : "	
-	mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
-	cp -avR $localPropertiesDir/* $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+if [ -d "$localPropertiesDir" ]; then
+	filesInDir=$(ls $localPropertiesDir)
+	if [ -n "$filesInDir" ]; then
+		echo
+		echo "$0 :   Properties for local tasks ($localPropertiesDir) : "	
+		echo
+		mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+		cp -avR $localPropertiesDir/* $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+	else
+		echo
+		echo "$0 :   Properties directory ($localPropertiesDir) for local tasks exists but contains no files, no action taken."
+		echo
+	fi
 fi
 
-if [ -d  "$localCryptDir" ]; then
+if [ -d "$localCryptDir" ]; then
 	printf "$0 :   Local encrypted files : "	
 	mkdir -v $WORK_DIR_DEFAULT/${localCryptDir##*/}
 	cp -avR $localCryptDir/* $WORK_DIR_DEFAULT/${localCryptDir##*/}
 fi
 
-if [ -d  "$localCustomDir" ]; then
+if [ -d "$localCustomDir" ]; then
 	printf "$0 :   Local custom scripts : "	
 	mkdir -v $WORK_DIR_DEFAULT/${localCustomDir##*/}
 	cp -avR $localCustomDir/* $WORK_DIR_DEFAULT/${localCustomDir##*/}
 fi
 
-if [ -d  "$remotePropertiesDir" ]; then
-	printf "$0 :   Properties for remote tasks : "
-	mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
-	cp -avR $remotePropertiesDir/* $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
+# Do not attempt to create the directory and copy files unless the source directory exists AND contains files
+if [ -d "$remotePropertiesDir" ]; then
+	filesInDir=$(ls $remotePropertiesDir)
+	if [ -n "$filesInDir" ]; then
+		echo
+		echo "$0 :   Properties for remote tasks ($remotePropertiesDir) : "
+		echo
+		mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
+		cp -avR $remotePropertiesDir/* $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
+	else
+		echo
+		echo "$0 :   Properties directory ($remotePropertiesDir) for remote tasks exists but contains no files, no action taken."
+		echo
+	fi
 fi
 
 # Copy all helper scripts from remote to local

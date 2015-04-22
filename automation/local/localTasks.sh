@@ -36,47 +36,63 @@ echo
 # Enter the working directory, this is where the helper scripts should be, all processing of artefacts
 # must be relative to this, i.e. .. (remote a local processing are perform in the same relative location
 cd $WORKDIR
-ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > testTargets 2> /dev/null
 
-targetsDefined=$(cat testTargets)
-if [ -z ${targetsDefined} ]; then
-	echo "$0 : INFO : No Post Deployment Tasks Attempted."
-else
-	echo "$0 : +--------------------------------+"
-	echo "$0 : | Process Locally Executed Tasks |"
-	echo "$0 : +--------------------------------+"
-	echo
-	echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
-	echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
-	echo "$0 :   SOLUTION    : $SOLUTION"
-	echo "$0 :   WORKDIR     : $WORKDIR"
-	echo
-	echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
+if [ -d "propertiesForLocalTasks" ]; then
+	if [ -f propertiesForLocalTasks/$ENVIRONMENT* ]; then
 
-	while read LOCAL_TASK_TARGET
-	do
-	
-		echo
-		echo "$0 : --- POST DEPLOYMENT $LOCAL_TASK_TARGET ---"
+		ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > testTargets 2> /dev/null
 		
-		# The shared script, execute.sh is copied from remote folder
-		scriptList=$(./getProperty.sh "./propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
-		if [ -z "$scriptList" ]; then
-			scriptList="./tasksRunLocal.tsk"
-			echo "$0 :   scriptList : $scriptList (deployScriptOverride not found)"
+		targetsDefined=$(cat testTargets)
+		if [ -z ${targetsDefined} ]; then
+			echo
+			echo "$0 : INFO : Locally Executed Tasks Attempted."
 		else
-			echo "$0 :   scriptList : $scriptList (deployScriptOverride found)"
+			echo "$0 : +--------------------------------+"
+			echo "$0 : | Process Locally Executed Tasks |"
+			echo "$0 : +--------------------------------+"
+			echo
+			echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
+			echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
+			echo "$0 :   SOLUTION    : $SOLUTION"
+			echo "$0 :   WORKDIR     : $WORKDIR"
+			echo
+			echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
+		
+			while read LOCAL_TASK_TARGET
+			do
+			
+				echo
+				echo "$0 : --- LOCAL TASK $LOCAL_TASK_TARGET ---"
+				
+				# The shared script, execute.sh is copied from remote folder
+				scriptList=$(./getProperty.sh "./propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
+				if [ -z "$scriptList" ]; then
+					scriptList="./tasksRunLocal.tsk"
+					echo "$0 :   scriptList : $scriptList (deployScriptOverride not found)"
+				else
+					echo "$0 :   scriptList : $scriptList (deployScriptOverride found)"
+				fi
+				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$scriptList" "$ACTION" 2>&1 | tee -a postDeploy.log
+				# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
+				exitCode=${PIPESTATUS[0]} 
+				if [ "$exitCode" != "0" ]; then
+					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$scriptList\" \"$ACTION\" failed! Returned $exitCode"
+					exit $exitCode
+				fi
+								
+			done < testTargets
 		fi
-		./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$scriptList" "$ACTION" 2>&1 | tee -a postDeploy.log
-		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-		exitCode=${PIPESTATUS[0]} 
-		if [ "$exitCode" != "0" ]; then
-			echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$scriptList\" \"$ACTION\" failed! Returned $exitCode"
-			exit $exitCode
-		fi
-						
-	done < testTargets
+		
+		cd ..
+		rm -f testTargets
+	
+	else
+		echo
+		echo "$0 :   Properties directory (propertiesForLocalTasks) exists but contains no files, no action taken."
+		
+	fi
+else
+	echo
+	echo "$0 :   Properties directory (propertiesForLocalTasks) not found, no action taken."
+	
 fi
-
-cd ..
-rm -f testTargets

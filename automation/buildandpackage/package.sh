@@ -79,7 +79,7 @@ else
 fi
 
 echo
-echo "$0 : Clean root workspace"
+echo "$0 : Clean root workspace ($(pwd))"
 echo
 rm -fv *.log *.zip
 rm -rf $LOCAL_WORK_DIR $REMOTE_WORK_DIR
@@ -95,34 +95,35 @@ if [ -d  "$REMOTE_WORK_DIR" ]; then
 	echo "remove $REMOTE_WORK_DIR"
 	rm -rf $REMOTE_WORK_DIR
 fi
-echo
+
 if [ "$ACTION" == "clean" ]; then
-	
+	echo
 	echo "$0 : Solution Workspace Clean Only"
 	
 else
 	
-	# Process solution properties if defined
-	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
-		echo
-		echo "CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
-		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
-		echo "$propertiesList"
-	fi
-
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then
 		echo
 		echo "Process Pre-Package Tasks ..."
+		echo
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./package.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./package.properties
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "package" "$SOLUTIONROOT/package.tsk" "$ACTION" 2>&1 | tee -a postDeploy.log
+		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$SOLUTIONROOT/package.tsk" "$ACTION" 2>&1 | tee -a postDeploy.log
 		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
 		exitCode=${PIPESTATUS[0]} 
 		if [ "$exitCode" != "0" ]; then
 			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
 		fi
+	fi
+
+	# Process solution properties if defined
+	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
+		echo
+		echo "CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
+		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
+		echo "$propertiesList"
 	fi
 
 	# Load Manifest, these properties are used by remote deployment

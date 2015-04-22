@@ -8,7 +8,7 @@ WORK_DIR_DEFAULT=$2
 if [ -f  "$DRIVER" ]; then
 	echo
 	echo "$0 : Copy artifacts defined in $DRIVER"
-
+	echo
 	#deleting lines starting with # ,blank lines ,lines with only spaces
 	sed -e 's/#.*$//' -e '/^ *$/d' $DRIVER > fileWithoutComments
 			

@@ -44,36 +44,48 @@ echo "$0 :   LOCAL_DIR_DEFAULT : $LOCAL_DIR_DEFAULT"
 echo
 echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
 
-ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > deployTargets 2> /dev/null 
-
-echo
-echo "$0 : Preparing to process deploy targets : "
-echo
-
-while read LIST_TARGET
-do
-	echo "  $LIST_TARGET"
-
-done < deployTargets
-
-while read DEPLOY_TARGET
-do
-
-	./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT
-	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : ./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET failed! Returned $exitCode"
-		exit $exitCode
+if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
+	if [ -f $LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* ]; then
+		
+		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > deployTargets 2> /dev/null
+		echo
+		echo "$0 : Preparing to process deploy targets : "
+		echo		 
+		while read LIST_TARGET
+		do
+			echo "  $LIST_TARGET"
+		
+		done < deployTargets
+		
+		while read DEPLOY_TARGET
+		do
+		
+			./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT
+			exitCode=$?
+			if [ "$exitCode" != "0" ]; then
+				echo "$0 : ./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET failed! Returned $exitCode"
+				exit $exitCode
+			fi
+		
+			lastTarget=$(echo $DEPLOY_TARGET)
+		
+		done < deployTargets
+		
+		if [ -z $lastTarget ]; then
+			echo
+			echo "$0 : No Targets processed, if this is unexpected, check that properties file exists with prefix of $ENVIRONMENT."
+			
+		fi
+		
+		rm -f deployTargets
+				
+	else
+		echo
+		echo "$0 :   Properties directory (./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
+		
 	fi
-
-	lastTarget=$(echo $DEPLOY_TARGET)
-
-done < deployTargets
-
-if [ -z $lastTarget ]; then
+else
 	echo
-	echo "$0 : No Targets processed, assuming this is an initial template and just packaging automation scripts."
-	echo
+	echo "$0 :   Properties directory (./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
+	
 fi
-
-rm -f deployTargets

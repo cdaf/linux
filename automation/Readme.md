@@ -2,7 +2,7 @@ Automated build and Deploy
 ==========================
 
 Author  : Jules Clements
-Version : 20-Apr-2015
+Version : 22-Apr-2015
 Version : 0.8.0
 
 Framework Overview

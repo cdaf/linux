@@ -19,7 +19,7 @@ else
 fi
 
 if [ -z "$3" ]; then
-	echo "$0 : Target properties file not passed. HALT!"
+	echo "$0 : Target not passed. HALT!"
 	exit 3
 else
 	TARGET=$3

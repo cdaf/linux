@@ -60,6 +60,7 @@ for i in $(ls -d */); do
 		SOLUTIONROOT="$directoryName"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$directoryName/CDAF.solution")
 		echo "$propertiesList"
+		eval $propertiesList
 		echo
 	fi
 done

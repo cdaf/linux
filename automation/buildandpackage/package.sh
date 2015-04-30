@@ -154,4 +154,3 @@ else
 fi
 echo
 echo "$0 : --- Solution Packaging Complete ---"
-echo

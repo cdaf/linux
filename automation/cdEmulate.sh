@@ -1,149 +1,110 @@
 #!/bin/bash
 # Emulate calling the package and deploy process as it would be from the automation toolset, 
-# e.g. Bamboo or Jenkings, replacing BUILD with timestamp
+# e.g. Bamboo or Jenkings, replacing buildNumber with timestamp
 # workspace with temp space. The variables provided in Jenkins are emulated in the scripts
 # themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
 
 # Check Action
 ACTION="$1"
 
-# If the environment is not set, default to DEV (template contains a DEV definition that uses localhost
-if [ -z "$CD_ENV" ]; then
-	ENVIRONMENT="DEV"
-else
-	ENVIRONMENT="$CD_ENV"
-fi
+scriptName=${0##*/}
 
-# Automation Toolset Values
+echo
+echo "$scriptName : --------------------"
+echo "$scriptName : Initialise Emulation"
+echo "$scriptName : --------------------"
+echo "$scriptName :   ACTION              : $ACTION"
 
-# Use the working directory for the package name
-# In Jenkins parameter is JOB_NAME 
-# In Bamboo parameter is  ${bamboo.buildNumber}
-SOLUTION=$(basename $(pwd))
-
-# Use timestamp in place of Jenkins BUILD_ID
-BUILD=$(date "+%Y%m%d_%T")
-
-# Use static string in place of Source Control revision, 
-# In jenkins the parameter is REVISION
-# In Bamboo the parameter is ${bamboo.repository.revision.number}
-REVISION="55"
-
-# User Defined Values
+# Framework structure
 automationRoot="automation"
-LOCAL_WORK_DIR="TasksLocal"
-REMOTE_WORK_DIR="TasksRemote"
+automationHelper="$automationRoot/remote"
+workDirLocal="TasksLocal"
+workDirRemote="TasksRemote"
 
-echo
-echo "$0 : +-------------------------------------+"
-echo "$0 : | Start Continuous Delivery emulation |"
-echo "$0 : |         CDAF Version : 0.7.4        |"
-echo "$0 : +-------------------------------------+"
-echo
-echo "$0 :   ACTION      : $ACTION"
-echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
-echo
-if [ -z "$ACTION" ]; then
-    echo $0 : For TeamCity ...
-    echo Command Executable : $automationRoot/buildandpackage/buildProjects.sh 
-    echo Command parameters : $SOLUTION %build.number% %build.vcs.number% BUILD
-    echo
-    echo $0 : For Bamboo ...
-    echo Script file : $automationRoot/buildandpackage/buildProjects.sh
-	echo Argument : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} BUILD
-    echo
-    echo $0 : For Jenkins ...
-    echo Command : $automationRoot/buildandpackage/buildProjects.sh $SOLUTION %BUILD_NUMBER% %SVN_REVISION% BUILD
-    echo
+# Build and Delivery Properties Lookup values
+environmentBuild="BUILD"
+environmentDelivery="DEV"
+echo "$scriptName :   environmentBuild    : $environmentBuild"
+echo "$scriptName :   environmentDelivery : $environmentDelivery"
+
+# Use timestamp to ensure unique build number and emulate the revision ID (source control) 
+# In Bamboo parameter is  ${bamboo.buildNumber}
+buildNumber=$(date "+%Y%m%d_%T")
+revision="55"
+echo "$scriptName :   buildNumber         : $buildNumber"
+echo "$scriptName :   revision            : $revision"
+
+# Check for user defined solution folder, i.e. outside of automation root, if found override solution root
+printf "$scriptName :   solutionRoot        : "
+for i in $(ls -d */); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.solution" ]; then
+		solutionRoot="$directoryName"
+	fi
+done
+if [ -z "$solutionRoot" ]; then
+	solutionRoot="$automationRoot/solution"
+	echo "$solutionRoot (default, project directory containing CDAF.solution not found)"
+else
+	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
 fi
 
-./$automationRoot/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILD" "$REVISION" "$ENVIRONMENT" "$ACTION"
+# Check for customised CI process
+printf "$scriptName :   ciProcess           : "
+if [ -f "$solutionRoot/cdEmulate-ci.sh" ]; then
+	cdProcess="$solutionRoot/cdEmulate-ci.sh"
+	echo "$ciProcess (override)"
+else
+	ciProcess="$automationRoot/emulator/cdEmulate-ci.sh"
+	echo "$ciProcess (default)"
+fi
+
+# Check for customised Delivery process
+printf "$scriptName :   cdProcess           : "
+if [ -f "$solutionRoot/cdEmulate-deliver.sh" ]; then
+	cdProcess="$solutionRoot/cdEmulate-deliver.sh"
+	echo "$cdProcess (override)"
+else
+	cdProcess="$automationRoot/emulator/cdEmulate-deliver.sh"
+	echo "$cdProcess (default)"
+fi
+
+# If a solution properties file exists, load the properties
+if [ -f "$solutionRoot/CDAF.solution" ]; then
+	echo
+	echo "$scriptName : Load Solution Properties $solutionRoot/CDAF.solution"
+	propertiesList=$($automationHelper/transform.sh "$solutionRoot/CDAF.solution")
+	echo "$propertiesList"
+	eval $propertiesList
+fi
+
+# CDM-70 : If the Solution is not defined in the CDAF.solution file, use current working directory
+# In Jenkins parameter is JOB_NAME 
+if [ -z "$solutionName" ]; then
+	solutionName=$(basename $(pwd))
+	echo
+	echo "$scriptName : Solution name (solutionName) not defined in $solutionRoot/CDAF.solution, defaulting to current path, $solutionName"
+fi
+
+# Process Build and Package
+$ciProcess "$solutionName" "$environmentBuild" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION"
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
-	echo "$0 : Project Build Failed! ./$automationRoot/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILD" "$REVISION" "$ENVIRONMENT" "$ACTION". Halt with exit code = $exitCode. "
-	exit $exitCode
-fi
-echo
-if [ -z "$ACTION" ]; then
-    echo $0 : For TeamCity ...
-    echo Command Executable : $automationRoot/buildandpackage/package.sh 
-    echo Command parameters : $SOLUTION %build.number% %build.vcs.number% $LOCAL_WORK_DIR $REMOTE_WORK_DIR
-    echo
-    echo $0 : For Bamboo ...
-    echo Script file : $automationRoot/buildandpackage/package.sh
-	echo Argument : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} $LOCAL_WORK_DIR $REMOTE_WORK_DIR
-    echo
-    echo $0 : For Jenkins ...
-    echo Command : $automationRoot/buildandpackage/package.sh $SOLUTION %BUILD_NUMBER% %SVN_REVISION% $LOCAL_WORK_DIR $REMOTE_WORK_DIR
-    echo
-fi
-    
-./$automationRoot/buildandpackage/package.sh "$SOLUTION" "$BUILD" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "$0 : Package Failed! Halt with exit code = $exitCode."
+	echo "$scriptName : CI Failed! $ciProcess "$solutionName" "$environmentBuild" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION". Halt with exit code = $exitCode."
 	exit $exitCode
 fi
 
-# If not action is passed, proceed to deployment steps, any explicit action skips deploy
+# Do not process Remote and Local Tasks if the action is just clean
 if [ -z "$ACTION" ]; then
-
-	echo "$0 : +---------------------------------------------+"
-	echo "$0 : |                                             |"
-	echo "$0 : | This is where the toolset will retrieve the |"
-	echo "$0 : | packaged artefefact and the local execution |"
-	echo "$0 : | scripts in preparation for automated deploy |"
-	echo "$0 : |                                             |"
-	echo "$0 : +---------------------------------------------+"
-	echo
-	echo "$0 :   LOCAL_WORK_DIR = $LOCAL_WORK_DIR"
-	echo
-	echo $0 : For TeamCity ...
-	echo Command Executable : /$LOCAL_WORK_DIR/remoteTasks.sh 
-	echo Command parameters : $ENVIRONMENT %build.number% $SOLUTION $LOCAL_WORK_DIR
-	echo
-	echo $0 : For Bamboo ...
-	echo Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/remoteTasks.sh
-	echo Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR
-	echo
-	echo $0 : For Jenkins ...
-	echo Command : /$LOCAL_WORK_DIR/remoteTasks.sh $ENVIRONMENT %BUILD_NUMBER% $SOLUTION $LOCAL_WORK_DIR
-	echo
-	./$LOCAL_WORK_DIR/remoteTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR"
+	$cdProcess "$solutionName" "$environmentDelivery" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION"
 	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Remote Deploy process failed! Returned $exitCode"
+	if [ $exitCode -ne 0 ]; then
+		echo "$scriptName : CD Failed! $cdProcess "$solutionName" "$environmentBuild" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION". Halt with exit code = $exitCode."
 		exit $exitCode
 	fi
-	echo
-	echo "$0 : +---------------------------------------------+"
-	echo "$0 : |                                             |"
-	echo "$0 : | Return to the build agent for post deploy   |"
-	echo "$0 : |                                             |"
-	echo "$0 : +---------------------------------------------+"
-	echo
-	echo $0 : For TeamCity ...
-	echo Command Executable : /$LOCAL_WORK_DIR/localTasks.sh 
-	echo Command parameters : $ENVIRONMENT %build.number% $SOLUTION $LOCAL_WORK_DIR
-	echo
-	echo $0 : For Bamboo ...
-	echo Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/localTasks.sh
-	echo Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR
-	echo
-	echo $0 : For Jenkins ...
-	echo Command : /$LOCAL_WORK_DIR/localTasks.sh $ENVIRONMENT %BUILD_NUMBER% $SOLUTION $LOCAL_WORK_DIR
-	echo
-	./$LOCAL_WORK_DIR/localTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR"
-	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Remote Deploy process failed! Returned $exitCode"
-		exit $exitCode
-	fi
-
 fi
-
 echo
-echo "$0 : +-----------------------------------+"
-echo "$0 : | End Continuous Delivery emulation |"
-echo "$0 : +-----------------------------------+"
+echo "$scriptName : ------------------"
+echo "$scriptName : Emulation Complete"
+echo "$scriptName : ------------------"
 echo

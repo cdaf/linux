@@ -17,8 +17,14 @@ Provisioning
 
 When using for the first time, the users workstation needs to be prepared by provisioning the following features
 
+- Package Compression
 - Loopback Connection
 - Landing Folder
+
+Package Compression
+-------------------
+
+The zip and unzip applications are required to create and extract the solution package.
 
 Loop-back Connection
 --------------------

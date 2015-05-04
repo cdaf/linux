@@ -70,28 +70,12 @@ echo "$0 :   deployHost : $deployHost"
 echo "$0 :   deployUser : $deployUser"
 echo "$0 :   deployLand : $deployLand"
 
-# Check for package directory on target host, if not existing, create
-ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/createPackageDir.sh "$deployLand create"
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	if [ "$exitCode" != "99" ]; then
-		echo "$0 : Failed to execute ./$WORK_DIR_DEFAULT/createPackageDir.sh to $deployLand on $deployHost as $deployUser. failed! Returned $exitCode"
-		exit $exitCode
-	fi
-fi
-
 # Check if build has already been deployed on this target ..."
-ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/createPackageDir.sh "$deployLand/$SOLUTION-$BUILDNUMBER"
+ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh "$deployLand" "$SOLUTION-$BUILDNUMBER"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	if [ "$exitCode" == "99" ]; then
-		echo
-		echo "$0 : Build $BUILDNUMBER has already been deployed on $deployHost"
-		exit 0
-	else
-		echo "$0 : ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/checkRepeatDeploy.sh $deployLand/$BUILDNUMBER failed! Returned $exitCode"
-		exit $exitCode
-	fi
+	echo "$0 : ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh $deployLand $SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
+	exit $exitCode
 fi
 
 echo

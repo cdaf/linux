@@ -69,6 +69,20 @@ if [ -d "$localPropertiesDir" ]; then
 		echo
 		mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
 		cp -avR $localPropertiesDir/* $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+
+		# If there are properties files but no default task, log a warning (not an error because may have override tasks defined in properties files themselves)
+		if [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then
+			cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT
+			exitCode=$?
+			if [ $exitCode -ne 0 ]; then
+				echo "$0 : cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
+				exit $exitCode
+			fi
+		else
+			echo
+			echo "$0 : Warning : Default Task ($SOLUTIONROOT/tasksRunLocal.tsk) not found, override task must be defined for each properties file."
+		fi
+				
 	else
 		echo
 		echo "$0 :   Properties directory ($localPropertiesDir) for local tasks exists but contains no files, no action taken."
@@ -109,13 +123,6 @@ cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
 	echo "$0 : cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
-	exit $exitCode
-fi
-
-cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "$0 : cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
 	exit $exitCode
 fi
 

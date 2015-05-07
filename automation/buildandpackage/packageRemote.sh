@@ -49,7 +49,10 @@ cd $WORK_DIR_DEFAULT
 
 mkdir -v $SCRIPT_DIR
 cp -avR ../$AUTOMATIONROOT/remote/* $SCRIPT_DIR
-cp -av ../$SOLUTIONROOT/tasksRunRemote.tsk $SCRIPT_DIR
+
+if [ -f  "../$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
+	cp -av ../$SOLUTIONROOT/tasksRunRemote.tsk $SCRIPT_DIR
+fi
 
 if [ -d  "$remoteCryptDir" ]; then
 	printf "$0 :   Remote encrypted files : "	

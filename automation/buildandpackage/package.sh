@@ -81,7 +81,7 @@ fi
 echo
 echo "$0 : Clean root workspace ($(pwd))"
 echo
-rm -fv *.log *.zip
+rm -fv *.log *.zip *.txt
 rm -rf $LOCAL_WORK_DIR $REMOTE_WORK_DIR
 echo
 echo "$0 : Remove working directories"

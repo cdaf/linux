@@ -2,8 +2,8 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Date    : 08-May-2015
-    Version : 0.8.1
+    Date    : 02-Aug-2015
+    Version : 0.8.2
 
 Framework Overview
 ==================
@@ -70,7 +70,8 @@ Linear Deploy requires properties file for workstation (default is DEV) to be a 
 
 Package: (files maybe empty or non-existent)
 
-	package.tsk : optional pre-package tasks definition
+	package.tsk : optional pre-package tasks definition (0.7.2)
+	wrap.tsk : optional post-package tasks definition (0.8.2)
 	storeForLocal
 	storeForRemote
 

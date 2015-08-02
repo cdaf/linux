@@ -62,12 +62,20 @@ for i in $(ls -d */); do
 done
 echo "$0 :   SOLUTIONROOT             : $SOLUTIONROOT"
 
-printf "$0 :   Prepackage Tasks         : "
+printf "$0 :   Pre-package Tasks        : "
 prepackageTasks="$SOLUTIONROOT/package.tsk"
 if [ -f $prepackageTasks ]; then
 	echo "found ($prepackageTasks)"
 else
 	echo "none ($prepackageTasks)"
+fi
+
+printf "$0 :   Post-package Tasks       : "
+postpackageTasks="$SOLUTIONROOT/wrap.tsk"
+if [ -f $postpackageTasks ]; then
+	echo "found ($postpackageTasks)"
+else
+	echo "none ($postpackageTasks)"
 fi
 
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
@@ -109,7 +117,7 @@ else
 		echo
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./package.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./package.properties
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$SOLUTIONROOT/package.tsk" "$ACTION" 2>&1 | tee -a postDeploy.log
+		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1 | tee -a prePackage.log
 		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
 		exitCode=${PIPESTATUS[0]} 
 		if [ "$exitCode" != "0" ]; then
@@ -147,6 +155,20 @@ else
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
 			echo "$0 : ./packageRemote.sh failed! Exit code = $exitCode."
+			exit $exitCode
+		fi
+	fi
+
+	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+	if [ -f $postpackageTasks ]; then
+		echo
+		echo "Process Post-Package Tasks ..."
+		echo
+		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1 | tee -a postPackage.log
+		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
+		exitCode=${PIPESTATUS[0]} 
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi

@@ -28,8 +28,8 @@ echo "$scriptName :   environmentBuild    : $environmentBuild"
 echo "$scriptName :   environmentDelivery : $environmentDelivery"
 
 # Use timestamp to ensure unique build number and emulate the revision ID (source control) 
-# In Bamboo parameter is  ${bamboo.buildNumber}
-buildNumber=$(date "+%Y%m%d_%T")
+# CDM-98 reduce the build number to an 10 digit integer
+buildNumber=$(date "+%m%d%H%M%S")
 revision="55"
 echo "$scriptName :   buildNumber         : $buildNumber"
 echo "$scriptName :   revision            : $revision"

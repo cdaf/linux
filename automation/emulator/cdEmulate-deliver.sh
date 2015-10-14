@@ -38,6 +38,10 @@ echo "$scriptName : For TeamCity ..."
 echo "  Command Executable : /$LOCAL_WORK_DIR/remoteTasks.sh" 
 echo "  Command parameters : $ENVIRONMENT %build.number% $SOLUTION $LOCAL_WORK_DIR"
 echo
+echo "$scriptName : For Go (requires explicit bash invoke) ..."
+echo "  Command   : /bin/bash"
+echo "  Arguments : -c '/$LOCAL_WORK_DIR/remoteTasks.sh ${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $SOLUTION $LOCAL_WORK_DIR'"
+echo
 echo "$scriptName : For Bamboo ..."
 echo "  Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/remoteTasks.sh"
 echo "  Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR"
@@ -63,6 +67,10 @@ echo
 echo "$scriptName : For TeamCity ..."
 echo "  Command Executable : /$LOCAL_WORK_DIR/localTasks.sh"
 echo "  Command parameters : $ENVIRONMENT %build.number% $SOLUTION $LOCAL_WORK_DIR"
+echo
+echo "$scriptName : For Go (requires explicit bash invoke) ..."
+echo "  Command   : /bin/bash"
+echo "  Arguments : -c '/$LOCAL_WORK_DIR/localTasks.sh ${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $SOLUTION $LOCAL_WORK_DIR'"
 echo
 echo "$scriptName : For Bamboo ..."
 echo "  Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/localTasks.sh"

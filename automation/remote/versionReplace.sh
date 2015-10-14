@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+#set -e
 
 # Deploy folder structure is expect the source and target paths to be the same.
 # Pass absolute path i.e. /etc/init.d/bonita
@@ -39,6 +39,8 @@ else
 		echo "               ---- New Value ----                      |               ---- Existing Value -----"
 		diff -y --suppress-common-lines ..$1 $1-$STAMP-$2
 		cp ..$1 $1
+		echo
+
 	else
 		echo "$0 : No Update to $1 required"
 	fi

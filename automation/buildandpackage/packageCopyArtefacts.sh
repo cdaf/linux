@@ -54,7 +54,7 @@ if [ -f  "$DRIVER" ]; then
 
 	if [ -z "$artefactList" ]; then
 		echo
-		echo "$0 : No artefacts processed from definition file ($DRIVER), if this is unexpected, check for missing lien feed or DOS carriage return."
+		echo "$0 : No artefacts processed from definition file ($DRIVER), if this is unexpected, check for missing line feed or DOS carriage return."
 	fi
 			
 fi

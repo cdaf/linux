@@ -2,7 +2,9 @@
 set -e
 
 # Read in two files, the definition file and template file, the name values in the
-# defintion file replace the tokens (substitution variables) in the template.
+# definition file replace the tokens (substitution variables) in the template.
+# If a tokenised file is not supplied, then simply return the name value pairs
+# from the properties file, without new lines or comments.
 
 if [ -z "$1" ]; then
 	echo "$0 Definition File not passed. HALT!"

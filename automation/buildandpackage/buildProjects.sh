@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
-# Build All Projects
+echo
+echo "$0 : +----------------------------+"
+echo "$0 : | Process BUILD all projects |"
+echo "$0 : +----------------------------+"
+echo
 
 if [ -z "$1" ]; then
 	echo "$0 : Solution not passed!"
 	exit 1
 else
 	SOLUTION="$1"
+	echo "$0 :   SOLUTION     : $SOLUTION"
 fi
 
 if [ -z "$2" ]; then
@@ -15,6 +20,7 @@ if [ -z "$2" ]; then
 	exit 2
 else
 	BUILDNUMBER="$2"
+	echo "$0 :   BUILDNUMBER  : $BUILDNUMBER"
 fi
 
 if [ -z "$3" ]; then
@@ -22,6 +28,7 @@ if [ -z "$3" ]; then
 	exit 3
 else
 	REVISION="$3"
+	echo "$0 :   REVISION     : $REVISION"
 fi
 
 if [ -z "$4" ]; then
@@ -29,22 +36,13 @@ if [ -z "$4" ]; then
 	exit 4
 else
 	BUILDENV="$4"
+	echo "$0 :   BUILDENV     : $BUILDENV"
 fi
 
 if [ ! -z "$5" ]; then
 	ACTION="$5"
+	echo "$0 :   ACTION       : $ACTION"
 fi
-
-echo
-echo "$0 : +----------------------------+"
-echo "$0 : | Process BUILD all projects |"
-echo "$0 : +----------------------------+"
-echo
-echo "$0 :   SOLUTION     : $SOLUTION"
-echo "$0 :   BUILDNUMBER  : $BUILDNUMBER"
-echo "$0 :   REVISION     : $REVISION"
-echo "$0 :   BUILDENV     : $BUILDENV"
-echo "$0 :   ACTION       : $ACTION"
 echo "$0 :   pwd          : $(pwd)"
 echo
 

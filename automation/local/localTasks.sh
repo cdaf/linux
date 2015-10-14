@@ -3,12 +3,17 @@ set -e
 
 # This script provides a repeatable deployment process. This uses two arguments, the target environment
 # identifier and the $3 to deploy. Note: each $3 produced is expected to be uniquely identifiable.
-
+echo
+echo "$0 : +--------------------------------+"
+echo "$0 : | Process Locally Executed Tasks |"
+echo "$0 : +--------------------------------+"
+echo
 if [ -z "$1" ]; then
 	echo "$0 Environment Argument not passed. HALT!"
 	exit 1
 else
 	ENVIRONMENT=$1
+	echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
 fi
 
 if [ -z "$2" ]; then
@@ -16,6 +21,7 @@ if [ -z "$2" ]; then
 	exit 2
 else
 	BUILDNUMBER=$2
+	echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
 fi
 
 if [ -z "$3" ]; then
@@ -23,6 +29,7 @@ if [ -z "$3" ]; then
 	exit 3
 else
 	SOLUTION=$3
+	echo "$0 :   SOLUTION    : $SOLUTION"
 fi
 
 if [ -z "$4" ]; then
@@ -30,6 +37,7 @@ if [ -z "$4" ]; then
 	exit 4
 else
 	WORKDIR=$4
+echo "$0 :   WORKDIR     : $WORKDIR"
 fi
 
 echo
@@ -44,18 +52,8 @@ if [ -d "propertiesForLocalTasks" ]; then
 		
 		targetsDefined=$(cat testTargets)
 		if [ -z ${targetsDefined} ]; then
-			echo
 			echo "$0 : INFO : Locally Executed Tasks Attempted."
 		else
-			echo "$0 : +--------------------------------+"
-			echo "$0 : | Process Locally Executed Tasks |"
-			echo "$0 : +--------------------------------+"
-			echo
-			echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
-			echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
-			echo "$0 :   SOLUTION    : $SOLUTION"
-			echo "$0 :   WORKDIR     : $WORKDIR"
-			echo
 			echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
 		
 			while read LOCAL_TASK_TARGET

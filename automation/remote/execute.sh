@@ -92,7 +92,7 @@ do
 	# Test for running as deploy process or build process
 	if [ ! -z $loadProperties ]; then
 
-		echo PROPFILE : $loadProperties
+		echo "PROPFILE : $loadProperties"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$loadProperties")
 		printf "$propertiesList"
 		eval $propertiesList

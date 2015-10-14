@@ -36,9 +36,13 @@ if [ -z "$ACTION" ]; then
     echo "  Command Executable : $AUTOMATION_ROOT/buildandpackage/buildProjects.sh"
     echo "  Command parameters : $SOLUTION %build.number% %build.vcs.number% BUILD"
     echo
+    echo "$scriptName : For Go (requires explicit bash invoke) ..."
+    echo "  Command   : /bin/bash"
+    echo "  Arguments : -c 'automation/buildandpackage/buildProjects.sh $SOLUTION \${GO_PIPELINE_COUNTER} \${GO_REVISION} BUILD'"
+    echo
     echo "$scriptName : For Bamboo ..."
     echo "  Script file : $AUTOMATION_ROOT/buildandpackage/buildProjects.sh"
-	echo "  Argument : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} BUILD"
+	echo "  Argument    : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} BUILD"
     echo
     echo "$scriptName : For Jenkins ..."
     echo "  Command : $AUTOMATION_ROOT/buildandpackage/buildProjects.sh $SOLUTION %BUILD_NUMBER% %SVN_REVISION% BUILD"
@@ -62,9 +66,13 @@ if [ -z "$ACTION" ]; then
     echo "  Command Executable : $AUTOMATION_ROOT/buildandpackage/package.sh" 
     echo "  Command parameters : $SOLUTION %build.number% %build.vcs.number% $LOCAL_WORK_DIR $REMOTE_WORK_DIR"
     echo
+    echo "$scriptName : For Go (requires explicit bash invoke) ..."
+    echo "  Command   : /bin/bash"
+    echo "  Arguments : -c 'automation/buildandpackage/package.sh $SOLUTION \${GO_PIPELINE_COUNTER} \${GO_REVISION} $LOCAL_WORK_DIR $REMOTE_WORK_DIR'"
+    echo
     echo "$scriptName : For Bamboo ..."
     echo "  Script file : $AUTOMATION_ROOT/buildandpackage/package.sh"
-	echo "  Argument : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} $LOCAL_WORK_DIR $REMOTE_WORK_DIR"
+	echo "  Argument    : $SOLUTION \${bamboo.buildNumber} \${bamboo.repository.revision.number} $LOCAL_WORK_DIR $REMOTE_WORK_DIR"
     echo
     echo "$scriptName : For Jenkins ..."
     echo "  Command : $AUTOMATION_ROOT/buildandpackage/package.sh $SOLUTION %BUILD_NUMBER% %SVN_REVISION% $LOCAL_WORK_DIR $REMOTE_WORK_DIR"

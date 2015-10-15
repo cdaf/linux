@@ -2,8 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Date    : 14-Oct-2015
-    Version : 0.8.3 RC
+    Version : See CDAF.automation
 
 Framework Overview
 ==================

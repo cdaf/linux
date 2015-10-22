@@ -64,6 +64,17 @@ while read LINE
 do
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
+	
+	# Check for cross platform key words
+	if [ "${LINE:0:6}" == "assign" ]; then
+		EXECUTABLESCRIPT="${LINE:8}"
+	fi
+
+	# Check for cross platform key words
+	if [ "${LINE:0:6}" == "remove" ]; then
+		EXECUTABLESCRIPT="rm --force ${LINE:8}"
+	fi
+
 	if [ -n "$EXECUTABLESCRIPT" ]; then
 		# Do not echo line if it is an echo itself
 		if [ "${LINE:0:4}" != "echo" ]; then

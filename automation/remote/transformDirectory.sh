@@ -28,7 +28,7 @@ runTime="./transform.sh"
 if [ ! -f "$runTime" ]; then
 	for i in $(ls -d ../*/); do
 		directoryName=${i%%/}
-		if [ -f "$directoryName/CDAF.automation" ]; then
+		if [ -f "$directoryName/CDAF.linux" ]; then
 			automationRoot="$directoryName"
 		fi
 	done

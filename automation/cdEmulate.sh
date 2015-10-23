@@ -16,7 +16,19 @@ echo "$scriptName : --------------------"
 echo "$scriptName :   ACTION              : $ACTION"
 
 # Framework structure
-automationRoot="automation"
+# Look for automation root definition, if not found, default
+for i in $(ls -d */); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.linux" ]; then
+		automationRoot="$directoryName"
+		echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux found)"
+	fi
+done
+if [ -z "$automationRoot" ]; then
+	automationRoot="automation"
+	echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux not found)"
+fi
+
 automationHelper="$automationRoot/remote"
 workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"

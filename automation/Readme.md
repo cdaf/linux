@@ -2,8 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Date    : 22-Oct-2015
-    Version : 0.8.4
+    Version : 0.8.5 (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -67,13 +66,15 @@ Execution Engine
 ----------------
 To alleviate the burden of argument passing, exception handling and logging, the execution engine has been provided. The execution engine will essentially execute the native interpretive language (PowerShell or bash), line by line, but each execution will be tested for exceptions (trivial in bash, significantly more complex in PowerShell) and, with careful usage, the driver files (.tsk) can be used on Windows workstations, while target Linux servers for Continuous Delivery. To provide translated runtime, the following keywords are supported
 
-|| Keyword || Description                     || Example                   ||
-|  assign   | set a variable                   | assign $test="Hello World" |
-|  remove   | Delete files, including wildcard | remove *.war               |
+| Keyword | Description                      | Example                    |
+| --------|----------------------------------|----------------------------|
+| assign  | set a variable                   | assign $test="Hello World" |
+| remove  | Delete files, including wildcard | remove *.war               |
 
 By setting the following variables, the following actions are performed
 
-|| Variable       || Description                          ||
+| Variable         | Description                           |
+| -----------------|---------------------------------------|
 |  $loadProperties | Load the properties file value set    |
 |  $terminate      | If set to clean, will exit (status 0) |
 

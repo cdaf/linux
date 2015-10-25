@@ -28,7 +28,7 @@ fi
 while read SCRIPT
 do
 	# Apply the environment Startup scripts
-	./transform.sh "../envDetoken/$2" "..$$4/$SCRIPT"
+	./transform.sh "./envDetoken/$2" "..$$4/$SCRIPT"
 	./versionReplace.sh "$$4/$SCRIPT" $1
 
 	EXEC_CHECK=$(ls -F -1 "$$4/$SCRIPT" | grep "*")
@@ -36,5 +36,5 @@ do
 		echo "$0 : Set startup script $$4/$SCRIPT executable"
 		chmod +x "$$4/$SCRIPT"
 	fi
-done < ../build/$3
+done < ./build/$3
 

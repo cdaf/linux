@@ -34,7 +34,7 @@ echo "$0 :   hostname    : $(hostname)"
 echo
 echo "$0 : Contents of version file :"
 echo
-cat ../manifest.txt
+cat ./manifest.txt
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Unable to list Contents of version file! Returned $exitCode"
@@ -52,7 +52,7 @@ fi
 
 echo
 echo echo "$0 : Directory listing parent directory"
-ls -l ../
+ls -l ./
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Unable to list parent directory! Returned $exitCode"
 	exit $exitCode

@@ -39,7 +39,7 @@ else
 fi
 
 # The Version of the current package is contained in a text file (cannot be passed as this maybe run on a remote host)
-buildRevision=$(cat ../revision.txt)
+buildRevision=$(cat ./revision.txt)
 
 echo
 echo "$0 : Starting deploy process, logging to $(pwd)/deploy.log"

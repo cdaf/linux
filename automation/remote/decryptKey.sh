@@ -22,14 +22,14 @@ else
 	CRYPTFILE=$3
 fi
 
-privateKey=$(./getProperty.sh "../$TARGET" "privateKey")
+privateKey=$(./getProperty.sh "./$TARGET" "privateKey")
 if [ -z "$privateKey" ]; then
-	echo "$0 : Unable to retrieve privateKey value from ../$TARGET! Returning exit 99"
+	echo "$0 : Unable to retrieve privateKey value from ./$TARGET! Returning exit 99"
 	exit 99
 fi
 
 # This return value should be consumed by a variable and not logged 
-password=$(openssl rsautl -decrypt -inkey $privateKey -in ../$CRYPTFILE) 
+password=$(openssl rsautl -decrypt -inkey $privateKey -in ./$CRYPTFILE) 
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Unable to deploy $context! Returned $exitCode"

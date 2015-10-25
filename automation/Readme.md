@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.8.5 (full details in CDAF.linux)
+    Version : 0.9.0 (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -70,6 +70,7 @@ To alleviate the burden of argument passing, exception handling and logging, the
 | --------|----------------------------------|----------------------------|
 | assign  | set a variable                   | assign $test="Hello World" |
 | remove  | Delete files, including wildcard | remove *.war               |
+| invoke  | call a custom script             | invoke ./script "Hello"    |
 
 By setting the following variables, the following actions are performed
 

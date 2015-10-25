@@ -26,7 +26,7 @@ ls -L -1 $DIR_PATH/$MASK | xargs -n 1 basename > FILE_LIST
 
 runTime="./transform.sh"
 if [ ! -f "$runTime" ]; then
-	for i in $(ls -d ../*/); do
+	for i in $(ls -d ./*/); do
 		directoryName=${i%%/}
 		if [ -f "$directoryName/CDAF.linux" ]; then
 			automationRoot="$directoryName"

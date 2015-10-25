@@ -27,7 +27,7 @@ fi
 
 echo "$0 : Load solution properties from manifest.txt"
 echo
-manifestProperties=$(./transform.sh "../manifest.txt")
+manifestProperties=$(./transform.sh "./manifest.txt")
 echo "$manifestProperties"
 eval $manifestProperties
 
@@ -35,7 +35,7 @@ echo
 echo "$0 : Running as $(whoami) in $(pwd) on $(hostname) using properties $DEPLOY_TARGET"
 echo "$0 : Logging to $(pwd)/deploy.log"
 
-scriptList=$(./getProperty.sh "../$DEPLOY_TARGET" "deployScriptOverride")
+scriptList=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
 if [ -z "$scriptList" ]; then
 	scriptList="tasksRunRemote.tsk"
 fi

@@ -9,9 +9,9 @@ else
 fi
 
 echo
-echo "$0 : Get Property value (containerPath) from ../$TARGET using getProperty.sh"
+echo "$0 : Get Property value (containerPath) from ./$TARGET using getProperty.sh"
 echo 
-./getProperty.sh "../$TARGET" "containerPath"
+./getProperty.sh "./$TARGET" "containerPath"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Retrieval of containerPath from $TARGET failed! Returned $exitCode"

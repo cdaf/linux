@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-set -e
 
 echo
 echo "$0 : +----------------------------+"
 echo "$0 : | Process BUILD all projects |"
 echo "$0 : +----------------------------+"
 echo
-
 if [ -z "$1" ]; then
 	echo "$0 : Solution not passed!"
 	exit 1
@@ -46,7 +44,20 @@ fi
 echo "$0 :   pwd          : $(pwd)"
 echo
 
-AUTOMATIONROOT="automation"
+# Look for automation root definition, if not found, default
+for i in $(ls -d */); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.linux" ]; then
+		echo "CDAF.linux file found in directory $directoryName, setting as automation root"
+		AUTOMATIONROOT="$directoryName"
+		echo
+	fi
+done
+if [ -z "$AUTOMATIONROOT" ]; then
+	echo "CDAF.linux not found in any directory, setting automation root to automation"
+	AUTOMATIONROOT="automation"
+fi
+
 AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -127,10 +138,10 @@ if [ -f "projectListFile" ]; then
 			echo "PROJECT=$PROJECT" > ../build.properties
 			echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 			echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
-			.$AUTOMATIONHELPER/execute.sh "$PROJECT" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1 | tee -a postDeploy.log
-			# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-			exitCode=${PIPESTATUS[0]} 
-			if [ "$exitCode" != "0" ]; then
+			
+			.$AUTOMATIONHELPER/execute.sh "$PROJECT" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
+			exitCode=$?
+			if [ $exitCode -ne 0 ]; then
 				echo "$0 : Linear deployment activity (.$AUTOMATIONHELPER/execute.sh $PROJECT $BUILDNUMBER $BUILDENV build.tsk) failed! Returned $exitCode"
 				exit $exitCode
 			fi

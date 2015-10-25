@@ -34,19 +34,29 @@ echo "$scriptName : ---------------------"
 echo
 echo "$scriptName : ---------- CD Toolset Configuration Guide -------------"
 echo
-echo "$scriptName : For TeamCity ..."
+echo "Configure artefact retention patterns to retain package and local tasks"
+echo "   *.zip" 
+echo "  TasksLocal/**"
+echo
+echo "  set the first step of deploy to make scripts executable"
+echo "  chmod +x ./*/*.sh"
+echo
+echo "For TeamCity ..."
 echo "  Command Executable : /$LOCAL_WORK_DIR/remoteTasks.sh" 
 echo "  Command parameters : $ENVIRONMENT %build.number% $SOLUTION $LOCAL_WORK_DIR"
 echo
-echo "$scriptName : For Go (requires explicit bash invoke) ..."
+echo "For Go (requires explicit bash invoke) ..."
 echo "  Command   : /bin/bash"
 echo "  Arguments : -c '/$LOCAL_WORK_DIR/remoteTasks.sh ${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $SOLUTION $LOCAL_WORK_DIR'"
 echo
-echo "$scriptName : For Bamboo ..."
+echo "For Bamboo ... (Beware! set Deployment project name to solution name, with no spaces)"
 echo "  Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/remoteTasks.sh"
 echo "  Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR"
 echo
-echo "$scriptName : For Jenkins ..."
+echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
+echo "  build-${bamboo.buildNumber} deploy-1"
+echo
+echo "For Jenkins ..."
 echo "  Command : /$LOCAL_WORK_DIR/remoteTasks.sh $ENVIRONMENT %BUILD_NUMBER% $SOLUTION $LOCAL_WORK_DIR"
 echo
 echo "$scriptName : -------------------------------------------------------"
@@ -72,7 +82,7 @@ echo "$scriptName : For Go (requires explicit bash invoke) ..."
 echo "  Command   : /bin/bash"
 echo "  Arguments : -c '/$LOCAL_WORK_DIR/localTasks.sh ${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $SOLUTION $LOCAL_WORK_DIR'"
 echo
-echo "$scriptName : For Bamboo ..."
+echo "For Bamboo ... (Beware! set Deployment project name to solution name, with no spaces)"
 echo "  Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/localTasks.sh"
 echo "  Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR"
 echo

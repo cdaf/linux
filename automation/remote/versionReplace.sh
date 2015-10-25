@@ -6,43 +6,47 @@
 if [ -z "$1" ]; then
 	echo "$0 : File not supplied, pass as absolute path i.e. /etc/init.d/bonita. HALT!"
 	exit 1
+else
+	ABS_PATH=$1
 fi
 
 # Check that Version has been passed
 if [ -z "$2" ]; then
 	echo "$0 : Version not supplied. HALT!"
 	exit 1
+else
+	BUILDNUMBER=$2
 fi
 
 MARKER="Build-Revision :"
-NOMARKER=$(cat ..$1 | grep "$MARKER")
+NOMARKER=$(cat .$ABS_PATH | grep "$MARKER")
 if [ -z "$NOMARKER" ]; then
-	echo "$0 : Warning : Source file $1 does not contain marker ($MARKER)."
+	echo "$0 : Warning : Source file $ABS_PATH does not contain marker ($MARKER)."
 fi
 
-if [ ! -f $1 ]; then
-	echo "$0 : No existing file, create $1"
-	sed -i "s/"\%buildRevision\%"/$2/g" ..$1
-	cp ..$1 $1
+if [ ! -f $ABS_PATH ]; then
+	echo "$0 : No existing file, create $ABS_PATH"
+	sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+	cp .$ABS_PATH $ABS_PATH
 else
 	# Only deploy if the configuration is different, or if the existing file does not have version marker
-	NOMARKER=$(cat $1 | grep "$MARKER")
-	DELTA=$(diff -y --suppress-common-lines ..$1 $1 | grep -v "$MARKER")
+	NOMARKER=$(cat $ABS_PATH | grep "$MARKER")
+	DELTA=$(diff -y --suppress-common-lines .$ABS_PATH $ABS_PATH | grep -v "$MARKER")
 	if [ -n "$DELTA" ] || [ -z "$NOMARKER" ]; then
 
 		echo
-		echo "Following changes apply to $1 ..."
+		echo "Following changes apply to $ABS_PATH ..."
 		STAMP=$(date "+%Y-%m-%d_%T")
-		mv $1 $1-$STAMP-$2
-		sed -i "s/"\%buildRevision\%"/$2/g" ..$1
-		echo "$0 : Updated $1 to $2, existing file renamed to $1-$STAMP-$2"
+		mv $ABS_PATH $ABS_PATH-$STAMP-$BUILDNUMBER
+		sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+		echo "$0 : Updated $ABS_PATH to $BUILDNUMBER, existing file renamed to $ABS_PATH-$STAMP-$BUILDNUMBER"
 		echo "               ---- New Value ----                      |               ---- Existing Value -----"
-		diff -y --suppress-common-lines ..$1 $1-$STAMP-$2
-		cp ..$1 $1
+		diff -y --suppress-common-lines .$ABS_PATH $ABS_PATH-$STAMP-$BUILDNUMBER
+		cp .$ABS_PATH $ABS_PATH
 		echo
 
 	else
-		echo "$0 : No Update to $1 required"
+		echo "$0 : No Update to $ABS_PATH required"
 	fi
 fi
 

@@ -65,14 +65,37 @@ do
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	
+	# ----------------------------------
 	# Check for cross platform key words
+	# ----------------------------------
+
+	# Set a variable, PowerShell format, strip the $ for Linux
 	if [ "${LINE:0:6}" == "assign" ]; then
 		EXECUTABLESCRIPT="${LINE:8}"
 	fi
 
-	# Check for cross platform key words
+	# Delete (verbose)
 	if [ "${LINE:0:6}" == "remove" ]; then
-		EXECUTABLESCRIPT="rm --force ${LINE:8}"
+		EXECUTABLESCRIPT="rm -fv ${LINE:7}"
+	fi
+
+	# Invoke a custom script
+	if [ "${LINE:0:6}" == "invoke" ]; then
+		scriptLine="${LINE:7}"
+		sep=' '
+		
+		case $scriptLine in
+		(*"$sep"*)
+			script=${scriptLine%%"$sep"*}
+    	    arguments=${scriptLine#*"$sep"}
+    	    EXECUTABLESCRIPT="$script"
+    	    EXECUTABLESCRIPT+=".sh $arguments"
+    	    ;;
+		(*)
+    	    EXECUTABLESCRIPT="$scriptLine"
+    	    EXECUTABLESCRIPT+=".sh"
+		    ;;
+		esac
 	fi
 
 	if [ -n "$EXECUTABLESCRIPT" ]; then

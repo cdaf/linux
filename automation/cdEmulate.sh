@@ -35,7 +35,7 @@ workDirRemote="TasksRemote"
 
 # Build and Delivery Properties Lookup values
 environmentBuild="BUILD"
-environmentDelivery="DEV"
+environmentDelivery="LINUX"
 echo "$scriptName :   environmentBuild    : $environmentBuild"
 echo "$scriptName :   environmentDelivery : $environmentDelivery"
 

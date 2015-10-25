@@ -39,8 +39,6 @@ fi
 # Action is optional
 ACTION="$6"
 
-AUTOMATIONROOT="automation"
-scriptDir="Deploy"
 echo
 echo "$0 : +-----------------+"
 echo "$0 : | Package Process |"
@@ -50,6 +48,19 @@ echo "$0 :   BUILDNUMBER              : $BUILDNUMBER"
 echo "$0 :   REVISION                 : $REVISION"
 echo "$0 :   LOCAL_WORK_DIR           : $LOCAL_WORK_DIR"
 echo "$0 :   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
+
+# Look for automation root definition, if not found, default
+for i in $(ls -d */); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.linux" ]; then
+		AUTOMATIONROOT="$directoryName"
+		echo "$0 :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux found)"
+	fi
+done
+if [ -z "$AUTOMATIONROOT" ]; then
+	AUTOMATIONROOT="automation"
+	echo "$0 :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux not found)"
+fi
 
 # Process all entry values
 automationHelper="./$AUTOMATIONROOT/remote"
@@ -151,7 +162,7 @@ else
 	# Only create the remote package if there is a remote target folder, if folder exists
 	# create the remote package (even if there are no target files within it)
 	if [ -d  "$remotePropertiesDir" ]; then
-		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$scriptDir" "$SOLUTIONROOT" "$AUTOMATIONROOT"
+		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
 			echo "$0 : ./packageRemote.sh failed! Exit code = $exitCode."

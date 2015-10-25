@@ -31,4 +31,4 @@ do
 	./transform.sh ./detoken/$2 ..$4/$FILENAME
 	./versionReplace.sh $4/$FILENAME $1
 
-done < ../build/$3
+done < ./build/$3

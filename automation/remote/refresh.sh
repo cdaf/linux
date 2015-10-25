@@ -36,9 +36,9 @@ else
 	SOURCEPACKAGE=$5
 fi
 
-targetPath=$(./getProperty.sh "../$TARGET" "$PATHPROPERTY")
+targetPath=$(./getProperty.sh "./$TARGET" "$PATHPROPERTY")
 if [ -z "$PATHPROPERTY" ]; then
-	echo "$0 : Unable to retrieve targetPath value from ../$TARGET for path property $PATHPROPERTY! Returning exit 99"
+	echo "$0 : Unable to retrieve targetPath value from ./$TARGET for path property $PATHPROPERTY! Returning exit 99"
 	exit 99
 fi
 

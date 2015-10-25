@@ -23,7 +23,7 @@ else
 fi
 
 echo "$0 : Processing directory $1 (only differences will be reported ...)"
-ls -L -1 ..$1/$MASK | xargs -n 1 basename > FILE_LIST
+ls -L -1 .$ABS_PATH/$MASK | xargs -n 1 basename > FILE_LIST
 
 while read LINE
 do

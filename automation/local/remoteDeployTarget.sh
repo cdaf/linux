@@ -119,10 +119,10 @@ fi
 
 echo
 echo "$0 : Deploy package $SOLUTION-$BUILDNUMBER, Target $DEPLOY_TARGET on host $deployHost as $deployUser."
-ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/Deploy/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER/Deploy" < /dev/null
+ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/Deploy/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER/Deploy failed! Returned $exitCode"
+	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
 	exit $exitCode
 fi
 

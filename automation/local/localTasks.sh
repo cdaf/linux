@@ -70,9 +70,8 @@ if [ -d "propertiesForLocalTasks" ]; then
 				else
 					echo "$0 :   scriptList : $scriptList (deployScriptOverride found)"
 				fi
-				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$scriptList" "$ACTION" 2>&1 | tee -a postDeploy.log
-				# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-				exitCode=${PIPESTATUS[0]} 
+				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$scriptList" "$ACTION" 2>&1
+				exitCode=$?
 				if [ "$exitCode" != "0" ]; then
 					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$scriptList\" \"$ACTION\" failed! Returned $exitCode"
 					exit $exitCode

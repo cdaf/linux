@@ -67,8 +67,10 @@ if [ -d "$localPropertiesDir" ]; then
 		echo
 		echo "$0 :   Properties for local tasks ($localPropertiesDir) : "	
 		echo
+		# Copy files to driver directory and to the root directory
 		mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
 		cp -avR $localPropertiesDir/* $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+		cp -avR $localPropertiesDir/* $WORK_DIR_DEFAULT/
 
 		# If there are properties files but no default task, log a warning (not an error because may have override tasks defined in properties files themselves)
 		if [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then

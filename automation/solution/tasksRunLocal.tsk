@@ -1,9 +1,5 @@
-echo "$0 : Retrieve Property to named variable ..."
-namedURL=$(./getProperty.sh "./propertiesForLocalTasks/$TARGET" "ftURL")
+echo "Load all properties for $TARGET ..."
+assign $loadProperties="./propertiesForLocalTasks/$TARGET"
 
-echo "namedURL = $namedURL"
-
-echo "$0 : Load all properties ..."
-loadProperties="./propertiesForLocalTasks/$TARGET"
-
-echo "ftURL = $ftURL"
+echo "Perform test to verify deploy (remote) action, i.e. BUILDNUMBER should match"
+cat $TMPDIR/manifest.txt

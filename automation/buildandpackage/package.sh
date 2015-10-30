@@ -128,9 +128,8 @@ else
 		echo
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./package.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./package.properties
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1 | tee -a prePackage.log
-		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-		exitCode=${PIPESTATUS[0]} 
+		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
+		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
@@ -175,9 +174,8 @@ else
 		echo
 		echo "Process Post-Package Tasks ..."
 		echo
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1 | tee -a postPackage.log
-		# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-		exitCode=${PIPESTATUS[0]} 
+		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
+		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode

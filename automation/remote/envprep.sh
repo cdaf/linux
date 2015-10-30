@@ -43,7 +43,7 @@ buildRevision=$(cat ./revision.txt)
 
 echo
 echo "$0 : Starting deploy process, logging to $(pwd)/deploy.log"
-./deploy.sh "$buildRevision" "$1" 2>&1 | tee -a deploy.log
+./deploy.sh "$buildRevision" "$1" 2>&1
 
 echo
 echo "$0 : Deployment Complete."

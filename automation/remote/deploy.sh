@@ -42,9 +42,8 @@ fi
 
 echo
 echo "$0 : Starting deploy process ..."
-./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$scriptList" 2>&1 | tee -a deploy.log
-# the pipe above will consume the exit status, so use array of status of each command in your last foreground pipeline of commands
-exitCode=${PIPESTATUS[0]} 
+./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$scriptList" 2>&1
+exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Main Deployment activity failed! Returned $exitCode"
 	exit $exitCode

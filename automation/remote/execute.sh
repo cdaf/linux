@@ -34,11 +34,15 @@ fi
 
 ACTION=$5
 
+# Set the temporary directory (system wide)
+TMPDIR=/tmp
+
 echo "$0 :   SOLUTION    : $SOLUTION"
 echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
 echo "$0 :   TARGET      : $TARGET"
 echo "$0 :   TASKLIST    : $TASKLIST"
 echo "$0 :   ACTION      : $ACTION"
+echo "$0 :   TMPDIR      : $TMPDIR"
 echo
 # to provide exception handling / termination, the deploy script loops through
 # main.deploy, which is simply shell script lines, but after each line is executed
@@ -77,6 +81,16 @@ do
 	# Delete (verbose)
 	if [ "${LINE:0:6}" == "remove" ]; then
 		EXECUTABLESCRIPT="rm -fv ${LINE:7}"
+	fi
+
+	# Copy (verbose)
+	if [ "${LINE:0:6}" == "vecopy" ]; then
+		EXECUTABLESCRIPT="cp -v ${LINE:7}"
+	fi
+
+	# Decrypt a file (requires privateKey in properties file)
+	if [ "${LINE:0:6}" == "decrypt" ]; then
+		EXECUTABLESCRIPT="decryptKey.sh $SOLUTION $TARGET ${LINE:7}"
 	fi
 
 	# Invoke a custom script

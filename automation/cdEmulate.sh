@@ -95,7 +95,10 @@ fi
 if [ -z "$solutionName" ]; then
 	solutionName=$(basename $(pwd))
 	echo
-	echo "$scriptName : Solution name (solutionName) not defined in $solutionRoot/CDAF.solution, defaulting to current path, $solutionName"
+	echo "$scriptName : solutionName not defined in $solutionRoot/CDAF.solution, defaulting to current root, $solutionName"
+else
+	echo
+	echo "$scriptName : solutionName defined in $solutionRoot/CDAF.solution, using solution name $solutionName"	
 fi
 
 # Process Build and Package

@@ -7,7 +7,6 @@ echo
 echo "$0 : +---------------------------------+"
 echo "$0 : | Process Remotely Executed Tasks |"
 echo "$0 : +---------------------------------+"
-echo
 
 if [ -z "$1" ]; then
 	echo "$0 Environment Argument not passed. HALT!"
@@ -40,22 +39,23 @@ else
 	LOCAL_DIR_DEFAULT=$4
 	echo "$0 :   LOCAL_DIR_DEFAULT : $LOCAL_DIR_DEFAULT"
 fi
-echo
-echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
+echo "$0 :   hostname          : $(hostname)"
+echo "$0 :   whoami            : $(whoami)"
+echo "$0 :   pwd               : $(pwd)"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 	if [ -f $LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* ]; then
 		
-		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > deployTargets 2> /dev/null
+		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
 		echo
-		echo "$0 : Preparing to process deploy targets : "
+		echo "$0 : Preparing to process targets : "
 		echo		 
 		while read LIST_TARGET
 		do
 			echo "  $LIST_TARGET"
 		
-		done < deployTargets
-		
+		done < targetList
+		echo
 		while read DEPLOY_TARGET
 		do
 		
@@ -68,7 +68,7 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 		
 			lastTarget=$(echo $DEPLOY_TARGET)
 		
-		done < deployTargets
+		done < targetList
 		
 		if [ -z $lastTarget ]; then
 			echo
@@ -76,7 +76,7 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 			
 		fi
 		
-		rm -f deployTargets
+		rm -f targetList
 				
 	else
 		echo

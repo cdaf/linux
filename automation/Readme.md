@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.9.1 (full details in CDAF.linux)
+    Version : 0.9.2 (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -58,7 +58,7 @@ Solution Driver
 The following files control solution level functionality.
 
     CDAF.linux : used by the CD emulator to determine the automation root directory  
-    CDAF.solution : optional file to identify a directory as the automation solution directory
+    CDAF.solution : optional file to identify a directory as the automation solution directory, if contains property solutionName, this will be used in the emulator
 
 Properties and definition files support comments, prefixed with # character.
 
@@ -100,7 +100,7 @@ Note: during the packaging process, helper scripts contained in the /remote fold
 
 Deploy (many)
 --------------
-Default task definitions, these can be overridden using deployScriptOverride= in properties file
+Default task definitions, these can be overridden using deployScriptOverride or deployTaskOverride in properties file
 
 	tasksRunLocal.tsk
 	tasksRunRemote.tsk
@@ -117,7 +117,7 @@ Encrypted files (for passwords)
 	/cryptRemoteRemote
 	/cryptRemoteLocal
 
-Custom elements, i,.e. deployScriptOverride scripts
+Custom elements, i,.e. deployScriptOverride and deployTaskOverride scripts
 
 	/customRemote
 	/customLocal

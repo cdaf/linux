@@ -39,24 +39,16 @@ else
 	WORK_DIR_DEFAULT=$5
 fi
 
-
 encryptedFileDir="./$WORK_DIR_DEFAULT/cryptRemote"
 
-echo
-echo "$0 : --- DEPLOYING $DEPLOY_TARGET ---"
-
-deployLand=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployLand")
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$0 : Read of deployLand from ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET failed! Returned $exitCode"
-	exit $exitCode
-fi
-
+echo "$0 : --- Preparing $DEPLOY_TARGET ---"
 deployHost=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployHost")
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Read of deployHost from ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET failed! Returned $exitCode"
 	exit $exitCode
+else
+	echo "$0 :   deployHost : $deployHost"
 fi
 
 deployUser=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployUser")
@@ -64,14 +56,22 @@ exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Read of deployUser from ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET failed! Returned $exitCode"
 	exit $exitCode
+else
+	echo "$0 :   deployUser : $deployUser"
 fi
 
-echo "$0 :   deployHost : $deployHost"
-echo "$0 :   deployUser : $deployUser"
-echo "$0 :   deployLand : $deployLand"
+deployLand=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployLand")
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	echo "$0 : Read of deployLand from ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET failed! Returned $exitCode"
+	exit $exitCode
+else
+	echo "$0 :   deployLand : $deployLand"
+fi
 
+echo
 # Check if build has already been deployed on this target ..."
-ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh "$deployLand" "$SOLUTION-$BUILDNUMBER"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh "$deployLand" "$SOLUTION-$BUILDNUMBER"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh $deployLand $SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
@@ -80,7 +80,7 @@ fi
 
 echo
 echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployHost)"
-scp ./$SOLUTION-$BUILDNUMBER.zip $deployUser@$deployHost:$deployLand/
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$SOLUTION-$BUILDNUMBER.zip $deployUser@$deployHost:$deployLand/
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployUser@$deployHost:$deployLand) failed! Returned $exitCode"
@@ -89,7 +89,7 @@ fi
 
 echo
 echo "$0 : Extract the contents of the Package on the remote host ($deployHost)"
-ssh $deployUser@$deployHost 'cat | bash /dev/stdin ' "$SOLUTION-$BUILDNUMBER $deployLand" < ./$WORK_DIR_DEFAULT/extract.sh
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'cat | bash /dev/stdin ' "$SOLUTION-$BUILDNUMBER $deployLand" < ./$WORK_DIR_DEFAULT/extract.sh
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Extract the contents of the Package on the remote host ($SOLUTION-$BUILDNUMBER/$deployLand) failed! Returned $exitCode"
@@ -98,7 +98,7 @@ fi
 
 echo
 echo "$0 : Copy the Properties file (./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET) to the extracted directory"
-scp ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET $deployUser@$deployHost:$deployLand/$SOLUTION-$BUILDNUMBER
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET $deployUser@$deployHost:$deployLand/$SOLUTION-$BUILDNUMBER
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Copy the Properties file ($deployLand/$SOLUTION-$BUILDNUMBER/$DEPLOY_TARGET) to the extracted directory failed! Returned $exitCode"
@@ -118,8 +118,8 @@ if [ -d  "$encryptedFileDir" ]; then
 fi
 
 echo
-echo "$0 : Deploy package $SOLUTION-$BUILDNUMBER, Target $DEPLOY_TARGET on host $deployHost as $deployUser."
-ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
+echo "$0 : --- Transferring control to $deployUser@$deployHost for $DEPLOY_TARGET ---"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER failed! Returned $exitCode"

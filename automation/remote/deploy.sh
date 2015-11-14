@@ -11,45 +11,56 @@ else
 fi
 
 # Optional, i.e. normally only supplied by automated trigger
-WORKING=$2
+WORKDIR=$2
 
 echo
-echo "$0 : ---- Entering deploy process ----"
+echo "$0 : ^^^^ Start Task Execution ^^^^"
 echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
-echo "$0 :   WORKING       : $WORKING"
-echo
-
 # If passed, change to the working directory, if not passed, execute in current directory
-
-if [ ! -z "$WORKING" ]; then
-	cd $WORKING
+if [ "$WORKDIR" ]; then
+	cd $WORKDIR
+	echo "$0 :   WORKDIR       : $(pwd) (passed as argument)"
+else
+	echo "$0 :   WORKDIR       : $(pwd) (override argument not passed, using current)"
 fi
-
-echo "$0 : Load solution properties from manifest.txt"
+echo "$0 :   whoami        : $(whoami)"
+echo "$0 :   hostname      : $(hostname)"
+echo
+echo "$0 : Load solution properties from manifest.txt (to establish solution name and build number)"
 echo
 manifestProperties=$(./transform.sh "./manifest.txt")
 echo "$manifestProperties"
 eval $manifestProperties
-
 echo
-echo "$0 : Running as $(whoami) in $(pwd) on $(hostname) using properties $DEPLOY_TARGET"
-echo "$0 : Logging to $(pwd)/deploy.log"
+scriptOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
+if [ "$scriptOverride" ]; then
+	echo	
+	echo "$0 : deployScriptOverride set to scriptOverride, transfer control to custom script (not execution engine)"
+	./$scriptOverride "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET"
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : $scriptOverride failed! Returned $exitCode"
+		exit $exitCode
+	fi
+		
+else
 
-scriptList=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
-if [ -z "$scriptList" ]; then
-	scriptList="tasksRunRemote.tsk"
+	taskOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployTaskOverride")
+	if [ -z "$taskOverride" ]; then
+		taskOverride="tasksRunRemote.tsk"
+		echo "$0 : deployTaskOverride not set, defaulting to tasksRunRemote.tsk"
+	else
+		echo "$0 : deployTaskOverride set to $deployTaskOverride, this will be executed"
+	fi
+	
+	echo "$0 : Starting deploy process ..."
+	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride"
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Main Deployment activity failed! Returned $exitCode"
+		exit $exitCode
+	fi
+
 fi
-
 echo
-echo "$0 : Starting deploy process ..."
-./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$scriptList" 2>&1
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$0 : Main Deployment activity failed! Returned $exitCode"
-	exit $exitCode
-fi
-
-echo
-echo "$0 : Deployment Complete."
-echo
-
+echo "$0 : ^^^^ Stop Task Execution ^^^^"

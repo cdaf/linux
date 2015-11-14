@@ -36,7 +36,9 @@ ACTION=$5
 
 # Set the temporary directory (system wide)
 TMPDIR=/tmp
-
+echo
+echo "~~~~~~ Starting Execution Engine ~~~~~~~"
+echo
 echo "$0 :   SOLUTION    : $SOLUTION"
 echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
 echo "$0 :   TARGET      : $TARGET"
@@ -150,3 +152,5 @@ do
 	fi
 	
 done < $TASKLIST
+echo
+echo "~~~~~~ Shutdown Execution Engine ~~~~~~"

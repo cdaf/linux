@@ -34,11 +34,8 @@ echo "$scriptName : ---------------------"
 echo
 echo "$scriptName : ---------- CD Toolset Configuration Guide -------------"
 echo
-echo "Configure artefact retention patterns to retain package and local tasks"
-echo "   *.zip" 
-echo "  TasksLocal/**"
-echo
-echo "  set the first step of deploy to make scripts executable"
+echo "Note: artifact retention typically does include file attribute for executable, so"
+echo "  set the first step of deploy process to make all scripts executable"
 echo "  chmod +x ./*/*.sh"
 echo
 echo "For TeamCity ..."

@@ -87,3 +87,19 @@ if [ $exitCode -ne 0 ]; then
 	echo "$scriptName : Package Failed! Halt with exit code = $exitCode."
 	exit $exitCode
 fi
+
+if [ -z "$ACTION" ]; then
+	echo
+	echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
+	echo
+	echo "Configure artefact retention patterns to retain package and local tasks"
+	echo
+    echo "$scriptName : For Bamboo ..."
+    echo "  Name    : Package"
+	echo "  Pattern : *.zip"
+	echo
+    echo "  Name    : TasksLocal"
+	echo "  Pattern : TasksLocal/**"
+	echo
+fi
+

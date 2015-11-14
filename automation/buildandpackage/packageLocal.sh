@@ -98,10 +98,10 @@ if [ -d "$localCryptDir" ]; then
 	cp -avR $localCryptDir/* $WORK_DIR_DEFAULT/${localCryptDir##*/}
 fi
 
+# CDM-114 Copy custom scripts to root
 if [ -d "$localCustomDir" ]; then
 	printf "$0 :   Local custom scripts : "	
-	mkdir -v $WORK_DIR_DEFAULT/${localCustomDir##*/}
-	cp -avR $localCustomDir/* $WORK_DIR_DEFAULT/${localCustomDir##*/}
+	cp -avR $localCustomDir/* $WORK_DIR_DEFAULT/
 fi
 
 # Do not attempt to create the directory and copy files unless the source directory exists AND contains files
@@ -113,6 +113,7 @@ if [ -d "$remotePropertiesDir" ]; then
 		echo
 		mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
 		cp -avR $remotePropertiesDir/* $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
+		echo
 	else
 		echo
 		echo "$0 :   Properties directory ($remotePropertiesDir) for remote tasks exists but contains no files, no action taken."
@@ -120,7 +121,7 @@ if [ -d "$remotePropertiesDir" ]; then
 	fi
 fi
 
-# Copy all helper scripts from remote to local
+echo "$0 :   Copy all helper scripts from remote to local : "
 cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
 exitCode=$?
 if [ $exitCode -ne 0 ]; then

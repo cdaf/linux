@@ -20,7 +20,6 @@ else
 fi
 
 # If this script has started, then the SSH session is valid
-echo
 echo "$scriptName : Connection test Successful"
 
 if [ ! -d "$LANDING_DIR" ]; then

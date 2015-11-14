@@ -32,56 +32,70 @@ else
 	echo "$0 :   SOLUTION    : $SOLUTION"
 fi
 
-if [ -z "$4" ]; then
-	echo "$0 : Default working directory not supplied. HALT!"
-	exit 4
+WORKDIR=$4
+# If passed, change to the working directory, if not passed, execute in current directory
+if [ "$WORKDIR" ]; then
+	cd $WORKDIR
+	echo "$0 :   WORKDIR     : $(pwd) (passed as argument)"
 else
-	WORKDIR=$4
-echo "$0 :   WORKDIR     : $WORKDIR"
+	echo "$0 :   WORKDIR     : $(pwd) (override argument not passed, using current)"
 fi
-
-echo
-# Enter the working directory, this is where the helper scripts should be, all processing of artefacts
-# must be relative to this, i.e. .. (remote a local processing are perform in the same relative location
-cd $WORKDIR
+echo "$0 :   whoami      : $(whoami)"
+echo "$0 :   hostname    : $(hostname)"
 
 if [ -d "propertiesForLocalTasks" ]; then
 	if [ -f propertiesForLocalTasks/$ENVIRONMENT* ]; then
 
-		ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > testTargets 2> /dev/null
+		ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
 		
-		targetsDefined=$(cat testTargets)
-		if [ -z ${targetsDefined} ]; then
-			echo "$0 : INFO : Locally Executed Tasks Attempted."
-		else
-			echo "$0 : Executing on $(hostname) as $(whoami) in $(pwd)."
+		echo
+		echo "$0 : Preparing to process targets : "
+		echo		 
+		while read LIST_TARGET
+		do
+			echo "  $LIST_TARGET"
 		
-			while read LOCAL_TASK_TARGET
-			do
-			
-				echo
-				echo "$0 : --- LOCAL TASK $LOCAL_TASK_TARGET ---"
+		done < targetList
 				
-				# The shared script, execute.sh is copied from remote folder
-				scriptList=$(./getProperty.sh "./propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
-				if [ -z "$scriptList" ]; then
-					scriptList="./tasksRunLocal.tsk"
-					echo "$0 :   scriptList : $scriptList (deployScriptOverride not found)"
-				else
-					echo "$0 :   scriptList : $scriptList (deployScriptOverride found)"
-				fi
-				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$scriptList" "$ACTION" 2>&1
+		while read LOCAL_TASK_TARGET
+		do
+		
+			echo
+			echo "$0 : ^^^^ Start Local Task Execution ^^^^"
+			echo "$0 :   LOCAL_TASK_TARGET    : $LOCAL_TASK_TARGET"
+
+				scriptOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
+			if [ "$scriptOverride" ]; then
+				echo "$0 :   deployScriptOverride : $scriptOverride"
+				./$scriptOverride "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET"
 				exitCode=$?
 				if [ "$exitCode" != "0" ]; then
-					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$scriptList\" \"$ACTION\" failed! Returned $exitCode"
+					echo "$0 : $scriptOverride failed! Returned $exitCode"
 					exit $exitCode
 				fi
-								
-			done < testTargets
-		fi
+					
+			else
+			
+				echo "$0 :   deployScriptOverride : (property not defined)"
+				taskOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployTaskOverride")
+				if [ -z "$taskOverride" ]; then
+					taskOverride="./tasksRunLocal.tsk"
+					echo "$0 :   deployTaskOverride   : (property not defined, using $taskOverride)"
+				else
+					echo "$0 :   deployTaskOverride   : $taskOverride"
+				fi
+				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$taskOverride" "$ACTION" 2>&1
+				exitCode=$?
+				if [ "$exitCode" != "0" ]; then
+					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$taskOverride\" \"$ACTION\" failed! Returned $exitCode"
+					exit $exitCode
+				fi
+			fi
+							
+		done < targetList
 		
 		cd ..
-		rm -f testTargets
+		rm -f targetList
 	
 	else
 		echo
@@ -91,5 +105,5 @@ if [ -d "propertiesForLocalTasks" ]; then
 else
 	echo
 	echo "$0 :   Properties directory (propertiesForLocalTasks) not found, no action taken."
-	
 fi
+echo "$0 : ^^^^ Stop Local Task Execution ^^^^"

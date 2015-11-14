@@ -135,19 +135,20 @@ else
 			exit $exitCode
 		fi
 	fi
-
+	
+	echo "Create manifest.txt file"
+	echo "# Manifest for revision $REVISION" > manifest.txt
+	echo "SOLUTION=$SOLUTION" >> manifest.txt
+	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
+	echo
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 		echo
 		echo "CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
 		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
 		echo "$propertiesList"
+		cat $SOLUTIONROOT/CDAF.solution >> manifest.txt	
 	fi
-
-	# Load Manifest, these properties are used by remote deployment
-	echo "# Manifest for revision $REVISION" > manifest.txt
-	echo "SOLUTION=$SOLUTION" >> manifest.txt
-	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
 	echo
 	echo "$0 : Always create local working artefacts, even if all tasks are remote"
 	echo

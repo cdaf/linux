@@ -19,14 +19,14 @@ echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
 	cd $WORKDIR
-	echo "$0 :   WORKDIR       : $(pwd) (passed as argument)"
+	echo "$0 :   WORKDIR       : $(pwd)"
 else
 	echo "$0 :   WORKDIR       : $(pwd) (override argument not passed, using current)"
 fi
 echo "$0 :   whoami        : $(whoami)"
 echo "$0 :   hostname      : $(hostname)"
 echo
-echo "$0 : Load solution properties from manifest.txt (to establish solution name and build number)"
+echo "$0 : Load SOLUTION and BUILDNUMBER from manifest.txt"
 echo
 manifestProperties=$(./transform.sh "./manifest.txt")
 echo "$manifestProperties"

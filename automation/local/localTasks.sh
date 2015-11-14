@@ -62,11 +62,14 @@ if [ -d "propertiesForLocalTasks" ]; then
 		
 			echo
 			echo "$0 : ^^^^ Start Local Task Execution ^^^^"
+			echo
 			echo "$0 :   LOCAL_TASK_TARGET    : $LOCAL_TASK_TARGET"
 
-				scriptOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
+			scriptOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
 			if [ "$scriptOverride" ]; then
 				echo "$0 :   deployScriptOverride : $scriptOverride"
+				echo
+				echo "./$scriptOverride $SOLUTION $BUILDNUMBER $LOCAL_TASK_TARGET"
 				./$scriptOverride "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET"
 				exitCode=$?
 				if [ "$exitCode" != "0" ]; then

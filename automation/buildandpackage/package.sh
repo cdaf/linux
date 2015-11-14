@@ -136,7 +136,6 @@ else
 		fi
 	fi
 	
-	echo "Create manifest.txt file"
 	echo "# Manifest for revision $REVISION" > manifest.txt
 	echo "SOLUTION=$SOLUTION" >> manifest.txt
 	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
@@ -150,6 +149,10 @@ else
 		cat $SOLUTIONROOT/CDAF.solution >> manifest.txt	
 	fi
 	echo
+	echo "Created manifest.txt file ..."
+	echo
+	cat manifest.txt
+	echo	
 	echo "$0 : Always create local working artefacts, even if all tasks are remote"
 	echo
 	./$AUTOMATIONROOT/buildandpackage/packageLocal.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"

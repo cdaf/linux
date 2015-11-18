@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.9.2 (full details in CDAF.linux)
+    Version : 0.9.3 (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -152,3 +152,18 @@ Automated Function Tests
 ------------------------
 
 Currently PhantomJS is used to perform the headless function testing, although an example of using Firefox with Xvfb is also included but not used.
+
+Frequently Asked Questions
+==========================
+
+
+Why use CDAF
+------------
+
+To provide a consistent approach to Continuous Delivery and leverage the efforts of others to provide greater reusability and easier problem determination. CDAF will provide the building blocks for common tasks, with rich logging and exeception handling. The CDAf provides toolset configuration guidance, keeping the actions loosely coupled with the toolset, to allow visibilty and traceability through source control rather than direct changes.
+
+  
+Why not have a shared folder for CDAF on the system
+---------------------------------------------------
+
+CDAF principles are to have a minimum level of system dependency. By having solution specific copies each solution can use differing versions of CDAF, and once a solution is upgraded, that upgrade will be propogated to all uses (at next update/pull/get) where a system provisioned solution will requrie all users to update to the same version, even if their current solution has not been tested for this system wide change.

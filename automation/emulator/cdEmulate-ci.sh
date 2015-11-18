@@ -101,5 +101,6 @@ if [ -z "$ACTION" ]; then
     echo "  Name    : TasksLocal"
 	echo "  Pattern : TasksLocal/**"
 	echo
+	echo "$scriptName : -------------------------------------------------------"
 fi
 

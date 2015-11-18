@@ -14,7 +14,6 @@ fi
 WORKDIR=$2
 
 echo
-echo "$0 : ^^^^ Start Task Execution ^^^^"
 echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
@@ -62,5 +61,3 @@ else
 	fi
 
 fi
-echo
-echo "$0 : ^^^^ Stop Task Execution ^^^^"

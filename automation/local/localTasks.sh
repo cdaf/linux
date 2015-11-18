@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 set -e
-
-# This script provides a repeatable deployment process. This uses two arguments, the target environment
-# identifier and the $3 to deploy. Note: each $3 produced is expected to be uniquely identifiable.
 echo
 echo "$0 : +--------------------------------+"
 echo "$0 : | Process Locally Executed Tasks |"
@@ -13,7 +10,7 @@ if [ -z "$1" ]; then
 	exit 1
 else
 	ENVIRONMENT=$1
-	echo "$0 :   ENVIRONMENT : $ENVIRONMENT"
+	echo "$0 :   ENVIRONMENT  : $ENVIRONMENT"
 fi
 
 if [ -z "$2" ]; then
@@ -21,7 +18,7 @@ if [ -z "$2" ]; then
 	exit 2
 else
 	BUILDNUMBER=$2
-	echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
+	echo "$0 :   BUILDNUMBER  : $BUILDNUMBER"
 fi
 
 if [ -z "$3" ]; then
@@ -29,19 +26,21 @@ if [ -z "$3" ]; then
 	exit 3
 else
 	SOLUTION=$3
-	echo "$0 :   SOLUTION    : $SOLUTION"
+	echo "$0 :   SOLUTION     : $SOLUTION"
 fi
 
 WORKDIR=$4
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
 	cd $WORKDIR
-	echo "$0 :   WORKDIR     : $(pwd) (passed as argument)"
+	echo "$0 :   WORKDIR      : $(pwd) (passed as argument)"
 else
-	echo "$0 :   WORKDIR     : $(pwd) (override argument not passed, using current)"
+	echo "$0 :   WORKDIR      : $(pwd) (override argument not passed, using current)"
 fi
-echo "$0 :   whoami      : $(whoami)"
-echo "$0 :   hostname    : $(hostname)"
+echo "$0 :   whoami       : $(whoami)"
+echo "$0 :   hostname     : $(hostname)"
+cdafVersion=$(./getProperty.sh "./CDAF.properties" "productVersion")
+echo "$0 :   CDAF Version : $cdafVersion"
 
 if [ -d "propertiesForLocalTasks" ]; then
 	if [ -f propertiesForLocalTasks/$ENVIRONMENT* ]; then
@@ -60,8 +59,6 @@ if [ -d "propertiesForLocalTasks" ]; then
 		while read LOCAL_TASK_TARGET
 		do
 		
-			echo
-			echo "$0 : ^^^^ Start Local Task Execution ^^^^"
 			echo
 			echo "$0 :   LOCAL_TASK_TARGET    : $LOCAL_TASK_TARGET"
 
@@ -109,4 +106,3 @@ else
 	echo
 	echo "$0 :   Properties directory (propertiesForLocalTasks) not found, no action taken."
 fi
-echo "$0 : ^^^^ Stop Local Task Execution ^^^^"

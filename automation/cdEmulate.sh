@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Emulate calling the package and deploy process as it would be from the automation toolset, 
 # e.g. Bamboo or Jenkings, replacing buildNumber with timestamp
 # workspace with temp space. The variables provided in Jenkins are emulated in the scripts
@@ -15,6 +15,9 @@ echo "$scriptName : Initialise Emulation"
 echo "$scriptName : --------------------"
 echo "$scriptName :   ACTION              : $ACTION"
 
+workDirLocal="TasksLocal"
+workDirRemote="TasksRemote"
+
 # Framework structure
 # Look for automation root definition, if not found, default
 for i in $(ls -d */); do
@@ -30,8 +33,6 @@ if [ -z "$automationRoot" ]; then
 fi
 
 automationHelper="$automationRoot/remote"
-workDirLocal="TasksLocal"
-workDirRemote="TasksRemote"
 
 # Build and Delivery Properties Lookup values
 environmentBuild="BUILD"

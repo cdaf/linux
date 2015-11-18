@@ -45,11 +45,11 @@ if [ ! -f  "$remoteArtifactListFile" ]; then
 	echo "$0 : Artefacts definition file not found $remoteArtifactListFile, therefore no action, assuming local tasks only."
 else
 	echo
-	echo "$0 : Copy scripts required on target(s)"
-	echo
+	echo "$0 : Create working directory and seed with solution files"
 	mkdir -v $WORK_DIR_DEFAULT
 	mv -v manifest.txt $WORK_DIR_DEFAULT
-
+	cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
+	echo
 	cp -avR ./$AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT
 	
 	if [ -f  "./$SOLUTIONROOT/tasksRunRemote.tsk" ]; then

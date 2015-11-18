@@ -55,10 +55,14 @@ else
 fi
 
 echo
-echo "$0 : Copy scripts and properties files required locally"
+echo "$0 : Create working directory and seed with solution files"
 echo
 mkdir -v $WORK_DIR_DEFAULT
 cp -av manifest.txt $WORK_DIR_DEFAULT
+cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
+echo
+echo "$0 : Copy required local scripts"
+echo
 cp -avR $AUTOMATIONROOT/local/* $WORK_DIR_DEFAULT
 
 if [ -d "$localPropertiesDir" ]; then
@@ -122,6 +126,7 @@ if [ -d "$remotePropertiesDir" ]; then
 fi
 
 echo "$0 :   Copy all helper scripts from remote to local : "
+echo
 cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
 exitCode=$?
 if [ $exitCode -ne 0 ]; then

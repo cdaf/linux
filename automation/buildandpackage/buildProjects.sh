@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 	exit 1
 else
 	SOLUTION="$1"
-	echo "$0 :   SOLUTION     : $SOLUTION"
+	echo "$0 :   SOLUTION       : $SOLUTION"
 fi
 
 if [ -z "$2" ]; then
@@ -18,7 +18,7 @@ if [ -z "$2" ]; then
 	exit 2
 else
 	BUILDNUMBER="$2"
-	echo "$0 :   BUILDNUMBER  : $BUILDNUMBER"
+	echo "$0 :   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 if [ -z "$3" ]; then
@@ -26,7 +26,7 @@ if [ -z "$3" ]; then
 	exit 3
 else
 	REVISION="$3"
-	echo "$0 :   REVISION     : $REVISION"
+	echo "$0 :   REVISION       : $REVISION"
 fi
 
 if [ -z "$4" ]; then
@@ -34,30 +34,33 @@ if [ -z "$4" ]; then
 	exit 4
 else
 	BUILDENV="$4"
-	echo "$0 :   BUILDENV     : $BUILDENV"
+	echo "$0 :   BUILDENV       : $BUILDENV"
 fi
 
 if [ ! -z "$5" ]; then
 	ACTION="$5"
-	echo "$0 :   ACTION       : $ACTION"
+	echo "$0 :   ACTION         : $ACTION"
 fi
-echo "$0 :   pwd          : $(pwd)"
-echo
 
 # Look for automation root definition, if not found, default
 for i in $(ls -d */); do
 	directoryName=${i%%/}
-	if [ -f "$directoryName/CDAF.linux" ]; then
-		echo "CDAF.linux file found in directory $directoryName, setting as automation root"
+	if [ -f "$directoryName/CDAF.linux" ] ; then
 		AUTOMATIONROOT="$directoryName"
-		echo
+		echo "$0 :   AUTOMATIONROOT : $AUTOMATIONROOT (CDAF.linux found)"
 	fi
 done
 if [ -z "$AUTOMATIONROOT" ]; then
-	echo "CDAF.linux not found in any directory, setting automation root to automation"
 	AUTOMATIONROOT="automation"
+	echo "$0 :   AUTOMATIONROOT : $AUTOMATIONROOT (CDAF.linux not found)"
 fi
 
+echo "$0 :   pwd            : $(pwd)"
+
+cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
+echo "$0 :   CDAF Version   : $cdafVersion"
+echo
+echo "$0 : $automessage"
 AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -65,12 +68,12 @@ SOLUTIONROOT="$AUTOMATIONROOT/solution"
 for i in $(ls -d */); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
-		echo "CDAF.solution file found in directory $directoryName, load solution properties"
+		echo "$0 : CDAF.solution file found in directory $directoryName, load solution properties"
 		SOLUTIONROOT="$directoryName"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$directoryName/CDAF.solution")
+		echo
 		echo "$propertiesList"
 		eval $propertiesList
-		echo
 	fi
 done
 

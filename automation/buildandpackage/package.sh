@@ -97,6 +97,9 @@ else
 	echo "none ($remotePropertiesDir)"
 fi
 
+cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
+echo "$0 :   CDAF Version             : $cdafVersion"
+
 echo
 echo "$0 : Clean root workspace ($(pwd))"
 echo
@@ -139,17 +142,17 @@ else
 	echo "# Manifest for revision $REVISION" > manifest.txt
 	echo "SOLUTION=$SOLUTION" >> manifest.txt
 	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
-	echo
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 		echo
-		echo "CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
+		echo "$0 : CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
 		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
+		echo
 		echo "$propertiesList"
 		cat $SOLUTIONROOT/CDAF.solution >> manifest.txt	
 	fi
 	echo
-	echo "Created manifest.txt file ..."
+	echo "$0 : Created manifest.txt file ..."
 	echo
 	cat manifest.txt
 	echo	
@@ -185,7 +188,6 @@ else
 			exit $exitCode
 		fi
 	fi
-
 fi
 echo
 echo "$0 : --- Solution Packaging Complete ---"

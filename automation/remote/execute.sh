@@ -87,7 +87,7 @@ do
 	# Exit argument set
 	if [ "$feature" == "EXITIF" ]; then
 		exitVar="${LINE:7}"
-		printf "$LINE --> "
+		printf "$LINE ==> if [ $exitVar ] then exit"
 		EXECUTABLESCRIPT="if [ $exitVar ]; then "
 		EXECUTABLESCRIPT+="echo \"Controlled exit due to \$exitVar = $exitVar\";exit;fi"
 	fi
@@ -95,7 +95,7 @@ do
 	# Exit argument set
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${LINE:7}"
-		echo "$LINE --> $AUTOMATIONHELPER/transform.sh $propFile"
+		echo "$LINE ==> $AUTOMATIONHELPER/transform.sh $propFile"
 		echo
 		execute="$AUTOMATIONHELPER/transform.sh $propFile"
 		propertiesList=$(eval $execute)
@@ -107,19 +107,19 @@ do
 
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux
 	if [ "$feature" == "ASSIGN" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		EXECUTABLESCRIPT="${LINE:8}"
 	fi
 
 	# Delete (verbose)
 	if [ "$feature" == "REMOVE" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		EXECUTABLESCRIPT="rm -rfv ${LINE:7}"
 	fi
 
 	# Copy (verbose)
 	if [ "$feature" == "VECOPY" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		EXECUTABLESCRIPT="cp -v ${LINE:7}"
 	fi
 
@@ -127,14 +127,14 @@ do
 	#  required : directory, file location relative to current workspace
 	#  optional : file, is not will try file with the same name as target in the directory
 	if [ "$feature" == "DECRYP" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		EXECUTABLESCRIPT='RESULT=$(./decryptKey.sh $TARGET '
 		EXECUTABLESCRIPT+="${LINE:7})"
 	fi
 
 	# Invoke a custom script
 	if [ "$feature" == "INVOKE" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		scriptLine="${LINE:7}"
 		sep=' '
 		
@@ -156,7 +156,7 @@ do
 	#  required : file to be detokenised
 	#  optional : properties file, by default the TARGET is used
 	if [ "$feature" == "DETOKN" ]; then
-		printf "$LINE --> "
+		printf "$LINE ==> "
 		scriptLine="${LINE:7}"
 		sep=' '
 		

@@ -18,12 +18,15 @@ echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
 	cd $WORKDIR
-	echo "$0 :   WORKDIR       : $(pwd)"
+	echo "$0 :   WORKDIR       : $WORKDIR"
 else
-	echo "$0 :   WORKDIR       : $(pwd) (override argument not passed, using current)"
+	echo "$0 :   WORKDIR       : $(pwd) (not passed, using current)"
 fi
 echo "$0 :   whoami        : $(whoami)"
 echo "$0 :   hostname      : $(hostname)"
+
+cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
+echo "$0 :   CDAF Version  : $cdafVersion"
 echo
 echo "$0 : Load SOLUTION and BUILDNUMBER from manifest.txt"
 echo

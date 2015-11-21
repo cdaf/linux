@@ -29,12 +29,22 @@ if [ ! -z "$4" ]; then
 	ACTION="$4"
 fi
 
+echo
+echo "$0 : Get Property value (containerPath) from ./$TARGET using getProperty.sh"
+echo 
+./getProperty.sh "./$TARGET" "containerPath"
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	echo "$0 : Retrieval of containerPath from $TARGET failed! Returned $exitCode"
+	exit $exitCode
+fi
+
 if [ "$ACTION" == "clean" ]; then
 	echo "$0 : $PROJECT Clean only, using ant"
 	echo
 	ant clean
 else
-	echo "$0 : Build $PROJECT using ant"
+	echo "$0 : Build $PROJECT using ant (for something this trivial, should use .tsk)"
 	echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
 	echo "$0 :   REVISION    : $REVISION"
 	echo "$0 :   pwd         : $(pwd)"

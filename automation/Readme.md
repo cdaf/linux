@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.9.3 (full details in CDAF.linux)
+    Version : 0.9.4 (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -67,13 +67,18 @@ Execution Engine
 To alleviate the burden of argument passing, exception handling and logging, the execution engine has been provided. The execution engine will essentially execute the native interpretive language (PowerShell or bash), line by line, but each execution will be tested for exceptions (trivial in bash, significantly more complex in PowerShell) and, with careful usage, the driver files (.tsk) can be used on Windows workstations, while target Linux servers for Continuous Delivery. To provide translated runtime, the following keywords are supported
 
 | Keyword | Description                      | Example                    |
-| --------|----------------------------------|----------------------------|
-| assign  | set a variable                   | assign $test="Hello World" |
-| remove  | Delete files, including wildcard | remove *.war               |
-| invoke  | call a custom script             | invoke ./script "Hello"    |
-| decrypt | decrypt file                     | decrypt TEST_CRYPT1.local  |
+| --------|----------------------------------|---------------------------------|
+| ASSIGN  | set a variable                   | ASSIGN $test="Hello World"      |
+| DECRYP  | decrypt matching target file     | DECRYP cryptLocal               |
+|         | decrypt specific file            | DECRYP cryptLocal encrypt.dat   |
+| DETOKN  | Detokenise file with target prop | DETOKN tokenised.file           |
+|         | Detokenise with specific file    | DETOKN tokenised.file prop.file |
+| EXITIF  | Exit normally is argument set    | EXITIF $ACTION                  |
+| INVOKE  | call a custom script             | INVOKE ./script "Hello"         |
+| PROPLD  | Load properties as variables     | PROPLD prop.file                |
+| REMOVE  | Delete files, including wildcard | REMOVE *.war                    |
 
-By setting the following variables, the following actions are performed
+By setting the following variables, the following actions are performed, not implicit actions will be depricated in v1.0
 
 | Variable         | Description                           |
 | -----------------|---------------------------------------|

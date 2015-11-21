@@ -44,7 +44,7 @@ echo "$0 :   whoami            : $(whoami)"
 echo "$0 :   pwd               : $(pwd)"
 
 cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
-echo "$0 :   CDAF Version : $cdafVersion"
+echo "$0 :   CDAF Version      : $cdafVersion"
 
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then

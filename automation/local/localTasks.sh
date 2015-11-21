@@ -43,7 +43,9 @@ cdafVersion=$(./getProperty.sh "./CDAF.properties" "productVersion")
 echo "$0 :   CDAF Version : $cdafVersion"
 
 if [ -d "propertiesForLocalTasks" ]; then
-	if [ -f propertiesForLocalTasks/$ENVIRONMENT* ]; then
+	
+	filesExist=$(ls propertiesForLocalTasks/$ENVIRONMENT* 2>/dev/null)
+	if [ "$filesExist" ]; then
 
 		ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
 		

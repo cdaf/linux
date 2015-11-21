@@ -45,7 +45,7 @@ echo "$0 :   TARGET      : $TARGET"
 echo "$0 :   TASKLIST    : $TASKLIST"
 echo "$0 :   ACTION      : $ACTION"
 echo "$0 :   TMPDIR      : $TMPDIR"
-echo
+
 # to provide exception handling / termination, the deploy script loops through
 # main.deploy, which is simply shell script lines, but after each line is executed
 # a test on the exit code is performed, there an error is encountered, diagnostics
@@ -57,46 +57,83 @@ if [ -f "../build.properties" ] ;then
 	eval $(cat ../build.properties)
 	AUTOMATIONHELPER="../$AUTOMATIONROOT/remote"
 	rm ../build.properties
+else
+	# If not build, is it a package process?
+	if [ -f "./package.properties" ] ;then
+		eval $(cat ./package.properties)
+		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
+		rm ./package.properties
+	else
+		# Neither build nor package, load target properties, i.e. it's either local or remote
+		echo
+		echo "Load Target Properties ... "
+		propertiesList=$($AUTOMATIONHELPER/transform.sh "$TARGET")
+		printf "$propertiesList"
+		eval $propertiesList
+		echo
+		echo			
+	fi
 fi
 
-if [ -f "./package.properties" ] ;then
-	eval $(cat ./package.properties)
-	AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
-	rm ./package.properties
-fi
-
-# Process Script List
+# Process Task Execution
 while read LINE
 do
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	
-	# ----------------------------------
-	# Check for cross platform key words
-	# ----------------------------------
+	# Check for cross platform key words, first 6 characters, by convention uppercase but either supported
+	feature=$(echo "${LINE:0:6}" | tr '[a-z]' '[A-Z]')
 
-	# Set a variable, PowerShell format, strip the $ for Linux
-	if [ "${LINE:0:6}" == "assign" ]; then
+	# Exit argument set
+	if [ "$feature" == "EXITIF" ]; then
+		exitVar="${LINE:7}"
+		echo "$0 : $LINE ==> exit normally if $exitVar is set"
+		EXECUTABLESCRIPT="if [ $exitVar ]; then "
+		EXECUTABLESCRIPT+="echo \"Controlled exit due to \$exitVar = $exitVar\";exit;fi"
+	fi
+
+	# Exit argument set
+	if [ "$feature" == "PROPLD" ]; then
+		propFile="${LINE:7}"
+		echo "$0 : $LINE ==> load properties as variables"
+		echo
+		execute="$AUTOMATIONHELPER/transform.sh $propFile"
+		propertiesList=$(eval $execute)
+		printf "$propertiesList"
+		eval $propertiesList
+		echo			
+		loadProperties=""
+	fi
+
+	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux
+	if [ "$feature" == "ASSIGN" ]; then
+		echo "$0 : $LINE ==> strip \$"
 		EXECUTABLESCRIPT="${LINE:8}"
 	fi
 
 	# Delete (verbose)
-	if [ "${LINE:0:6}" == "remove" ]; then
-		EXECUTABLESCRIPT="rm -fv ${LINE:7}"
+	if [ "$feature" == "REMOVE" ]; then
+		echo "$0 : $LINE ==> force verbose recursive delete"
+		EXECUTABLESCRIPT="rm -rfv ${LINE:7}"
 	fi
 
 	# Copy (verbose)
-	if [ "${LINE:0:6}" == "vecopy" ]; then
+	if [ "$feature" == "VECOPY" ]; then
+		echo "$0 : $LINE ==> verbose copy"
 		EXECUTABLESCRIPT="cp -v ${LINE:7}"
 	fi
 
-	# Decrypt a file (requires privateKey in properties file)
-	if [ "${LINE:0:6}" == "decrypt" ]; then
-		EXECUTABLESCRIPT="decryptKey.sh $SOLUTION $TARGET ${LINE:7}"
+	# Decrypt a file
+	#  required : directory, file location relative to current workspace
+	#  optional : file, is not will try file with the same name as target in the directory
+	if [ "$feature" == "DECRYP" ]; then
+		echo "$0 : $LINE ==> pass directory and optional file to helper, decrypted value returned in \$RESULT"
+		EXECUTABLESCRIPT='RESULT=$(./decryptKey.sh $TARGET '
+		EXECUTABLESCRIPT+="${LINE:7})"
 	fi
 
 	# Invoke a custom script
-	if [ "${LINE:0:6}" == "invoke" ]; then
+	if [ "$feature" == "INVOKE" ]; then
 		scriptLine="${LINE:7}"
 		sep=' '
 		
@@ -106,33 +143,63 @@ do
     	    arguments=${scriptLine#*"$sep"}
     	    EXECUTABLESCRIPT="$script"
     	    EXECUTABLESCRIPT+=".sh $arguments"
+			echo "$0 : $LINE ==> call script (.sh) including arguments"
     	    ;;
 		(*)
     	    EXECUTABLESCRIPT="$scriptLine"
     	    EXECUTABLESCRIPT+=".sh"
+			echo "$0 : $LINE ==> call script (.sh)"
 		    ;;
 		esac
 	fi
 
-	if [ -n "$EXECUTABLESCRIPT" ]; then
-		# Do not echo line if it is an echo itself
-		if [ "${LINE:0:4}" != "echo" ]; then
-			echo "$0 : $EXECUTABLESCRIPT"
+	# Detokenise a file
+	#  required : file to be detokenised
+	#  optional : properties file, by default the TARGET is used
+	if [ "$feature" == "DETOKN" ]; then
+		scriptLine="${LINE:7}"
+		sep=' '
+		
+		case $scriptLine in
+		(*"$sep"*)
+			tokenFile=${scriptLine%%"$sep"*}
+    	    properties=${scriptLine#*"$sep"}
+    	    EXECUTABLESCRIPT='./transform.sh '
+    	    EXECUTABLESCRIPT+="$properties $tokenFile"
+			echo "$0 : $LINE ==> Detokenise $properties into $tokenFile"
+    	    ;;
+		(*)
+    	    EXECUTABLESCRIPT='./transform.sh '
+    	    EXECUTABLESCRIPT+="$TARGET $scriptLine"
+			echo "$0 : $LINE ==> Detokenise $TARGET into $scriptLine"
+			;;
+		esac
+	fi
+
+	# Do not perform additional logging or execution when feature is Property Loader
+	if [ "$feature" != "PROPLD" ]; then
+
+		if [ -n "$EXECUTABLESCRIPT" ]; then
+			# Do not echo line if it is an echo itself or it is determining controlled exit
+			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
+				echo "$0 : $EXECUTABLESCRIPT"
+			fi
+		else
+			# Do not add whitespace line feed when script has a comment
+			if [ "${LINE:0:1}" != "#" ]; then
+				EXECUTABLESCRIPT="echo"
+			fi
 		fi
-	else
-		# Do not add whitespace line feed when script has a comment
-		if [ "${LINE:0:1}" != "#" ]; then
-			EXECUTABLESCRIPT="echo"
+		eval $EXECUTABLESCRIPT
+		exitCode=$?
+			# Check execution normal, anything other than 0 is an exception
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+			exit $exitCode
 		fi
 	fi
-	eval $EXECUTABLESCRIPT
-	exitCode=$?
-	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
-		exit $exitCode
-	fi
-	
+
+	# These implicit functions will be deprecated in v1.0	
 	if [ "$terminate" == "clean" ]; then
 		echo "$0 : Clean only"
 		exit

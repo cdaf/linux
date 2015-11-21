@@ -39,13 +39,14 @@ else
 	LOCAL_DIR_DEFAULT=$4
 	echo "$0 :   LOCAL_DIR_DEFAULT : $LOCAL_DIR_DEFAULT"
 fi
-echo "$0 :   hostname          : $(hostname)"
 echo "$0 :   whoami            : $(whoami)"
-echo "$0 :   pwd               : $(pwd)"
+echo "$0 :   hostname          : $(hostname)"
 
 cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
 echo "$0 :   CDAF Version      : $cdafVersion"
 
+workingDir=$(pwd)
+echo "$0 :   workingDir        : $workingDir"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 	if [ -f $LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* ]; then
@@ -84,11 +85,11 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 				
 	else
 		echo
-		echo "$0 :   Properties directory (./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
+		echo "$0 :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 		
 	fi
 else
 	echo
-	echo "$0 :   Properties directory (./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
+	echo "$0 :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
 	
 fi

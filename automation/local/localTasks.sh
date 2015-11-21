@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+
 echo
 echo "$0 : +--------------------------------+"
 echo "$0 : | Process Locally Executed Tasks |"
@@ -33,19 +34,24 @@ WORKDIR=$4
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
 	cd $WORKDIR
-	echo "$0 :   WORKDIR      : $(pwd) (passed as argument)"
+	echo "$0 :   WORKDIR      : $WORKDIR"
 else
-	echo "$0 :   WORKDIR      : $(pwd) (override argument not passed, using current)"
+	echo "$0 :   WORKDIR      : $(pwd) (not passed, using current dir)"
 fi
 echo "$0 :   whoami       : $(whoami)"
 echo "$0 :   hostname     : $(hostname)"
 cdafVersion=$(./getProperty.sh "./CDAF.properties" "productVersion")
 echo "$0 :   CDAF Version : $cdafVersion"
 
+workingDir=$(pwd)
+echo "$0 :   workingDir   : $workingDir"
+
 if [ -d "propertiesForLocalTasks" ]; then
-	
-	filesExist=$(ls propertiesForLocalTasks/$ENVIRONMENT* 2>/dev/null)
-	if [ "$filesExist" ]; then
+
+	if [ -f propertiesForLocalTasks/$ENVIRONMENT* ]; then
+			
+	#	filesExist=$(ls propertiesForLocalTasks/$ENVIRONMENT* 2> /dev/null)
+	#	if [ "$filesExist" ]; then
 
 		ls -L -1 propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
 		
@@ -101,10 +107,10 @@ if [ -d "propertiesForLocalTasks" ]; then
 	
 	else
 		echo
-		echo "$0 :   Properties directory (propertiesForLocalTasks) exists but contains no files, no action taken."
+		echo "$0 :   Properties directory ($workingDir/propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 		
 	fi
 else
 	echo
-	echo "$0 :   Properties directory (propertiesForLocalTasks) not found, no action taken."
+	echo "$0 :   Properties directory ($workingDir/propertiesForLocalTasks) not found, no action taken."
 fi

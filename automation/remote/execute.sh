@@ -87,7 +87,7 @@ do
 	# Exit argument set
 	if [ "$feature" == "EXITIF" ]; then
 		exitVar="${LINE:7}"
-		echo "$0 : $LINE ==> exit normally if $exitVar is set"
+		printf "$LINE --> "
 		EXECUTABLESCRIPT="if [ $exitVar ]; then "
 		EXECUTABLESCRIPT+="echo \"Controlled exit due to \$exitVar = $exitVar\";exit;fi"
 	fi
@@ -95,7 +95,7 @@ do
 	# Exit argument set
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${LINE:7}"
-		echo "$0 : $LINE ==> load properties as variables"
+		echo "$LINE --> $AUTOMATIONHELPER/transform.sh $propFile"
 		echo
 		execute="$AUTOMATIONHELPER/transform.sh $propFile"
 		propertiesList=$(eval $execute)
@@ -107,19 +107,19 @@ do
 
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux
 	if [ "$feature" == "ASSIGN" ]; then
-		echo "$0 : $LINE ==> strip \$"
+		printf "$LINE --> "
 		EXECUTABLESCRIPT="${LINE:8}"
 	fi
 
 	# Delete (verbose)
 	if [ "$feature" == "REMOVE" ]; then
-		echo "$0 : $LINE ==> force verbose recursive delete"
+		printf "$LINE --> "
 		EXECUTABLESCRIPT="rm -rfv ${LINE:7}"
 	fi
 
 	# Copy (verbose)
 	if [ "$feature" == "VECOPY" ]; then
-		echo "$0 : $LINE ==> verbose copy"
+		printf "$LINE --> "
 		EXECUTABLESCRIPT="cp -v ${LINE:7}"
 	fi
 
@@ -127,13 +127,14 @@ do
 	#  required : directory, file location relative to current workspace
 	#  optional : file, is not will try file with the same name as target in the directory
 	if [ "$feature" == "DECRYP" ]; then
-		echo "$0 : $LINE ==> pass directory and optional file to helper, decrypted value returned in \$RESULT"
+		printf "$LINE --> "
 		EXECUTABLESCRIPT='RESULT=$(./decryptKey.sh $TARGET '
 		EXECUTABLESCRIPT+="${LINE:7})"
 	fi
 
 	# Invoke a custom script
 	if [ "$feature" == "INVOKE" ]; then
+		printf "$LINE --> "
 		scriptLine="${LINE:7}"
 		sep=' '
 		
@@ -143,12 +144,10 @@ do
     	    arguments=${scriptLine#*"$sep"}
     	    EXECUTABLESCRIPT="$script"
     	    EXECUTABLESCRIPT+=".sh $arguments"
-			echo "$0 : $LINE ==> call script (.sh) including arguments"
     	    ;;
 		(*)
     	    EXECUTABLESCRIPT="$scriptLine"
     	    EXECUTABLESCRIPT+=".sh"
-			echo "$0 : $LINE ==> call script (.sh)"
 		    ;;
 		esac
 	fi
@@ -157,6 +156,7 @@ do
 	#  required : file to be detokenised
 	#  optional : properties file, by default the TARGET is used
 	if [ "$feature" == "DETOKN" ]; then
+		printf "$LINE --> "
 		scriptLine="${LINE:7}"
 		sep=' '
 		
@@ -166,23 +166,20 @@ do
     	    properties=${scriptLine#*"$sep"}
     	    EXECUTABLESCRIPT='./transform.sh '
     	    EXECUTABLESCRIPT+="$properties $tokenFile"
-			echo "$0 : $LINE ==> Detokenise $properties into $tokenFile"
     	    ;;
 		(*)
     	    EXECUTABLESCRIPT='./transform.sh '
     	    EXECUTABLESCRIPT+="$TARGET $scriptLine"
-			echo "$0 : $LINE ==> Detokenise $TARGET into $scriptLine"
 			;;
 		esac
 	fi
 
-	# Do not perform additional logging or execution when feature is Property Loader
+	# Perform no further processing if Feature is Property Loader
 	if [ "$feature" != "PROPLD" ]; then
-
 		if [ -n "$EXECUTABLESCRIPT" ]; then
 			# Do not echo line if it is an echo itself or it is determining controlled exit
 			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
-				echo "$0 : $EXECUTABLESCRIPT"
+				echo "$EXECUTABLESCRIPT"
 			fi
 		else
 			# Do not add whitespace line feed when script has a comment

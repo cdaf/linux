@@ -49,7 +49,7 @@ workingDir=$(pwd)
 echo "$0 :   workingDir        : $workingDir"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
-	if [ -f $LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* ]; then
+	if [ -f ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* ]; then
 		
 		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
 		echo

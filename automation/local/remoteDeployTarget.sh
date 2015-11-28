@@ -69,9 +69,22 @@ else
 	echo "$0 :   deployLand : $deployLand"
 fi
 
+# Process the deployHost, stripping out the port if passed, i.e. localhost:2222
+sep=':'
+case $deployHost in
+	(*"$sep"*)
+    	    deployPort=${deployHost#*"$sep"}
+			deployHost=${deployHost%%"$sep"*}
+    	    ;;
+		(*)
+    	    userHost=$deployHost
+    	    deployPort="22"
+    ;;
+esac
+
 echo
 # Check if build has already been deployed on this target ..."
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh "$deployLand" "$SOLUTION-$BUILDNUMBER"
+ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh "$deployLand" "$SOLUTION-$BUILDNUMBER"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : ssh $deployUser@$deployHost 'bash -s' < ./$WORK_DIR_DEFAULT/remotePackageManagement.sh $deployLand $SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
@@ -80,7 +93,7 @@ fi
 
 echo
 echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployHost)"
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$SOLUTION-$BUILDNUMBER.zip $deployUser@$deployHost:$deployLand/
+scp -P $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$SOLUTION-$BUILDNUMBER.zip $deployUser@$deployHost:$deployLand/
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployUser@$deployHost:$deployLand) failed! Returned $exitCode"
@@ -89,7 +102,7 @@ fi
 
 echo
 echo "$0 : Extract the contents of the Package on the remote host ($deployHost)"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'cat | bash /dev/stdin ' "$SOLUTION-$BUILDNUMBER $deployLand" < ./$WORK_DIR_DEFAULT/extract.sh
+ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'cat | bash /dev/stdin ' "$SOLUTION-$BUILDNUMBER $deployLand" < ./$WORK_DIR_DEFAULT/extract.sh
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Extract the contents of the Package on the remote host ($SOLUTION-$BUILDNUMBER/$deployLand) failed! Returned $exitCode"
@@ -98,7 +111,7 @@ fi
 
 echo
 echo "$0 : Copy the Properties file (./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET) to the extracted directory"
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET $deployUser@$deployHost:$deployLand/$SOLUTION-$BUILDNUMBER
+scp -P $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET $deployUser@$deployHost:$deployLand/$SOLUTION-$BUILDNUMBER
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Copy the Properties file ($deployLand/$SOLUTION-$BUILDNUMBER/$DEPLOY_TARGET) to the extracted directory failed! Returned $exitCode"
@@ -119,10 +132,9 @@ fi
 
 echo
 echo "$0 : --- Transferring control to $deployUser@$deployHost for $DEPLOY_TARGET ---"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
+ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
 	exit $exitCode
 fi
-

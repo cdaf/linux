@@ -12,10 +12,25 @@ if [ -z "$1" ]; then
 	
 	echo
 	echo "$0 : Remote user and host not supplied, i.e. deployer@localhost"
+	echo "$0 : to use a non standard port, pass as deployer@localhost:<port>"
 	echo
 	exit 1
 						
 else
+	
+	# Process the argument, stripping out the port if passed
+	sep=':'
+	case $1 in
+		(*"$sep"*)
+			userHost=${1%%"$sep"*}
+    	    port=${1#*"$sep"}
+    	    ;;
+		(*)
+    	    userHost=$1
+    	    port="22"
+	    ;;
+	esac
+	
 	if [ -z "$REMOTE" ]; then # not remote, so launch local processes
 		
 		echo
@@ -36,9 +51,9 @@ else
 		
 		# push the same file back at the target
 		echo
-		ssh $1 'cat | bash /dev/stdin ' "$escapedKey REMOTE" < $0
+		ssh -p $port $userHost 'cat | bash /dev/stdin ' "$escapedKey REMOTE" < $0
 	
-		ssh $1 'cat | bash /dev/stdin ' "$1 REMOTE TEST" < $0
+		ssh -p $port $userHost 'cat | bash /dev/stdin ' "$userHost REMOTE TEST" < $0
 				
 	else
 		if [ -z "$TEST" ]; then # not test, so perform remote processes
@@ -64,8 +79,8 @@ else
 			echo
 			echo Append the users public key to the remote hosts authorized_keys
 			echo
-			echo $1
-			echo $1 >> $HOME/.ssh/authorized_keys
+			echo $userHost
+			echo $userHost >> $HOME/.ssh/authorized_keys
 	
 		else # TEST REMOTE passed, so perform remote test
 			
@@ -74,7 +89,7 @@ else
 			echo "$0 | Executing remote test |"
 			echo "$0 +-----------------------+"
 			echo 	
-			echo "$0 : If no password prompted for $1, test is successful"
+			echo "$0 : If no password prompted for $userHost, test is successful"
 			echo 	
 		fi
 	fi

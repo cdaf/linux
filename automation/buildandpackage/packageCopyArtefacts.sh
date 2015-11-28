@@ -18,21 +18,30 @@ if [ -f  "$DRIVER" ]; then
 		# overcome variable expansion when containing / character(s)
 		declare -a artArray=${ARTIFACT};
 		x=0
-		source=""
-		flat=""
-		recurse=""
+		unset source
+		unset flat
+		unset recurse
 		for i in ${artArray[@]}; do 
-			if [ $x -eq 0 ]; then source=$(echo $i); fi
-			if [ "$i" == "-Recurse" ]; then recurse="on"; fi
-			if [ "$i" == "-Flat" ]; then flat="on"; fi
+			# First element in array is treated as the source
+			if [ $x -eq 0 ]; then
+				source=$(echo $i);
+			else
+				# options are case insensitive
+				option=$(echo "$i" | tr '[a-z]' '[A-Z]')
+			fi
+			if [ "$option" == "-RECURSE" ]; then recurse="on"; fi
+			if [ "$option" == "-FLAT" ]; then flat="on"; fi
 			x=$((x + 1))
 		done
-
-		# when set to -Recursive copy, retain the source path as sub-directory of the target
-		# this is ignored if -Flat is set. In Windows (PowerShell), recursive processing is 
- 		# coded, in bash it is not, the support for -Flat is included for consistency 		
-		if [ -z $recurse ] || [ ! -z $flat ]; then
+		# In CDAF for Windows (PowerShell), recursive processing is explicitly  
+ 		# coded, in bash it is a native function, for consistency -recurse is looked for
+ 		# but no action performed, in the future I may support -recurse & -flat to allow a
+  		# complete directory subtree flattening. 		
+		if [ "$flat" == "on" ]; then
 			targetPath="$WORK_DIR_DEFAULT"
+			if [ -d "$source" ]; then
+				source+="/*"
+			fi
 		else
 			targetPath="$WORK_DIR_DEFAULT/$(dirname "$source")/"
 			if [ ! -d "$targetPath" ]; then

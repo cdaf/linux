@@ -28,9 +28,9 @@ if [ -f  "$DRIVER" ]; then
 			else
 				# options are case insensitive
 				option=$(echo "$i" | tr '[a-z]' '[A-Z]')
+				if [ "$option" == "-RECURSE" ]; then recurse="on"; fi
+				if [ "$option" == "-FLAT" ]; then flat="on"; fi
 			fi
-			if [ "$option" == "-RECURSE" ]; then recurse="on"; fi
-			if [ "$option" == "-FLAT" ]; then flat="on"; fi
 			x=$((x + 1))
 		done
 		# In CDAF for Windows (PowerShell), recursive processing is explicitly  
@@ -43,10 +43,15 @@ if [ -f  "$DRIVER" ]; then
 				source+="/*"
 			fi
 		else
-			targetPath="$WORK_DIR_DEFAULT/$(dirname "$source")/"
+			if [ -d $source ]; then
+				targetPath="$WORK_DIR_DEFAULT/$source"
+			else
+				targetPath="$WORK_DIR_DEFAULT/$(dirname "$source")/"
+			fi
+			# The target maybe a parent path of an existing artefact definition, so test for existing 
 			if [ ! -d "$targetPath" ]; then
 				mkdir -pv $targetPath
-			fi 
+			fi
 		fi
 		cp -av $source $targetPath
 		exitCode=$?

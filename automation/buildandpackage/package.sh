@@ -97,6 +97,14 @@ else
 	echo "none ($remotePropertiesDir)"
 fi
 
+remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
+printf "$0 :   remote artifact list     : "
+if [ -f  "$remoteArtifactListFile" ]; then
+	echo "found ($remoteArtifactListFile)"
+else
+	echo "none ($remoteArtifactListFile)"
+fi
+
 cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
 echo "$0 :   CDAF Version             : $cdafVersion"
 
@@ -165,9 +173,9 @@ else
 		exit $exitCode
 	fi
 
-	# Only create the remote package if there is a remote target folder, if folder exists
+	# Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
-	if [ -d  "$remotePropertiesDir" ]; then
+	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ]; then
 		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then

@@ -153,21 +153,14 @@ Local Tasks
 
 Executed from the current host, i.e. the build server or agent, and may connect to remove hosts through direct protocols, i.e. WebDAV, ODBC/JDBC, HTTP(S), etc.
 
-Automated Function Tests
-------------------------
-
-Currently PhantomJS is used to perform the headless function testing, although an example of using Firefox with Xvfb is also included but not used.
-
 Frequently Asked Questions
 ==========================
-
 
 Why use CDAF
 ------------
 
 To provide a consistent approach to Continuous Delivery and leverage the efforts of others to provide greater reusability and easier problem determination. CDAF will provide the building blocks for common tasks, with rich logging and exeception handling. The CDAf provides toolset configuration guidance, keeping the actions loosely coupled with the toolset, to allow visibilty and traceability through source control rather than direct changes.
 
-  
 Why not have a shared folder for CDAF on the system
 ---------------------------------------------------
 

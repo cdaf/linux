@@ -75,6 +75,11 @@ else
 	fi
 fi
 
+if [ ! -f $TASKLIST ]; then
+	echo "$0 : TASKLIST ($TASKLIST) not found! Terminating with exit code 5"
+	exit 5
+fi
+
 # Process Task Execution
 while read LINE
 do

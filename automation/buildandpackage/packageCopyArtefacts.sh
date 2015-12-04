@@ -43,8 +43,9 @@ if [ -f  "$DRIVER" ]; then
 				source+="/*"
 			fi
 		else
+			# Only set the target path for files, directories will be created as part of recursive copy
 			if [ -d $source ]; then
-				targetPath="$WORK_DIR_DEFAULT/$source"
+				targetPath="$WORK_DIR_DEFAULT"
 			else
 				targetPath="$WORK_DIR_DEFAULT/$(dirname "$source")/"
 			fi

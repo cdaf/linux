@@ -35,9 +35,14 @@ fi
 automationHelper="$automationRoot/remote"
 
 # Build and Delivery Properties Lookup values
-environmentBuild="BUILD"
-environmentDelivery="LINUX"
+if [ ! $environmentBuild] ; then
+	environmentBuild="BUILD"
+fi
 echo "$scriptName :   environmentBuild    : $environmentBuild"
+
+if [ ! $environmentDelivery ]; then
+	environmentDelivery="LINUX"
+fi
 echo "$scriptName :   environmentDelivery : $environmentDelivery"
 
 # Use timestamp to ensure unique build number and emulate the revision ID (source control) 

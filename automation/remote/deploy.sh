@@ -36,9 +36,15 @@ eval $manifestProperties
 echo
 scriptOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
 if [ "$scriptOverride" ]; then
-	echo	
-	echo "$0 : deployScriptOverride set to scriptOverride, transfer control to custom script (not execution engine)"
-	./$scriptOverride "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET"
+	echo
+	if [ ! -f "./$scriptOverride" ]; then
+		echo "$0 : $scriptOverride not found!"
+		exit 127
+	fi	 	
+	printf "$0 : deployScriptOverride set, executing ==> "  
+	overrideExecute="./$scriptOverride $SOLUTION $BUILDNUMBER $DEPLOY_TARGET"
+	echo "$overrideExecute"
+	eval $overrideExecute
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : $scriptOverride failed! Returned $exitCode"

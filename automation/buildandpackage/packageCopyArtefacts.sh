@@ -21,6 +21,7 @@ if [ -f  "$DRIVER" ]; then
 		unset source
 		unset flat
 		unset recurse
+		unset copyParent
 		for i in ${artArray[@]}; do 
 			# First element in array is treated as the source
 			if [ $x -eq 0 ]; then
@@ -46,6 +47,10 @@ if [ -f  "$DRIVER" ]; then
 			# Only set the target path for files, directories will be created as part of recursive copy
 			if [ -d $source ]; then
 				targetPath="$WORK_DIR_DEFAULT"
+				# Copy the complete path into the target 				
+				if [ "$recurse" == "on" ]; then
+					copyParent="--parents "
+				fi
 			else
 				targetPath="$WORK_DIR_DEFAULT/$(dirname "$source")/"
 			fi
@@ -54,7 +59,7 @@ if [ -f  "$DRIVER" ]; then
 				mkdir -pv $targetPath
 			fi
 		fi
-		cp -av $source $targetPath
+		cp $copyParent -av $source $targetPath
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
 			echo "$0 : cp -v ../$ARTIFACT . failed! Exit code = $exitCode."

@@ -179,6 +179,19 @@ do
 		esac
 	fi
 
+	# Replace in file
+	#  required : file, relative to current workspace
+	#  required : name, the token to be replaced
+	#  required : value, the replacement value
+	if [ "$feature" == "REPLAC" ]; then
+		printf "$LINE ==> "
+		stringarray=($LINE)
+		fileName=${stringarray[1]}
+		name=${stringarray[2]}
+		value=${stringarray[3]}
+		EXECUTABLESCRIPT="sed -i -- \"s/${name}/${value}/g\" ${fileName}"
+	fi
+
 	# Perform no further processing if Feature is Property Loader
 	if [ "$feature" != "PROPLD" ]; then
 		if [ -n "$EXECUTABLESCRIPT" ]; then

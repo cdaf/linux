@@ -46,13 +46,13 @@ echo "$0 :   workingDir   : $workingDir"
 
 if [ -d "./propertiesForLocalTasks" ]; then
 
-	# Unable to determine why this logic works in the remoteTasks equivalent?
-	#	if [ -f ./propertiesForLocalTasks/$ENVIRONMENT* ]; then
-			
-	filesExist=$(ls ./propertiesForLocalTasks/$ENVIRONMENT* 2> /dev/null)
-	if [ "$filesExist" ]; then
+	ls -L -1 ./propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
 
-		ls -L -1 ./propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList 2> /dev/null
+	# Pause 1 second for file processing to complete 
+	sleep 1
+	linecount=$(wc -l < "targetList")
+	
+	if (( $linecount > 0 )); then
 		
 		echo
 		echo "$0 : Preparing to process targets : "

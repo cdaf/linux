@@ -189,7 +189,12 @@ do
 		fileName=${stringarray[1]}
 		name=${stringarray[2]}
 		value=${stringarray[3]}
-		EXECUTABLESCRIPT="sed -i -- \"s/${name}/${value}/g\" ${fileName}"
+		# Mac OSX sed 
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			EXECUTABLESCRIPT="sed -i '' -- \"s/${name}/${value}/g\" ${fileName}"
+		else
+			EXECUTABLESCRIPT="sed -i -- \"s/${name}/${value}/g\" ${fileName}"
+		fi
 	fi
 
 	# Perform no further processing if Feature is Property Loader

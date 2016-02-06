@@ -26,7 +26,12 @@ fi
 
 if [ ! -f $ABS_PATH ]; then
 	echo "$0 : No existing file, create $ABS_PATH"
-	sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+	# Mac OSX sed 
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		sed -i '' "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+	else
+		sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+	fi
 	cp .$ABS_PATH $ABS_PATH
 else
 	# Only deploy if the configuration is different, or if the existing file does not have version marker
@@ -38,7 +43,14 @@ else
 		echo "Following changes apply to $ABS_PATH ..."
 		STAMP=$(date "+%Y-%m-%d_%T")
 		mv $ABS_PATH $ABS_PATH-$STAMP-$BUILDNUMBER
-		sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+		
+		# Mac OSX sed 
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			sed -i '' "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+		else
+			sed -i "s/"\%buildRevision\%"/$BUILDNUMBER/g" .$ABS_PATH
+		fi
+		
 		echo "$0 : Updated $ABS_PATH to $BUILDNUMBER, existing file renamed to $ABS_PATH-$STAMP-$BUILDNUMBER"
 		echo "               ---- New Value ----                      |               ---- Existing Value -----"
 		diff -y --suppress-common-lines .$ABS_PATH $ABS_PATH-$STAMP-$BUILDNUMBER

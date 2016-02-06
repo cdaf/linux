@@ -22,6 +22,12 @@ else
 	MASK=$3
 fi
 
+# Create target directory if missing
+if [ ! -d "$ABS_PATH" ]; then
+	mkdir -pv $DIR_PATH
+	echo
+fi
+
 echo "$0 : Processing directory $1 (only differences will be reported ...)"
 ls -L -1 .$ABS_PATH/$MASK | xargs -n 1 basename > FILE_LIST
 

@@ -13,7 +13,13 @@ CRON=$(cat crontab.txt)
 MARKER="Datacom Build and Revision"
 
 if [ -z "$CRON" ]; then
-	sed -i "s/"\%buildRevision\%"/$1/g" ./config/crontab.txt
+	
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		sed -i '' "s/"\%buildRevision\%"/$1/g" ./config/crontab.txt
+	else
+		sed -i "s/"\%buildRevision\%"/$1/g" ./config/crontab.txt
+	fi
+
 	CRON=$(cat ./config/crontab.txt)
 	echo "$0 : No existing cron, install ..."
 	echo "$0 : $CRON"

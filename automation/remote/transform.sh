@@ -33,7 +33,13 @@ do
 	else		
 		name="%${array[0]}%"
 #		echo "$0 : Replace $name with ${array[1]}"
-		sed -i "s^$name^${array[1]}^g" $TOKENISED
+
+		# Mac OSX sed 
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			sed -i '' "s^$name^${array[1]}^g" $TOKENISED
+		else
+			sed -i "s^$name^${array[1]}^g" $TOKENISED
+		fi
 	fi
 
 done < fileWithoutComments

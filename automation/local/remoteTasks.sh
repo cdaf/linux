@@ -52,8 +52,8 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 	
 	ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
 	
-	# Pause 1 second for file processing to complete 
-	sleep 1
+	# Wait for the pipe subprocess to complete 
+	wait
 	linecount=$(wc -l < "targetList")
 	
 	if (( $linecount > 0 )); then

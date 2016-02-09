@@ -116,6 +116,12 @@ do
 		EXECUTABLESCRIPT="${LINE:8}"
 	fi
 
+	# Create Directory (verbose)
+	if [ "$feature" == "MAKDIR" ]; then
+		printf "$LINE ==> "
+		EXECUTABLESCRIPT="mkdir -pv ${LINE:7}"
+	fi
+
 	# Delete (verbose)
 	if [ "$feature" == "REMOVE" ]; then
 		printf "$LINE ==> "

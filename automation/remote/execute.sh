@@ -131,7 +131,7 @@ do
 	# Copy (verbose)
 	if [ "$feature" == "VECOPY" ]; then
 		printf "$LINE ==> "
-		EXECUTABLESCRIPT="cp -v ${LINE:7}"
+		EXECUTABLESCRIPT="cp -vR ${LINE:7}"
 	fi
 
 	# Decrypt a file

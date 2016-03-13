@@ -10,4 +10,10 @@ su vagrant << EOF
 	./automation/cdEmulate.sh
 EOF
 
+# Clean the workspace
+su vagrant << EOF
+	cd /vagrant/
+	./automation/cdEmulate.sh clean
+EOF
+
 echo "buildserver.sh : --- end ---"

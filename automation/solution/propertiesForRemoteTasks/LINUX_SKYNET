@@ -1,4 +1,4 @@
 # values used on the agent to determine target
-deployHost=localhost
+deployHost=app.skynet
 deployUser=deployer
 deployLand=/opt/packages/CDAF

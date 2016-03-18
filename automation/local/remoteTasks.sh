@@ -49,14 +49,16 @@ workingDir=$(pwd)
 echo "$0 :   workingDir        : $workingDir"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
-	
-	ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
-	
-	# Wait for the pipe subprocess to complete 
+
+	ls ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* > targetList &2> /dev/null
 	wait
 	linecount=$(wc -l < "targetList")
-	
 	if [ "$linecount" -gt 0 ]; then
+
+		# Build the list of targets				
+		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
+		# Wait for the pipe subprocess to complete 
+		wait
 		
 		echo
 		echo "$0 : Preparing to process targets : "
@@ -86,14 +88,14 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 			echo "$0 : No Targets processed, if this is unexpected, check that properties file exists with prefix of $ENVIRONMENT."
 			
 		fi
-		
-		rm -f targetList
 				
 	else
 		echo
 		echo "$0 :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 		
 	fi
+	rm -f targetList
+	
 else
 	echo
 	echo "$0 :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."

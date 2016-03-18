@@ -46,13 +46,14 @@ echo "$0 :   workingDir   : $workingDir"
 
 if [ -d "./propertiesForLocalTasks" ]; then
 
-	ls -L -1 ./propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
-
-	# Wait for the pipe subprocess to complete 
+	ls ./$LOCAL_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT* > targetList &2> /dev/null
 	wait
 	linecount=$(wc -l < "targetList")
-	
 	if [ "$linecount" -gt 0 ]; then
+
+		ls -L -1 ./propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
+		# Wait for the pipe subprocess to complete 
+		wait
 		
 		echo
 		echo "$0 : Preparing to process targets : "

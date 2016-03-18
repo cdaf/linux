@@ -1,2 +1,2 @@
 # Automated Function Test
-ftURL=http://localhost/
+testFile=manifest.txt

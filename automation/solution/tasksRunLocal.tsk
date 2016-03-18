@@ -1,2 +1,2 @@
 echo "Perform test to verify deploy (remote) action, i.e. BUILDNUMBER should match"
-cat $TMPDIR/manifest.txt
+cat $TMPDIR/$testFile

@@ -52,7 +52,7 @@ if [ -d "./propertiesForLocalTasks" ]; then
 	wait
 	linecount=$(wc -l < "targetList")
 	
-	if (( $linecount > 0 )); then
+	if [ "$linecount" -gt 0 ]; then
 		
 		echo
 		echo "$0 : Preparing to process targets : "

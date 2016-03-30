@@ -1,33 +1,57 @@
 #!/usr/bin/env bash
-# set -e
-# set -x
+$scriptName = 'deployer.sh'
 
-echo "deployer.sh : --- start ---"
+echo "$scriptName : --- start ---"
+if [ -z "$1" ]; then
+	deployerSide='server'
+	echo "  group       : $group (default, choices server or target)"
+else
+	deployerSide="$1"
+	echo "  group       : $group (choices server or target)"
+fi
 
-# Version is set by the build process and is static for any given copy of this script
-buildnumber="@buildnumber@"
-echo "deployer.sh : buildnumber  : $buildnumber"
+if [ -z "$2" ]; then
+	group='deployer'
+	echo "  group       : $group (default)"
+else
+	version="$2"
+	echo "  group       : $group"
+fi
 
-deployerSide=$1
-echo "deployer.sh : deployerSide : $deployerSide"
+if [ -z "$3" ]; then
+	deployUser='deployer'
+	echo "  deployUser  : $deployUser (deafult)"
+else
+	version="$3"
+	echo "  deployUser  : $deployUser"
+fi
+
+if [ -z "$4" ]; then
+	deployLand='/opt/packages/'
+	echo "  deployLand  : $deployLand (deafult)"
+else
+	version="$4"
+	echo "  deployLand  : $deployLand"
+fi
+
 
 if [ "$deployerSide" == "server" ]; then
 
-	echo "deployer.sh : Prepare vagrant user keys"
+	echo "$scriptName : Prepare vagrant user keys"
 
 # cannot indent or EOF will not be detected
 su vagrant << EOF
 
 	# Escape variables that need to be executed as vagrant
-	echo "deployer.sh : Install private key for both SSL (password decrypt) and SSH to \${HOME}"
+	echo "$scriptName : Install private key for both SSL (password decrypt) and SSH to \${HOME}"
 	userSSL="\${HOME}/.ssl"
 	if [ -d "\$userSSL" ]; then
-		echo "deployer.sh : User SSL directory (\$userSSL) exists, no action required"
+		echo "$scriptName : User SSL directory (\$userSSL) exists, no action required"
 	else
-		echo "deployer.sh : Create user SSL directory (\$userSSL)"
+		echo "$scriptName : Create user SSL directory (\$userSSL)"
 		mkdir \$userSSL
 	fi
-	echo "deployer.sh : Install private key to \$userSSH/private_key.pem"
+	echo "$scriptName : Install private key to \$userSSH/private_key.pem"
 	
 	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
 	echo "MIIEpAIBAAKCAQEA6AM/oCp+j+KfYHMvf/mHFZp+TfTYE/j5g0Xw11cEpSevgLM1" >> \$userSSL/private_key.pem
@@ -60,12 +84,12 @@ su vagrant << EOF
 	# Install the private key
 	userSSH="\${HOME}/.ssh"
 	if [ -d "\$userSSH" ]; then
-		echo "deployer.sh : User SSH directory (\$userSSH) exists, no action required"
+		echo "$scriptName : User SSH directory (\$userSSH) exists, no action required"
 	else
-		echo "deployer.sh : Create user SSH directory (\$userSSH)"
+		echo "$scriptName : Create user SSH directory (\$userSSH)"
 		mkdir \$userSSH
 	fi
-	echo "deployer.sh : Install private key to \$userSSH/id_rsa"
+	echo "$scriptName : Install private key to \$userSSH/id_rsa"
 	
 	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSH/id_rsa
 	echo "MIIEowIBAAKCAQEAzn+SgLp69Qd+rdMsLXNecxTGTzhMtqocaEAYSLitLJqM5xs4" >> \$userSSH/id_rsa
@@ -98,7 +122,7 @@ su vagrant << EOF
 	# Protect the private key
 	chmod 0600 \$userSSH/id_rsa
 	
-	echo "deployer.sh : Install public key to \$userSSH/id_rsa.pub"
+	echo "$scriptName : Install public key to \$userSSH/id_rsa.pub"
 	echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> \$userSSH/id_rsa.pub
 
 EOF
@@ -112,28 +136,27 @@ else # deployer target
 	# Create and Configure Deployment user
 	echo "Install base software ($install)"
 	if [ -z "$centos" ]; then
-		echo "Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" deployer"
-		sudo adduser --disabled-password --gecos "" deployer
+		echo "Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" $deployUser"
+		sudo adduser --disabled-password --gecos "" $deployUser
 	else
-		echo "CentOS/RHEL : sudo adduser deployer"
-		sudo adduser deployer
+		echo "CentOS/RHEL : sudo adduser $deployUser"
+		sudo adduser $deployUser
 	fi
  	
 	# Update the deployer account to have access
-	landing='/opt/packages/'
-	if [ -d "$landing" ]; then
-		echo "deployer.sh : Landing directory ($landing) exists"
+	if [ -d "$deployLand" ]; then
+		echo "$scriptName : Landing directory ($deployLand) exists"
 	else
-		echo "deployer.sh : Create landing directory, $landing"
-		sudo mkdir -p "$landing"
-		sudo chown deployer:deployer "$landing"
+		echo "$scriptName : Create landing directory, $deployLand"
+		sudo mkdir -p "$deployLand"
+		sudo chown $group:$deployUser "$deployLand"
 	fi
 
 	# Install the authorised list
-	echo "deployer.sh : Install public certificate to authorised list (/home/deployer/.ssh/authorized_keys) as deployer"
-	sudo -u deployer sh -c 'mkdir /home/deployer/.ssh/'
-	sudo -u deployer sh -c 'echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> /home/deployer/.ssh/authorized_keys'
+	echo "$scriptName : Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
+	sudo -u $deployUser sh -c 'mkdir /home/$deployUser/.ssh/'
+	sudo -u $deployUser sh -c 'echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> /home/$deployUser/.ssh/authorized_keys'
 
 fi
 
-echo "deployer.sh : --- end ---"
+echo "$scriptName : --- end ---"

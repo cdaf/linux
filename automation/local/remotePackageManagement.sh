@@ -34,12 +34,12 @@ fi
 
 timeStamp=$(date "+%Y%m%d_%T")
 
-if [ -f "$LANDING_DIR/$PACKAGE_NAME.zip" ]; then
+if [ -f "$LANDING_DIR/$PACKAGE_NAME.tar.gz" ]; then
 	echo
-	echo "$scriptName : Package file ($LANDING_DIR/$PACKAGE_NAME.zip) exists rename:"
+	echo "$scriptName : Package file ($LANDING_DIR/$PACKAGE_NAME.tar.gz) exists rename:"
 	newPackage="$PACKAGE_NAME"
-	newPackage+="-$timeStamp.zip"
-	mv -v $LANDING_DIR/$PACKAGE_NAME.zip $LANDING_DIR/$newPackage
+	newPackage+="-$timeStamp.tar.gz"
+	mv -v $LANDING_DIR/$PACKAGE_NAME.tar.gz $LANDING_DIR/$newPackage
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		echo "$scriptName : Could not move existing package to $LANDING_DIR/$newPackage on $(hostname)"

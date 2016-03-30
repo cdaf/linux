@@ -77,18 +77,16 @@ else
 		exit $exitCode
 	fi
 	
-	# Enter the default directory to create zip package file 
 	cd $WORK_DIR_DEFAULT
-	
 	echo	
-	echo "$0 : Create the package (zip) file"
+	echo "$0 : Create the package (tarball) file, excluding git or svn control files"
 	echo
-	zip -r ../$SOLUTION-$BUILDNUMBER.zip . -x *.git *.svn*
+	tar -zcvf ../$SOLUTION-$BUILDNUMBER.tar.gz . --exclude="*.git" --exclude="*.svn"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$0 : zip -r ../$SOLUTION-$BUILDNUMBER.zip . -x *.git *.svn* failed! Exit = $exitCode"
+		echo "$0 : tar -zcvf ../$SOLUTION-$BUILDNUMBER.tar.gz . --exclude=\"*.git\" --exclude=\"*.svn\" failed! Exit = $exitCode"
 		exit $exitCode
 	fi
-	# Return to workspace root
 	cd ..
+	
 fi

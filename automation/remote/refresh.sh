@@ -67,7 +67,7 @@ echo "$0 : ------------------ after ----------------------------"
 echo
 
 echo "$0 : Extract new content"
-unzip $SOURCEPACKAGE -d $targetPath
+./extract.sh  $SOURCEPACKAGE $targetPath
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$0 : Unable to extract content! Returned $exitCode"

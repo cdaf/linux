@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-$scriptName = 'base.sh'
+scriptName='base.sh'
 
 echo "$scriptName : --- start ---"
 install=$1

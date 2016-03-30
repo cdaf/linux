@@ -92,11 +92,11 @@ if [ "$exitCode" != "0" ]; then
 fi
 
 echo
-echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployHost)"
-scp -P $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$SOLUTION-$BUILDNUMBER.zip $deployUser@$deployHost:$deployLand/
+echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.tar.gz) to target host ($deployHost)"
+scp -P $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ./$SOLUTION-$BUILDNUMBER.tar.gz $deployUser@$deployHost:$deployLand/
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.zip) to target host ($deployUser@$deployHost:$deployLand) failed! Returned $exitCode"
+	echo "$0 : Copy package ($SOLUTION-$BUILDNUMBER.tar.gz) to target host ($deployUser@$deployHost:$deployLand) failed! Returned $exitCode"
 	exit $exitCode
 fi
 

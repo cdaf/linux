@@ -51,7 +51,7 @@ echo "  Script file : \${bamboo.build.working.directory}/$LOCAL_WORK_DIR/remoteT
 echo "  Argument : \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $LOCAL_WORK_DIR"
 echo
 echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
-echo "  build-${bamboo.buildNumber} deploy-1"
+echo "  build-\${bamboo.buildNumber} deploy-1"
 echo
 echo "For Jenkins ..."
 echo "  Command : /$LOCAL_WORK_DIR/remoteTasks.sh $ENVIRONMENT %BUILD_NUMBER% $SOLUTION $LOCAL_WORK_DIR"

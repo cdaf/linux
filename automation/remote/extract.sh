@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-# Extract the Delivered package
-echo "extract.sh : Extract $1 to $2"
-unzip -o $2/$1.zip -d $2/$1
+echo
+echo "$0 : Extract $1 to $2"
+mkdir -p $2/$1
+tar -zxvf $2/$1.tar.gz -C $2/$1
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	echo "$0 : tar -zxvf $2/$1.tar.gz -C $2/$1 failed! Returned $exitCode"
+	exit $exitCode
+fi

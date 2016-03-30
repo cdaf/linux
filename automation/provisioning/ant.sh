@@ -1,34 +1,38 @@
 #!/usr/bin/env bash
-set -e
-set -x #echo on
+scriptName='ant.sh'
 
-echo "ant.sh : --- start ---"
-
-# Version is set by the build process and is static for any given copy of this script
-buildNumber="@buildNumber@"
-echo "ant.sh : buildNumber : $buildNumber"
-
+echo "$scriptName : --- start ---"
 if [ -z "$1" ]; then
 	echo "version not passed, HALT!"
 	exit 1
 else
 	version="$1"
+	echo "$scriptName :   version    : $version"
 fi
 
 # Set parameters
 antVersion="apache-ant-${version}"
+echo "$scriptName :   antVersion : $antVersion"
 antSource="$antVersion-bin.tar.gz"
+echo "$scriptName :   antSource  : $antSource"
 
+echo "$scriptName : cp /vagrant/.provisioning/${antSource} ."
 cp "/vagrant/.provisioning/${antSource}" .
+echo "$scriptName : tar -xf $antSource"
 tar -xf $antSource
+echo "$scriptName : sudo mv $antVersion /opt/"
 sudo mv $antVersion /opt/
 
 # Configure to directory on the default PATH
+echo "$scriptName : sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
 sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant
 
 # Set environment (user default) variable
-echo ANT_HOME=\"/opt/$antVersion\" > ant.sh
-chmod +x ant.sh
-sudo mv -v ant.sh /etc/profile.d/
+echo "$scriptName : ANT_HOME=\"/opt/$antVersion\" > $scriptName"
+echo ANT_HOME=\"/opt/$antVersion\" > $scriptName
+echo "$scriptName : chmod +x $scriptName"
+chmod +x $scriptName
+echo "$scriptName : sudo mv -v $scriptName /etc/profile.d/"
+sudo mv -v $scriptName /etc/profile.d/
 
-echo "ant.sh : --- end ---"
+echo "$scriptName : --- end ---"

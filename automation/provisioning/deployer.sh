@@ -1,41 +1,41 @@
 #!/usr/bin/env bash
-$scriptName = 'deployer.sh'
+scriptName='deployer.sh'
 
 echo "$scriptName : --- start ---"
 if [ -z "$1" ]; then
 	deployerSide='server'
-	echo "  group       : $group (default, choices server or target)"
+	echo "  deployerSide : $deployerSide (default, choices server or target)"
 else
 	deployerSide="$1"
-	echo "  group       : $group (choices server or target)"
+	echo "  deployerSide : $deployerSide (choices server or target)"
 fi
 
 if [ -z "$2" ]; then
 	group='deployer'
-	echo "  group       : $group (default)"
+	echo "  group        : $group (default)"
 else
 	version="$2"
-	echo "  group       : $group"
+	echo "  group        : $group"
 fi
 
 if [ -z "$3" ]; then
 	deployUser='deployer'
-	echo "  deployUser  : $deployUser (deafult)"
+	echo "  deployUser   : $deployUser (default)"
 else
 	version="$3"
-	echo "  deployUser  : $deployUser"
+	echo "  deployUser   : $deployUser"
 fi
 
 if [ -z "$4" ]; then
 	deployLand='/opt/packages/'
-	echo "  deployLand  : $deployLand (deafult)"
+	echo "  deployLand   : $deployLand (deafult)"
 else
 	version="$4"
-	echo "  deployLand  : $deployLand"
+	echo "  deployLand   : $deployLand"
 fi
 
 
-if [ "$deployerSide" == "server" ]; then
+if [ "$deployerSide" == 'server' ]; then
 
 	echo "$scriptName : Prepare vagrant user keys"
 
@@ -154,8 +154,8 @@ else # deployer target
 
 	# Install the authorised list
 	echo "$scriptName : Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
-	sudo -u $deployUser sh -c 'mkdir /home/$deployUser/.ssh/'
-	sudo -u $deployUser sh -c 'echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> /home/$deployUser/.ssh/authorized_keys'
+	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
+	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
 
 fi
 

@@ -96,7 +96,7 @@ if [ -z "$ACTION" ]; then
 	echo
     echo "$scriptName : For Bamboo ..."
     echo "  Name    : Package"
-	echo "  Pattern : *.zip"
+	echo "  Pattern : *.tar.gz"
 	echo
     echo "  Name    : TasksLocal"
 	echo "  Pattern : TasksLocal/**"

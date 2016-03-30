@@ -8,6 +8,7 @@
 ACTION="$1"
 
 scriptName=${0##*/}
+source /etc/bash.bashrc
 
 echo
 echo "$scriptName : --------------------"
@@ -32,13 +33,13 @@ if [ -z "$automationRoot" ]; then
 	echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux not found)"
 fi
 
-automationHelper="$automationRoot/remote"
-
 # Build and Delivery Properties Lookup values
 if [ ! $environmentBuild] ; then
 	environmentBuild="BUILD"
 fi
 echo "$scriptName :   environmentBuild    : $environmentBuild"
+
+echo "\$environmentDelivery = $environmentDelivery"
 
 if [ ! $environmentDelivery ]; then
 	environmentDelivery="LINUX"

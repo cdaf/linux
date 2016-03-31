@@ -19,7 +19,7 @@ fi
 soapuiVersion="SoapUI-${version}"
 soapuiSource="${soapuiVersion}-linux-bin.tar.gz"
 
-cp "/vagrant/.provisioning/${soapuiSource}" .
+cp "/vagrant/.provision/${soapuiSource}" .
 tar -xf $soapuiSource
 sudo mv $soapuiVersion /opt/
 

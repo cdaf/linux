@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# set -e
-# set -x
+set -e
+scriptName='CDAF.sh'
 
-echo "buildserver.sh : --- start ---"
+echo "[$scriptName] --- start ---"
 
 # Execute the CDAF emulation to verify
 su vagrant << EOF
@@ -16,4 +16,4 @@ su vagrant << EOF
 	./automation/cdEmulate.sh clean
 EOF
 
-echo "buildserver.sh : --- end ---"
+echo "[$scriptName] --- end ---"

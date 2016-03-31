@@ -1,57 +1,57 @@
 #!/usr/bin/env bash
 scriptName='deployer.sh'
 
-echo "$scriptName : --- start ---"
+echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	deployerSide='server'
-	echo "  deployerSide : $deployerSide (default, choices server or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server or target)"
 else
 	deployerSide="$1"
-	echo "  deployerSide : $deployerSide (choices server or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (choices server or target)"
 fi
 
 if [ -z "$2" ]; then
 	group='deployer'
-	echo "  group        : $group (default)"
+	echo "[$scriptName]   group        : $group (default)"
 else
 	version="$2"
-	echo "  group        : $group"
+	echo "[$scriptName]   group        : $group"
 fi
 
 if [ -z "$3" ]; then
 	deployUser='deployer'
-	echo "  deployUser   : $deployUser (default)"
+	echo "[$scriptName]   deployUser   : $deployUser (default)"
 else
 	version="$3"
-	echo "  deployUser   : $deployUser"
+	echo "[$scriptName]   deployUser   : $deployUser"
 fi
 
 if [ -z "$4" ]; then
 	deployLand='/opt/packages/'
-	echo "  deployLand   : $deployLand (deafult)"
+	echo "[$scriptName]   deployLand   : $deployLand (deafult)"
 else
 	version="$4"
-	echo "  deployLand   : $deployLand"
+	echo "[$scriptName]   deployLand   : $deployLand"
 fi
 
 
 if [ "$deployerSide" == 'server' ]; then
 
-	echo "$scriptName : Prepare vagrant user keys"
+	echo "[$scriptName] Prepare vagrant user keys"
 
 # cannot indent or EOF will not be detected
 su vagrant << EOF
 
 	# Escape variables that need to be executed as vagrant
-	echo "$scriptName : Install private key for both SSL (password decrypt) and SSH to \${HOME}"
+	echo "[$scriptName] Install private key for both SSL (password decrypt) and SSH to \${HOME}"
 	userSSL="\${HOME}/.ssl"
 	if [ -d "\$userSSL" ]; then
-		echo "$scriptName : User SSL directory (\$userSSL) exists, no action required"
+		echo "[$scriptName] User SSL directory (\$userSSL) exists, no action required"
 	else
-		echo "$scriptName : Create user SSL directory (\$userSSL)"
+		echo "[$scriptName] Create user SSL directory (\$userSSL)"
 		mkdir \$userSSL
 	fi
-	echo "$scriptName : Install private key to \$userSSH/private_key.pem"
+	echo "[$scriptName] Install private key to \$userSSH/private_key.pem"
 	
 	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
 	echo "MIIEpAIBAAKCAQEA6AM/oCp+j+KfYHMvf/mHFZp+TfTYE/j5g0Xw11cEpSevgLM1" >> \$userSSL/private_key.pem
@@ -84,12 +84,12 @@ su vagrant << EOF
 	# Install the private key
 	userSSH="\${HOME}/.ssh"
 	if [ -d "\$userSSH" ]; then
-		echo "$scriptName : User SSH directory (\$userSSH) exists, no action required"
+		echo "[$scriptName] User SSH directory (\$userSSH) exists, no action required"
 	else
-		echo "$scriptName : Create user SSH directory (\$userSSH)"
+		echo "[$scriptName] Create user SSH directory (\$userSSH)"
 		mkdir \$userSSH
 	fi
-	echo "$scriptName : Install private key to \$userSSH/id_rsa"
+	echo "[$scriptName] Install private key to \$userSSH/id_rsa"
 	
 	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSH/id_rsa
 	echo "MIIEowIBAAKCAQEAzn+SgLp69Qd+rdMsLXNecxTGTzhMtqocaEAYSLitLJqM5xs4" >> \$userSSH/id_rsa
@@ -122,41 +122,41 @@ su vagrant << EOF
 	# Protect the private key
 	chmod 0600 \$userSSH/id_rsa
 	
-	echo "$scriptName : Install public key to \$userSSH/id_rsa.pub"
+	echo "[$scriptName] Install public key to \$userSSH/id_rsa.pub"
 	echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> \$userSSH/id_rsa.pub
 
 EOF
 
 else # deployer target
 
-	echo "Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
+	echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
 	uname -a
 	centos=$(uname -a | grep el)
 	
 	# Create and Configure Deployment user
-	echo "Install base software ($install)"
+	echo "[$scriptName] Install base software ($install)"
 	if [ -z "$centos" ]; then
-		echo "Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" $deployUser"
+		echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" $deployUser"
 		sudo adduser --disabled-password --gecos "" $deployUser
 	else
-		echo "CentOS/RHEL : sudo adduser $deployUser"
+		echo "[$scriptName] CentOS/RHEL : sudo adduser $deployUser"
 		sudo adduser $deployUser
 	fi
  	
 	# Update the deployer account to have access
 	if [ -d "$deployLand" ]; then
-		echo "$scriptName : Landing directory ($deployLand) exists"
+		echo "[$scriptName] Landing directory ($deployLand) exists"
 	else
-		echo "$scriptName : Create landing directory, $deployLand"
+		echo "[$scriptName] Create landing directory, $deployLand"
 		sudo mkdir -p "$deployLand"
 		sudo chown $group:$deployUser "$deployLand"
 	fi
 
 	# Install the authorised list
-	echo "$scriptName : Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
+	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
 	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
 	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
 
 fi
 
-echo "$scriptName : --- end ---"
+echo "[$scriptName] --- end ---"

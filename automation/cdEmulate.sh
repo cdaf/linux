@@ -92,7 +92,7 @@ fi
 if [ -f "$solutionRoot/CDAF.solution" ]; then
 	echo
 	echo "$scriptName : Load Solution Properties $solutionRoot/CDAF.solution"
-	propertiesList=$($automationHelper/transform.sh "$solutionRoot/CDAF.solution")
+	propertiesList=$($automationRoot/remote/transform.sh "$solutionRoot/CDAF.solution")
 	echo "$propertiesList"
 	eval $propertiesList
 fi

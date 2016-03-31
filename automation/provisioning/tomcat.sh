@@ -1,50 +1,55 @@
 #!/usr/bin/env bash
+scriptName='tomcat.sh'
 
-echo "tomcat.sh : --- start ---"
+echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	echo "version not passed, HALT!"
 	exit 1
 else
 	version="$1"
-	echo "tomcat.sh : version     : $version"
+	echo "[$scriptName]   version     : $version"
 fi
 
 # Set parameters
 tomcat="apache-tomcat-${version}"
-echo "tomcat.sh : tomcat      : $tomcat"
+echo "[$scriptName]   tomcat      : $tomcat"
 appRoot='/opt/apache'
-echo "tomcat.sh : appRoot     : $appRoot"
+echo "[$scriptName]   appRoot     : $appRoot"
 
 # Create and Configure Deployment user
-echo 'Create the runtime user (tomcat)'
+echo "[$scriptName] Create the runtime user (tomcat)"
 centos=$(uname -a | grep el)
 if [ -z "$centos" ]; then
-	echo "Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" tomcat"
+	echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" tomcat"
 	sudo adduser --disabled-password --gecos "" tomcat
 else
-	echo "CentOS/RHEL : sudo adduser tomcat"
+	echo "[$scriptName] CentOS/RHEL : sudo adduser tomcat"
 	sudo adduser tomcat
 fi
 
 echo
-echo 'Create application root directory and change to runtime directory'
+echo "[$scriptName] Create application root directory and change to runtime directory"
 sudo mkdir -p $appRoot
 cd $appRoot
 
-echo 'Copy media and extract'
-cp -v "/vagrant/.provisioning/${tomcat}.tar.gz" .
+echo
+echo "[$scriptName] Copy media and extract"
+cp -v "/vagrant/.provision/${tomcat}.tar.gz" .
 tar -zxf ${tomcat}.tar.gz
 
-echo 'Make all objects executable and owned by tomcat service account'
+echo
+echo "[$scriptName] Make all objects executable and owned by tomcat service account"
 sudo chown -R tomcat:tomcat $tomcat
 sudo chmod 755 -R $tomcat
 
-echo 'Retain the default tomcat console'
+echo
+echo "[$scriptName] Retain the default tomcat console"
 cd $tomcat
 mv -v webapps/ROOT/ webapps/console
 
-echo 'Start the server, as tomcat user'
+echo
+echo "[$scriptName] Start the server, as tomcat user"
 sudo ln -sv $appRoot/$tomcat /opt/tomcat
 sudo -H -u tomcat bash -c '/opt/tomcat/bin/startup.sh'
 
-echo "tomcat.sh : --- end ---"
+echo "[$scriptName] --- end ---"

@@ -11,26 +11,26 @@ else
 fi
 
 if [ -z "$2" ]; then
-	group='deployer'
-	echo "[$scriptName]   group        : $group (default)"
-else
-	version="$2"
-	echo "[$scriptName]   group        : $group"
-fi
-
-if [ -z "$3" ]; then
 	deployUser='deployer'
 	echo "[$scriptName]   deployUser   : $deployUser (default)"
 else
-	version="$3"
+	deployUser="$2"
 	echo "[$scriptName]   deployUser   : $deployUser"
+fi
+
+if [ -z "$3" ]; then
+	group='deployer'
+	echo "[$scriptName]   group        : $group (default)"
+else
+	group="$3"
+	echo "[$scriptName]   group        : $group"
 fi
 
 if [ -z "$4" ]; then
 	deployLand='/opt/packages/'
-	echo "[$scriptName]   deployLand   : $deployLand (deafult)"
+	echo "[$scriptName]   deployLand   : $deployLand (default)"
 else
-	version="$4"
+	deployLand="$4"
 	echo "[$scriptName]   deployLand   : $deployLand"
 fi
 

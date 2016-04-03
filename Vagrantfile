@@ -33,12 +33,12 @@ Vagrant.configure(2) do |config|
     buildserver.vm.hostname = 'buildserver.skynet'
     
     buildserver.vm.provider 'virtualbox' do |virtualbox, override|
-      override.vm.box = "CentOS7_holms"
+      override.vm.box = "ubuntu/trusty64"
       override.vm.network 'forwarded_port', guest: 22, host: 20022
     end
     
     buildserver.vm.provider 'hyperv' do |hyperv, override|
-      override.vm.box = 'serveit/centos-7'
+      override.vm.box = 'hashicorp/precise64'
       override.vm.network 'forwarded_port', guest: 22, host: 20022
     end
     

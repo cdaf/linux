@@ -134,7 +134,6 @@ else # deployer target
 	centos=$(uname -a | grep el)
 	
 	# Create and Configure Deployment user
-	echo "[$scriptName] Install base software ($install)"
 	if [ -z "$centos" ]; then
 		echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" $deployUser"
 		sudo adduser --disabled-password --gecos "" $deployUser

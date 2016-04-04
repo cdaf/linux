@@ -127,19 +127,26 @@ su vagrant << EOF
 
 EOF
 
-else # deployer target
+else # target
 
 	echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
 	uname -a
 	centos=$(uname -a | grep el)
 	
-	# Create and Configure Deployment user
+	# If the group does not exist, create it
+	groupExists=$(getent group $group)
+	if [ -z "$groupExists" ]; then
+		echo "[$scriptName] sudo groupadd $group"
+		sudo groupadd $group
+	fi
+
+	# Create the user in the group
 	if [ -z "$centos" ]; then
-		echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" $deployUser"
-		sudo adduser --disabled-password --gecos "" $deployUser
+		echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" --group $group $deployUser"
+		sudo adduser --disabled-password --gecos "" --ingroup $group $deployUser
 	else
 		echo "[$scriptName] CentOS/RHEL : sudo adduser $deployUser"
-		sudo adduser $deployUser
+		sudo adduser -G $group $deployUser
 	fi
  	
 	# Update the deployer account to have access
@@ -148,7 +155,7 @@ else # deployer target
 	else
 		echo "[$scriptName] Create landing directory, $deployLand"
 		sudo mkdir -p "$deployLand"
-		sudo chown $group:$deployUser "$deployLand"
+		sudo chown $deployUser:$group "$deployLand"
 	fi
 
 	# Install the authorised list

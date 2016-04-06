@@ -3,21 +3,21 @@ scriptName='docker.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	install='apt'
-	echo "[$scriptName]   install     : $install (default apt, choices apt or latest)"
+	install='canon'
+	echo "[$scriptName]   install     : $install (default canon, choices canon or latest)"
 else
 	install=$1
-	echo "[$scriptName]   install     : $install (choices apt or latest)"
+	echo "[$scriptName]   install     : $install (choices canon or latest)"
 fi
 
 # Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu 14.04 currently supported"
+echo "[$scriptName] Determine distribution, only Ubuntu 14.04 and CentOS 7 currently supported"
 uname -a
 centos=$(uname -a | grep el)
 
 if [ -z "$centos" ]; then
 	
-	if [ "$install" == 'apt' ]; then
+	if [ "$install" == 'canon' ]; then
 
 		echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
 		sudo apt-get update
@@ -48,7 +48,36 @@ if [ -z "$centos" ]; then
 			
 	fi
 else
-	echo "[$scriptName] CentOS/RHEL, not yet supported"
+	
+	if [ "$install" == 'canon' ]; then
+
+		if [ -f /etc/os-release ]; then 
+			echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
+			sudo yum check-update
+			sudo yum install -y docker
+			sudo systemctl enable docker.service
+			sudo systemctl start docker.service
+			sudo systemctl status docker.service
+		else
+			echo "[$scriptName] Install CentOS 6 from Docker repository"
+			sudo sh -c "echo [dockerrepo] >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "name=Docker Repository >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "baseurl=https://yum.dockerproject.org/repo/main/centos/$releasever/ >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "enabled=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+			echo			
+			sudo cat /etc/yum.repos.d/docker.repo
+			echo			
+			echo "[$scriptName] Install software from repo"
+			sudo yum install docker-engine
+			sudo service docker start
+			sudo service docker status
+		fi
+
+	else
+		echo "[$scriptName] Only canonical for CentOS/RHEL supported"
+	fi
 fi
  
 echo "[$scriptName] --- end ---"

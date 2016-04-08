@@ -11,7 +11,7 @@ else
 fi
 
 # Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu 14.04 and CentOS 7 currently supported"
+echo "[$scriptName] Determine distribution, only Ubuntu 14.04 and CentOS currently supported"
 uname -a
 centos=$(uname -a | grep el)
 
@@ -79,5 +79,8 @@ else
 		echo "[$scriptName] Only canonical for CentOS/RHEL supported"
 	fi
 fi
+
+echo "[$scriptName] List version details..."
+sudo docker version
  
 echo "[$scriptName] --- end ---"

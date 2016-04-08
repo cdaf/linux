@@ -3,8 +3,16 @@ scriptName='internalCA.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	store='/etc/ssl/certs/ca-certificates.crt'
-	echo "[$scriptName]   store : $store (default)"
+	uname -a
+	centos=$(uname -a | grep el)
+	
+	if [ -z "$centos" ]; then
+		store='/etc/ssl/certs/ca-certificates.crt'
+		echo "[$scriptName]   store : $store (default for git/curl for Ubuntu)"
+	else
+		store='/etc/pki/tls/certs/ca-bundle.crt'
+		echo "[$scriptName]   store : $store (default for git/curl) for CentOS"
+	fi
 else
 	store="$1"
 	echo "[$scriptName]   store : $store"
@@ -12,6 +20,7 @@ fi
 
 echo "[$scriptName] Install CA to $store"
 
+sudo sh -c "echo \# HDC-INF-CA installed via internalCA.sh provisioning script.>> $store"
 sudo sh -c "echo -----BEGIN CERTIFICATE----->> $store"
 sudo sh -c "echo MIIDoTCCAomgAwIBAgIQLIaJcxhmob9KbXjpW04V+zANBgkqhkiG9w0BAQUFADBX>> $store"
 sudo sh -c "echo MRMwEQYKCZImiZPyLGQBGRYDbmV0MRYwFAYKCZImiZPyLGQBGRYGd2ViaG9wMRMw>> $store"
@@ -35,4 +44,5 @@ sudo sh -c "echo sH4+gtQY20hUOLBnZVGQrQusSRo0dGXA9MA/5CqhX5yUkCy/tVsxFGEQaKsQJuK
 sudo sh -c "echo WV3Ywu1TrydSRHAzKAI2Lm5b7qzE>> $store"
 sudo sh -c "echo -----END CERTIFICATE----->> $store"
 
+tail -23 $store
 echo "[$scriptName] --- end ---"

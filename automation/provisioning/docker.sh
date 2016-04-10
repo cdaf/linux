@@ -11,7 +11,7 @@ else
 fi
 
 # Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu 14.04 and CentOS currently supported"
+echo "[$scriptName] Determine distribution, only Ubuntu and CentOS currently supported"
 uname -a
 centos=$(uname -a | grep el)
 
@@ -25,6 +25,7 @@ if [ -z "$centos" ]; then
 
 	else
 
+		echo "[$scriptName] Specific version only supported for Ubuntu 14"
 		echo "[$scriptName] Install latest from Docker ($install)"
 		echo "[$scriptName] Add the new GPG key"
 		sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D

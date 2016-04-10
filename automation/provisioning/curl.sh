@@ -10,6 +10,9 @@ else
 	echo "[$scriptName]   version     : $version"
 fi
 
+echo "[$scriptName] Current version"
+curl -V
+
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution"
 uname -a
@@ -19,41 +22,35 @@ if [ -z "$centos" ]; then
 
 	echo "[$scriptName] Install $version on Ubuntu"
 	if [ "$version" == 'latest' ]; then
-		
-		sudo add-apt-repository ppa:costamagnagianfranco/ettercap-stable-backports -y
-		sudo apt-get update
-		sudo apt-get install -y curl
-			
-	else
+		version='7.48.0'		
+		echo "[$scriptName] latest not supported for Ubuntu 14.04, set to $version"
+	fi			
 	
-		echo "[$scriptName] Install compiler tools"
-		sudo apt-get install -y libtool make
+	echo "[$scriptName] Install compiler tools"
+	sudo apt-get install -y libtool make
+
+	echo "[$scriptName] Compile for Ubuntu"
+	echo "[$scriptName] Download and extract source"
+
+	# Don't use curl as it cannot navigate the redirection
+	currentDir=$(pwd)
+	cd ~
+	wget http://curl.haxx.se/download/curl-${version}.tar.gz
+	tar -xvf curl-${version}.tar.gz
+
+	echo "[$scriptName] Compile the software"
+	cd curl-${version}
+	./buildconf
+	./configure
+	make
+	sudo make install
 	
-		echo "[$scriptName] Compile for Ubuntu"
-		echo "[$scriptName] Download and extract source"
+	echo "[$scriptName] Replace the existing version"
+	sudo mv /usr/bin/curl /usr/bin/curl.bak
+	# cp /usr/local/bin/curl /usr/bin/curl
+	sudo ln -s /usr/local/bin/curl /usr/bin/curl
 	
-		# Don't use curl as it cannot navigate the redirection
-		currentDir=$(pwd)
-		cd ~
-		wget http://curl.haxx.se/download/curl-${version}.tar.gz
-		tar -xvf curl-${version}.tar.gz
-	
-		echo "[$scriptName] Compile the software"
-		cd curl-${version}
-		./buildconf
-		./configure
-		make
-		sudo make install
-		
-		echo "[$scriptName] Replace the existing version"
-		sudo mv /usr/bin/curl /usr/bin/curl.bak
-		# cp /usr/local/bin/curl /usr/bin/curl
-		sudo ln -s /usr/local/bin/curl /usr/bin/curl
-		
-		cd $currentDir
-	fi
-	echo "[$scriptName] Verify version"
-	curl -V
+	cd $currentDir
 
 else # centos
 
@@ -83,5 +80,8 @@ else # centos
 		echo "[$scriptName] CentOS/RHEL, specific version for CentOS not yet supported, try latest"
 	fi
 fi
+
+echo "[$scriptName] Verify version"
+curl -V
  
 echo "[$scriptName] --- end ---"

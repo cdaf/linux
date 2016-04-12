@@ -203,6 +203,17 @@ do
 		fi
 	fi
 
+	# Compress to file
+	#  required : file, relative to current workspace
+	#  required : source directory, relative to current workspace
+	if [ "$feature" == "CMPRSS" ]; then
+		printf "$LINE ==> "
+		stringarray=($LINE)
+		fileName=${stringarray[1]}
+		sourceDir=${stringarray[2]}
+		EXECUTABLESCRIPT="tar -zcvf ./${fileName}.tar.gz ./${sourceDir} --exclude=\"*.git\" --exclude=\"*.svn\""
+	fi
+
 	# Perform no further processing if Feature is Property Loader
 	if [ "$feature" != "PROPLD" ]; then
 		if [ -n "$EXECUTABLESCRIPT" ]; then

@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.9.5 (full details in CDAF.linux)
+    Version : 0.9.6-RC (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -69,6 +69,7 @@ To alleviate the burden of argument passing, exception handling and logging, the
 | Keyword | Description                       | Example                    |
 | --------|-----------------------------------|---------------------------------|
 | ASSIGN  | set a variable                    | ASSIGN $test="Hello World"      |
+| CMPRSS  | Compress direcotry to file        | CMPRSS packageName dirName      |
 | DECRYP  | decrypt matching target file      | DECRYP cryptLocal               |
 |         | decrypt specific file             | DECRYP cryptLocal encrypt.dat   |
 | DETOKN  | Detokenise file with target prop  | DETOKN tokenised.file           |

@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 0.9.6-RC (full details in CDAF.linux)
+    Version : 1.0.0-RC (full details in CDAF.linux)
 
 Framework Overview
 ==================
@@ -19,38 +19,6 @@ When using for the first time, the users workstation needs to be prepared by pro
 - Package Compression
 - Loopback Connection
 - Landing Folder
-
-Package Compression
--------------------
-
-The zip and unzip applications are required to create and extract the solution package.
-
-Loop-back Connection
---------------------
-
-The loop-back connection is used to emulate a remote host on the current workstation. The loop-back connection is established using pre-shared SSH keys.
-
-The user name is defined in the propertiesForRemoteTasks folder, by default in the DEV file. The default value is deployer and is used in the following example. Create the user
-
-    adduser deployer
-
-Run agent.sh in automation/provisioning:
- 
-    agent.sh deployer@localhost
-
-press enter to create the private key without a password, then select yes to accept the loop-back fingerprint, finally enter the remote user password. 
-
-Landing Folder
---------------
-
-The landing folder is defined in the properties file (in propertiesForRemoteTasks folder), default "DEV". This folder must exists and the loop-back connection user my have write access to it.
-
-CDAF Verify
------------
-
-Before implementing any aspects of the solution, run the emulator to verify the provisioning steps. The logs from the emulator run will provide guidance as to what files should be edited to implement continuous delivery, the following documentation provides more details around each key process.
-
-     ./automation/cdEmulate.sh
 
 Solution Driver
 ===============
@@ -69,7 +37,7 @@ To alleviate the burden of argument passing, exception handling and logging, the
 | Keyword | Description                       | Example                    |
 | --------|-----------------------------------|---------------------------------|
 | ASSIGN  | set a variable                    | ASSIGN $test="Hello World"      |
-| CMPRSS  | Compress direcotry to file        | CMPRSS packageName dirName      |
+| CMPRSS  | Compress directory to file        | CMPRSS packageName dirName      |
 | DECRYP  | decrypt matching target file      | DECRYP cryptLocal               |
 |         | decrypt specific file             | DECRYP cryptLocal encrypt.dat   |
 | DETOKN  | Detokenise file with target prop  | DETOKN tokenised.file           |

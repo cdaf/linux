@@ -44,7 +44,6 @@ Vagrant.configure(2) do |config|
     
     buildserver.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
     buildserver.vm.provision 'shell', path: 'automation/provisioning/deployer.sh'
-    buildserver.vm.provision "shell", path: "automation/provisioning/setenv.sh", args: "environmentDelivery VAGRANT"
     buildserver.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'
   end
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-scriptName='dockerRestart.sh'
+scriptName='serviceRestart.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	echo "Service name not passed, HALT!"
-	exit 1
+	service="docker"
+	echo "[$scriptName]   service : $service (default)"
 else
 	service="$1"
-	echo "[$scriptName]   service : ${service}"
+	echo "[$scriptName]   service : $service"
 fi
 
 echo "[$scriptName] Determine distribution, only Ubuntu and CentOS currently supported"

@@ -62,11 +62,11 @@ else
 		else
 			echo "[$scriptName] Install CentOS 6 from Docker repository"
 			sudo sh -c "echo [dockerrepo] >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "name=Docker Repository >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "baseurl=https://yum.dockerproject.org/repo/main/centos/$releasever/ >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "enabled=1 >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
 			echo			
 			sudo cat /etc/yum.repos.d/docker.repo
 			echo			

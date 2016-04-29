@@ -61,7 +61,7 @@ else
 			sudo systemctl status docker.service
 		else
 			echo "[$scriptName] Install CentOS 6 from Docker repository"
-			sudo sh -c "echo [dockerrepo] >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
 			sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
 			sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
 			sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
@@ -71,7 +71,7 @@ else
 			sudo cat /etc/yum.repos.d/docker.repo
 			echo			
 			echo "[$scriptName] Install software from repo"
-			sudo yum install docker-engine
+			sudo yum install -y docker-engine
 			sudo service docker start
 			sudo service docker status
 		fi

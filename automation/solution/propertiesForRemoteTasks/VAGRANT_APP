@@ -1,4 +1,4 @@
 # Properties corresponding to the Vagrantfile
-deployHost=172.16.17.101
+deployHost=172.16.17.102
 deployUser=deployer
 deployLand=/opt/packages

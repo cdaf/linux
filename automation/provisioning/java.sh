@@ -3,20 +3,19 @@ scriptName='java.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	echo "[$scriptName]   version not passed, HALT!"
-	exit 1
+	prefix='jdk'
+	echo "[$scriptName]   prefix     : $prefix (default)"
 else
-	version="$1"
-	echo "[$scriptName]   version    : $version"
+	prefix="$1"
+	echo "[$scriptName]   prefix     : $prefix"
 fi
 
 if [ -z "$2" ]; then
-	echo "[$scriptName]   prefix not passed, defaulting to jre"
-	prefix='jre'
-	echo "[$scriptName]   prefix     : $prefix (default)"
+	version='8u91'
+	echo "[$scriptName]   version    : $version (default)"
 else
-	prefix="$2"
-	echo "[$scriptName]   prefix     : $prefix"
+	version="$2"
+	echo "[$scriptName]   version    : $version"
 fi
 
 if [ -z "$3" ]; then
@@ -26,34 +25,55 @@ else
 	mediaCache="$3"
 	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
+echo
+initialDir=$(pwd)
+javaSource="${prefix}-${version}-linux-x64.tar.gz"
+echo "[$scriptName] \$javaSource = $javaSource"
+javaExtract="${prefix}-${version}"
+echo "[$scriptName] \$javaExtract = $javaExtract"
 
-jdkSource="${prefix}-${version}-linux-x64.tar.gz"
-echo "[$scriptName] jdkSource  : $jdkSource"
-jdkExtract="${prefix}${version}"
-echo "[$scriptName] jdkExtract : $jdkExtract"
-
-# Extract the Java binaries
-echo "[$scriptName] cp \"$mediaCache/${jdkSource}\" ."
-cp "$mediaCache/${jdkSource}" .
-echo "[$scriptName] tar -zxf $jdkSource"
-tar -zxf $jdkSource
-echo "[$scriptName] sudo mv $jdkExtract/ /opt/"
-sudo mv $jdkExtract/ /opt/
+cd ~
+echo "[$scriptName] Extract the Java binaries in users home ($(pwd))"
+echo "[$scriptName] cp \"$mediaCache/${javaSource}\" ."
+cp "$mediaCache/${javaSource}" .
+echo "[$scriptName] mkdir $javaExtract"
+mkdir $javaExtract
+echo "[$scriptName] tar -zxf $javaSource -C $javaExtract --strip-components=1"
+tar -zxf $javaSource -C $javaExtract --strip-components=1
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	echo "$0 : tar -zxf $javaSource failed! Returned $exitCode"
+	exit $exitCode
+fi
+echo "[$scriptName] sudo mv $javaExtract/ /opt/"
+sudo mv $javaExtract/ /opt/
 
 # Configure to directory on the default PATH, always set the JRE, only set JDK if requested
 if [ "$prefix" == "jdk" ]; then
-	echo "[$scriptName] sudo ln -s /opt/$jdkExtract/bin/javac /usr/bin/javac"
-	sudo ln -s /opt/$jdkExtract/bin/javac /usr/bin/javac
+	if [ -L "/usr/bin/javac" ]; then
+		echo "[$scriptName] Delete existing symlink"
+		echo "[$scriptName] sudo unlink /usr/bin/javac"
+		sudo unlink /usr/bin/javac
+	fi
+	echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/javac /usr/bin/javac"
+	sudo ln -s /opt/$javaExtract/bin/javac /usr/bin/javac
 fi
-echo "[$scriptName] sudo ln -s /opt/$jdkExtract/bin/javac /usr/bin/javac"
-sudo ln -s /opt/$jdkExtract/bin/java /usr/bin/java
+if [ -L "/usr/bin/java" ]; then
+	echo "[$scriptName] Delete existing symlink"
+	echo "[$scriptName] sudo unlink /usr/bin/java"
+	sudo unlink /usr/bin/java
+fi
+echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java"
+sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java
 
-# Set the environment settings (requires elevation)
-echo "[$scriptName] echo JAVA_HOME=\"/opt/$jdkExtract/bin\" > oracle-jdk.sh"
-echo JAVA_HOME=\"/opt/$jdkExtract/bin\" > oracle-jdk.sh
-echo "[$scriptName] chmod +x oracle-jdk.sh"
-chmod +x oracle-jdk.sh
-echo "[$scriptName] sudo mv -v oracle-jdk.sh /etc/profile.d/"
-sudo mv -v oracle-jdk.sh /etc/profile.d/
+# Set the environment settings (requires elevation), replace if existing
+echo "[$scriptName] echo JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh"
+echo JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh
+echo "[$scriptName] chmod +x oracle-java.sh"
+chmod +x oracle-java.sh
+echo "[$scriptName] sudo mv -v oracle-java.sh /etc/profile.d/"
+sudo mv -v oracle-java.sh /etc/profile.d/
 
+echo "[$scriptName] Return to initial directory ($initialDir)"
+cd $initialDir
 echo "[$scriptName] --- end ---"

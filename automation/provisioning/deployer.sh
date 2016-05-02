@@ -19,21 +19,19 @@ else
 fi
 
 if [ -z "$3" ]; then
-	group='deployer'
-	echo "[$scriptName]   group        : $group (default)"
+	deployLand='/opt/packages/'
+	echo "[$scriptName]   deployLand   : $deployLand (default)"
+else
+	deployLand="$3"
+	echo "[$scriptName]   deployLand   : $deployLand"
+fi
+
+if [ -z "$3" ]; then
+	echo "[$scriptName]   group        : not supplied"
 else
 	group="$3"
 	echo "[$scriptName]   group        : $group"
 fi
-
-if [ -z "$4" ]; then
-	deployLand='/opt/packages/'
-	echo "[$scriptName]   deployLand   : $deployLand (default)"
-else
-	deployLand="$4"
-	echo "[$scriptName]   deployLand   : $deployLand"
-fi
-
 
 if [ "$deployerSide" == 'server' ]; then
 
@@ -129,33 +127,28 @@ EOF
 
 else # target
 
-	echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
-	uname -a
-	centos=$(uname -a | grep el)
-	
-	# If the group does not exist, create it
-	groupExists=$(getent group $group)
-	if [ -z "$groupExists" ]; then
-		echo "[$scriptName] sudo groupadd $group"
-		sudo groupadd $group
-	fi
-
-	# Create the user in the group
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" --group $group $deployUser"
-		sudo adduser --disabled-password --gecos "" --ingroup $group $deployUser
-	else
-		echo "[$scriptName] CentOS/RHEL : sudo adduser $deployUser"
-		sudo adduser -G $group $deployUser
-	fi
- 	
-	# Update the deployer account to have access
+	echo "[$scriptName] Create landing directory if it does not exist and set the deployer as the owner"
 	if [ -d "$deployLand" ]; then
 		echo "[$scriptName] Landing directory ($deployLand) exists"
 	else
 		echo "[$scriptName] Create landing directory, $deployLand"
 		sudo mkdir -p "$deployLand"
+	fi
+
+	if [ -z "$3" ]; then
+		sudo chown $deployUser "$deployLand"
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : Unable to set ownership, does user exist? Exiting with exit code $exitCode"
+			exit $exitCode
+		fi
+	else
 		sudo chown $deployUser:$group "$deployLand"
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : Unable to set ownership, does ($deployUser) user and group ($group) exist? Exiting with exit code $exitCode"
+			exit $exitCode
+		fi
 	fi
 
 	# Install the authorised list

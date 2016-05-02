@@ -39,6 +39,13 @@ else
 	LOCAL_DIR_DEFAULT=$4
 	echo "$0 :   LOCAL_DIR_DEFAULT : $LOCAL_DIR_DEFAULT"
 fi
+
+if [ -z "$5" ]; then
+	echo "$0 :   OPT_ARG           : (Optional task argument not supplied)"
+else
+	echo "$0 :   OPT_ARG           : $OPT_ARG"
+fi
+
 echo "$0 :   whoami            : $(whoami)"
 echo "$0 :   hostname          : $(hostname)"
 

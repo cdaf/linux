@@ -31,7 +31,7 @@ if [ -z "$centos" ]; then
 
 else
 
-	echo "[$scriptName] Ubuntu :> sudo usermod -G $groupname $username"
+	echo "[$scriptName] CentOS :> sudo usermod -G $groupname $username"
 	sudo usermod -G $groupname $username
 		
 fi

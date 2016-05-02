@@ -2,7 +2,7 @@ Continuous Delivery Automation Framework (CDAF)
 ===============================================
 
     Author  : Jules Clements
-    Version : 1.0.0-RC (full details in CDAF.linux)
+    Version : See CDAF.linux
 
 Framework Overview
 ==================
@@ -55,14 +55,6 @@ Runtime variables, automatically set
 | Variable         | Description                       |
 | -----------------|-----------------------------------|
 |  $TMPDIR         | Automatically set to the temp dir |
-
-User variables, by setting the following variables, the following actions are performed
-Note: this these features are to be deprecated, please use replacement functions above 
-
-| Variable         | Description                           | Keyword | 
-| -----------------|---------------------------------------| --------|
-|  $loadProperties | Load the properties file value set    | PROPLD  |
-|  $terminate      | If set to clean, will exit (status 0) | EXITIF  |
 
 Build and Package (once)
 ------------------------

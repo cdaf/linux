@@ -62,7 +62,7 @@ else
 	fi
 	
 	echo "$0 : Starting deploy process ..."
-	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride"
+	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride" "$OPT_ARG"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : Main Deployment activity failed! Returned $exitCode"

@@ -32,10 +32,6 @@ else
 	TASKLIST=$4
 fi
 
-ACTION=$5
-
-# Set the temporary directory (system wide)
-TMPDIR=/tmp
 echo
 echo "~~~~~~ Starting Execution Engine ~~~~~~~"
 echo
@@ -43,15 +39,27 @@ echo "$0 :   SOLUTION    : $SOLUTION"
 echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
 echo "$0 :   TARGET      : $TARGET"
 echo "$0 :   TASKLIST    : $TASKLIST"
-echo "$0 :   ACTION      : $ACTION"
+
+if [ -z "$5" ]; then
+	echo "$0 :   OPT_ARG     : (not passed)"
+else
+	# case insensitive by forcing to uppercase
+	testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
+	if [ "$testForClean" == "CLEAN" ]; then
+		ACTION=$5
+		echo "$0 :   ACTION      : $ACTION"
+	else
+		OPT_ARG=$5
+		echo "$0 :   OPT_ARG     : $OPT_ARG"
+	fi
+fi
+
+# Set the temporary directory (system wide)
+TMPDIR=/tmp
 echo "$0 :   TMPDIR      : $TMPDIR"
 
-# to provide exception handling / termination, the deploy script loops through
-# main.deploy, which is simply shell script lines, but after each line is executed
-# a test on the exit code is performed, there an error is encountered, diagnostics
-# are reported and the deploy process halts.
-
-# If this is a build process, load build properties file as variables (this is not required in the PowerShell version as calling program variables are global
+# If this is a CI process, load temporary file as variables (implicit parameter passing) 
+# this is not required in the PowerShell version as variables are global
 AUTOMATIONHELPER=.
 if [ -f "../build.properties" ] ;then
 	eval $(cat ../build.properties)
@@ -73,11 +81,6 @@ else
 		echo
 		echo			
 	fi
-fi
-
-if [ ! -f $TASKLIST ]; then
-	echo "$0 : TASKLIST ($TASKLIST) not found! Terminating with exit code 5"
-	exit 5
 fi
 
 # Process Task Execution
@@ -234,25 +237,6 @@ do
 			echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 			exit $exitCode
 		fi
-	fi
-
-	# These implicit functions will be deprecated in v1.0	
-	if [ "$terminate" == "clean" ]; then
-		echo "$0 : Clean only"
-		exit
-	fi
-
-	# Load all properties as runtime variables (the utility will provide logging)
-	# Test for running as deploy process or build process
-	if [ ! -z $loadProperties ]; then
-
-		echo "PROPFILE : $loadProperties"
-		propertiesList=$($AUTOMATIONHELPER/transform.sh "$loadProperties")
-		printf "$propertiesList"
-		eval $propertiesList
-		echo			
-		loadProperties=""
-		
 	fi
 	
 done < $TASKLIST

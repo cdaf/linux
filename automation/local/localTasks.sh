@@ -36,6 +36,14 @@ if [ "$WORKDIR" ]; then
 else
 	echo "$0 :   WORKDIR      : $(pwd) (not passed, using current dir)"
 fi
+
+if [ -z "$5" ]; then
+	echo "$0 :   OPT_ARG      : (Optional task argument not supplied)"
+else
+	LOCAL_DIR_DEFAULT=$4
+	echo "$0 :   OPT_ARG      : $OPT_ARG"
+fi
+
 echo "$0 :   whoami       : $(whoami)"
 echo "$0 :   hostname     : $(hostname)"
 cdafVersion=$(./getProperty.sh "./CDAF.properties" "productVersion")
@@ -92,10 +100,10 @@ if [ -d "./propertiesForLocalTasks" ]; then
 				else
 					echo "$0 :   deployTaskOverride   : $taskOverride"
 				fi
-				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$taskOverride" "$ACTION" 2>&1
+				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$taskOverride" "$OPT_ARG" 2>&1
 				exitCode=$?
 				if [ "$exitCode" != "0" ]; then
-					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$taskOverride\" \"$ACTION\" failed! Returned $exitCode"
+					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$taskOverride\" \"$OPT_ARG\" failed! Returned $exitCode"
 					exit $exitCode
 				fi
 			fi

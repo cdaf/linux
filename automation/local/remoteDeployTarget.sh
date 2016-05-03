@@ -39,6 +39,8 @@ else
 	WORK_DIR_DEFAULT=$5
 fi
 
+OPT_ARG=$6
+
 encryptedFileDir="./$WORK_DIR_DEFAULT/cryptRemote"
 
 echo "$0 : --- Preparing $DEPLOY_TARGET ---"
@@ -132,9 +134,9 @@ fi
 
 echo
 echo "$0 : --- Transferring control to $deployUser@$deployHost for $DEPLOY_TARGET ---"
-ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" < /dev/null
+ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" "$OPT_ARG" < /dev/null
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER failed! Returned $exitCode"
+	echo "$0 : ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER $OPT_ARG failed! Returned $exitCode"
 	exit $exitCode
 fi

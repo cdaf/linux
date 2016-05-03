@@ -13,6 +13,9 @@ fi
 # Optional, i.e. normally only supplied by automated trigger
 WORKDIR=$2
 
+# Optional, generic argument
+OPT_ARG=$3
+
 echo
 echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
@@ -22,6 +25,13 @@ if [ "$WORKDIR" ]; then
 else
 	echo "$0 :   WORKDIR       : $(pwd) (not passed, using current)"
 fi
+
+if [ "$OPT_ARG" ]; then
+	echo "$0 :   OPT_ARG       : $OPT_ARG"
+else
+	echo "$0 :   OPT_ARG       : (not passed)"
+fi
+
 echo "$0 :   whoami        : $(whoami)"
 echo "$0 :   hostname      : $(hostname)"
 
@@ -54,18 +64,18 @@ if [ "$scriptOverride" ]; then
 else
 
 	taskOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployTaskOverride")
-	if [ -z "$taskOverride" ]; then
+	if [ "$taskOverride" ]; then
+		echo "$0 : deployTaskOverride set to $deployTaskOverride, this will be executed"
+	else
 		taskOverride="tasksRunRemote.tsk"
 		echo "$0 : deployTaskOverride not set, defaulting to tasksRunRemote.tsk"
-	else
-		echo "$0 : deployTaskOverride set to $deployTaskOverride, this will be executed"
 	fi
 	
 	echo "$0 : Starting deploy process ..."
 	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride" "$OPT_ARG"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Main Deployment activity failed! Returned $exitCode"
+		echo "$0 : ./execute.sh $SOLUTION $BUILDNUMBER $DEPLOY_TARGET $taskOverride $OPT_ARG failed! Returned $exitCode"
 		exit $exitCode
 	fi
 

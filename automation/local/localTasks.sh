@@ -40,7 +40,7 @@ fi
 if [ -z "$5" ]; then
 	echo "$0 :   OPT_ARG      : (Optional task argument not supplied)"
 else
-	LOCAL_DIR_DEFAULT=$4
+	OPT_ARG=$5
 	echo "$0 :   OPT_ARG      : $OPT_ARG"
 fi
 

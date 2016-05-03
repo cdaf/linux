@@ -43,6 +43,7 @@ fi
 if [ -z "$5" ]; then
 	echo "$0 :   OPT_ARG           : (Optional task argument not supplied)"
 else
+	OPT_ARG=$5
 	echo "$0 :   OPT_ARG           : $OPT_ARG"
 fi
 
@@ -79,10 +80,10 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 		while read DEPLOY_TARGET
 		do
 		
-			./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT
+			./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT $OPT_ARG
 			exitCode=$?
 			if [ "$exitCode" != "0" ]; then
-				echo "$0 : ./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET failed! Returned $exitCode"
+				echo "$0 : ./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $OPT_ARG failed! Returned $exitCode"
 				exit $exitCode
 			fi
 		

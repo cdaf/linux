@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
 
-  # Target host, Ubuntu 14
+  # Target host, in this example, Ubuntu 14
   config.vm.define 'target' do |target|
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     target.vm.provider 'virtualbox' do |virtualbox, override|
@@ -11,7 +11,7 @@ Vagrant.configure(2) do |config|
       override.vm.box = 'ubuntu/trusty64'
       override.vm.network 'forwarded_port', guest: 22, host: 20022
       override.vm.network 'forwarded_port', guest: 80, host: 20080
-      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh', args: 'deployer docker'
+      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'target'
     end
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up target --provider hyperv
@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
     # Provisioninng is the same, regardless of provider
   end
   
-  # Build host, CentOS 6
+  # Build host, in this example, CentOS 6
   config.vm.define 'buildserver' do |buildserver|  
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     buildserver.vm.provider 'virtualbox' do |virtualbox, override|
@@ -30,7 +30,6 @@ Vagrant.configure(2) do |config|
       override.vm.network 'forwarded_port', guest: 22, host: 10022
       override.vm.provision 'shell', path: 'automation/provisioning/addHOSTS.sh'  # defaults are for desktop environment, target.sky.net
       override.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
-      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh', args: 'deployer docker'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'
     end

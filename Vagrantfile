@@ -11,6 +11,7 @@ Vagrant.configure(2) do |config|
       override.vm.box = 'ubuntu/trusty64'
       override.vm.network 'forwarded_port', guest: 22, host: 20022
       override.vm.network 'forwarded_port', guest: 80, host: 20080
+      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh', args: 'deployer docker'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'target'
     end
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up target --provider hyperv
@@ -29,6 +30,7 @@ Vagrant.configure(2) do |config|
       override.vm.network 'forwarded_port', guest: 22, host: 10022
       override.vm.provision 'shell', path: 'automation/provisioning/addHOSTS.sh'  # defaults are for desktop environment, target.sky.net
       override.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
+      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh', args: 'deployer docker'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'
     end

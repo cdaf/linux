@@ -2,6 +2,18 @@
 scriptName='curl.sh'
 
 echo "[$scriptName] --- start ---"
+centos=$(uname -mrs | grep .el)
+if [ "$centos" ]; then
+	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+else
+	ubuntu=$(uname -a | grep ubuntu)
+	if [ "$ubuntu" ]; then
+		echo "[$scriptName]   Debian based : $(uname -mrs)"
+	else
+		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+	fi
+fi
+
 if [ -z "$1" ]; then
 	version='latest'
 	echo "[$scriptName]   version     : $version (default apt)"
@@ -13,14 +25,37 @@ fi
 echo "[$scriptName] Current version"
 curl -V
 
-# Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution"
-uname -a
-centos=$(uname -a | grep el)
+if [ "$centos" ]; then
 
-if [ -z "$centos" ]; then
+	echo "[$scriptName] Install $version on CentOS"
+	if [ "$version" == 'latest' ]; then
+		
+		if [ -f /etc/os-release ]; then 
+			versionID='rhel7'
+		else
+			versionID='rhel6'
+		fi
+		
+		echo "[$scriptName] Add repository"
+		sudo sh -c "echo [CityFan] >> /etc/yum.repos.d/city-fan.repo" 
+		sudo sh -c "echo name=City Fan Repo >> /etc/yum.repos.d/city-fan.repo"
+		sudo sh -c "echo baseurl=http://nervion.us.es/city-fan/yum-repo/${versionID}/x86_64/ >> /etc/yum.repos.d/city-fan.repo"
+		sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/city-fan.repo"
+		sudo sh -c "echo gpgcheck=0 >> /etc/yum.repos.d/city-fan.repo"
+		echo			
+		sudo cat /etc/yum.repos.d/city-fan.repo
+		echo			
+		echo "[$scriptName] Install software from repo"
+		sudo yum clean all
+		sudo yum install -y libcurl 
+			
+	else			
+		echo "[$scriptName] CentOS/RHEL, specific version for CentOS not yet supported, try latest"
+	fi
 
-	echo "[$scriptName] Install $version on Ubuntu"
+else # Debian
+
+		echo "[$scriptName] Install $version on Ubuntu"
 	if [ "$version" == 'latest' ]; then
 		version='7.48.0'		
 		echo "[$scriptName] latest not supported for Ubuntu 14.04, set to $version"
@@ -52,33 +87,6 @@ if [ -z "$centos" ]; then
 	
 	cd $currentDir
 
-else # centos
-
-	echo "[$scriptName] Install $version on CentOS"
-	if [ "$version" == 'latest' ]; then
-		
-		if [ -f /etc/os-release ]; then 
-			versionID='rhel7'
-		else
-			versionID='rhel6'
-		fi
-		
-		echo "[$scriptName] Add repository"
-		sudo sh -c "echo [CityFan] >> /etc/yum.repos.d/city-fan.repo" 
-		sudo sh -c "echo name=City Fan Repo >> /etc/yum.repos.d/city-fan.repo"
-		sudo sh -c "echo baseurl=http://nervion.us.es/city-fan/yum-repo/${versionID}/x86_64/ >> /etc/yum.repos.d/city-fan.repo"
-		sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/city-fan.repo"
-		sudo sh -c "echo gpgcheck=0 >> /etc/yum.repos.d/city-fan.repo"
-		echo			
-		sudo cat /etc/yum.repos.d/city-fan.repo
-		echo			
-		echo "[$scriptName] Install software from repo"
-		sudo yum clean all
-		sudo yum install -y libcurl 
-			
-	else			
-		echo "[$scriptName] CentOS/RHEL, specific version for CentOS not yet supported, try latest"
-	fi
 fi
 
 echo "[$scriptName] Verify version"

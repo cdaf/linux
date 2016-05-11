@@ -18,8 +18,8 @@ else
 	echo "[$scriptName]   hostname : $hostname"
 fi
 
-# Use hosts entries to provide DNS within the closed network
-echo "Add app.skynet and buildserver.skynet to each others hosts file"
+echo "Use hosts entries to provide DNS override"
+echo "  sudo sh -c \"echo \"$ip $hostname\" >> /etc/hosts\""
 sudo sh -c "echo \"$ip $hostname\" >> /etc/hosts"
  
 echo "[$scriptName] : --- end ---"

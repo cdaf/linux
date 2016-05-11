@@ -2,6 +2,18 @@
 scriptName='docker.sh'
 
 echo "[$scriptName] --- start ---"
+centos=$(uname -mrs | grep .el)
+if [ "$centos" ]; then
+	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+else
+	ubuntu=$(uname -a | grep ubuntu)
+	if [ "$ubuntu" ]; then
+		echo "[$scriptName]   Debian based : $(uname -mrs)"
+	else
+		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+	fi
+fi
+
 if [ -z "$1" ]; then
 	install='canon'
 	echo "[$scriptName]   install     : $install (default canon, choices canon or latest)"
@@ -10,13 +22,40 @@ else
 	echo "[$scriptName]   install     : $install (choices canon or latest)"
 fi
 
-# Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu and CentOS currently supported"
-uname -a
-centos=$(uname -a | grep el)
-
-if [ -z "$centos" ]; then
+if [ "$centos" ]; then
 	
+	if [ "$install" == 'canon' ]; then
+
+		if [ -f /etc/os-release ]; then 
+			echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
+			sudo yum check-update
+			sudo yum install -y docker
+			sudo systemctl enable docker.service
+			sudo systemctl start docker.service
+			sudo systemctl status docker.service
+		else
+			echo "[$scriptName] Install CentOS 6 from Docker repository"
+			sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
+			sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+			echo			
+			sudo cat /etc/yum.repos.d/docker.repo
+			echo			
+			echo "[$scriptName] Install software from repo"
+			sudo yum install -y docker-engine
+			sudo service docker start
+			sudo service docker status
+		fi
+
+	else
+		echo "[$scriptName] Only canonical for CentOS/RHEL supported"
+	fi
+		
+else # Debian
+
 	if [ "$install" == 'canon' ]; then
 
 		echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
@@ -48,37 +87,7 @@ if [ -z "$centos" ]; then
 		sudo apt-get install -y docker-engine
 			
 	fi
-else
-	
-	if [ "$install" == 'canon' ]; then
-
-		if [ -f /etc/os-release ]; then 
-			echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
-			sudo yum check-update
-			sudo yum install -y docker
-			sudo systemctl enable docker.service
-			sudo systemctl start docker.service
-			sudo systemctl status docker.service
-		else
-			echo "[$scriptName] Install CentOS 6 from Docker repository"
-			sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
-			sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
-			sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
-			echo			
-			sudo cat /etc/yum.repos.d/docker.repo
-			echo			
-			echo "[$scriptName] Install software from repo"
-			sudo yum install -y docker-engine
-			sudo service docker start
-			sudo service docker status
-		fi
-
-	else
-		echo "[$scriptName] Only canonical for CentOS/RHEL supported"
-	fi
+		
 fi
 
 echo "[$scriptName] List version details..."

@@ -127,30 +127,6 @@ EOF
 
 else # target
 
-	echo "[$scriptName] Create landing directory if it does not exist and set the deployer as the owner"
-	if [ -d "$deployLand" ]; then
-		echo "[$scriptName] Landing directory ($deployLand) exists"
-	else
-		echo "[$scriptName] Create landing directory, $deployLand"
-		sudo mkdir -p "$deployLand"
-	fi
-
-	if [ -z "$3" ]; then
-		sudo chown $deployUser "$deployLand"
-		exitCode=$?
-		if [ "$exitCode" != "0" ]; then
-			echo "$0 : Unable to set ownership, does user exist? Exiting with exit code $exitCode"
-			exit $exitCode
-		fi
-	else
-		sudo chown $deployUser:$group "$deployLand"
-		exitCode=$?
-		if [ "$exitCode" != "0" ]; then
-			echo "$0 : Unable to set ownership, does ($deployUser) user and group ($group) exist? Exiting with exit code $exitCode"
-			exit $exitCode
-		fi
-	fi
-
 	# Install the authorised list
 	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
 	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"

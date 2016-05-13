@@ -11,7 +11,7 @@ if [ -z "$1" ]; then
 	exit 0
 else
 	AccessKeyID="$1"
-	echo "[$scriptName]   AccessKeyID     : **************"
+	echo "[$scriptName]   AccessKeyID     : $AccessKeyID "
 fi
 
 if [ -z "$2" ]; then

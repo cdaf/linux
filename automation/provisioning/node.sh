@@ -17,10 +17,10 @@ fi
 
 version=$1
 if [ "${version}" ]; then
-	echo "[$scriptName]   version : $version (choices ${versionChoices})"
+	echo "[$scriptName]   version      : $version (choices ${versionChoices})"
 else
 	version=6
-	echo "[$scriptName]   version : $version (default, choices ${versionChoices})"
+	echo "[$scriptName]   version      : $version (default, choices ${versionChoices})"
 fi
 
 case ${version} in

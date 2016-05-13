@@ -65,7 +65,7 @@ else
 
 	taskOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployTaskOverride")
 	if [ "$taskOverride" ]; then
-		echo "$0 : deployTaskOverride set to $deployTaskOverride, this will be executed"
+		echo "$0 : deployTaskOverride set to $taskOverride, this will be executed"
 	else
 		taskOverride="tasksRunRemote.tsk"
 		echo "$0 : deployTaskOverride not set, defaulting to tasksRunRemote.tsk"

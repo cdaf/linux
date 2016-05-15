@@ -46,7 +46,17 @@ if [ "$centos" ]; then
 			echo			
 			echo "[$scriptName] Install software from repo"
 			sudo yum install -y docker-engine
+			exitCode=$?
+			if [ "$exitCode" != "0" ]; then
+				echo "$0 : Exception! \"sudo yum install -y docker-engine\" returned $exitCode"
+				exit $exitCode
+			fi
 			sudo service docker start
+			exitCode=$?
+			if [ "$exitCode" != "0" ]; then
+				echo "$0 : Exception! \"sudo service docker start\" returned $exitCode"
+				exit $exitCode
+			fi
 			sudo service docker status
 		fi
 

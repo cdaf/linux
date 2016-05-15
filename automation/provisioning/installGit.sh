@@ -22,6 +22,11 @@ if [ -z "$centos" ]; then
 		sudo add-apt-repository ppa:git-core/ppa -y
 		sudo apt-get update
 		sudo apt-get install git
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : Exception! \"sudo apt-get install git\" returned $exitCode"
+			exit $exitCode
+		fi
 	fi
 			
 else # centos

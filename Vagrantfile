@@ -11,7 +11,6 @@ Vagrant.configure(2) do |config|
       override.vm.box = 'ubuntu/trusty64'
       override.vm.network 'forwarded_port', guest: 22, host: 20022
       override.vm.network 'forwarded_port', guest: 80, host: 20080
-      override.vm.provision 'shell', path: 'automation/provisioning/addUser.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'target'
     end
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up target --provider hyperv
@@ -19,6 +18,8 @@ Vagrant.configure(2) do |config|
       override.vm.box = 'serveit/centos-7'
     end
     # Provisioninng is the same, regardless of provider
+    target.vm.provision 'shell', path: 'automation/provisioning/addUser.sh', args: 'deployer'
+    target.vm.provision 'shell', path: 'automation/provisioning/mkDirWithOwner.sh', args: '/opt/packages deployer'
   end
   
   # Build host, in this example, CentOS 6

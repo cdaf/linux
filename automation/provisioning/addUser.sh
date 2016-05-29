@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='addUser.sh'
 echo
 echo "[$scriptName] Create a new user, optionally, in a predetermined group"
@@ -25,39 +37,26 @@ else
 fi
 
 if [ -z "$2" ]; then
-	echo "[$scriptName]   groupname    : not supplied, will use default"
+	groupname=$1
+	echo "[$scriptName]   groupname    : $groupname (defaulted to \$username)"
 else
 	groupname=$2
 	echo "[$scriptName]   groupname    : $groupname"
-	
-	# If the group does not exist, create it
-	groupExists=$(getent group $groupname)
-	if [ -z "$groupExists" ]; then
-		echo "[$scriptName] sudo groupadd $groupname"
-		sudo groupadd $groupname
-	fi
-
 fi
 
-echo
-if [ -z "$groupname" ]; then
-	# Create the user in default group (i.e. groupname and username the same)
-	if [ "$centos" ]; then
-		echo "[$scriptName] sudo adduser -G $groupname $username"
-		sudo adduser -G $groupname $username
-	else
-		echo "[$scriptName] sudo adduser --disabled-password --gecos \"\" $username"
-		sudo adduser --disabled-password --gecos "" $username
-	fi
+# If the group does not exist, create it
+groupExists=$(getent group $groupname)
+if [ "$groupExists" ]; then
+	echo "[$scriptName] $groupname exists"
 else
-	# Create the user in the group
-	if [ "$centos" ]; then
-		echo "[$scriptName] sudo adduser -G $groupname $username"
-		sudo adduser -G $groupname $username
-	else
-		echo "[$scriptName] sudo adduser --disabled-password --gecos \"\" --group $groupname $username"
-		sudo adduser --disabled-password --gecos "" --ingroup $groupname $username
-	fi
+	executeExpression "sudo groupadd $groupname"
+fi
+
+# Create the user in the group
+if [ "$centos" ]; then
+	executeExpression "sudo adduser -g $groupname $username"
+else
+	executeExpression "sudo adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
 fi
 
 echo "[$scriptName] --- end ---"

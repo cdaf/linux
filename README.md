@@ -36,7 +36,7 @@ Vagrant provides a SSH connection natively for both Linux and Windows
 
     vagrant ssh buildserver
     cd C:\vagrant
-	.\automation\cdEmulate.bat
+	.\automation\cdEmulate.sh
 
 Cleanup and Destroy
 -------------------

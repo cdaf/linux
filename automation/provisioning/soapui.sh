@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-set -e
-set -x #echo on
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+scriptName='addUser.sh'
 
-echo "soupui.sh : --- start ---"
-
-# Version is set by the build process and is static for any given copy of this script
-version="@buildNumber@"
-echo "soupui.sh : buildNumber : $buildNumber"
-
+echo "[scriptName] : --- start ---"
 if [ -z "$1" ]; then
 	echo "version not passed, HALT!"
 	exit 1
@@ -16,14 +20,14 @@ else
 fi
 
 # Set parameters
-soapuiVersion="SoapUI-${version}"
-soapuiSource="${soapuiVersion}-linux-bin.tar.gz"
+executeExpression "soapuiVersion=\"SoapUI-${version}\""
+executeExpression "soapuiSource=\"${soapuiVersion}-linux-bin.tar.gz\""
 
-cp "/vagrant/.provision/${soapuiSource}" .
-tar -xf $soapuiSource
-sudo mv $soapuiVersion /opt/
+executeExpression "cp \"/vagrant/.provision/${soapuiSource}\" ."
+executeExpression "tar -xf $soapuiSource"
+executeExpression "sudo mv $soapuiVersion /opt/"
 
 # Configure to directory on the default PATH
-sudo ln -s /opt/$soapuiVersion/ /opt/soapui
+executeExpression "sudo ln -s /opt/$soapuiVersion/ /opt/soapui"
 
-echo "soupui.sh : --- end ---"
+echo "[scriptName] : --- end ---"

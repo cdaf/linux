@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
 scriptName='ant.sh'
 
 echo "[$scriptName] --- start ---"
@@ -11,28 +21,22 @@ else
 fi
 
 # Set parameters
-antVersion="apache-ant-${version}"
-echo "[$scriptName]   antVersion : $antVersion"
-antSource="$antVersion-bin.tar.gz"
-echo "[$scriptName]   antSource  : $antSource"
+executeExpression "antVersion=\"apache-ant-${version}\""
+executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
-echo "[$scriptName] cp /vagrant/.provision/${antSource} ."
-cp "/vagrant/.provision/${antSource}" .
-echo "[$scriptName] tar -xf $antSource"
-tar -xf $antSource
-echo "[$scriptName] sudo mv $antVersion /opt/"
-sudo mv $antVersion /opt/
+executeExpression "cp \"/vagrant/.provision/${antSource}\" ."
+executeExpression "tar -xf $antSource"
+executeExpression "sudo mv $antVersion /opt/"
 
 # Configure to directory on the default PATH
-echo "[$scriptName] sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
-sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant
+executeExpression "sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
 
 # Set environment (user default) variable
-echo "[$scriptName] ANT_HOME=\"/opt/$antVersion\" > $scriptName"
 echo ANT_HOME=\"/opt/$antVersion\" > $scriptName
-echo "[$scriptName] chmod +x $scriptName"
 chmod +x $scriptName
-echo "[$scriptName] sudo mv -v $scriptName /etc/profile.d/"
 sudo mv -v $scriptName /etc/profile.d/
+
+echo "[$scriptName] List start script contents ..."
+executeExpression "cat /etc/profile.d/$scriptName"
 
 echo "[$scriptName] --- end ---"

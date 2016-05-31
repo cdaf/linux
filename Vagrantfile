@@ -29,7 +29,7 @@ Vagrant.configure(2) do |config|
       override.vm.network 'private_network', ip: '172.16.17.101'
       override.vm.box = 'bento/centos-6.7'
       override.vm.network 'forwarded_port', guest: 22, host: 10022
-      override.vm.provision 'shell', path: 'automation/provisioning/addHOSTS.sh'  # defaults are for desktop environment, target.sky.net
+      override.vm.provision 'shell', path: 'automation/provisioning/addHOSTS.sh', args: "172.16.17.102 target.sky.net"
       override.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'

@@ -214,7 +214,9 @@ do
 		stringarray=($LINE)
 		fileName=${stringarray[1]}
 		sourceDir=${stringarray[2]}
-		EXECUTABLESCRIPT="tar -zcvf ./${fileName}.tar.gz ./${sourceDir} --exclude=\"*.git\" --exclude=\"*.svn\""
+		sourcePath=$(dirname $(readlink -f ${sourceDir}))
+		sourceName=$(basename ${sourceDir})
+		EXECUTABLESCRIPT="tar -C ${sourcePath} -zcvf ./${fileName}.tar.gz ${sourceName} --exclude=\"*.git\" --exclude=\"*.svn\""
 	fi
 
 	# Perform no further processing if Feature is Property Loader

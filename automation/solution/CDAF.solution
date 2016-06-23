@@ -1,5 +1,4 @@
-# Template Solution Properties file
-# Is using symantic versioning, substitute build number at the end of version
-productVersion=0.0.1.
-solutionName=myProduct
+# This file defines the automation root along with CD emulator value (solutionName)
+productVersion=0.0.1
 productName=My Product Name
+solutionName=myProduct

@@ -44,14 +44,6 @@ else
 	echo "$0 :   OPT_ARG      : $OPT_ARG"
 fi
 
-echo "$0 :   whoami       : $(whoami)"
-echo "$0 :   hostname     : $(hostname)"
-cdafVersion=$(./getProperty.sh "./CDAF.properties" "productVersion")
-echo "$0 :   CDAF Version : $cdafVersion"
-
-workingDir=$(pwd)
-echo "$0 :   workingDir   : $workingDir"
-
 if [ -d "./propertiesForLocalTasks" ]; then
 
 	ls ./$LOCAL_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT* > targetList &2> /dev/null

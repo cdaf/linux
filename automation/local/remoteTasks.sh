@@ -47,15 +47,6 @@ else
 	echo "$0 :   OPT_ARG           : $OPT_ARG"
 fi
 
-echo "$0 :   whoami            : $(whoami)"
-echo "$0 :   hostname          : $(hostname)"
-
-cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
-echo "$0 :   CDAF Version      : $cdafVersion"
-
-workingDir=$(pwd)
-echo "$0 :   workingDir        : $workingDir"
-
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
 	ls ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* > targetList &2> /dev/null

@@ -39,8 +39,6 @@ if [ ! $environmentBuild] ; then
 fi
 echo "$scriptName :   environmentBuild    : $environmentBuild"
 
-echo "\$environmentDelivery = $environmentDelivery"
-
 if [ ! $environmentDelivery ]; then
 	environmentDelivery="LINUX"
 fi
@@ -70,23 +68,25 @@ fi
 
 # Check for customised CI process
 printf "$scriptName :   ciProcess           : "
-if [ -f "$solutionRoot/cdEmulate-ci.sh" ]; then
-	cdProcess="$solutionRoot/cdEmulate-ci.sh"
+if [ -f "$solutionRoot/ciProcess.sh" ]; then
+	cdProcess="$solutionRoot/ciProcess.sh"
 	echo "$ciProcess (override)"
 else
-	ciProcess="$automationRoot/emulator/cdEmulate-ci.sh"
+	ciProcess="$automationRoot/processor/ciProcess.sh"
 	echo "$ciProcess (default)"
 fi
 
 # Check for customised Delivery process
 printf "$scriptName :   cdProcess           : "
-if [ -f "$solutionRoot/cdEmulate-deliver.sh" ]; then
-	cdProcess="$solutionRoot/cdEmulate-deliver.sh"
+if [ -f "$solutionRoot/deliverProcess.sh" ]; then
+	cdProcess="$solutionRoot/deliverProcess.sh"
 	echo "$cdProcess (override)"
 else
-	cdProcess="$automationRoot/emulator/cdEmulate-deliver.sh"
+	cdProcess="$automationRoot/processor/deliverProcess.sh"
 	echo "$cdProcess (default)"
 fi
+# Packaging will ensure either the override or default delivery process is retained
+cdInstruction="deliverProcess.sh"
 
 # If a solution properties file exists, load the properties
 if [ -f "$solutionRoot/CDAF.solution" ]; then
@@ -108,7 +108,37 @@ else
 	echo "$scriptName : solutionName defined in $solutionRoot/CDAF.solution, using solution name $solutionName"	
 fi
 
-# Process Build and Package
+if [ -z "$ACTION" ]; then
+	echo
+	echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
+	echo
+    echo 'For TeamCity ...'
+    echo "  Command Executable : $ciProcess"
+    echo "  Command parameters : $solutionName $environmentBuild %build.number% %build.vcs.number% $automationRoot $workDirLocal $workDirRemote"
+	echo
+    echo 'For Go (requires explicit bash invoke) ...'
+    echo '  Command   : /bin/bash'
+    echo "  Arguments : -c '$ciProcess $solutionName $environmentBuild \${GO_PIPELINE_COUNTER} \${GO_REVISION} $automationRoot $workDirLocal $workDirRemote'"
+    echo
+    echo 'For Bamboo ...'
+    echo "  Script file : $ciProcess"
+	echo "  Argument    : $solutionName $environmentBuild \${bamboo.buildNumber} \${bamboo.repository.revision.number} $automationRoot $workDirLocal $workDirRemote"
+    echo
+    echo 'For Jenkins ...'
+    echo "  Command : $ciProcess $solutionName $environmentBuild %BUILD_NUMBER% %SVN_REVISION% $automationRoot $workDirLocal $workDirRemote"
+    echo
+    echo 'For Team Foundation Server/Visual Studio Team Services'
+	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
+    echo '  Use the visual studio template and delete the nuget and VS tasks.'
+	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
+	echo '  Set the build number $(rev:r)'
+	echo '  Recommend using the navigation UI to find the entry script.'
+	echo '  Cannot use %BUILD_SOURCEVERSION% with external Git'
+    echo "  Command Filename  : $ciProcess"
+    echo "  Command arguments : $solutionName $environmentBuild \${BUILD_BUILDNUMBER} \${BUILD_SOURCEVERSION} $automationRoot $workDirLocal $workDirRemote"
+    echo
+	echo "$scriptName : -------------------------------------------------------"
+fi
 $ciProcess "$solutionName" "$environmentBuild" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION"
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
@@ -118,6 +148,61 @@ fi
 
 # Do not process Remote and Local Tasks if the action is just clean
 if [ -z "$ACTION" ]; then
+	echo
+	echo "$scriptName : ---------- Artefact Configuration Guide -------------"
+	echo
+	echo 'Configure artefact retention patterns to retain package and local tasks'
+	echo
+    echo 'For Bamboo ...'
+    echo '  Name    : Package'
+	echo '  Pattern : *.gz'
+	echo
+    echo '  Name    : TasksLocal'
+	echo '  Pattern : TasksLocal/**'
+	echo
+    echo 'For VSTS / TFS 2015 ...'
+    echo '  Use the combination of Copy files and Retain Artefacts from Visual Studio Solution Template'
+    echo '  Source Folder   : $(Agent.BuildDirectory)/s/<visual studio solution name>'
+    echo '  Copy files task : TasksLocal/**'
+    echo '                    *.gz'
+	echo
+	echo "$scriptName : -------------------------------------------------------"
+	echo
+	echo "$scriptName : ---------- CD Toolset Configuration Guide -------------"
+	echo
+	echo 'Note: artifact retention typically does include file attribute for executable, so'
+	echo '  set the first step of deploy process to make all scripts executable'
+	echo '  chmod +x ./*/*.sh'
+	echo
+	echo 'For TeamCity ...'
+	echo "  Command Executable : $workDirLocal/$cdInstruction"
+	echo "  Command parameters : $solutionName $environmentDelivery %build.number% $revision $automationRoot $workDirLocal $workDirRemote"
+	echo
+	echo 'For Go ...'
+	echo '  requires explicit bash invoke'
+	echo '  Command   : /bin/bash'
+	echo "  Arguments : -c '$workDirLocal/$cdInstruction $solutionName \${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $revision $automationRoot $workDirLocal $workDirRemote'"
+	echo
+	echo 'For Bamboo ...'
+	echo '  Warning! set Deployment project name to solution name, with no spaces'
+	echo "  Script file : \${bamboo.build.working.directory}$workDirLocal/$cdInstruction"
+	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $revision $automationRoot $workDirLocal $workDirRemote"
+	echo
+	echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
+	echo '  build-${bamboo.buildNumber} deploy-1'
+	echo
+	echo 'For Jenkins ...'
+	echo "  Command : $workDirLocal/$cdInstruction $solutionName $environmentDelivery %BUILD_NUMBER% $revision $automationRoot $workDirLocal $workDirRemote"
+	echo
+	echo 'For Team Foundation Server/Visual Studio Team Services'
+	echo '  Likey that Linux jobs are not part of Default queue, check environments default Queue'
+	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration'
+	echo "  Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
+	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \${BUILD_BUILDNUMBER} \${BUILD_SOURCEVERSION} $automationRoot $workDirLocal $workDirRemote"
+	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
+	echo
+	echo "$scriptName : -------------------------------------------------------"
+
 	$cdProcess "$solutionName" "$environmentDelivery" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
@@ -125,6 +210,7 @@ if [ -z "$ACTION" ]; then
 		exit $exitCode
 	fi
 fi
+
 echo
 echo "$scriptName : ------------------"
 echo "$scriptName : Emulation Complete"

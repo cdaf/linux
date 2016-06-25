@@ -55,11 +55,6 @@ if [ -z "$AUTOMATIONROOT" ]; then
 	echo "$0 :   AUTOMATIONROOT : $AUTOMATIONROOT (CDAF.linux not found)"
 fi
 
-echo "$0 :   pwd            : $(pwd)"
-echo "$0 :   whoami         : $(whoami)"
-
-cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
-echo "$0 :   CDAF Version   : $cdafVersion"
 echo
 echo "$0 : $automessage"
 AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"

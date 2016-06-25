@@ -65,6 +65,13 @@ echo "$0 : Copy required local scripts"
 echo
 cp -avR $AUTOMATIONROOT/local/* $WORK_DIR_DEFAULT
 
+# Only retain either the override or default delivery process
+if [ -f "$SOLUTIONROOT/deliverProcess.sh" ]; then
+	cp -avR $SOLUTIONROOT/deliverProcess.sh $WORK_DIR_DEFAULT
+else
+	cp -avR $AUTOMATIONROOT/processor/deliverProcess.sh $WORK_DIR_DEFAULT
+fi
+
 if [ -d "$localPropertiesDir" ]; then
 	filesInDir=$(ls $localPropertiesDir)
 	if [ -n "$filesInDir" ]; then

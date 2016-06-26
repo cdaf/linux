@@ -85,7 +85,7 @@ else
 	cdProcess="$automationRoot/processor/deliverProcess.sh"
 	echo "$cdProcess (default)"
 fi
-# Packaging will ensure either the override or default delivery process is retained
+# Packaging will ensure either the override or default delivery process is in the workspace root
 cdInstruction="deliverProcess.sh"
 
 # If a solution properties file exists, load the properties
@@ -195,8 +195,8 @@ if [ -z "$ACTION" ]; then
 	echo "  Command : $workDirLocal/$cdInstruction $solutionName $environmentDelivery %BUILD_NUMBER% $revision $automationRoot $workDirLocal $workDirRemote"
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
-	echo '  Likey that Linux jobs are not part of Default queue, check environments default Queue'
-	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration'
+	echo '  Check the default queue for Environment definition.'
+	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration.'
 	echo "  Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
 	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \${BUILD_BUILDNUMBER} \${BUILD_SOURCEVERSION} $automationRoot $workDirLocal $workDirRemote"
 	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"

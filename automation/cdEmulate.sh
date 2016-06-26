@@ -192,7 +192,13 @@ if [ -z "$ACTION" ]; then
 	echo '  build-${bamboo.buildNumber} deploy-1'
 	echo
 	echo 'For Jenkins ...'
-	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILD_NUMBER \$SVN_REVISION $automationRoot $workDirLocal $workDirRemote"
+	echo '  Following is for use with delivery-pipeline-plugin, which does not provide'
+	echo '  the upstream build number, so retrieve the BUILDNUMBER from the manifest.'
+	echo '  # Load the $BUILDNUMBER from the manifest'
+	echo '  propertiesList=$(TasksLocal/transform.sh TasksLocal/manifest.txt)'
+	echo '  printf "$propertiesList"'
+	echo '  eval $propertiesList'
+	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILDNUMBER $revision $automationRoot $workDirLocal $workDirRemote"
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Check the default queue for Environment definition.'

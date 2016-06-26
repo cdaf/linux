@@ -125,7 +125,7 @@ if [ -z "$ACTION" ]; then
 	echo "  Argument    : $solutionName $environmentBuild \${bamboo.buildNumber} \${bamboo.repository.revision.number} $automationRoot $workDirLocal $workDirRemote"
     echo
     echo 'For Jenkins ...'
-    echo "  Command : $ciProcess $solutionName $environmentBuild %BUILD_NUMBER% %SVN_REVISION% $automationRoot $workDirLocal $workDirRemote"
+    echo "  Command : ./$ciProcess $solutionName $environmentBuild \$BUILD_NUMBER \$SVN_REVISION $automationRoot $workDirLocal $workDirRemote"
     echo
     echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
@@ -192,7 +192,7 @@ if [ -z "$ACTION" ]; then
 	echo '  build-${bamboo.buildNumber} deploy-1'
 	echo
 	echo 'For Jenkins ...'
-	echo "  Command : $workDirLocal/$cdInstruction $solutionName $environmentDelivery %BUILD_NUMBER% $revision $automationRoot $workDirLocal $workDirRemote"
+	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILD_NUMBER \$SVN_REVISION $automationRoot $workDirLocal $workDirRemote"
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Check the default queue for Environment definition.'

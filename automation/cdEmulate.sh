@@ -135,7 +135,7 @@ if [ -z "$ACTION" ]; then
 	echo '  Recommend using the navigation UI to find the entry script.'
 	echo '  Cannot use %BUILD_SOURCEVERSION% with external Git'
     echo "  Command Filename  : $ciProcess"
-    echo "  Command arguments : $solutionName $environmentBuild \${BUILD_BUILDNUMBER} \${BUILD_SOURCEVERSION} $automationRoot $workDirLocal $workDirRemote"
+    echo "  Command arguments : $solutionName $environmentBuild \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION $automationRoot $workDirLocal $workDirRemote"
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi
@@ -186,7 +186,7 @@ if [ -z "$ACTION" ]; then
 	echo 'For Bamboo ...'
 	echo '  Warning! set Deployment project name to solution name, with no spaces'
 	echo "  Script file : \${bamboo.build.working.directory}$workDirLocal/$cdInstruction"
-	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} $revision $automationRoot $workDirLocal $workDirRemote"
+	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} \${bamboo.deploy.release} $automationRoot $workDirLocal $workDirRemote"
 	echo
 	echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
 	echo '  build-${bamboo.buildNumber} deploy-1'
@@ -204,7 +204,7 @@ if [ -z "$ACTION" ]; then
 	echo '  Check the default queue for Environment definition.'
 	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration.'
 	echo "  Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
-	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \${BUILD_BUILDNUMBER} \${BUILD_SOURCEVERSION} $automationRoot $workDirLocal $workDirRemote"
+	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \$BUILD_BUILDNUMBER \$RELEASE_RELEASENAME $automationRoot $workDirLocal $workDirRemote"
 	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
 	echo "$scriptName : -------------------------------------------------------"

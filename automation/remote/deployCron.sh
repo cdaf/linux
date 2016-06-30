@@ -10,7 +10,7 @@ fi
 crontab -l > crontab.txt
 CRON=$(cat crontab.txt)
 
-MARKER="Datacom Build and Revision"
+MARKER="Build and Revision"
 
 if [ -z "$CRON" ]; then
 	

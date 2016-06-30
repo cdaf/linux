@@ -7,7 +7,7 @@
 SOLUTION="$1"
 ENVIRONMENT="$2"
 BUILD="$3"
-REVISION="$4"
+RELEASE="$4"
 AUTOMATION_ROOT="$5"
 LOCAL_WORK_DIR="$6"
 REMOTE_WORK_DIR="$7"
@@ -31,10 +31,10 @@ if [[ $BUILD == *'$'* ]]; then
 	BUILD=$(eval echo $BUILD)
 fi
 echo "$scriptName :   BUILD           : $BUILD"
-if [[ $REVISION == *'$'* ]]; then
-	REVISION=$(eval echo $REVISION)
+if [[ $RELEASE == *'$'* ]]; then
+	RELEASE=$(eval echo $RELEASE)
 fi
-echo "$scriptName :   REVISION        : $REVISION"
+echo "$scriptName :   RELEASE         : $RELEASE"
 echo "$scriptName :   AUTOMATION_ROOT : $AUTOMATION_ROOT"
 echo "$scriptName :   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"

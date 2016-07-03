@@ -162,7 +162,7 @@ if [ -z "$ACTION" ]; then
 	echo
     echo 'For VSTS / TFS 2015 ...'
     echo '  Use the combination of Copy files and Retain Artefacts from Visual Studio Solution Template'
-    echo '  Source Folder   : $(Agent.BuildDirectory)/s/<visual studio solution name>'
+    echo "  Source Folder   : `$(Agent.BuildDirectory)/s/$solutionName"
     echo '  Copy files task : TasksLocal/**'
     echo '                    *.gz'
 	echo

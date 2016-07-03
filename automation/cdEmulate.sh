@@ -131,12 +131,11 @@ if [ -z "$ACTION" ]; then
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
     echo '  Use the visual studio template and delete the nuget and VS tasks.'
 	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
-	echo '        recommend using solution name, then the Release instructions can be used unchanged.'
-	echo '  Set the build number $(rev:r)'
-	echo '  Recommend using the navigation UI to find the entry script.'
-	echo '  Cannot use %BUILD_SOURCEVERSION% with external Git'
-    echo "  Command Filename  : $ciProcess"
+	echo '        Set the build number $(rev:r) to ensure build number is an integer'
+	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
+    echo "  Command Filename  : $solutionName/$ciProcess"
     echo "  Command arguments : $solutionName $environmentBuild \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION $automationRoot $workDirLocal $workDirRemote"
+    echo "  Working Directory : $solutionName"
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi

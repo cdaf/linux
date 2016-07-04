@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='docker.sh'
 
 echo "[$scriptName] --- start ---"
@@ -24,14 +36,19 @@ fi
 
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
-	sudo cp $install/docker*.tgz /tmp
-	cd /tmp
-	package=$(ls -1 docker*.tgz)
-	tar -xvzf docker-latest.tgz
-	sudo mv docker/* /usr/bin/
-	sudo docker daemon &
+	executeExpression "sudo cp $install/docker*.tgz /tmp"
+	executeExpression "cd /tmp"
+	executeExpression "package=$(ls -1 docker*.tgz)"
+	
+	if [ -n "$package" ]; then
+		executeExpression "tar -xvzf docker-latest.tgz"
+		executeExpression "sudo mv docker/* /usr/bin/"
+		executeExpression "sudo docker daemon &"
+	fi
+fi
 
-else
+# If not binary install, or binary not found, install via repos 
+if [ -z "$package" ]; then
 
 	if [ "$centos" ]; then
 	
@@ -39,11 +56,11 @@ else
 
 			if [ -f /etc/os-release ]; then 
 				echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
-				sudo yum check-update
-				sudo yum install -y docker
-				sudo systemctl enable docker.service
-				sudo systemctl start docker.service
-				sudo systemctl status docker.service
+				executeExpression "sudo yum check-update"
+				executeExpression "sudo yum install -y docker"
+				executeExpression "sudo systemctl enable docker.service"
+				executeExpression "sudo systemctl start docker.service"
+				executeExpression "sudo systemctl status docker.service"
 			else
 				echo "[$scriptName] Install CentOS 6 from Docker repository"
 				sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
@@ -53,22 +70,12 @@ else
 				sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
 				sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
 				echo			
-				sudo cat /etc/yum.repos.d/docker.repo
+				executeExpression "sudo cat /etc/yum.repos.d/docker.repo"
 				echo			
 				echo "[$scriptName] Install software from repo"
-				sudo yum install -y docker-engine
-				exitCode=$?
-				if [ "$exitCode" != "0" ]; then
-					echo "$0 : Exception! \"sudo yum install -y docker-engine\" returned $exitCode"
-					exit $exitCode
-				fi
-				sudo service docker start
-				exitCode=$?
-				if [ "$exitCode" != "0" ]; then
-					echo "$0 : Exception! \"sudo service docker start\" returned $exitCode"
-					exit $exitCode
-				fi
-				sudo service docker status
+				executeExpression "sudo yum install -y docker-engine"
+				executeExpression "sudo service docker start"
+				executeExpression "sudo service docker status"
 			fi
 
 		else
@@ -80,32 +87,32 @@ else
 		if [ "$install" == 'canon' ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
-			sudo apt-get update
-			sudo apt-get install -y docker.io
+			executeExpression "sudo apt-get update"
+			executeExpression "sudo apt-get install -y docker.io"
 
 		else
 
 			echo "[$scriptName] Specific version only supported for Ubuntu 14"
 			echo "[$scriptName] Install latest from Docker ($install)"
 			echo "[$scriptName] Add the new GPG key"
-			sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+			executeExpression "sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
 	
 			echo "[$scriptName] Update sources for 14.04"
-			sudo sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" >> /etc/apt/sources.list.d/docker.list'
+			executeExpression "sudo sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" >> /etc/apt/sources.list.d/docker.list'"
 			
 			echo "[$scriptName] Update apt repository, purge and verify repository"
-			sudo apt-get update
-			sudo apt-get purge lxc-docker
-			apt-cache policy docker-engine
+			executeExpression "sudo apt-get update"
+			executeExpression "sudo apt-get purge lxc-docker"
+			executeExpression "apt-cache policy docker-engine"
 		
 			echo "[$scriptName] Install the extras for this architecture linux-image-extra-$(uname -r)"
-			sudo apt-get install -y linux-image-extra-$(uname -r)
+			executeExpression 'sudo apt-get install -y linux-image-extra-$(uname -r)'
 	
 			echo "[$scriptName] Docker document states apparmor needs to be installed"
-			sudo apt-get install -y apparmor
+			executeExpression "sudo apt-get install -y apparmor"
 	
 			echo "[$scriptName] Docker document states apparmor needs to be installed"
-			sudo apt-get install -y docker-engine
+			executeExpression "sudo apt-get install -y docker-engine"
 			
 		fi
 		
@@ -113,6 +120,6 @@ else
 fi
 
 echo "[$scriptName] List version details..."
-sudo docker version
+executeExpression "sudo docker version"
  
 echo "[$scriptName] --- end ---"

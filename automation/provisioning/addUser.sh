@@ -47,16 +47,21 @@ fi
 # If the group does not exist, create it
 groupExists=$(getent group $groupname)
 if [ "$groupExists" ]; then
-	echo "[$scriptName] $groupname exists"
+	echo "[$scriptName] groupname $groupname exists"
 else
 	executeExpression "sudo groupadd $groupname"
 fi
 
-# Create the user in the group
-if [ "$centos" ]; then
-	executeExpression "sudo adduser -g $groupname $username"
-else
-	executeExpression "sudo adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
+userExists=$(id -u $username 2> /dev/null )
+if [ -z "$userExists" ]; then # User does not exist, create the user in the group
+	if [ "$centos" ]; then
+		executeExpression "sudo adduser -g $groupname $username"
+	else
+		executeExpression "sudo adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
+	fi
+else # Just add the user to the group
+	echo "[$scriptName] username $username exists"
+	executeExpression "sudo usermod -a -G $groupname $username"
 fi
 
 echo "[$scriptName] --- end ---"

@@ -11,7 +11,7 @@ function executeExpression {
 	fi
 }  
 
-scriptName='docker.sh'
+scriptName='installDocker.sh'
 
 echo "[$scriptName] --- start ---"
 centos=$(uname -mrs | grep .el)
@@ -28,10 +28,10 @@ fi
 
 if [ -z "$1" ]; then
 	install='canon'
-	echo "[$scriptName]   install     : $install (default canon, choices canon or latest)"
+	echo "[$scriptName]   install      : $install (default canon, choices canon or latest)"
 else
 	install=$1
-	echo "[$scriptName]   install     : $install (choices canon, latest or a path to binary)"
+	echo "[$scriptName]   install      : $install (choices canon, latest or a path to binary)"
 fi
 
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
@@ -119,7 +119,8 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-echo "[$scriptName] List version details..."
+echo "[$scriptName] Pause for Docker to start, the list version details..."
+sleep 5
 executeExpression "sudo docker version"
  
 echo "[$scriptName] --- end ---"

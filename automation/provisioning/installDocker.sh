@@ -36,14 +36,16 @@ fi
 
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
-	executeExpression "sudo cp $install/docker*.tgz /tmp"
-	executeExpression "cd /tmp"
-	executeExpression "package=$(ls -1 docker*.tgz)"
-	
+	package=$(ls -1 $install/docker*.tgz)
 	if [ -n "$package" ]; then
+		executeExpression "sudo cp $install/docker*.tgz /tmp"
+		executeExpression "cd /tmp"
 		executeExpression "tar -xvzf docker-latest.tgz"
 		executeExpression "sudo mv docker/* /usr/bin/"
 		executeExpression "sudo docker daemon &"
+	else
+		echo "[$scriptName] media directory supplied, but no docker zip file found, switching to canonical install..."
+		install='canon'
 	fi
 fi
 

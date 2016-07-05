@@ -124,13 +124,15 @@ if [ -f "projectListFile" ]; then
 			exit $exitCode
 		fi
 
-		# Additional properties that are not passed as arguments		
-		echo "REVISION=$REVISION" > ../build.properties
+		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicitely load is required		
+		echo "PROJECT=$PROJECT" > ../build.properties
+		echo "REVISION=$REVISION" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
+
 		if [ -f "build.sh" ]; then
 		
-			./build.sh "$SOLUTION" "$BUILDNUMBER" "$PROJECT" "$ACTION"
+			./build.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "$ACTION"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
 				echo "$0 : $PROJECT Build Failed, exit code = $exitCode."
@@ -138,8 +140,8 @@ if [ -f "projectListFile" ]; then
 			fi
 			
 		else
-			
-			.$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$PROJECT" "build.tsk" "$ACTION" 2>&1
+						
+			.$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
 				echo "$0 : Linear deployment activity (.$AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"

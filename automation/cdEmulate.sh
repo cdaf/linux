@@ -185,8 +185,8 @@ if [ -z "$ACTION" ]; then
 	echo
 	echo 'For Bamboo ...'
 	echo '  Warning! set Deployment project name to solution name, with no spaces'
-	echo "  Script file : \${bamboo.build.working.directory}$workDirLocal/$cdInstruction"
-	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.project} \${bamboo.deploy.release} $automationRoot $workDirLocal $workDirRemote"
+	echo "  Script file : $workDirLocal/$cdInstruction"
+	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.release} $automationRoot $workDirLocal $workDirRemote"
 	echo
 	echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
 	echo '  build-${bamboo.buildNumber} deploy-1'

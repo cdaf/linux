@@ -58,7 +58,8 @@ if [ -z "$package" ]; then
 
 			if [ -f /etc/os-release ]; then 
 				echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
-				executeExpression "sudo yum check-update"
+				echo "[$scriptName] sudo yum check-update (not, a normal exit code is non zero)"
+				sudo yum check-update 
 				executeExpression "sudo yum install -y docker"
 				executeExpression "sudo systemctl enable docker.service"
 				executeExpression "sudo systemctl start docker.service"

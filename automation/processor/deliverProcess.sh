@@ -11,7 +11,7 @@ RELEASE="$4"
 AUTOMATION_ROOT="$5"
 LOCAL_WORK_DIR="$6"
 REMOTE_WORK_DIR="$7"
-ACTION="$8"
+OPT_ARG="$8"
 
 scriptName=${0##*/}
 
@@ -38,7 +38,7 @@ echo "$scriptName :   RELEASE         : $RELEASE"
 echo "$scriptName :   AUTOMATION_ROOT : $AUTOMATION_ROOT"
 echo "$scriptName :   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
-echo "$scriptName :   ACTION          : $ACTION"
+echo "$scriptName :   OPT_ARG         : $OPT_ARG"
 echo "$scriptName :   whoami          : $(whoami)"
 echo "$scriptName :   hostname        : $(hostname)"
 echo "$scriptName :   CDAF Version    : $(./$LOCAL_WORK_DIR/getProperty.sh "./$LOCAL_WORK_DIR/CDAF.properties" "productVersion")"
@@ -49,10 +49,11 @@ echo "$scriptName : ---------------------"
 echo "$scriptName : Remote Task Execution"
 echo "$scriptName : ---------------------"
 
-./$LOCAL_WORK_DIR/remoteTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR"
+./$LOCAL_WORK_DIR/remoteTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR" "$OPT_ARG"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$scriptName : Remote Deploy process failed! Returned $exitCode"
+	echo "$scriptName : ./$LOCAL_WORK_DIR/remoteTasks.sh $ENVIRONMENT $BUILD $SOLUTION $LOCAL_WORK_DIR $OPT_ARG"
 	exit $exitCode
 fi
 echo
@@ -60,9 +61,10 @@ echo "$scriptName : --------------------"
 echo "$scriptName : Local Task Execution"
 echo "$scriptName : --------------------"
 
-./$LOCAL_WORK_DIR/localTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR"
+./$LOCAL_WORK_DIR/localTasks.sh "$ENVIRONMENT" "$BUILD" "$SOLUTION" "$LOCAL_WORK_DIR" "$OPT_ARG"
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
 	echo "$scriptName : Remote Deploy process failed! Returned $exitCode"
+	echo "$scriptName : ./$LOCAL_WORK_DIR/localTasks.sh $ENVIRONMENT $BUILD $SOLUTION $LOCAL_WORK_DIR $OPT_ARG"
 	exit $exitCode
 fi

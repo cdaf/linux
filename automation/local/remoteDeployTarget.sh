@@ -71,6 +71,19 @@ else
 	echo "$0 :   deployLand : $deployLand"
 fi
 
+if [[ $deployHost == *'$'* ]]; then
+	deployHost=$(eval echo $deployHost)
+	echo "$0 :   deployHost : $deployHost (evaluated)"
+fi
+if [[ $deployUser == *'$'* ]]; then
+	deployUser=$(eval echo $deployUser)
+	echo "$0 :   deployUser : $deployUser (evaluated)"
+fi
+if [[ $deployLand == *'$'* ]]; then
+	deployLand=$(eval echo $deployLand)
+	echo "$0 :   deployLand : $deployLand (evaluated)"
+fi
+
 # Process the deployHost, stripping out the port if passed, i.e. localhost:2222
 sep=':'
 case $deployHost in

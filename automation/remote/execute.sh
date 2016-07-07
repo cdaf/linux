@@ -62,14 +62,27 @@ echo "$0 :   TMPDIR      : $TMPDIR"
 # this is not required in the PowerShell version as variables are global
 AUTOMATIONHELPER=.
 if [ -f "../build.properties" ] ;then
+	echo
+	echo "$0 : Load ../build.properties"
+	echo
 	eval $(cat ../build.properties)
 	AUTOMATIONHELPER="../$AUTOMATIONROOT/remote"
+	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
+	printf "$propertiesList"
+	eval $propertiesList
 	rm ../build.properties
+	echo
 else
 	# If not build, is it a package process?
 	if [ -f "./package.properties" ] ;then
+		echo
+		echo "$0 : Load ./package.properties"
+		echo
 		eval $(cat ./package.properties)
 		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
+		propertiesList=$($AUTOMATIONHELPER/transform.sh ./package.properties)
+		printf "$propertiesList"
+		eval $propertiesList
 		rm ./package.properties
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote

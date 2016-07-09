@@ -6,7 +6,7 @@ function executeExpression {
 	# There is no exception handling as new host will return errors when removing non existing containers.
 }  
 
-scriptName='cleanImage.sh'
+scriptName='dockerClean.sh'
 echo
 echo "[$scriptName] This script will trap exceptions and proceed normally when an image does not exist."
 echo
@@ -45,6 +45,13 @@ echo "[$scriptName] Purge Untagged containers"
 for image in $(docker images | grep "^<none>" | awk '{print $3}'); do
 	executeExpression "docker rmi $image"
 done
+
+echo
+echo "[$scriptName] Purge dangling images"
+for image in $(docker images -f "dangling=true" -q); do
+	executeExpression "docker rmi $image"
+done
+
 echo
 echo "[$scriptName] List available images"
 executeExpression "docker images"

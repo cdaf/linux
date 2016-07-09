@@ -41,7 +41,7 @@ echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 echo "$scriptName :   ACTION          : $ACTION"
 echo "$scriptName :   pwd             : $(pwd)"
 echo "$scriptName :   whoami          : $(whoami)"
-echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
+echo "$scriptName :   CDAF Version    : $(./$AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
 ./$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILD" "$REVISION" "$ENVIRONMENT" "$ACTION"
 exitCode=$?

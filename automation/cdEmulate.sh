@@ -130,6 +130,8 @@ if [ -z "$ACTION" ]; then
     echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
     echo '  Use the visual studio template and delete the nuget and VS tasks.'
+    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects. If the repo root and solution root are the same, remove the solution prefix'
+    echo '    but ensure the working directory is selected and set to blank, otherwise the path of the ciProcess will be used.'
 	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
 	echo '        Set the build number $(rev:r) to ensure build number is an integer'
 	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'

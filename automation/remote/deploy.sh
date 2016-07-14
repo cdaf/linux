@@ -17,42 +17,43 @@ WORKDIR=$2
 OPT_ARG=$3
 
 echo
-echo "$0 :   DEPLOY_TARGET : $DEPLOY_TARGET"
+echo "$0 :   DEPLOY_TARGET        : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORKDIR" ]; then
 	cd $WORKDIR
-	echo "$0 :   WORKDIR       : $WORKDIR"
+	echo "$0 :   WORKDIR              : $WORKDIR"
 else
-	echo "$0 :   WORKDIR       : $(pwd) (not passed, using current)"
+	echo "$0 :   WORKDIR              : $(pwd) (not passed, using current)"
 fi
+
+# Load solution and build number from Manifest (created in package process)
+SOLUTION=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./manifest.txt" "SOLUTION")
+echo "$0 :   SOLUTION             : $SOLUTION"
+BUILDNUMBER=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./manifest.txt" "BUILDNUMBER")
+echo "$0 :   BUILDNUMBER          : $BUILDNUMBER"
 
 if [ "$OPT_ARG" ]; then
-	echo "$0 :   OPT_ARG       : $OPT_ARG"
+	echo "$0 :   OPT_ARG              : $OPT_ARG"
 else
-	echo "$0 :   OPT_ARG       : (not passed)"
+	echo "$0 :   OPT_ARG              : (not passed)"
 fi
 
-echo "$0 :   whoami        : $(whoami)"
-echo "$0 :   hostname      : $(hostname)"
+echo "$0 :   whoami               : $(whoami)"
+echo "$0 :   hostname             : $(hostname)"
 
 cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
-echo "$0 :   CDAF Version  : $cdafVersion"
-echo
-echo "$0 : Load SOLUTION and BUILDNUMBER from manifest.txt"
-echo
-manifestProperties=$(./transform.sh "./manifest.txt")
-echo "$manifestProperties"
-eval $manifestProperties
-echo
+echo "$0 :   CDAF Version         : $cdafVersion"
+
 scriptOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
 if [ "$scriptOverride" ]; then
-	echo
 	if [ ! -f "./$scriptOverride" ]; then
 		echo "$0 : $scriptOverride not found!"
 		exit 127
 	fi	 	
-	printf "$0 : deployScriptOverride set, executing ==> "  
+	echo "$0 :   deployScriptOverride : deployScriptOverride"  
+	printf "$0 :   Executing ==> "  
 	overrideExecute="./$scriptOverride $SOLUTION $BUILDNUMBER $DEPLOY_TARGET"
+	echo
 	echo "$overrideExecute"
 	eval $overrideExecute
 	exitCode=$?
@@ -63,14 +64,15 @@ if [ "$scriptOverride" ]; then
 		
 else
 
+	echo "$0 :   deployScriptOverride : (not set)"  
 	taskOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployTaskOverride")
 	if [ "$taskOverride" ]; then
-		echo "$0 : deployTaskOverride set to $taskOverride, this will be executed"
+		echo "$0 :   deployTaskOverride   : $taskOverride"
 	else
 		taskOverride="tasksRunRemote.tsk"
-		echo "$0 : deployTaskOverride not set, defaulting to tasksRunRemote.tsk"
+		echo "$0 :   deployTaskOverride   : tasksRunRemote.tsk (default)"
 	fi
-	
+	echo
 	echo "$0 : Starting deploy process ..."
 	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride" "$OPT_ARG"
 	exitCode=$?

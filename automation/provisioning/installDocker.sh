@@ -28,21 +28,37 @@ fi
 
 if [ -z "$1" ]; then
 	install='canon'
-	echo "[$scriptName]   install      : $install (default canon, choices canon or latest)"
+	echo "[$scriptName]   install     : $install (default canon, choices canon or latest)"
 else
 	install=$1
-	echo "[$scriptName]   install      : $install (choices canon, latest or a path to binary)"
+	echo "[$scriptName]   install     : $install (choices canon, latest or a path to binary)"
+fi
+
+
+if [ -z "$2" ]; then
+	startDaemon='yes'
+	echo "[$scriptName]   startDaemon : $startDaemon (default, only applies to binary install)"
+else
+	startDaemon=$2
+	echo "[$scriptName]   startDaemon : $startDaemon (only applies to binary install)"
 fi
 
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
 	package=$(ls -1 $install/docker*.tgz)
 	if [ -n "$package" ]; then
-		executeExpression "sudo cp $install/docker*.tgz /tmp"
-		executeExpression "cd /tmp"
-		executeExpression "tar -xvzf docker-latest.tgz"
-		executeExpression "sudo mv docker/* /usr/bin/"
-		executeExpression "sudo docker daemon &"
+		# When running under vagranT, cannot extract from the replicated file share, so copy to 
+		# local file system, then extract
+		executeExpression "sudo cp $install/docker-latest.tgz /tmp"
+		executeExpression 'cd /tmp'
+		executeExpression 'tar -xvzf docker-latest.tgz'
+		executeExpression 'sudo mv docker/* /usr/bin/'
+		
+		# When running under vagrant have found issues with starting daemon in provisioning mode
+		# i.e. cannot connect to docker, even when user is a member of the docker group			
+		if [ "$startDaemon" == 'yes' ] ; then
+			executeExpression 'sudo docker daemon &'
+		fi
 	else
 		echo "[$scriptName] media directory supplied, but no docker zip file found, switching to canonical install..."
 		install='canon'

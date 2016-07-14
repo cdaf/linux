@@ -148,3 +148,23 @@ if [ $exitCode -ne 0 ]; then
 	echo "$0 : ./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $localArtifactListFile $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
 	exit $exitCode
 fi
+
+# If zipLocal property set in CDAF.solution of any build property, then a package will be created from the local takss
+zipLocal=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" 'zipLocal')
+if [ "$zipLocal" ]; then
+	echo	
+	echo "$0 : Create the package (tarball) file, excluding git or svn control files"
+	echo
+	cd $WORK_DIR_DEFAULT
+	tar -zcvf ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz . --exclude="*.git" --exclude="*.svn"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "$0 : tar -zcvf ../$SOLUTION-$BUILDNUMBER.tar.gz . --exclude=\"*.git\" --exclude=\"*.svn\" failed! Exit = $exitCode"
+		exit $exitCode
+	fi
+	cd ..
+else
+	echo	
+	echo "$0 : zipLocal not set in CDAF.solution of any build property, no additional action."
+	echo
+fi

@@ -179,6 +179,24 @@ do
 		esac
 	fi
 
+	# Execute Remote Command or Local Shell Script (via ssh)
+	if [ "$feature" == "EXCREM" ]; then
+		printf "$LINE ==> "
+		scriptLine="${LINE:7}"
+		sep=' '
+   	    EXECUTABLESCRIPT='./remoteExec.sh'
+		case $scriptLine in
+		(*"$sep"*)
+			command=${scriptLine%%"$sep"*}
+    	    arguments=${scriptLine#*"$sep"}
+    	    EXECUTABLESCRIPT+=" $deployHost $deployUser $command $arguments"
+    	    ;;
+		(*)
+    	    EXECUTABLESCRIPT+=" $deployHost $deployUser $command"
+		    ;;
+		esac
+	fi
+
 	# Detokenise a file
 	#  required : file to be detokenised
 	#  optional : properties file, by default the TARGET is used
@@ -213,9 +231,9 @@ do
 		value=${stringarray[3]}
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then
-			EXECUTABLESCRIPT="sed -i '' -- \"s/${name}/${value}/g\" ${fileName}"
+			EXECUTABLESCRIPT="sed -i '' -- \"s^${name}^${value}^g\" ${fileName}"
 		else
-			EXECUTABLESCRIPT="sed -i -- \"s/${name}/${value}/g\" ${fileName}"
+			EXECUTABLESCRIPT="sed -i -- \"s^${name}^${value}^g\" ${fileName}"
 		fi
 	fi
 
@@ -229,7 +247,16 @@ do
 		sourceDir=${stringarray[2]}
 		sourcePath=$(dirname $(readlink -f ${sourceDir}))
 		sourceName=$(basename ${sourceDir})
-		EXECUTABLESCRIPT="tar -C ${sourcePath} -zcvf ./${fileName}.tar.gz ${sourceName} --exclude=\"*.git\" --exclude=\"*.svn\""
+		EXECUTABLESCRIPT="tar -C ${sourcePath} -xzvf ./${fileName}.tar.gz ${sourceName} --exclude=\"*.git\" --exclude=\"*.svn\""
+	fi
+
+	# Decommpress from file
+	#  required : file, relative to current workspace
+	if [ "$feature" == "DCMPRS" ]; then
+		printf "$LINE ==> "
+		stringarray=($LINE)
+		fileName=${stringarray[1]}
+		EXECUTABLESCRIPT="tar -xcvf ./${fileName}.tar.gz"
 	fi
 
 	# Perform no further processing if Feature is Property Loader

@@ -1,2 +1,3 @@
 # Automated Function Test
 testFile=manifest.txt
+deployTaskOverride=localhostTest.tsk

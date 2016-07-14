@@ -1,2 +1,11 @@
-echo "Perform test to verify deploy (remote) action, i.e. BUILDNUMBER should match"
-cat $TMPDIR/$testFile
+echo "Same example CDAF task execution engine cases"
+
+PROPLD manifest.txt
+
+ASSIGN $productVersion+='.'
+ASSIGN $productVersion+=$BUILDNUMBER
+
+EXCREM hostname
+
+EXCREM ./capabilities.sh $productVersion
+

@@ -96,10 +96,10 @@ if [ "$extension" != 'sh' ]; then
 else
 	echo "$0 : Executing shell script ..."
 	echo
-	ssh -n -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'bash -s' < $deployCommand "$arg1 $arg2 $arg3 $arg4 $arg5 $arg6"
+	ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'cat | bash /dev/stdin ' "$arg1 $arg2 $arg3 $arg4 $arg5 $arg6" < $deployCommand 
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : ssh $deployUser@$deployHost 'bash -s' < \"$deployCommand $arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" failed! Returned $exitCode"
+		echo "$0 : ssh $deployUser@$deployHost \'cat | bash /dev/stdin \' \"$arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" < $deployCommand failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi

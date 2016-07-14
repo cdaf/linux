@@ -192,7 +192,7 @@ do
     	    EXECUTABLESCRIPT+=" $deployHost $deployUser $command $arguments"
     	    ;;
 		(*)
-    	    EXECUTABLESCRIPT+=" $deployHost $deployUser $command"
+    	    EXECUTABLESCRIPT+=" $deployHost $deployUser $scriptLine"
 		    ;;
 		esac
 	fi

@@ -48,7 +48,7 @@ else
 	echo "[$scriptName] environment     : $environment"
 fi
 
-executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name ${containerPrefix}_instance_${publishedPort} --label environment=${environment} ${containerPrefix}_image"
+executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name ${containerPrefix}_instance_${publishedPort} --label environment=${environment} ${containerPrefix}_image:${environment}"
 
 echo "List the running containers for environment ${environment}"
 docker ps --filter label=environment=${environment}

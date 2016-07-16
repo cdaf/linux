@@ -26,8 +26,6 @@ Vagrant.configure(2) do |config|
   config.vm.define 'buildserver' do |buildserver|  
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     buildserver.vm.provider 'virtualbox' do |virtualbox, override|
-      virtualbox.memory = 2048
-      virtualbox.cpus = 2
       override.vm.network 'private_network', ip: '172.16.17.101'
       override.vm.box = 'bento/centos-7.1'
       override.vm.network 'forwarded_port', guest: 22, host: 10022

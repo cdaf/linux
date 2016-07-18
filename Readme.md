@@ -42,7 +42,7 @@ Cleanup and Destroy
 -------------------
 If change made that need to be checked in, clean the workspace:
 
-	.\automation\cdEmulate.bat clean
+	.\automation\cdEmulate.sh clean
 
 Once finished with the environment, destroy using:
 

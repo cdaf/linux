@@ -245,9 +245,13 @@ do
 		stringarray=($LINE)
 		fileName=${stringarray[1]}
 		sourceDir=${stringarray[2]}
-		sourcePath=$(dirname $(readlink -f ${sourceDir}))
-		sourceName=$(basename ${sourceDir})
-		EXECUTABLESCRIPT="tar -C ${sourcePath} -xzvf ./${fileName}.tar.gz ${sourceName} --exclude=\"*.git\" --exclude=\"*.svn\""
+		if [ "$sourceDir" == '.' ]; then
+			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
+		else
+			sourcePath=$(dirname $(readlink -f ${sourceDir}))
+			sourceName=$(basename ${sourceDir})
+			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
+		fi
 	fi
 
 	# Decommpress from file

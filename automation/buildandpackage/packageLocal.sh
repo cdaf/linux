@@ -156,10 +156,10 @@ if [ "$zipLocal" ]; then
 	echo "$0 : Create the package (tarball) file, excluding git or svn control files"
 	echo
 	cd $WORK_DIR_DEFAULT
-	tar -zcvf ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz . --exclude="*.git" --exclude="*.svn"
+	tar -zcv --exclude='.git' --exclude='.svn' -f ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz .
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$0 : tar -zcvf ../$SOLUTION-$BUILDNUMBER.tar.gz . --exclude=\"*.git\" --exclude=\"*.svn\" failed! Exit = $exitCode"
+		echo "$0 : tar -zcv --exclude=\'.git\' --exclude=\'.svn\' -f ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz . failed! Exit = $exitCode"
 		exit $exitCode
 	fi
 	cd ..

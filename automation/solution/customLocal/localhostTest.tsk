@@ -1,2 +1,0 @@
-echo "Verify test file created in remote tasks"
-cat $TMPDIR/$testFile

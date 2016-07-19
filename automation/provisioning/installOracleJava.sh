@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptName='java.sh'
+scriptName='installOracleJava.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
@@ -67,12 +67,15 @@ echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java"
 sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java
 
 # Set the environment settings (requires elevation), replace if existing
-echo "[$scriptName] echo JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh"
-echo JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh
+echo "[$scriptName] echo export JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh"
+echo export JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh
 echo "[$scriptName] chmod +x oracle-java.sh"
 chmod +x oracle-java.sh
 echo "[$scriptName] sudo mv -v oracle-java.sh /etc/profile.d/"
 sudo mv -v oracle-java.sh /etc/profile.d/
+
+# Execute the script to set the variable 
+source /etc/profile.d/oracle-java.sh
 
 echo "[$scriptName] Return to initial directory ($initialDir)"
 cd $initialDir

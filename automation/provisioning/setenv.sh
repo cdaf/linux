@@ -20,11 +20,11 @@ else
 fi
 
 # Set environment (user default) variable
-systemLocation='/etc/bash.bashrc'
+systemLocation='/etc/profile.d/'
 startScript="$variable"
 startScript+='.sh'
-echo "[$scriptName] $variable=\"$value\" > $startScript"
-echo $variable=\"$value\" > $startScript
+echo "[$scriptName] export $variable=\"$value\" > $startScript"
+echo export $variable=\"$value\" > $startScript
 echo "[$scriptName] chmod +x $startScript"
 chmod +x $startScript
 echo "[$scriptName] sudo cp -rv $startScript $systemLocation"
@@ -32,6 +32,6 @@ sudo cp -rv $startScript $systemLocation
 rm $startScript
 
 # Execute the script to set the variable 
-source $systemLocation
+source $systemLocation/$startScript
 
 echo "[$scriptName] --- end ---"

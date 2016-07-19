@@ -42,7 +42,7 @@ else
 	startDaemon=$2
 	echo "[$scriptName]   startDaemon : $startDaemon (only applies to binary install)"
 fi
-
+check='yes'
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
 	package=$(ls -1 $install/docker*.tgz)
@@ -58,6 +58,8 @@ if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from 
 		# i.e. cannot connect to docker, even when user is a member of the docker group			
 		if [ "$startDaemon" == 'yes' ] ; then
 			executeExpression 'sudo docker daemon &'
+		else
+			check='no'
 		fi
 	else
 		echo "[$scriptName] media directory supplied, but no docker zip file found, switching to canonical install..."
@@ -138,8 +140,12 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-echo "[$scriptName] Pause for Docker to start, the list version details..."
-sleep 5
-executeExpression "sudo docker version"
+if [ "$check" == 'yes' ] ; then
+	echo "[$scriptName] Pause for Docker to start, the list version details..."
+	sleep 5
+	executeExpression "sudo docker version"
+else
+	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"
+fi
  
 echo "[$scriptName] --- end ---"

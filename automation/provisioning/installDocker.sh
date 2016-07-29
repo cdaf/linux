@@ -28,19 +28,19 @@ fi
 
 if [ -z "$1" ]; then
 	install='canon'
-	echo "[$scriptName]   install     : $install (default canon, choices canon or latest)"
+	echo "[$scriptName]   install      : $install (default canon, choices canon or latest)"
 else
 	install=$1
-	echo "[$scriptName]   install     : $install (choices canon, latest or a path to binary)"
+	echo "[$scriptName]   install      : $install (choices canon, latest or a path to binary)"
 fi
 
 
 if [ -z "$2" ]; then
-	startDaemon='yes'
-	echo "[$scriptName]   startDaemon : $startDaemon (default, only applies to binary install)"
+	startDaemon='no'
+	echo "[$scriptName]   startDaemon  : $startDaemon (default, only applied to binary install)"
 else
 	startDaemon=$2
-	echo "[$scriptName]   startDaemon : $startDaemon (only applies to binary install)"
+	echo "[$scriptName]   startDaemon  : $startDaemon (only applied to binary install)"
 fi
 check='yes'
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media

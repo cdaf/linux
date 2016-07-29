@@ -26,14 +26,12 @@ else
 	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
 echo
-initialDir=$(pwd)
 javaSource="${prefix}-${version}-linux-x64.tar.gz"
 echo "[$scriptName] \$javaSource = $javaSource"
 javaExtract="${prefix}-${version}"
 echo "[$scriptName] \$javaExtract = $javaExtract"
 
-cd ~
-echo "[$scriptName] Extract the Java binaries in users home ($(pwd))"
+echo "[$scriptName] Extract the Java binaries to current directory $(pwd))"
 echo "[$scriptName] cp \"$mediaCache/${javaSource}\" ."
 cp "$mediaCache/${javaSource}" .
 echo "[$scriptName] mkdir $javaExtract"
@@ -45,8 +43,10 @@ if [ "$exitCode" != "0" ]; then
 	echo "$0 : tar -zxf $javaSource failed! Returned $exitCode"
 	exit $exitCode
 fi
-echo "[$scriptName] sudo mv $javaExtract/ /opt/"
+echo "[$scriptName] sudo mv $javaExtract/ /opt/ and make public Execute"
+sudo rm -rf /opt/$javaExtract
 sudo mv $javaExtract/ /opt/
+sudo chmod -R 755 /opt/$javaExtract
 
 # Configure to directory on the default PATH, always set the JRE, only set JDK if requested
 if [ "$prefix" == "jdk" ]; then
@@ -77,6 +77,4 @@ sudo mv -v oracle-java.sh /etc/profile.d/
 # Execute the script to set the variable 
 source /etc/profile.d/oracle-java.sh
 
-echo "[$scriptName] Return to initial directory ($initialDir)"
-cd $initialDir
 echo "[$scriptName] --- end ---"

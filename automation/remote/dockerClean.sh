@@ -22,44 +22,44 @@ echo
 echo "[$scriptName] This script will trap exceptions and proceed normally when an image does not exist."
 echo
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
+image=$1
+if [ -z "$image" ]; then
 	image='prefix'
 	echo "[$scriptName] image       : ${image} (default)"
 else
-	image=$1
 	echo "[$scriptName] image       : ${image}"
 fi
 
-if [ -z "$2" ]; then
-	environment='latest'
-	echo "[$scriptName] environment : ${environment} (default)"
+tag=$2
+if [ -z "$tag" ]; then
+	tag='latest'
+	echo "[$scriptName] tag : ${tag} (default)"
 else
-	environment=$2
-	echo "[$scriptName] environment : ${environment}"
+	echo "[$scriptName] tag : ${tag}"
 fi
 
 echo
-echo "[$scriptName] List all images (before)"
-executeExpression "docker images --all"
+echo "[$scriptName] List images (before)"
+executeExpression "docker images"
 
 echo
-echo "[$scriptName] List all containers (before)"
-executeExpression "docker ps --all"
+echo "[$scriptName] List containers (before)"
+executeExpression "docker ps"
 
 echo
-echo "[$scriptName] List containers based on label (environment=${environment})"
-docker ps --all --filter "label=environment=${environment}"
+echo "[$scriptName] List all containers based on label (environment=${tag})"
+docker ps --all --filter "label=environment=${tag}"
 
 echo
-echo "[$scriptName] Stop containers based on label (environment=${environment})"
-for container in $(docker ps --all --filter "label=environment=${environment}" -q); do
+echo "[$scriptName] Stop containers based on label (environment=${tag})"
+for container in $(docker ps --all --filter "label=environment=${tag}" -q); do
 	executeExpression "docker stop $container"
 	executeExpression "docker rm $container"
 done
 
 echo
 echo "[$scriptName] Remove the image"
-executeSuppress "docker rmi ${image}_image:${environment} 2>/dev/null"
+executeSuppress "docker rmi ${image}_image:${tag} 2>/dev/null"
 
 echo
 echo "[$scriptName] Purge Untagged containers"
@@ -74,11 +74,11 @@ for dangler in $(docker images -f "dangling=true" -q); do
 done
 
 echo
-echo "[$scriptName] List all images (after)"
-executeExpression "docker images --all"
+echo "[$scriptName] List images (after)"
+executeExpression "docker images"
 
 echo
-echo "[$scriptName] List all containers (after)"
-executeExpression "docker ps --all"
+echo "[$scriptName] List containers (after)"
+executeExpression "docker ps"
 
 echo "[$scriptName] --- end ---"

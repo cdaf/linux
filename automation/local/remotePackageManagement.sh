@@ -49,8 +49,6 @@ if [ -f "$LANDING_DIR/$PACKAGE_NAME.tar.gz" ]; then
 	echo
 	echo "$scriptName : Purge landing directory ($LANDING_DIR)"
 	rm -rf $LANDING_DIR/*
-	echo
-	df
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		echo "$scriptName : Could not purge $LANDING_DIR on $(hostname)"

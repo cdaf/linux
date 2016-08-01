@@ -31,18 +31,17 @@ if [ -z "$environment" ]; then
 else
 	echo "[$scriptName] environment     : $environment"
 fi
+# Because a single host can support multiple products, for environment to be unique on the host, prepend with product name
+envUnique="${containerPrefix}.${environment}"
+echo "[$scriptName] envUnique       : $envUnique"
 
 echo
 echo "[$scriptName] List running containers (before)"
 executeExpression "docker ps"
 
 echo
-echo "[$scriptName] List running containers based on label (environment=${environment})"
-docker ps --all --filter "label=environment=${environment}"
-
-echo
-echo "[$scriptName] Stop containers based on label (environment=${environment})"
-for container in $(docker ps --all --filter "label=environment=${environment}" -q); do
+echo "[$scriptName] Stop and remove containers based on label (environment=${envUnique})"
+for container in $(docker ps --all --filter "label=environment=${envUnique}" -q); do
 	executeExpression "docker stop $container"
 	executeExpression "docker rm $container"
 done

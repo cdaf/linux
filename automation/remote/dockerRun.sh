@@ -16,12 +16,12 @@ echo
 echo "[$scriptName] This script will trap exceptions and proceed normally when an image does not exist."
 echo
 echo "[$scriptName] --- start ---"
-containerPrefix=$1
-if [ -z "$containerPrefix" ]; then
-	echo "[$scriptName] containerPrefix not passed, exiting with code 1."
+imageName=$1
+if [ -z "$imageName" ]; then
+	echo "[$scriptName] imageName not passed, exiting with code 1."
 	exit 1
 else
-	echo "[$scriptName] containerPrefix : $containerPrefix"
+	echo "[$scriptName] imageName       : $imageName"
 fi
 
 dockerExpose=$2
@@ -55,16 +55,28 @@ if [ -z "$environment" ]; then
 else
 	echo "[$scriptName] environment     : $environment"
 fi
+
+# Because a single host can support multiple products, for environment to be unique on the host, prepend with product name
+envUnique="${imageName}.${environment}"
+echo "[$scriptName] envUnique       : $envUnique"
 echo
-echo "List the running containers for environment ${environment} (before)"
-docker ps --filter label=environment=${environment}
+echo "List the running containers (before)"
+docker ps
+
+# Globally unique label, based on port, if in use, stop and remove
+instance="${imageName}_${publishedPort}"
+for containerInstance in $(docker ps --filter label=instance=${instance} -q); do
+	echo "[$scriptName] Stop and remove existing container instance ($instance)"
+	executeExpression "docker stop $containerInstance"
+	executeExpression "docker rm $containerInstance"
+done
 
 echo
-executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name ${containerPrefix}_instance_${publishedPort} --label environment=${environment} ${containerPrefix}_image:${tag}"
+executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name "$instance" --label environment="${envUnique}" ${imageName}:${tag}"
 
 echo
-echo "List the running containers for environment ${environment} (after)"
-docker ps --filter label=environment=${environment}
+echo "List the running containers (after)"
+docker ps
 
 echo
 echo "[$scriptName] --- end ---"

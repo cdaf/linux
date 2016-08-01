@@ -13,17 +13,33 @@ function executeExpression {
 
 scriptName='dockerBuild.sh'
 echo
-echo "[$scriptName] Build docker image based on patten \${prefix}_image"
+echo "[$scriptName] Build docker image, resulting image naming \${imageName}"
 echo
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
-	echo "[$scriptName] containerPrefix not supplied, exit with code 1."
+imageName=$1
+if [ -z "$imageName" ]; then
+	echo "[$scriptName] imageName not supplied, exit with code 1."
 	exit 1
 else
-	containerPrefix=$1
-	echo "[$scriptName] containerPrefix : $containerPrefix"
+	echo "[$scriptName] imageName : $imageName"
 fi
 
-executeExpression "docker build -t ${containerPrefix}_image ."
+tag=$2
+if [ -z "$tag" ]; then
+	echo "[$scriptName] tag not supplied"
+else
+	echo "[$scriptName] tag       : $tag"
+fi
+echo
+executeExpression "docker build -t ${imageName} ."
+echo
 
+if [ -n "$tag" ]; then
+	echo "[$scriptName] Tag image with value passed ($tag)"
+	executeExpression "docker tag -f ${imageName} ${imageName}:${tag}"
+fi
+
+echo "[$scriptName] List Resulting images for \${imageName}"
+executeExpression "docker images -f label=product=${imageName}"
+echo
 echo "[$scriptName] --- end ---"

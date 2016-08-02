@@ -13,35 +13,32 @@ function executeExpression {
 
 scriptName='dockerRemove.sh'
 echo
-echo "[$scriptName] This script stops and removes all instances based on environment tag."
+echo "[$scriptName] This script stops and removes all instances for the imageName, based "
+echo "[$scriptName] on environment tag. Use this to purge all targets for the environment."
 echo
 echo "[$scriptName] --- start ---"
-containerPrefix=$1
-if [ -z "$containerPrefix" ]; then
-	echo "[$scriptName] containerPrefix not passed, exiting with code 1."
+imageName=$1
+if [ -z "$imageName" ]; then
+	echo "[$scriptName] imageName not passed, exiting with code 1."
 	exit 1
 else
-	echo "[$scriptName] containerPrefix : $containerPrefix"
+	echo "[$scriptName] imageName   : $imageName"
 fi
 
 environment=$2
 if [ -z "$environment" ]; then
 	environment='latest'
-	echo "[$scriptName] environment     : $environment (default)"
+	echo "[$scriptName] environment : $environment (default)"
 else
-	echo "[$scriptName] environment     : $environment"
+	echo "[$scriptName] environment : $environment"
 fi
-# Because a single host can support multiple products, for environment to be unique on the host, prepend with product name
-envUnique="${containerPrefix}.${environment}"
-echo "[$scriptName] envUnique       : $envUnique"
-
 echo
 echo "[$scriptName] List running containers (before)"
 executeExpression "docker ps"
 
 echo
-echo "[$scriptName] Stop and remove containers based on label (environment=${envUnique})"
-for container in $(docker ps --all --filter "label=environment=${envUnique}" -q); do
+echo "[$scriptName] Stop and remove containers based on label (cdaf.${imageName}.container.environment=${environment})"
+for container in $(docker ps --all --filter "label=cdaf.${imageName}.container.environment=${environment}" -q); do
 	executeExpression "docker stop $container"
 	executeExpression "docker rm $container"
 done

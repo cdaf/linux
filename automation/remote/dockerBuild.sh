@@ -39,7 +39,7 @@ if [ -n "$tag" ]; then
 	executeExpression "docker tag -f ${imageName} ${imageName}:${tag}"
 fi
 
-echo "[$scriptName] List Resulting images for \${imageName}"
-executeExpression "docker images -f label=product=${imageName}"
+echo "[$scriptName] List Resulting images. Note: label is derived from Dockerfile"
+executeExpression "docker images -f label=cdaf.${imageName}.image.product=${imageName}"
 echo
 echo "[$scriptName] --- end ---"

@@ -13,7 +13,8 @@ function executeExpression {
 
 scriptName='dockerRun.sh'
 echo
-echo "[$scriptName] This script will trap exceptions and proceed normally when an image does not exist."
+echo "[$scriptName] Start a container instance, if an instance (based on \"instance\") exists it is"
+echo "[$scriptName] stopped and removed before starting the new instance."
 echo
 echo "[$scriptName] --- start ---"
 imageName=$1
@@ -56,23 +57,28 @@ else
 	echo "[$scriptName] environment     : $environment"
 fi
 
-# Because a single host can support multiple products, for environment to be unique on the host, prepend with product name
-envUnique="${imageName}.${environment}"
-echo "[$scriptName] envUnique       : $envUnique"
+# Globally unique label, based on port, if in use, stop and remove
+instance="${imageName}:${publishedPort}"
+echo "[$scriptName] instance        : $instance (container ID)"
+
+# User the 3rd party naming standard (x_y)
+name="${imageName}_${publishedPort}"
+echo "[$scriptName] name            : $name"
+
 echo
 echo "List the running containers (before)"
 docker ps
 
-# Globally unique label, based on port, if in use, stop and remove
-instance="${imageName}_${publishedPort}"
-for containerInstance in $(docker ps --filter label=instance=${instance} -q); do
+# Test is based on combination of image name and port to force exit if the port is in use by another image 
+for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance=${instance} -q); do
 	echo "[$scriptName] Stop and remove existing container instance ($instance)"
 	executeExpression "docker stop $containerInstance"
 	executeExpression "docker rm $containerInstance"
 done
 
 echo
-executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name "$instance" --label environment="${envUnique}" ${imageName}:${tag}"
+# Labels, other than instance, are for filter purposes, only instance is important in run context. 
+executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"
 
 echo
 echo "List the running containers (after)"

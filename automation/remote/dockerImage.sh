@@ -13,36 +13,81 @@ function executeExpression {
 
 scriptName='dockerImage.sh'
 echo
-echo "[$scriptName] Tag an image"
+echo "[$scriptName] Create an instance from an image ID, based on build."
 echo
 echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
-	imageName='prefix'
-	echo "[$scriptName] imageName   : ${imageName} (default)"
+	echo "[$scriptName] imageName not supplied! Exit with code 1."
+	exit 1
 else
 	echo "[$scriptName] imageName   : ${imageName}"
 fi
 
-tag=$2
-if [ -z "$tag" ]; then
-	tag='latest'
-	echo "[$scriptName] tag : ${tag} (default)"
+branch=$2
+if [ -z "$branch" ]; then
+	echo "[$scriptName] branch not supplied! Exit with code 2."
+	exit 2
 else
-	echo "[$scriptName] tag : ${tag}"
+	echo "[$scriptName] branch      : ${branch}"
 fi
 
+buildNumber=$3
+if [ -z "$buildNumber" ]; then
+	echo "[$scriptName] buildNumber not supplied! Exit with code 3."
+	exit 3
+else
+	echo "[$scriptName] buildNumber : ${buildNumber}"
+fi
+
+dockerExpose=$4
+if [ -z "$dockerExpose" ]; then
+	echo "[$scriptName] dockerExpose not passed, exiting with code 4."
+	exit 4
+else
+	echo "[$scriptName] dockerExpose    : $dockerExpose"
+fi
+
+publishedPort=$5
+if [ -z "$publishedPort" ]; then
+	publishedPort='80'
+	echo "[$scriptName] publishedPort   : $publishedPort (default)"
+else
+	echo "[$scriptName] publishedPort   : $publishedPort"
+fi
+
+for id in $(docker images -f label=cdaf.${imageName}.image.build=${branch}:${buildNumber} -q); do
+	if [ -z "$uniqueID" ]; do
+		$uniqueID = $id
+	else
+		if [ "$uniqueID" != "$id" ]; then
+			echo "[$scriptName] build (${build}) did not return a unique ID! Exit with code 99."
+			exit 99
+		fi
+	fi
+done
+
+# Globally unique label, based on port, if in use, stop and remove
+instance="${branch}:${publishedPort}"
+echo "[$scriptName] instance        : $instance (container ID)"
 
 echo
-echo "[$scriptName] List images (before)"
-executeExpression "docker images"
+echo "List the running containers (before)"
+docker ps
 
-echo "[$scriptName] Tag image"
-
-executeExpression "docker tag -f ${imageName} ${imageName}:${tag}"
+# Test is based on combination of image name and port to force exit if the port is in use by another image 
+for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance=${instance} -q); do
+	echo "[$scriptName] Stop and remove existing container instance ($instance)"
+	executeExpression "docker stop $containerInstance"
+	executeExpression "docker rm $containerInstance"
+done
 
 echo
-echo "[$scriptName] List images (after)"
-executeExpression "docker images"
+# Labels, other than instance, are for filter purposes, only instance is important in run context. 
+executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment $uniqueID"
+
+echo
+echo "List the running containers (after)"
+docker ps
 
 echo "[$scriptName] --- end ---"

@@ -43,15 +43,19 @@ echo "[$scriptName] List images (before)"
 executeExpression "docker images"
 
 echo
-echo "[$scriptName] Remove the image (ignore failures)"
+echo "[$scriptName] Remove the image (ignore failures), this process relies on the following"
+echo "[$scriptName] dockerfile label where @imageName@ is replaced with the product name."
+echo "[$scriptName]   LABEL cdaf.@imageName@.image.version"
+echo "[$scriptName]   docker images --filter label=cdaf.${imageName}.image.version -a"
+echo "[$scriptName] Note: The actual image version value is ignored."
 if [ -z "$tag" ]; then
-	for imageID in $(docker images --filter label=product=${imageName} -aq); do
+	for imageID in $(docker images --filter label=cdaf.${imageName}.image.version -aq); do
 		executeSuppress "docker rmi $imageID"
 	done	
 else
 	# Need to read complete lines, not separation at spaces
 	IFS=$'\n'
-	for imageDetail in $(docker images --filter label=product=${imageName} -a); do
+	for imageDetail in $(docker images --filter label=cdaf.${imageName}.image.version -a); do
 		IFS=' '
 		arr=($imageDetail)
 		if [[ "${arr[1]}" != 'TAG' ]]; then
@@ -62,12 +66,6 @@ else
 		fi
 	done	
 fi
-
-echo
-echo "[$scriptName] Purge dangling images, those in use will remain unaffected."
-for dangler in $(docker images -f "dangling=true" -q); do
-	executeSuppress "docker rmi ${dangler}"
-done
 
 echo
 echo "[$scriptName] List images (after)"

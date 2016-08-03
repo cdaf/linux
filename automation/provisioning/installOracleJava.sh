@@ -67,8 +67,8 @@ echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java"
 sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java
 
 # Set the environment settings (requires elevation), replace if existing
-echo "[$scriptName] echo export JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh"
-echo export JAVA_HOME=\"/opt/$javaExtract/bin\" > oracle-java.sh
+echo "[$scriptName] echo export JAVA_HOME=\"/opt/$javaExtract\" > oracle-java.sh"
+echo export JAVA_HOME=\"/opt/$javaExtract\" > oracle-java.sh
 echo "[$scriptName] chmod +x oracle-java.sh"
 chmod +x oracle-java.sh
 echo "[$scriptName] sudo mv -v oracle-java.sh /etc/profile.d/"

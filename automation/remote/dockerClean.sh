@@ -43,6 +43,12 @@ echo "[$scriptName] List images (before)"
 executeExpression "docker images"
 
 echo
+echo "[$scriptName] Remove untagged orphaned (dangling) images"
+for imageID in $(docker images -aq -f dangling=true); do
+	executeSuppress "docker rmi $imageID"
+done	
+
+echo
 echo "[$scriptName] Remove the image (ignore failures), this process relies on the following"
 echo "[$scriptName] dockerfile label where @imageName@ is replaced with the product name."
 echo "[$scriptName]   LABEL cdaf.@imageName@.image.version"

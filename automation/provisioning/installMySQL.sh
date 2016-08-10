@@ -11,19 +11,30 @@ function executeExpression {
 	fi
 }  
 
-scriptName='base.sh'
+scriptName='installMySQL.sh'
 
 echo "[$scriptName] --- start ---"
-install=$1
-echo "[$scriptName]   install : $install"
-echo
+prefix="$1"
+if [ -z "$prefix" ]; then
+	echo "[$scriptName]   password : blank"
+else
+	echo "[$scriptName]   password : ****************"
+fi
+
+version="$2"
+if [ -z "$version" ]; then
+	version='canon'
+	install='mysql-server'
+	echo "[$scriptName]   version  : $version (default, $install)"
+else
+	install="mysql-server-$version"
+	echo "[$scriptName]   version  : $version ($install)"
+fi
+
 # Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
+echo "[$scriptName] Determine distribution"
 uname -a
 centos=$(uname -a | grep el)
-
-echo
-echo "[$scriptName] Install base software ($install)"
 if [ -z "$centos" ]; then
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
 	echo "[$scriptName] sudo apt-get update"
@@ -45,19 +56,32 @@ if [ -z "$centos" ]; then
 		echo "[$scriptName] Exiting with error code ${exitCode}"
 		exit $exitCode
 	fi
-	echo
-	if [ "$install" == 'update' ]; then
-		echo "[$scriptName] Update only, not further action required."; echo
-	else
-		executeExpression "sudo apt-get install -y $install"
+	# debconf-utils allows the passing of answer values
+	executeExpression 'sudo apt-get install -y debconf-utils'
+	echo "[$scriptName] Load installer responses"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password \$password\""
+	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $password"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password \$password\""
+	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $password"
+	sudo apt-get install -y $install
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
 	fi
+
+	# Problem with this method is trying to set password after install
+	# export DEBIAN_FRONTEND=noninteractive
+	# executeExpression "sudo -E apt-get -q -y install $install"
+	
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	echo "[$scriptName] sudo yum check-update"
 	echo
 	timeout=3
 	count=0
-	while [ ${count} -lt ${timeout} ]; do
+	while [ $count -lt $timeout ]; do
 		sudo yum check-update
 		exitCode=$?
 		if [ "$exitCode" != "100" ]; then
@@ -73,11 +97,7 @@ else
 		exit $exitCode
 	fi
 	echo
-	if [ "$install" == 'update' ]; then
-		echo "[$scriptName] Update only, not further action required."; echo
-	else
-		executeExpression "sudo yum install -y $install"
-	fi
 fi
- 
+
 echo "[$scriptName] --- end ---"
+

@@ -1,37 +1,41 @@
 #!/usr/bin/env bash
 
-if [ -z "$1" ]; then
-	echo "$0 : Version not passed. HALT!"
-	exit 1
-else
-	VERSION=$1
-fi
+scriptName='Capabilities.sh'
 
 echo
-echo "$0 : +--------------+"
-echo "$0 : | Capabilities |"
-echo "$0 : +--------------+"
-echo
-echo "$0 :   VERSION     : $VERSION"
+echo "[$scriptName] : --- start ---"
 echo
 test=$(java --version 2> /dev/null)
-if [ -z "$1" ]; then
-	echo "$0 : Java version is $test"
+if [ -n "$test" ]; then
+	echo "[$scriptName] : Java version is $test"
 else
-	echo "$0 : Java not installed."
+	echo "[$scriptName] : Java not installed."
 fi	
 
 echo
 test=$(ant --version 2> /dev/null)
-if [ -z "$1" ]; then
-	echo "$0 : Ant version is $test"
+if [ -n "$test" ]; then
+	echo "[$scriptName] : Ant version is $test"
 else
-	echo "$0 : Ant not installed."
+	echo "[$scriptName] : Ant not installed."
 fi	
+
+echo
+test=$(mvn -version 2>/dev/null)
+if [ -n "$test" ]; then
+	echo "[$scriptName] : Maven version is $test"
+else
+	echo "[$scriptName] : Maven not installed."
+fi
+
 echo
 test=$(docker --version 2> /dev/null)
-if [ -z "$1" ]; then
-	echo "$0 : Docker version is $test"
+if [ -n "$test" ]; then
+	echo "[$scriptName] : Docker version is $test"
 else
-	echo "$0 : Docker not installed."
+	echo "[$scriptName] : Docker not installed."
 fi	
+
+echo
+echo "[$scriptName] : --- end ---"
+echo

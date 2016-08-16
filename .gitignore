@@ -43,3 +43,4 @@ local.properties
 
 # Vagrant cache
 .vagrant/
+/*.gz

@@ -11,7 +11,7 @@ else
 fi
 
 if [ -z "$2" ]; then
-	version='8u91'
+	version='8u101'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	version="$2"

@@ -15,9 +15,9 @@ echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
 	version='3.3.9'
-	echo "[$scriptName]   version : $version (default)"
+	echo "[$scriptName]   version   : $version (default)"
 else
-	echo "[$scriptName]   version : $version"
+	echo "[$scriptName]   version   : $version"
 fi
 
 mediaPath="$2"

@@ -1,28 +1,39 @@
 #!/usr/bin/env bash
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='installOracleJava.sh'
 
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
+prefix="$1"
+if [ -z "$prefix" ]; then
 	prefix='jdk'
 	echo "[$scriptName]   prefix     : $prefix (default)"
 else
-	prefix="$1"
 	echo "[$scriptName]   prefix     : $prefix"
 fi
 
-if [ -z "$2" ]; then
+version="$2"
+if [ -z "$version" ]; then
 	version='8u101'
 	echo "[$scriptName]   version    : $version (default)"
 else
-	version="$2"
 	echo "[$scriptName]   version    : $version"
 fi
 
-if [ -z "$3" ]; then
+mediaCache="$3"
+if [ -z "$mediaCache" ]; then
 	mediaCache='/vagrant/.provision/'
 	echo "[$scriptName]   mediaCache : $mediaCache (default)"
 else
-	mediaCache="$3"
 	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
 echo
@@ -32,49 +43,37 @@ javaExtract="${prefix}-${version}"
 echo "[$scriptName] \$javaExtract = $javaExtract"
 
 echo "[$scriptName] Extract the Java binaries to current directory $(pwd))"
-echo "[$scriptName] cp \"$mediaCache/${javaSource}\" ."
-cp "$mediaCache/${javaSource}" .
-echo "[$scriptName] mkdir $javaExtract"
-mkdir $javaExtract
-echo "[$scriptName] tar -zxf $javaSource -C $javaExtract --strip-components=1"
-tar -zxf $javaSource -C $javaExtract --strip-components=1
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$0 : tar -zxf $javaSource failed! Returned $exitCode"
-	exit $exitCode
-fi
+executeExpression "cp \"$mediaCache/${javaSource}\" ."
+executeExpression "mkdir $javaExtract"
+executeExpression "tar -zxf $javaSource -C $javaExtract --strip-components=1"
+
 echo "[$scriptName] sudo mv $javaExtract/ /opt/ and make public Execute"
-sudo rm -rf /opt/$javaExtract
-sudo mv $javaExtract/ /opt/
-sudo chmod -R 755 /opt/$javaExtract
+executeExpression "sudo rm -rf /opt/$javaExtract"
+executeExpression "sudo mv $javaExtract/ /opt/"
+executeExpression "sudo chmod -R 755 /opt/$javaExtract"
 
 # Configure to directory on the default PATH, always set the JRE, only set JDK if requested
 if [ "$prefix" == "jdk" ]; then
 	if [ -L "/usr/bin/javac" ]; then
 		echo "[$scriptName] Delete existing symlink"
-		echo "[$scriptName] sudo unlink /usr/bin/javac"
-		sudo unlink /usr/bin/javac
+		executeExpression "sudo unlink /usr/bin/javac"
 	fi
-	echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/javac /usr/bin/javac"
-	sudo ln -s /opt/$javaExtract/bin/javac /usr/bin/javac
+	executeExpression "sudo ln -s /opt/$javaExtract/bin/javac /usr/bin/javac"
 fi
 if [ -L "/usr/bin/java" ]; then
 	echo "[$scriptName] Delete existing symlink"
-	echo "[$scriptName] sudo unlink /usr/bin/java"
-	sudo unlink /usr/bin/java
+	executeExpression "sudo unlink /usr/bin/java"
 fi
-echo "[$scriptName] sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java"
-sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java
+executeExpression "sudo ln -s /opt/$javaExtract/bin/java /usr/bin/java"
 
 # Set the environment settings (requires elevation), replace if existing
 echo "[$scriptName] echo export JAVA_HOME=\"/opt/$javaExtract\" > oracle-java.sh"
 echo export JAVA_HOME=\"/opt/$javaExtract\" > oracle-java.sh
-echo "[$scriptName] chmod +x oracle-java.sh"
-chmod +x oracle-java.sh
-echo "[$scriptName] sudo mv -v oracle-java.sh /etc/profile.d/"
-sudo mv -v oracle-java.sh /etc/profile.d/
+
+executeExpression "chmod +x oracle-java.sh"
+executeExpression "sudo mv -v oracle-java.sh /etc/profile.d/"
 
 # Execute the script to set the variable 
-source /etc/profile.d/oracle-java.sh
+executeExpression "source /etc/profile.d/oracle-java.sh"
 
 echo "[$scriptName] --- end ---"

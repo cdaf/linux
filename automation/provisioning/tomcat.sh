@@ -1,55 +1,75 @@
 #!/usr/bin/env bash
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='tomcat.sh'
 
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
-	echo "version not passed, HALT!"
-	exit 1
+version="$1"
+if [ -z "$version" ]; then
+	version='8.5.4'
+	echo "[$scriptName]   version : $version (default)"
 else
-	version="$1"
-	echo "[$scriptName]   version     : $version"
+	echo "[$scriptName]   version : $version"
+fi
+
+appRoot="$2"
+if [ -z "$appRoot" ]; then
+	appRoot='/opt/apache'
+	echo "[$scriptName]   appRoot : $appRoot (default)"
+else
+	echo "[$scriptName]   appRoot : $appRoot"
 fi
 
 # Set parameters
 tomcat="apache-tomcat-${version}"
-echo "[$scriptName]   tomcat      : $tomcat"
-appRoot='/opt/apache'
-echo "[$scriptName]   appRoot     : $appRoot"
+echo "[$scriptName]   tomcat  : $tomcat"
 
-# Create and Configure Deployment user
-echo "[$scriptName] Create the runtime user (tomcat)"
-centos=$(uname -a | grep el)
-if [ -z "$centos" ]; then
-	echo "[$scriptName] Ubuntu/Debian : sudo adduser --disabled-password --gecos \"\" tomcat"
-	sudo adduser --disabled-password --gecos "" tomcat
+if [ -z "$(getent passwd tomcat)" ]; then
+	# Create and Configure Deployment user
+	centos=$(uname -a | grep el)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Create the runtime user (tomcat) Ubuntu/Debian"
+		executeExpression "sudo adduser --disabled-password --gecos \"\" tomcat"
+	else
+		echo "[$scriptName] Create the runtime user (tomcat) CentOS/RHEL"
+		executeExpression "sudo adduser tomcat"
+	fi
 else
-	echo "[$scriptName] CentOS/RHEL : sudo adduser tomcat"
-	sudo adduser tomcat
+	echo "[$scriptName] Tomcat user (tomcat) alrady exists, no action required."
 fi
 
 echo
 echo "[$scriptName] Create application root directory and change to runtime directory"
-sudo mkdir -p $appRoot
-cd $appRoot
+executeExpression "sudo mkdir -p $appRoot"
+executeExpression "cd $appRoot"
 
 echo
 echo "[$scriptName] Copy media and extract"
-cp -v "/vagrant/.provision/${tomcat}.tar.gz" .
-tar -zxf ${tomcat}.tar.gz
+executeExpression "cp -v \"/vagrant/.provision/${tomcat}.tar.gz\" ."
+executeExpression "tar -zxf ${tomcat}.tar.gz"
 
 echo
 echo "[$scriptName] Make all objects executable and owned by tomcat service account"
-sudo chown -R tomcat:tomcat $tomcat
-sudo chmod 755 -R $tomcat
+executeExpression "sudo chown -R tomcat:tomcat $tomcat"
+executeExpression "sudo chmod 755 -R $tomcat"
 
 echo
 echo "[$scriptName] Retain the default tomcat console"
 cd $tomcat
-mv -v webapps/ROOT/ webapps/console
+executeExpression "mv -v webapps/ROOT/ webapps/console"
 
 echo
 echo "[$scriptName] Start the server, as tomcat user"
-sudo ln -sv $appRoot/$tomcat /opt/tomcat
-sudo -H -u tomcat bash -c '/opt/tomcat/bin/startup.sh'
+executeExpression "sudo ln -sv $appRoot/$tomcat /opt/tomcat"
+executeExpression "sudo -H -u tomcat bash -c \'/opt/tomcat/bin/startup.sh\'"
 
 echo "[$scriptName] --- end ---"

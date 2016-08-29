@@ -8,10 +8,9 @@ SOLUTION="$1"
 ENVIRONMENT="$2"
 BUILD="$3"
 RELEASE="$4"
-AUTOMATION_ROOT="$5"
-LOCAL_WORK_DIR="$6"
-REMOTE_WORK_DIR="$7"
-OPT_ARG="$8"
+LOCAL_WORK_DIR="$5"
+REMOTE_WORK_DIR="$6"
+OPT_ARG="$7"
 
 scriptName=${0##*/}
 
@@ -35,7 +34,6 @@ if [[ $RELEASE == *'$'* ]]; then
 	RELEASE=$(eval echo $RELEASE)
 fi
 echo "$scriptName :   RELEASE         : $RELEASE"
-echo "$scriptName :   AUTOMATION_ROOT : $AUTOMATION_ROOT"
 echo "$scriptName :   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 echo "$scriptName :   OPT_ARG         : $OPT_ARG"

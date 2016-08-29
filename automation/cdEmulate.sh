@@ -178,17 +178,20 @@ if [ -z "$ACTION" ]; then
 	echo
 	echo 'For TeamCity ...'
 	echo "  Command Executable : $workDirLocal/$cdInstruction"
-	echo "  Command parameters : $solutionName $environmentDelivery %build.number% $revision $automationRoot $workDirLocal $workDirRemote"
+	echo "  Command parameters : $solutionName $environmentDelivery %build.number% RELEASE $workDirLocal $workDirRemote"
 	echo
 	echo 'For Go ...'
 	echo '  requires explicit bash invoke'
 	echo '  Command   : /bin/bash'
-	echo "  Arguments : -c '$workDirLocal/$cdInstruction $solutionName \${GO_ENVIRONMENT_NAME} \${GO_PIPELINE_COUNTER} $revision $automationRoot $workDirLocal $workDirRemote'"
+	
+	goUpper=$(echo $solutionName | awk '{print toupper($0)}')
+	
+	echo "  Arguments : -c '$workDirLocal/$cdInstruction $solutionName \${GO_ENVIRONMENT_NAME} \${GO_DEPENDENCY_LABEL_${goUpper}} RELEASE $workDirLocal $workDirRemote'"
 	echo
 	echo 'For Bamboo ...'
 	echo '  Warning! set Deployment project name to solution name, with no spaces'
 	echo "  Script file : $workDirLocal/$cdInstruction"
-	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.release} $automationRoot $workDirLocal $workDirRemote"
+	echo "  Argument    : $solutionName \${bamboo.deploy.environment} \${bamboo.buildNumber} \${bamboo.deploy.release} $workDirLocal $workDirRemote"
 	echo
 	echo "  note: set the release tag to (assuming no releases performed, otherwise, use the release number already set)"
 	echo '  build-${bamboo.buildNumber} deploy-1'
@@ -200,21 +203,21 @@ if [ -z "$ACTION" ]; then
 	echo '  propertiesList=$(TasksLocal/transform.sh TasksLocal/manifest.txt)'
 	echo '  printf "$propertiesList"'
 	echo '  eval $propertiesList'
-	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILDNUMBER $revision $automationRoot $workDirLocal $workDirRemote"
+	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILDNUMBER RELEASE $workDirLocal $workDirRemote"
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Check the default queue for Environment definition.'
 	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration.'
 	echo "  Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
-	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \$BUILD_BUILDNUMBER \$RELEASE_RELEASENAME $automationRoot $workDirLocal $workDirRemote"
+	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \$BUILD_BUILDNUMBER \$RELEASE_RELEASENAME $workDirLocal $workDirRemote"
 	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
 	echo "$scriptName : -------------------------------------------------------"
 
-	$cdProcess "$solutionName" "$environmentDelivery" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION"
+	$cdProcess "$solutionName" "$environmentDelivery" "$buildNumber" "RELEASE" "$workDirLocal" "$workDirRemote" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : CD Failed! $cdProcess "$solutionName" "$environmentBuild" "$buildNumber" "$revision" "$automationRoot"  "$workDirLocal" "$workDirRemote" "$ACTION". Halt with exit code = $exitCode."
+		echo "$scriptName : CD Failed! $cdProcess "$solutionName" "$environmentBuild" "$buildNumber" "RELEASE" "$workDirLocal" "$workDirRemote" "$ACTION". Halt with exit code = $exitCode."
 		exit $exitCode
 	fi
 fi

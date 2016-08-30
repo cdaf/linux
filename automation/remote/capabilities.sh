@@ -5,19 +5,29 @@ scriptName='Capabilities.sh'
 echo
 echo "[$scriptName] : --- start ---"
 echo
-test=$(java --version 2> /dev/null)
-if [ -n "$test" ]; then
-	echo "[$scriptName] : Java version is $test"
-else
+# Java version lists to standard error
+test="`java -version 2>&1`"
+if [[ $test == *"command not found"* ]]; then
 	echo "[$scriptName] : Java not installed."
+else
+	echo "[$scriptName] : $test"
 fi	
 
 echo
-test=$(ant --version 2> /dev/null)
-if [ -n "$test" ]; then
-	echo "[$scriptName] : Ant version is $test"
+test="`javac -version 2>&1`"
+if [[ $test == *"command not found"* ]]; then
+	echo "[$scriptName] : Java Compiler not installed."
 else
+	echo "[$scriptName] : $test"
+fi	
+
+echo
+# Ant version lists to standard error
+test="`ant -version 2>&1`"
+if [[ $test == *"command not found"* ]]; then
 	echo "[$scriptName] : Ant not installed."
+else
+	echo "[$scriptName] : Ant version is $test"
 fi	
 
 echo

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-scriptName='Capabilities.sh'
+scriptName='capabilities.sh'
 
 echo
 echo "[$scriptName] : --- start ---"

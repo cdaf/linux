@@ -139,8 +139,8 @@ else
 		echo
 		echo "Process Pre-Package Tasks ..."
 		echo
-		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./package.properties
-		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./package.properties
+		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./solution.properties
+		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then

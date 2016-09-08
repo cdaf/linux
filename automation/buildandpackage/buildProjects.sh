@@ -73,6 +73,41 @@ for i in $(ls -d */); do
 	fi
 done
 
+if [ -f "build.sh" ]; then
+	echo
+	echo "$0 : build.sh found in solution root, executing in $(pwd)"
+	echo
+	# Additional properties that are not passed as arguments, but loaded by execute automatically
+	echo "PROJECT=$PROJECT" > ./solution.properties
+	echo "REVISION=$REVISION" >> ./solution.properties
+	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
+	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
+	./build.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "$ACTION"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "$0 : $PROJECT Build Failed, exit code = $exitCode."
+		exit $exitCode
+	fi
+fi
+	
+if [ -f "build.tsk" ]; then
+
+	echo
+	echo "$0 : build.tsk found in solution root, executing in $(pwd)"
+	echo
+	# Additional properties that are not passed as arguments, explicit load is required
+	echo "PROJECT=$PROJECT" > ./solution.properties
+	echo "REVISION=$REVISION" >> ./solution.properties
+	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
+	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
+	$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "$0 : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
+		exit $exitCode
+	fi
+fi
+
 customProjectList="$SOLUTIONROOT/buildProjects"
 
 if [ ! -f "$customProjectList" ]; then
@@ -124,7 +159,7 @@ if [ -f "projectListFile" ]; then
 			exit $exitCode
 		fi
 
-		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicitely load is required		
+		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
 		echo "PROJECT=$PROJECT" > ../build.properties
 		echo "REVISION=$REVISION" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties

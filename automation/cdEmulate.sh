@@ -137,7 +137,6 @@ if [ -z "$ACTION" ]; then
 	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
     echo "  Command Filename  : $solutionName/$ciProcess"
     echo "  Command arguments : $solutionName $environmentBuild \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION $automationRoot $workDirLocal $workDirRemote"
-    echo "  Working Directory : $solutionName"
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi

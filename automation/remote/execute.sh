@@ -74,16 +74,16 @@ if [ -f "../build.properties" ] ;then
 	echo
 else
 	# If not build, is it a package process?
-	if [ -f "./package.properties" ] ;then
+	if [ -f "./solution.properties" ] ;then
 		echo
-		echo "$0 : Load ./package.properties"
+		echo "$0 : Load ./solution.properties"
 		echo
-		eval $(cat ./package.properties)
+		eval $(cat ./solution.properties)
 		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
-		propertiesList=$($AUTOMATIONHELPER/transform.sh ./package.properties)
+		propertiesList=$($AUTOMATIONHELPER/transform.sh ./solution.properties)
 		printf "$propertiesList"
 		eval $propertiesList
-		rm ./package.properties
+		rm ./solution.properties
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote
 		echo

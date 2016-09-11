@@ -154,6 +154,11 @@ if [ -z "$ACTION" ]; then
 	echo
 	echo 'Configure artefact retention patterns to retain package and local tasks'
 	echo
+    echo 'For Go ...'
+    echo '  Source        | Destination | Type'
+	echo '  *.gz          | package     | Build Artifact'
+    echo '  TasksLocal/** |             | Build Artifact'
+	echo
     echo 'For Bamboo ...'
     echo '  Name    : Package'
 	echo '  Pattern : *.gz'

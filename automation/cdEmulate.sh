@@ -210,7 +210,7 @@ if [ -z "$ACTION" ]; then
 	echo "  Command : ./$workDirLocal/$cdInstruction $solutionName $environmentDelivery \$BUILDNUMBER RELEASE $workDirLocal $workDirRemote"
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
-	echo '  Check the default queue for Environment definition.'
+	echo '  Verify the queue for each Environment definition, and ensure Environment names do not contain spaces.'
 	echo '  Run an empty release initially to load the workspace, which can then be navigated to for following configuration.'
 	echo "  Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
 	echo "  Command arguments : $solutionName \$RELEASE_ENVIRONMENTNAME \$BUILD_BUILDNUMBER \$RELEASE_RELEASENAME $workDirLocal $workDirRemote"

@@ -57,6 +57,13 @@ else
 	echo "[$scriptName] environment     : $environment"
 fi
 
+registry=$5
+if [ -z "$registry" ]; then
+	echo "[$scriptName] registry        : not passed, use local repo"
+else
+	echo "[$scriptName] registry        : $registry"
+fi
+
 # Globally unique label, based on port, if in use, stop and remove
 instance="${imageName}:${publishedPort}"
 echo "[$scriptName] instance        : $instance (container ID)"
@@ -78,8 +85,11 @@ done
 
 echo
 # Labels, other than instance, are for filter purposes, only instance is important in run context. 
-executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"
-
+if [ -z "$registry" ]; then
+	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"
+else
+	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${registry}/${imageName}:${tag}"
+fi
 echo
 echo "List the running containers (after)"
 docker ps

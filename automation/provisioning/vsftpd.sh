@@ -2,119 +2,69 @@
 # Script
 #   vsftpd.sh
 #
-# Current Version
-#   v1.2
-#
 # Description
-#   Installs and configures vsftpd as an unsecured service.
+#   Installs and configures vsftpd as a service, with the option to configure for FTPS (FTP over SSL).
+#
+#   Note that SFTP (FTP over SSH) is not supported.
 #
 # Usage
 #   vsftpd.sh [ssl_cert_cn ssl_tlsv1 ssl_sslv3 ssl_sslv2]
+#       ssl_cert_cn: SSL Certificate common name. Required for SSL Certificate generation. Omit if FTPS not required.
+#       ssl_tlsv1:   YES or NO. Enables or disables TLSv1 encoding for vsftpd.
+#       ssl_sslv3:   YES or NO. Enables or disables SSLv3 encoding for vsftpd.
+#       ssl_sslv2:   YES or NO. Enables or disables SSLv2 encoding for vsftpd.
 #
-#   For a base Ftp Server with no SSL encoding, omit all arguments:
-#       vsftpd.sh
+#   Requirement: If ssl_cert_cn is specified, then at least one of the encoding variables must be set to YES. More than one encoding is supported.
 #
-#   For a base Ftp Server using SSL encoding (FTPS), specify the common name of the certificate to be generated and which encodings to enable
-#   as shown below. For example, to configure an FTPS server with the certificate common name 'FtpServer-SSLv3' to enable only SSLv3 encoding:
-#       vsftpd.sh FtpServer-SSLv3 NO YES NO
+#   Examples
+#       For an FTP Server with no SSL encoding, omit all arguments:
+#           vsftpd.sh
 #
-#   Valid values for ssl_tlsv1 ssl_sslv3 and ssl_sslv2 are YES or NO. At least one of these encodings must be set to YES.
+#       For an FTPS server running only SSLv3 encoding, specify the common name of the SSL Certificate and specify an encoding.
+#           vsftpd.sh MyFtpServer NO YES NO
 #
-# Contributors
-#   Daniel Schealler, daniel.schealler@gmail.com
-#
-# Version History
-#   Date        Version  Author            Comments
-#   2016-09-15  v1.0     Daniel Schealler  First Cut
-#   2016-09-15  v1.1     Daniel Schealler  Added Start and End script echos
-#   2016-09-28  v1.2     Daniel Schealler  Implemented
-#                                            - Copied base.sh implementation to support Ubuntu/Debian and CentOS/RHEL setup
-#                                            - Embedded vsftpd.conf into script as a Base64-encoded string variable
-#                                            - Tokenization of vsftpd.conf after writing to file
-#                                            - Added arguments to the script to enable/disable SSL behaviors
+#       For an FTPS server running multiple encodings, specify the common name of the SSL Certifiacte and provide all desired encodings.
+#           vsftpd.sh MyFtpServer YES YES YES
 #
 
 scriptName='vsftpd.sh'
 echo "[$scriptName] --- start ---"
 
-# Parameterize Arguments
-arg1=$1
-arg2=$2
-arg3=$3
-arg4=$4
-
-echo "[$scriptName] Arguments"
-echo "  arg1: $arg1"
-echo "  arg2: $arg2"
-echo "  arg3: $arg3"
-echo "  arg4: $arg4"
-
-# Default Parameters
-ssl_cert_cn=
-ssl_enable=NO
-allow_anon_ssl=NO
-force_local_data_ssl=NO
-force_local_logins_ssl=NO
-ssl_tlsv1=NO
-ssl_sslv3=NO
-ssl_sslv2=NO
-require_ssl_reuse=NO
-ssl_ciphers=HIGH
-
-encodingSpecified=false
-
 # If the first argument (ssl_cert_cn) is specified, we know that the user has requested FTP over SSL.
-if [ -n "$arg1" ]
+if [ -n "$1" ]
 then
-    ssl_cert_cn=$arg1
+    ssl_cert_cn=$1
     ssl_enable=YES
     allow_anon_ssl=NO
     force_local_data_ssl=YES
     force_local_logins_ssl=YES
+    ssl_tlsv1=$2
+    ssl_sslv3=$3
+    ssl_sslv2=$4
+    require_ssl_reuse=NO
+    ssl_ciphers=HIGH
+
+    # The next argument is for ssl_tlsv1
+    if [ "$ssl_tlsv1" -ne "YES" ] && [ "$ssl_sslv3" -ne "YES"] && [ "$ssl_sslv2" -ne "YES" ]
+    then
+        >&2 echo "[$scriptName] WARNING! An SSL Common Name ($ssl_cert_cn) has been specified, but no SSL encoding methods have been specified. Please refer to the inline documentation of $scriptName for usage examples."
+        exit 1
+    fi
+# If the first argument (ssl_cert_cn) is not specified, we configure SSL to be disabled.
+else
+    ssl_cert_cn=
+    ssl_enable=NO
+    allow_anon_ssl=NO
+    force_local_data_ssl=NO
+    force_local_logins_ssl=NO
     ssl_tlsv1=NO
     ssl_sslv3=NO
     ssl_sslv2=NO
     require_ssl_reuse=NO
     ssl_ciphers=HIGH
-
-    # The next argument is for ssl_tlsv1
-    if [ -n "$arg2" ]
-    then
-        if [ "$arg2" = "YES" ]
-        then
-            ssl_tlsv1=YES
-            encodingSpecified=true
-        fi
-    fi
-
-    # The next argument is for ssl_sslv3
-    if [ -n "$arg3" ]
-    then
-        if [ "$arg3" = "YES" ]
-        then
-            ssl_sslv3=YES
-            encodingSpecified=true
-        fi
-    fi
-
-    # The next argument is for ssl_sslv2
-    if [ -n "$arg4" ]
-    then
-        if [ "$arg4" = "YES" ]
-        then
-            ssl_sslv2=YES
-            encodingSpecified=true
-        fi
-    fi
-    
-    if [ "$encodingSpecified" = false ]
-    then
-        >&2 echo "[$scriptName] WARNING! An SSL Common Name ($ssl_cert_cn) has been specified, but no SSL encoding methods have been specified. Please refer to the inline documentation of $scriptName for usage examples."
-        exit 1
-    fi
 fi
 
-echo "[$scriptName] Parameters"
+echo "[$scriptName] SSL Parameters"
 echo "  ssl_cert_cn=$ssl_cert_cn"
 echo "  ssl_enable=$ssl_enable"
 echo "  allow_anon_ssl=$allow_anon_ssl"
@@ -142,6 +92,7 @@ else
 	sudo yum install -y vsftpd
 fi
 
+# If the first argument (ssl_cert_cn) is specified, we know that the user has requested FTP over SSL. So we need to generate an SSL Certificate.
 if [ -n "$ssl_cert_cn" ]
 then
     echo "[$scriptName] Configure SSL Certificate for $ssl_cert_cn"

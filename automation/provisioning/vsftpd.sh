@@ -43,11 +43,15 @@ then
     ssl_sslv2=$4
     require_ssl_reuse=NO
     ssl_ciphers=HIGH
+    
+    if [ -z "$ssl_tlsv1" ]; then ssl_tlsv1=NO; fi
+    if [ -z "$ssl_sslv3" ]; then ssl_sslv3=NO; fi
+    if [ -z "$ssl_sslv2" ]; then ssl_sslv2=NO; fi
 
     # The next argument is for ssl_tlsv1
-    if [ "$ssl_tlsv1" -ne "YES" ] && [ "$ssl_sslv3" -ne "YES"] && [ "$ssl_sslv2" -ne "YES" ]
+    if [ "$ssl_tlsv1" != "YES" ] && [ "$ssl_sslv3" != "YES" ] && [ "$ssl_sslv2" != "YES" ]
     then
-        >&2 echo "[$scriptName] WARNING! An SSL Common Name ($ssl_cert_cn) has been specified, but no SSL encoding methods have been specified. Please refer to the inline documentation of $scriptName for usage examples."
+        >&2 echo "[$scriptName] An SSL Common Name ($ssl_cert_cn) has been specified, but no SSL encoding methods have been configured. Please refer to the inline documentation of $scriptName for usage examples."
         exit 1
     fi
 # If the first argument (ssl_cert_cn) is not specified, we configure SSL to be disabled.

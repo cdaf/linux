@@ -57,7 +57,7 @@ else
 	echo "[$scriptName] environment     : $environment"
 fi
 
-registry=$5
+registry=$6
 if [ -z "$registry" ]; then
 	echo "[$scriptName] registry        : not passed, use local repo"
 else

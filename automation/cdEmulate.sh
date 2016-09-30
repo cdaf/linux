@@ -8,7 +8,14 @@
 ACTION="$1"
 
 scriptName=${0##*/}
-source /etc/bash.bashrc
+
+# Reload any environment variables
+if [ -f "/etc/bash.bashrc" ]; then
+	source /etc/bash.bashrc
+fi
+if [ -f "~/.bashrc" ]; then
+	source ~/.bashrc
+fi
 
 echo
 echo "$scriptName : --------------------"

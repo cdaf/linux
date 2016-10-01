@@ -42,7 +42,7 @@ sqlScriptFile='/tmp/newDB.sql'
 
 executeExpression "sudo -u postgres createdb $dbName"
 executeExpression "sudo -u postgres createuser --echo $dbUser"
-executeExpression "echo \"alter user mydatabaseuser password '\$dbPassword';\" > $sqlScriptFile"
+executeExpression "echo \"alter user $dbUser password '\$dbPassword';\" > $sqlScriptFile"
 executeExpression "sudo -u postgres psql -d $dbName -f $sqlScriptFile"
 
 echo "[$scriptName] --- end ---"

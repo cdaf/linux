@@ -44,3 +44,5 @@ local.properties
 # Vagrant cache
 .vagrant/
 /*.gz
+/TasksLocal/
+/TasksRemote/

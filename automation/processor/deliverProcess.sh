@@ -15,9 +15,9 @@ OPT_ARG="$7"
 scriptName=${0##*/}
 
 echo
-echo "$scriptName : ==========================================="
-echo "$scriptName : Continuous Delivery (CD) Emulation Starting"
-echo "$scriptName : ==========================================="
+echo "$scriptName : ================================="
+echo "$scriptName : Continuous Delivery (CD) Starting"
+echo "$scriptName : ================================="
 if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi

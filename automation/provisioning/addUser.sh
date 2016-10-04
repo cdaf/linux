@@ -72,18 +72,18 @@ then
     # want to avoid. So we have to replicate its functionality.
     len=${#password} 
     passmask=`perl -e "print '*' x $len;"`
-    
+
     cmdreal="echo \"$username:$password\" | sudo chpasswd"
     cmdmask="echo \"$username:$passmask\" | sudo chpasswd"
-        
-	echo "[$scriptName] $cmdmask"
+
+    echo "[$scriptName] $cmdmask"
     eval $cmdreal
-    
-	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $cmdmask returned $exitCode"
-		exit $exitCode
-	fi
+
+    # Check execution normal, anything other than 0 is an exception
+    if [ "$exitCode" != "0" ]; then
+        echo "$0 : Exception! $cmdmask returned $exitCode"
+        exit $exitCode
+    fi
 fi
 
 echo "[$scriptName] --- end ---"

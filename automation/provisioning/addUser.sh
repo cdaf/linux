@@ -44,6 +44,8 @@ else
 	echo "[$scriptName]   groupname    : $groupname"
 fi
 
+password=$3
+
 # If the group does not exist, create it
 groupExists=$(getent group $groupname)
 if [ "$groupExists" ]; then
@@ -62,6 +64,26 @@ if [ -z "$userExists" ]; then # User does not exist, create the user in the grou
 else # Just add the user to the group
 	echo "[$scriptName] username $username exists"
 	executeExpression "sudo usermod -a -G $groupname $username"
+fi
+
+if [ -n "$password" ]
+then
+    # We cannot use the executeExpression function here beacuse this will print out the password to stdout, which we
+    # want to avoid. So we have to replicate its functionality.
+    len=${#password} 
+    passmask=`perl -e "print '*' x $len;"`
+
+    cmdreal="echo \"$username:$password\" | sudo chpasswd"
+    cmdmask="echo \"$username:$passmask\" | sudo chpasswd"
+
+    echo "[$scriptName] $cmdmask"
+    eval $cmdreal
+
+    # Check execution normal, anything other than 0 is an exception
+    if [ "$exitCode" != "0" ]; then
+        echo "$0 : Exception! $cmdmask returned $exitCode"
+        exit $exitCode
+    fi
 fi
 
 echo "[$scriptName] --- end ---"

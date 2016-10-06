@@ -62,13 +62,17 @@ echo "[$scriptName] Make all objects executable and owned by tomcat service acco
 executeExpression "sudo chown -R tomcat:tomcat $tomcat"
 executeExpression "sudo chmod 755 -R $tomcat"
 
+cd $tomcat
+echo
+echo "[$scriptName] Set the application folder to be group writable"
+executeExpression "sudo chmod -R g+rwx webapps"
+
 echo
 echo "[$scriptName] Retain the default tomcat console"
-cd $tomcat
 executeExpression "mv -v webapps/ROOT/ webapps/console"
 
 echo
-echo "[$scriptName] Start the server, as tomcat user"
+echo "[$scriptName] Create symlink and start the server, as tomcat user"
 executeExpression "sudo ln -sv $appRoot/$tomcat /opt/tomcat"
 executeExpression "sudo -H -u tomcat bash -c \'/opt/tomcat/bin/startup.sh\'"
 

@@ -77,7 +77,7 @@ echo "List the running containers (before)"
 docker ps
 
 # Test is based on combination of image name and port to force exit if the port is in use by another image 
-for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance=${instance} -q); do
+for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance=${instance} -aq); do
 	echo "[$scriptName] Stop and remove existing container instance ($instance)"
 	executeExpression "docker stop $containerInstance"
 	executeExpression "docker rm $containerInstance"

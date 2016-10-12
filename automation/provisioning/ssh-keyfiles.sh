@@ -21,18 +21,18 @@ type=$1
 privatekeyfile=$2
 publickeyfile=$3
 
-if [ ${#privatekeyfile} -le 10 ]
+if [ ${#privatekeyfile} -le 30 ]
 then
     privatekeyfileTrunc="$privatekeyfile"
 else
-    privatekeyfileTrunc="$(echo "$privatekeyfile" | cut -c 0-7)...";
+    privatekeyfileTrunc="$(echo "$privatekeyfile" | cut -c 1-27)...";
 fi
 
-if [ ${#publickeyfile} -le 10 ]
+if [ ${#publickeyfile} -le 30 ]
 then
     publickeyfileTrunc="$publickeyfile"
 else
-    publickeyfileTrunc="$(echo "$publickeyfile" | cut -c 0-7)...";
+    publickeyfileTrunc="$(echo "$publickeyfile" | cut -c 1-27)...";
 fi
 
 if [ "$type" = "DSA" ]

@@ -23,7 +23,7 @@ for i in $(ls -d */); do
 	fi
 done
 if [ -z "$solutionRoot" ]; then
-	solutionRoot="$automationRoot/solution"
+	solutionRoot="$AUTOMATION_ROOT/solution"
 	echo "$solutionRoot (default, project directory containing CDAF.solution not found)"
 else
 	echo "$solutionRoot ($solutionRoot/CDAF.solution found)"

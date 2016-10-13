@@ -5,7 +5,7 @@ stages:
   - live
 
 cdaf-ci:
-  script: "automation/processor/ciProcess.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
+  script: "automation/processor/buildPackage.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
   tags:
     - shell
   stage: build
@@ -18,7 +18,7 @@ cd:
   stage: automated test
   variables:
     ENV: "CD"
-  script: "TasksLocal/deliverProcess.sh ${ENV} ${CI_PIPELINE_ID}"
+  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
   environment: cd
   dependencies:
   - cdaf-ci
@@ -27,7 +27,7 @@ test:
   stage: manual test
   variables:
     ENV: "TEST"
-  script: "TasksLocal/deliverProcess.sh ${ENV} ${CI_PIPELINE_ID}"
+  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
   environment: test
   dependencies:
   - cdaf-ci
@@ -36,7 +36,7 @@ production:
   stage: live
   variables:
     ENV: "PROD"
-  script: "TasksLocal/deliverProcess.sh ${ENV} ${CI_PIPELINE_ID}"
+  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
   when: manual
   environment: production
   dependencies:

@@ -70,25 +70,25 @@ fi
 
 # Check for customised CI process
 printf "$scriptName :   ciProcess           : "
-if [ -f "$solutionRoot/ciProcess.sh" ]; then
-	cdProcess="$solutionRoot/ciProcess.sh"
+if [ -f "$solutionRoot/buildPackage.sh" ]; then
+	cdProcess="$solutionRoot/buildPackage.sh"
 	echo "$ciProcess (override)"
 else
-	ciProcess="$automationRoot/processor/ciProcess.sh"
+	ciProcess="$automationRoot/processor/buildPackage.sh"
 	echo "$ciProcess (default)"
 fi
 
 # Check for customised Delivery process
 printf "$scriptName :   cdProcess           : "
-if [ -f "$solutionRoot/deliverProcess.sh" ]; then
-	cdProcess="$solutionRoot/deliverProcess.sh"
+if [ -f "$solutionRoot/delivery.sh" ]; then
+	cdProcess="$solutionRoot/delivery.sh"
 	echo "$cdProcess (override)"
 else
-	cdProcess="$automationRoot/processor/deliverProcess.sh"
+	cdProcess="$automationRoot/processor/delivery.sh"
 	echo "$cdProcess (default)"
 fi
 # Packaging will ensure either the override or default delivery process is in the workspace root
-cdInstruction="deliverProcess.sh"
+cdInstruction="delivery.sh"
 
 # If a solution properties file exists, load the properties
 if [ -f "$solutionRoot/CDAF.solution" ]; then
@@ -137,7 +137,7 @@ if [ -z "$ACTION" ]; then
 	echo
     echo 'For GitLab (requires shell runner) ...'
     echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
-    echo "    script: \"automation/processor/ciProcess.sh \${CI_BUILD_ID} \${CI_BUILD_REF_NAME}\""
+    echo "    script: \"automation/processor/buildPackage.sh \${CI_BUILD_ID} \${CI_BUILD_REF_NAME}\""
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi
@@ -213,9 +213,13 @@ if [ -z "$ACTION" ]; then
 	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
     echo 'For GitLab (requires shell runner) ...'
-    echo '  If using the sample .gitlab-ci.yml simply clone and change the '
+    echo 'For GitLab (requires shell runner) ...'
+    echo '  If using the sample .gitlab-ci.yml simply clone and change the Environment literal'
+    echo '  variables:'
+    echo '    ENV: "<environment>"'
     echo "    script: \"$workDirLocal/$cdInstruction \${ENV} \${CI_PIPELINE_ID}\""
-	echo
+    echo '    environment: <environment>'
+   	echo
 	echo "$scriptName : -------------------------------------------------------"
 
 	$cdProcess "$environmentDelivery"

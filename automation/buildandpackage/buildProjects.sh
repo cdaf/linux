@@ -30,21 +30,22 @@ else
 fi
 
 ACTION="$4"
-if [ ! -z "$ACTION" ]; then
+if [ -z "$ACTION" ]; then
+	echo "$0 :   ACTION         : $ACTION"
+	BUILDENV='BUILDER'
+	echo "$0 :   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
+else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
 		echo "$0 :   ACTION         : $ACTION (Build Environment will be set to default)"
-		BUILDENV='BUILD'
+		BUILDENV='BUILDER'
 		echo "$0 :   BUILDENV       : $BUILDENV (default)"
 	else
 		BUILDENV="$ACTION"
+		echo "$0 :   ACTION         : $ACTION"
 		echo "$0 :   BUILDENV       : $BUILDENV (derived from action)"
 	fi
-else
-	echo "$0 :   ACTION         : (not supplied)"
-	BUILDENV="$4"
-	echo "$0 :   BUILDENV       : $BUILDENV (derived from action)"
 fi
 
 # Look for automation root definition, if not found, default

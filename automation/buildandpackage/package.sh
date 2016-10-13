@@ -106,6 +106,8 @@ else
 	echo "none ($remoteArtifactListFile)"
 fi
 
+echo "$0 :   pwd                      : $(pwd)"
+echo "$0 :   hostname                 : $(hostname)"
 echo "$0 :   whoami                   : $(whoami)"
 
 cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")

@@ -48,6 +48,7 @@ echo "$0 :   BUILDNUMBER              : $BUILDNUMBER"
 echo "$0 :   REVISION                 : $REVISION"
 echo "$0 :   LOCAL_WORK_DIR           : $LOCAL_WORK_DIR"
 echo "$0 :   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
+echo "$0 :   ACTION                   : $ACTION"
 
 # Look for automation root definition, if not found, default
 for i in $(ls -d */); do
@@ -128,10 +129,14 @@ if [ -d  "$REMOTE_WORK_DIR" ]; then
 	rm -rf $REMOTE_WORK_DIR
 fi
 
-if [ "$ACTION" == "clean" ]; then
+if [ ! -z "$ACTION" ]; then
+	# case insensitive by forcing to uppercase
+	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
+fi
+
+if [ "$testForClean" == "CLEAN" ]; then
 	echo
 	echo "$0 : Solution Workspace Clean Only"
-	
 else
 	
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)

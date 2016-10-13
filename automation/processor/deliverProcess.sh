@@ -4,13 +4,13 @@
 # workspace with temp space. The variables provided in Jenkins are emulated in the scripts
 # themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
 
-SOLUTION="$1"
-ENVIRONMENT="$2"
-BUILD="$3"
-RELEASE="$4"
-LOCAL_WORK_DIR="$5"
-REMOTE_WORK_DIR="$6"
-OPT_ARG="$7"
+ENVIRONMENT="$1"
+RELEASE="$2"
+OPT_ARG="$3"
+BUILD="$4"
+SOLUTION="$5"
+LOCAL_WORK_DIR="$6"
+REMOTE_WORK_DIR="$7"
 
 scriptName=${0##*/}
 
@@ -18,25 +18,61 @@ echo
 echo "$scriptName : ================================="
 echo "$scriptName : Continuous Delivery (CD) Starting"
 echo "$scriptName : ================================="
-if [[ $SOLUTION == *'$'* ]]; then
-	SOLUTION=$(eval echo $SOLUTION)
-fi
-echo "$scriptName :   SOLUTION        : $SOLUTION"
+
+if [ -z $LOCAL_WORK_DIR ]; then
+	LOCAL_WORK_DIR='TasksLocal'
+fi 
+
+if [ -z $REMOTE_WORK_DIR ]; then
+	REMOTE_WORK_DIR='TasksRemote'
+fi 
+
 if [[ $ENVIRONMENT == *'$'* ]]; then
 	ENVIRONMENT=$(eval echo $ENVIRONMENT)
 fi
+if [ -z $ENVIRONMENT ]; then
+	echo "$scriptName : Environment required! EXiting code 1"; exit 1
+fi 
+
 echo "$scriptName :   ENVIRONMENT     : $ENVIRONMENT"
-if [[ $BUILD == *'$'* ]]; then
-	BUILD=$(eval echo $BUILD)
-fi
-echo "$scriptName :   BUILD           : $BUILD"
+
 if [[ $RELEASE == *'$'* ]]; then
 	RELEASE=$(eval echo $RELEASE)
 fi
+if [ -z $RELEASE ]; then
+	RELEASE='Release'
+fi 
 echo "$scriptName :   RELEASE         : $RELEASE"
+echo "$scriptName :   OPT_ARG         : $OPT_ARG"
+
+if [[ $SOLUTION == *'$'* ]]; then
+	SOLUTION=$(eval echo $SOLUTION)
+fi
+if [ -z $SOLUTION ]; then
+	SOLUTION=$(./$LOCAL_WORK_DIR/getProperty.sh "./$LOCAL_WORK_DIR/manifest.txt" "SOLUTION")
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Read of SOLUTION from ./$LOCAL_WORK_DIR/manifest.txt failed! Returned $exitCode"
+		exit $exitCode
+	fi
+fi 
+echo "$scriptName :   SOLUTION        : $SOLUTION"
+
+if [[ $BUILD == *'$'* ]]; then
+	BUILD=$(eval echo $BUILD)
+fi
+if [ -z $BUILD ]; then
+	BUILD=$(./$LOCAL_WORK_DIR/getProperty.sh "./$LOCAL_WORK_DIR/manifest.txt" "BUILD")
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Read of BUILD from ./$LOCAL_WORK_DIR/manifest.txt failed! Returned $exitCode"
+		exit $exitCode
+	fi
+fi 
+echo "$scriptName :   BUILD           : $BUILD"
+
 echo "$scriptName :   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
-echo "$scriptName :   OPT_ARG         : $OPT_ARG"
 echo "$scriptName :   whoami          : $(whoami)"
 echo "$scriptName :   hostname        : $(hostname)"
 echo "$scriptName :   CDAF Version    : $(./$LOCAL_WORK_DIR/getProperty.sh "./$LOCAL_WORK_DIR/CDAF.properties" "productVersion")"

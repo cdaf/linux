@@ -8,6 +8,12 @@ echo "$scriptName : ===================================="
 echo "$scriptName : Continuous Integration (CI) Starting"
 echo "$scriptName : ===================================="
 
+# Processed out of order as needed for solution determination
+AUTOMATION_ROOT="$5"
+if [ -z $AUTOMATION_ROOT ]; then
+	AUTOMATION_ROOT='automation'
+fi
+
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "$scriptName :   solutionRoot    : "
 for i in $(ls -d */); do
@@ -46,11 +52,6 @@ fi
 ACTION="$3"
 echo "$scriptName :   ACTION          : $ACTION"
 
-# Processed out of order as needed for solution determination
-AUTOMATION_ROOT="$5"
-if [ -z $AUTOMATION_ROOT ]; then
-	AUTOMATION_ROOT='automation'
-fi
 SOLUTION="$4"
 if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)

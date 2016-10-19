@@ -18,9 +18,11 @@
 #
 #       certpath:     Optional. Path to the certificate used for encryption.
 #                     Defaults to '/etc/ssl/certs/vsftpd.pem' if omitted.
+#                     Set to NONE to clear the certpath to empty.
 #
 #       keypath:      Optional. Path to the certificate key used for encryption.
 #                     Defaults to '/etc/ssl/private/vsftpd.key' if omitted.
+#                     Set to NONE to clear the keypath to empty.
 #
 #       implicit_ssl: Optional. YES or NO. Enables or disables Implicit SSL for vsftpd.
 #                     Defaults to 'YES' if omitted.
@@ -35,7 +37,8 @@
 #                     Defaults to 'NO' if omitted.
 #
 #   Requirements
-#       At least one of the encoding variables ssl_tlsv1, ssl_sslv3, and ssl_sslv2 must be set to YES.
+#       If certpath or keypath are set to a non-empty value, or if implicit_ssl is yes, then at least one of the encoding
+#       variables (ssl_tlsv1, ssl_sslv3, ssl_sslv2) must be set to YES.
 #
 
 scriptName='vsftpd.sh'
@@ -75,6 +78,29 @@ then
     fi
 fi    
 
+# Allow for clearing the certificate path and key path.
+if [ "$certpath" = "NONE" ]; then certpath=''; fi
+if [ "$keypath"  = "NONE" ]; then keypath='';  fi
+
+if [ -z "$certpath" ] && [ -z "$keypath" ] && [ "$implicit_ssl" = "NO" ]
+then
+    # Here, the user has not requested any kind of ssl encryption. We implement an unsecured FTP server.
+    ssl_enable=NO
+    allow_anon_ssl=NO
+    force_local_data_ssl=NO
+    force_local_logins_ssl=NO
+    require_ssl_reuse=NO
+    ssl_ciphers=HIGH
+else
+    # Here, the user has requested some kind of ssl encryption. We implement a secured FTP server.
+    ssl_enable=YES
+    allow_anon_ssl=NO
+    force_local_data_ssl=YES
+    force_local_logins_ssl=YES
+    require_ssl_reuse=NO
+    ssl_ciphers=HIGH
+fi
+
 echo "[$scriptName] SSL Parameters"
 echo "  listen_port=$listen_port"
 echo "  certpath=$certpath"
@@ -90,13 +116,14 @@ echo "  force_local_logins_ssl=$force_local_logins_ssl"
 echo "  require_ssl_reuse=$require_ssl_reuse"
 echo "  ssl_ciphers=$ssl_ciphers"
 
-# Validate encryption arguments: At least one must be open.
-if [ "$ssl_tlsv1" != "YES" ] && [ "$ssl_sslv3" != "YES" ] && [ "$ssl_sslv2" != "YES" ]
+# Validate encryption: If the user has requested an encrypted FTP server, then at least one of the
+# encryption methods must be enabled.    
+if [ "$ssl_enable" = "YES" ] && [ "$ssl_tlsv1" != "YES" ] && [ "$ssl_sslv3" != "YES" ] && [ "$ssl_sslv2" != "YES" ]
 then
-    >&2 echo "[$scriptName] An SSL Common Name ($ssl_cert_cn) has been specified, but no SSL encoding methods have been configured. Please refer to the inline documentation of $scriptName for usage examples."
+    >&2 echo "[$scriptName] SSL encryption has been requested, but no SSL encoding methods have been specified. Please refer to the inline documentation of $scriptName for usage."
     exit 1
 fi
-
+    
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
 uname -a

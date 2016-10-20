@@ -5,14 +5,14 @@ stages:
   - live
 
 cdaf-ci:
-  script: "automation/processor/buildPackage.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
-  tags:
-    - shell
   stage: build
+  tags:
+    - bash
+  script: "automation/processor/buildPackage.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
   artifacts:
     paths:
     - TasksLocal/
-    - "tram-${CI_BUILD_ID}.tar.gz"
+    - "${CI_PROJECT_NAME}-${CI_BUILD_ID}.tar.gz"
 
 cd:
   stage: automated test
@@ -31,6 +31,8 @@ test:
   environment: test
   dependencies:
   - cdaf-ci
+  only:
+    - master
 
 production:
   stage: live
@@ -41,3 +43,6 @@ production:
   environment: production
   dependencies:
   - cdaf-ci
+  only:
+    - master
+  

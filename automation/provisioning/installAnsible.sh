@@ -11,7 +11,7 @@ function executeExpression {
 	fi
 }  
 
-scriptName='installPython.sh'
+scriptName='installAnsible.sh'
 
 echo "[$scriptName] --- start ---"
 centos=$(uname -mrs | grep .el)
@@ -26,25 +26,23 @@ else
 	fi
 fi
 
+options=$1
 if [ -z "$1" ]; then
-	version='3'
-	echo "[$scriptName]   version      : $version (default)"
+	echo "[$scriptName]   options      : Not supplied, will use default"
 else
-	version=$1
-	echo "[$scriptName]   version      : $version (choices 2 or 3)"
+	echo "[$scriptName]   options      : $options"
 fi
 
 if [ "$centos" ]; then # Fedora
 
-	executeExpression "sudo yum install -y epel-release"
-	executeExpression "sudo yum install -y python${version}*"
-	executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python3"
-	executeExpression "sudo pip install virtualenv"
+	echo "[$scriptName] TODO: Fedora not implemented."
 
 else # Debian
 
+	executeExpression "sudo apt-get install software-properties-common"
+	executeExpression "sudo apt-add-repository ppa:ansible/ansible -y"
 	executeExpression "sudo apt-get update -y"
-	executeExpression "sudo apt-get install -y python${version}*"
+	executeExpression "sudo apt-get install -y ansible"
 
 fi
 

@@ -52,7 +52,7 @@ else
 	echo "[$scriptName] : Python not installed."
 fi	
 
-# Python version lists to standard error
+# Anisble version lists to standard error
 test=$(ansible-playbook --version 2> /dev/null)
 if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test

@@ -52,7 +52,17 @@ else
 	echo "[$scriptName] : Python not installed."
 fi	
 
-# Anisble version lists to standard error
+# PIP version lists to standard error
+test="`python --version 2>&1`"
+if [ -n "$test" ]; then
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] : PIP version : $test"
+else
+	echo "[$scriptName] : PIP not installed."
+fi	
+
+# Ansible components
 test=$(ansible-playbook --version 2> /dev/null)
 if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test

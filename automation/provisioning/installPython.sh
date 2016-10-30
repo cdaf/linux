@@ -34,21 +34,30 @@ else
 	echo "[$scriptName]   version      : $version (choices 2 or 3)"
 fi
 
-if [ "$centos" ]; then # Fedora
+test="`python --version 2>&1`"
+if [ -n "$test" ]; then
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] Python version $test already installed, install PIP only."
+	executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+else	
 
-	executeExpression "sudo yum install -y epel-release"
-	executeExpression "sudo yum install -y python${version}*"
-	executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python3"
-	executeExpression "sudo pip install virtualenv"
-
-else # Debian
-
-	executeExpression "sudo apt-get update -y"
-	executeExpression "sudo apt-get install -y python${version}*"
-
-fi
-
-echo "[$scriptName] List version details..."
-executeExpression "python${version} --version"
+	if [ "$centos" ]; then # Fedora
+	
+		executeExpression "sudo yum install -y epel-release"
+		executeExpression "sudo yum install -y python${version}*"
+		executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python${version}"
+		executeExpression "sudo pip install virtualenv"
+	
+	else # Debian
+	
+		executeExpression "sudo apt-get update -y"
+		executeExpression "sudo apt-get install -y python${version}*"
+	
+	fi
+	
+	echo "[$scriptName] List version details..."
+	executeExpression "python${version} --version"
+fi	
  
 echo "[$scriptName] --- end ---"

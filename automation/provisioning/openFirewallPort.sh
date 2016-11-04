@@ -28,25 +28,25 @@ fi
 
 if [ -z "$1" ]; then
 	port='80'
-	echo "[$scriptName]   port       : $port (default)"
+	echo "[$scriptName]   port         : $port (default)"
 else
 	port=$1
-	echo "[$scriptName]   port       : $port"
+	echo "[$scriptName]   port         : $port"
 fi
-
+echo
 if [ "$ubuntu" ]; then
-	echo "[$scriptName]   TODO : Debian"
+	executeExpression "sudo ufw allow $port"
 else
 	executeExpression "ip a"
 	executeExpression "sudo firewall-cmd --get-default-zone"
-	executeExpression "sudo firewall-cmd --zone=public --add-port=24800/tcp --permanent"
+	executeExpression "sudo firewall-cmd --zone=public --add-port=$port/tcp --permanent"
 	executeExpression "sudo firewall-cmd --reload"
 	executeExpression "sudo firewall-cmd --state"
 	executeExpression "sudo firewall-cmd --get-active-zones"
 	
 	firewall-cmd --zone=public --list-all
 	
-# View status
+	# View status
 	systemctl status firewalld
 fi
 

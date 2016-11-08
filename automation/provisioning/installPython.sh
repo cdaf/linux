@@ -14,18 +14,6 @@ function executeExpression {
 scriptName='installPython.sh'
 
 echo "[$scriptName] --- start ---"
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
-else
-	ubuntu=$(uname -a | grep ubuntu)
-	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
-	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
-	fi
-fi
-
 if [ -z "$1" ]; then
 	version='3'
 	echo "[$scriptName]   version      : $version (default)"
@@ -34,7 +22,26 @@ else
 	echo "[$scriptName]   version      : $version (choices 2 or 3)"
 fi
 
-test="`python --version 2>&1`"
+centos=$(uname -mrs | grep .el)
+if [ "$centos" ]; then
+	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+else
+	ubuntu=$(uname -a | grep buntu)
+	if [ "$ubuntu" ]; then
+		echo "[$scriptName]   Debian based : $(uname -mrs)"
+	else
+		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+	fi
+fi
+
+if [ "$version" == "2" ]; then
+	test="`python --version 2>&1`"
+	test=$(echo $test | grep 'Python 2.')
+else
+	test="`python3 --version 2>&1`"
+	test=$(echo $test | grep 'Python 3.')
+fi
+
 if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
@@ -51,13 +58,26 @@ else
 	
 	else # Debian
 	
-		executeExpression "sudo apt-get update -y"
-		executeExpression "sudo apt-get install -y python${version}*"
+		if [ "$version" == "3" ]; then
+			executeExpression "sudo apt-get update -y"
+			executeExpression "sudo apt-get install -y python${version}*"
+		else
+			executeExpression "sudo add-apt-repository -y ppa:fkrull/deadsnakes"
+			executeExpression "sudo apt-get update"
+			executeExpression "sudo apt-get install -y python2.7"
+			executeExpression "sudo ln -s \$(which python2.7) /usr/bin/python"
+			executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+		fi
 	
 	fi
 	
 	echo "[$scriptName] List version details..."
-	executeExpression "python${version} --version"
+
+	if [ "$version" == "2" ]; then
+		executeExpression "python --version"
+	else
+		executeExpression "python3 --version"
+	fi
 fi	
  
 echo "[$scriptName] --- end ---"

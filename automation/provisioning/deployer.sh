@@ -45,7 +45,7 @@ else # server side, check for named user
 	if [ "$deployerSide" == 'server' ]; then
 		serverUser='vagrant'
 	else
-		serverUser=$deployerSide
+		serverUser=$deployUser
 	fi
 	echo
 	echo "[$scriptName] \$serverUser = $serverUser"

@@ -58,7 +58,7 @@ if [ -f $mediaCache/${tomcat}.tar.gz ]; then
 else
 	echo "[$scriptName] Media not found, attempting download"
 	if [ ! -d "$mediaCache" ]; then
-		executeExpression "mkdir -p $mediaCache"
+		executeExpression "sudo mkdir -p $mediaCache"
 	fi
 	executeExpression "curl -o $mediaFullPath http://www-us.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
 fi

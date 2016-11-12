@@ -60,7 +60,7 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "sudo mkdir -p $mediaCache"
 	fi
-	executeExpression "curl -o $mediaFullPath http://www-us.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "sudo curl -o $mediaFullPath http://www-us.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ -n "$(getent passwd $serviceAccount)" ]; then
@@ -115,7 +115,6 @@ if [ -d "/etc/systemd/system/" ]; then
 	sudo sh -c "echo \"After=syslog.target network.target\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"[Service]\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"Type=forking\" >> /etc/systemd/system/${serviceAccount}.service"
-	#	sudo sh -c "echo \"Environment=JAVA_HOME=/usr/bin/java\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"ExecStart=$appRoot/$tomcat/bin/startup.sh\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"ExecStop=$appRoot/$tomcat/bin/shutdown.sh\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"User=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"

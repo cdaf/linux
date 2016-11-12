@@ -110,7 +110,7 @@ executeExpression "sudo chmod -R g+rwx $appRoot/$tomcat/webapps"
 
 # If a systemd distribution, create service
 if [ -d "/etc/systemd/system/" ]; then
-	sudo sh -c "echo \"[Unit]\" >> /etc/systemd/system/${serviceAccount}.service"
+	sudo sh -c "echo \"[Unit]\" > /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"Description=Apache Tomcat Web Application Container for ${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"After=syslog.target network.target\" >> /etc/systemd/system/${serviceAccount}.service"
 	sudo sh -c "echo \"[Service]\" >> /etc/systemd/system/${serviceAccount}.service"

@@ -26,11 +26,11 @@ else
 	echo "[$scriptName]   runas      : $runas"
 fi
 
+echo "[$scriptName]   whoami     : $(whoami)"
 echo
-echo "[$scriptName]   whoami       : $(whoami)"
 
 # If a runas user is supplied, execute as them
-if [ -z "" ]; then
+if [ -n "$runas" ]; then
 	executeExpression "sudo -u $runas ssh -o StrictHostKeyChecking=no $userTarget 'echo \"Confirmed user \$(whoami) on host \$(hostname -f)\"' "
 else
 	executeExpression "ssh -o StrictHostKeyChecking=no $userTarget 'echo \"Confirmed user \$(whoami) on host \$(hostname -f)\"' "

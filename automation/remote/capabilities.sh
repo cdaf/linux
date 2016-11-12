@@ -44,22 +44,46 @@ fi
 
 # Python version lists to standard error
 test="`python --version 2>&1`"
+test=$(echo $test | grep 'Python 2.')
 if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
+		test=${ADDR[1]}
 	echo "[$scriptName] : Python version : $test"
 else
 	echo "[$scriptName] : Python not installed."
 fi	
 
 # PIP version lists to standard error
-test="`python --version 2>&1`"
+test="`pip --version 2>&1`"
+test=$(echo $test | grep 'python ')
 if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] : PIP version : $test"
 else
 	echo "[$scriptName] : PIP not installed."
+fi	
+
+# Python version lists to standard error
+test="`python3 --version 2>&1`"
+test=$(echo $test | grep 'python3.')
+if [ -n "$test" ]; then
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] : Python v3 version : $test"
+else
+	echo "[$scriptName] : Python v3 not installed."
+fi	
+
+# PIP version lists to standard error
+test="`pip3 --version 2>&1`"
+test=$(echo $test | grep 'python ')
+if [ -n "$test" ]; then
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] : PIP v3 version : $test"
+else
+	echo "[$scriptName] : PIP v3 not installed."
 fi	
 
 # Ansible components

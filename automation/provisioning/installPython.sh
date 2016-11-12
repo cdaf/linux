@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	echo "[$scriptName] $1"
-	eval $1
-	exitCode=$?
-	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
-		exit $exitCode
-	fi
+	i=1
+	max=10
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName] $1"
+		eval $1
+		exitCode=$?
+		# Check execution normal, anything other than 0 is an exception
+		if [ "$exitCode" != "0" ]; then
+			if [ "$?" == "0" ]; then
+				let i+=1
+				if [ "$i" -lt "$max" ]; then
+					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+					exit $exitCode
+				else
+					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $i of ${max}"
+				fi
+			fi					 
+		else
+			success='yes'
+		fi
+	done
 }  
 
 scriptName='installPython.sh'
@@ -46,7 +60,22 @@ if [ -n "$test" ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] Python version $test already installed, install PIP only."
-	executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+
+	if [ "$version" == "2" ]; then
+		test="`pip --version 2>&1`"
+		test=$(echo $test | grep 'python ')
+	else
+		test="`python3 --version 2>&1`"
+		test=$(echo $test | grep 'python3.')
+	fi
+	if [ -n "$test" ]; then
+		IFS=' ' read -ra ADDR <<< $test
+		test=${ADDR[1]}
+		echo "[$scriptName] PIP version $test already installed."
+	else
+		executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+		executeExpression "pip --version"
+	fi
 else	
 
 	if [ "$centos" ]; then # Fedora
@@ -58,25 +87,29 @@ else
 	
 	else # Debian
 	
-		if [ "$version" == "3" ]; then
-			executeExpression "sudo apt-get update -y"
-			executeExpression "sudo apt-get install -y python${version}*"
-		else
+		if [ "$version" == "2" ]; then
+
+			# Recurring connectivity issues adding this ppa 			
 			executeExpression "sudo add-apt-repository -y ppa:fkrull/deadsnakes"
 			executeExpression "sudo apt-get update"
 			executeExpression "sudo apt-get install -y python2.7"
 			executeExpression "sudo ln -s \$(which python2.7) /usr/bin/python"
 			executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+
+		else # Python != v2
+			executeExpression "sudo apt-get update -y"
+			executeExpression "sudo apt-get install -y python${version}*"
 		fi
-	
 	fi
 	
 	echo "[$scriptName] List version details..."
 
 	if [ "$version" == "2" ]; then
 		executeExpression "python --version"
+		executeExpression "pip --version"
 	else
 		executeExpression "python3 --version"
+		executeExpression "pip3 --version"
 	fi
 fi	
  

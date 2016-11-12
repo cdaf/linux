@@ -23,7 +23,7 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='8u101'
+	version='8u111'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	echo "[$scriptName]   version    : $version"
@@ -41,6 +41,19 @@ javaSource="${prefix}-${version}-linux-x64.tar.gz"
 echo "[$scriptName] \$javaSource = $javaSource"
 javaExtract="${prefix}-${version}"
 echo "[$scriptName] \$javaExtract = $javaExtract"
+
+# Check for media
+mediaFullPath="${mediaCache}/${javaSource}"
+if [ -f "$mediaFullPath" ]; then
+	echo "[$scriptName] Media found $mediaFullPath"
+else
+	if [ ! -d "$mediaCache" ]; then
+		executeExpression "mkdir $mediaCache"
+	fi
+	echo "[$scriptName] Media not found, please visit http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
+	echo "[$scriptName] and download to $mediaCache"
+	exit 55
+fi
 
 echo "[$scriptName] Extract the Java binaries to current directory $(pwd))"
 executeExpression "cp \"$mediaCache/${javaSource}\" ."

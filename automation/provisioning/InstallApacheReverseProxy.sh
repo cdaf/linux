@@ -15,18 +15,26 @@ scriptName='InstallApacheReverseProxy.sh'
 echo "[$scriptName] --- start ---"
 context="$1"
 if [ -z "$context" ]; then
-	echo "[$scriptName]   context   : (not supplied)"
+	echo "[$scriptName]   context      : (not supplied)"
 else
-	echo "[$scriptName]   context   : $context"
+	echo "[$scriptName]   context      : $context"
 fi
 
 proxyRule="$2"
 if [ -z "$proxyRule" ]; then
-	echo "[$scriptName]   proxyRule : (not supplied)"
+	echo "[$scriptName]   proxyRule    : (not supplied)"
 else
-	echo "[$scriptName]   proxyRule : $proxyRule"
+	echo "[$scriptName]   proxyRule    : $proxyRule"
 fi
 
+mediaPath="$3"
+if [ -z "$mediaPath" ]; then
+	mediaPath='/vagrant/.provision'
+	echo "[$scriptName]   mediaPath    : $mediaPath (default)"
+else
+	echo "[$scriptName]   mediaPath    : $mediaPath"
+fi
+	
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"
@@ -42,28 +50,44 @@ fi
 if [ "$centos" ]; then
 
 	echo
-	echo "[$scriptName] Install Canon"
+	echo "[$scriptName] Install Apache HTTP daemon and modules"
 	executeExpression "sudo yum -y install httpd mod_ssl mod_proxy"
-
+	echo
 	echo "[$scriptName] Allow persistent (-P) loopback access"
 	executeExpression "sudo /usr/sbin/setsebool -P httpd_can_network_connect 1"
 
 	# Only create rules if supplied
 	if [ -n "$context" ]; then
-		echo "[$scriptName] Enable mod_proxy and insert supplied proxy rule"
+		echo
+		echo "[$scriptName] Enable mod_proxy and insert supplied proxy rule into /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"LoadModule proxy_module modules/mod_proxy.so\" >> /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"<IfModule mod_proxy.c>\" >> /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"        ProxyPass $context $proxyRule\" >> /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"        ProxyPassReverse $context $proxyRule\" >> /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"</IfModule>\" >> /etc/httpd/conf.d/ssl.conf"
+		echo
 		sudo cat /etc/httpd/conf.d/ssl.conf | egrep -v "(^#.*|^$)"
 	fi
 
+	# If certificate files provided, replace the defaults
+	if [ -f "$mediaPath/localhost.crt" ]; then
+		echo
+		echo "[$scriptName] Public Certificate found in mediaPath, replacing ..."
+		executeExpression "sudo mv /etc/pki/tls/certs/localhost.crt /etc/pki/tls/certs/localhost.crt.default"
+		executeExpression "sudo cp $mediaPath/localhost.crt /etc/pki/tls/certs/localhost.crt"
+	fi				
+	if [ -f "$mediaPath/localhost.key" ]; then
+		echo
+		echo "[$scriptName] Private key found in mediaPath, replacing ..."
+		executeExpression "sudo mv /etc/pki/tls/private/localhost.key /etc/pki/tls/private/localhost.key.default"
+		executeExpression "sudo cp $mediaPath/localhost.key /etc/pki/tls/private/localhost.key"
+	fi				
+	echo
 	echo "[$scriptName] Start the server"
 	executeExpression "sudo systemctl start httpd"
 
 else
 	echo "[$scriptName] TODO: Debian not supported"
 fi
-
+echo
 echo "[$scriptName] --- end ---"

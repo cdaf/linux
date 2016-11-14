@@ -23,7 +23,7 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='canon'
+	version='5.7'
 	install='mysql-server'
 	echo "[$scriptName]   version  : $version (default, $install)"
 else
@@ -59,10 +59,10 @@ if [ -z "$centos" ]; then
 	# debconf-utils allows the passing of answer values
 	executeExpression 'sudo apt-get install -y debconf-utils'
 	echo "[$scriptName] Load installer responses"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password \$password\""
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $password"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password \$password\""
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $password"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install mysql-server/root_password password \$password\""
+	sudo debconf-set-selections <<< "$install mysql-server/root_password password $password"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install  mysql-server/root_password_again password \$password\""
+	sudo debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
 	sudo apt-get install -y $install
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception

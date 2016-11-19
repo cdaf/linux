@@ -7,93 +7,95 @@ echo "[$scriptName] : --- start ---"
 echo
 # Java version lists to standard error
 test="`java -version 2>&1`"
-if [[ $test == *"command not found"* ]]; then
+if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] : Java not installed."
 else
-	echo "[$scriptName] : $test"
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[2]}
+	echo "[$scriptName] : Java version : $test"
 fi	
 
 test="`javac -version 2>&1`"
-if [[ $test == *"command not found"* ]]; then
+if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] : Java Compiler not installed."
 else
-	echo "[$scriptName] : $test"
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] : Java Compiler version : $test"
 fi	
 
 # Ant version lists to standard error
 test="`ant -version 2>&1`"
-if [[ $test == *"command not found"* ]]; then
+if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] : Ant not installed."
 else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[3]}
 	echo "[$scriptName] : Ant version : $test"
 fi	
 
-test=$(mvn -version 2>/dev/null)
-if [ -n "$test" ]; then
-	echo "[$scriptName] : Maven version : $test"
-else
+test=$(mvn -version 2>&1)
+if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] : Maven not installed."
+else
+	echo "[$scriptName] : Maven version : $test"
 fi
 
-test=$(docker --version 2> /dev/null)
-if [ -n "$test" ]; then
-	echo "[$scriptName] : Docker version : $test"
-else
+test=$(docker --version 2>&1)
+if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] : Docker not installed."
+else
+	echo "[$scriptName] : Docker version : $test"
 fi	
 
 # Python version lists to standard error
 test="`python --version 2>&1`"
-test=$(echo $test | grep 'Python 2.')
-if [ -n "$test" ]; then
-	IFS=' ' read -ra ADDR <<< $test
-		test=${ADDR[1]}
-	echo "[$scriptName] : Python version : $test"
+if [[ $test == *"not found"* ]]; then
+	echo "[$scriptName] : Python v2 not installed."
 else
-	echo "[$scriptName] : Python not installed."
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] : Python v2 version : $test"
 fi	
 
 # PIP version lists to standard error
 test="`pip --version 2>&1`"
-test=$(echo $test | grep 'python ')
-if [ -n "$test" ]; then
+if [[ $test == *"not found"* ]]; then
+	echo "[$scriptName] : PIP v2 not installed."
+else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
-	echo "[$scriptName] : PIP version : $test"
-else
-	echo "[$scriptName] : PIP not installed."
+	echo "[$scriptName] : PIP v2 version : $test"
 fi	
 
 # Python version lists to standard error
 test="`python3 --version 2>&1`"
-test=$(echo $test | grep 'python3.')
-if [ -n "$test" ]; then
+if [[ $test == *"not found"* ]]; then
+	echo "[$scriptName] : Python v3 not installed."
+else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] : Python v3 version : $test"
-else
-	echo "[$scriptName] : Python v3 not installed."
 fi	
 
 # PIP version lists to standard error
 test="`pip3 --version 2>&1`"
-test=$(echo $test | grep 'python ')
-if [ -n "$test" ]; then
+if [[ $test == *"not found"* ]]; then
+	echo "[$scriptName] : PIP v3 not installed."
+else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] : PIP v3 version : $test"
-else
-	echo "[$scriptName] : PIP v3 not installed."
 fi	
 
 # Ansible components
-test=$(ansible-playbook --version 2> /dev/null)
-if [ -n "$test" ]; then
+test=$(ansible-playbook --version 2>&1)
+if [[ $test == *"not found"* ]]; then
+	echo "[$scriptName] : Anisble playbook not installed."
+else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] : Anisble playbook version : $test"
-else
-	echo "[$scriptName] : Anisble playbook not installed."
 fi	
 
 echo

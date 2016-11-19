@@ -1,35 +1,63 @@
 #!/usr/bin/env bash
 set -e
+
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='CDAF.sh'
 
 echo "[$scriptName] --- start ---"
-echo "[$scriptName]   whoami     : $(whoami)"
+echo "[$scriptName]   whoami  : $(whoami)"
 runas="$1"
 if [ -z "$runas" ]; then
-	runas=$(whoami)
-	echo "[$scriptName]   runas      : $runas (not supplied, run as current user)"
+	echo "[$scriptName]   runas   : (not supplied, run as current user $(whoami))"
 else
-	echo "[$scriptName]   runas      : $runas"
+	echo "[$scriptName]   runas   : $runas"
 fi
 
 OPT_ARG="$2"
 if [ -z "$OPT_ARG" ]; then
-	echo "[$scriptName]   OPT_ARG    : (not supplied)"
+	echo "[$scriptName]   OPT_ARG : (not supplied)"
 else
-	echo "[$scriptName]   OPT_ARG    : $OPT_ARG"
+	echo "[$scriptName]   OPT_ARG : $OPT_ARG"
 fi
 
 echo
-# Execute the CDAF emulation to verify
+echo "[$scriptName] Execute continuous delivery emulation"
+echo
+if [ -z "$runas" ]; then
+	executeExpression "cd /vagrant/"
+	executeExpression "./automation/cdEmulate.sh $OPT_ARG"
+else
 su $runas << EOF
+	echo "[$scriptName] cd /vagrant/"
 	cd /vagrant/
+	echo "[$scriptName] ./automation/cdEmulate.sh $OPT_ARG"
 	./automation/cdEmulate.sh $OPT_ARG
 EOF
+fi
 
-# Clean the workspace
+echo
+echo "[$scriptName] # Clean the workspace"
+echo
+if [ -z "$runas" ]; then
+	executeExpression "cd /vagrant/"
+	executeExpression "./automation/cdEmulate.sh clean"
+else
 su $runas << EOF
+	echo "[$scriptName] cd /vagrant/"
 	cd /vagrant/
+	echo "[$scriptName] ./automation/cdEmulate.sh clean"
 	./automation/cdEmulate.sh clean
 EOF
+fi
 
 echo "[$scriptName] --- end ---"

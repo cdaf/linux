@@ -4,10 +4,10 @@ scriptName='deployer.sh'
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	deployerSide='server'
-	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server, target or a named user)"
+	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server or target)"
 else
 	deployerSide="$1"
-	echo "[$scriptName]   deployerSide : $deployerSide (choices server, hop or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (choices server or target)"
 fi
 
 if [ -z "$2" ]; then
@@ -33,28 +33,15 @@ else
 	echo "[$scriptName]   group        : $group"
 fi
 
-if [ "$deployerSide" == 'target' ]; then
+if [ "$deployerSide" == 'server' ]; then
 
-	# Install the authorised list
-	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
-	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
-	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
-
-else # server side, check for named user
-
-	if [ "$deployerSide" == 'server' ]; then
-		serverUser='vagrant'
-	else
-		serverUser=$deployUser
-	fi
-	echo
-	echo "[$scriptName] \$serverUser = $serverUser"
+	echo "[$scriptName] Prepare vagrant user keys"
 
 # cannot indent or EOF will not be detected
-su $serverUser << EOF
+su vagrant << EOF
 
 	# Escape variables that need to be executed as vagrant
-	echo "[$scriptName] Install private key for both SSL (password decrypt) and SSH to ${baseUser}"
+	echo "[$scriptName] Install private key for both SSL (password decrypt) and SSH to \${HOME}"
 	userSSL="\${HOME}/.ssl"
 	if [ -d "\$userSSL" ]; then
 		echo "[$scriptName] User SSL directory (\$userSSL) exists, no action required"
@@ -62,9 +49,9 @@ su $serverUser << EOF
 		echo "[$scriptName] Create user SSL directory (\$userSSL)"
 		mkdir \$userSSL
 	fi
-	echo "[$scriptName] Install private key to \$userSSL/private_key.pem"
+	echo "[$scriptName] Install private key to \$userSSH/private_key.pem"
 	
-	echo "-----BEGIN RSA PRIVATE KEY-----" > \$userSSL/private_key.pem
+	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
 	echo "MIIEpAIBAAKCAQEA6AM/oCp+j+KfYHMvf/mHFZp+TfTYE/j5g0Xw11cEpSevgLM1" >> \$userSSL/private_key.pem
 	echo "d+rDxPjh5SE9gp0iCqrbbQL9o0DYAvw1DtQRH6e7H77vfm4NPAZSVxTtjQq2bWnd" >> \$userSSL/private_key.pem
 	echo "6xisu6xJxmJi+FEAwyf2uRzwUo0cfaCIN3SEaf9gGaZ0Ze0/+u8aT6MlsBCcZuby" >> \$userSSL/private_key.pem
@@ -92,9 +79,6 @@ su $serverUser << EOF
 	echo "WMD8tmCn625AcfU50L5TvpYl+x822XjrbvtNl7Ms8z8/HNDIh6ReTg==" >> \$userSSL/private_key.pem
 	echo "-----END RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
 	
-	# Protect the private key
-	chmod 0600 \$userSSL/private_key.pem
-		
 	# Install the private key
 	userSSH="\${HOME}/.ssh"
 	if [ -d "\$userSSH" ]; then
@@ -105,7 +89,7 @@ su $serverUser << EOF
 	fi
 	echo "[$scriptName] Install private key to \$userSSH/id_rsa"
 	
-	echo "-----BEGIN RSA PRIVATE KEY-----" > \$userSSH/id_rsa
+	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSH/id_rsa
 	echo "MIIEowIBAAKCAQEAzn+SgLp69Qd+rdMsLXNecxTGTzhMtqocaEAYSLitLJqM5xs4" >> \$userSSH/id_rsa
 	echo "FR4qUTuzGRj/m640V/vTSKrzhdrbqRrF63dpblUSq4NCrUFKsdyXAHBgqNd08RgO" >> \$userSSH/id_rsa
 	echo "Cl1pvJOkoDwY16IGPS0nLFP5lq8Jif4qcP2p8T410uK8xAGmt9brg8zrnH/hiWXb" >> \$userSSH/id_rsa
@@ -140,6 +124,13 @@ su $serverUser << EOF
 	echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver" >> \$userSSH/id_rsa.pub
 
 EOF
+
+else # target
+
+	# Install the authorised list
+	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
+	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
+	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
 
 fi
 

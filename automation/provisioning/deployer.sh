@@ -62,9 +62,9 @@ su $serverUser << EOF
 		echo "[$scriptName] Create user SSL directory (\$userSSL)"
 		mkdir \$userSSL
 	fi
-	echo "[$scriptName] Install private key to \$userSSH/private_key.pem"
+	echo "[$scriptName] Install private key to \$userSSL/private_key.pem"
 	
-	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
+	echo "-----BEGIN RSA PRIVATE KEY-----" > \$userSSL/private_key.pem
 	echo "MIIEpAIBAAKCAQEA6AM/oCp+j+KfYHMvf/mHFZp+TfTYE/j5g0Xw11cEpSevgLM1" >> \$userSSL/private_key.pem
 	echo "d+rDxPjh5SE9gp0iCqrbbQL9o0DYAvw1DtQRH6e7H77vfm4NPAZSVxTtjQq2bWnd" >> \$userSSL/private_key.pem
 	echo "6xisu6xJxmJi+FEAwyf2uRzwUo0cfaCIN3SEaf9gGaZ0Ze0/+u8aT6MlsBCcZuby" >> \$userSSL/private_key.pem
@@ -92,6 +92,9 @@ su $serverUser << EOF
 	echo "WMD8tmCn625AcfU50L5TvpYl+x822XjrbvtNl7Ms8z8/HNDIh6ReTg==" >> \$userSSL/private_key.pem
 	echo "-----END RSA PRIVATE KEY-----" >> \$userSSL/private_key.pem
 	
+	# Protect the private key
+	chmod 0600 \$userSSL/private_key.pem
+		
 	# Install the private key
 	userSSH="\${HOME}/.ssh"
 	if [ -d "\$userSSH" ]; then
@@ -102,7 +105,7 @@ su $serverUser << EOF
 	fi
 	echo "[$scriptName] Install private key to \$userSSH/id_rsa"
 	
-	echo "-----BEGIN RSA PRIVATE KEY-----" >> \$userSSH/id_rsa
+	echo "-----BEGIN RSA PRIVATE KEY-----" > \$userSSH/id_rsa
 	echo "MIIEowIBAAKCAQEAzn+SgLp69Qd+rdMsLXNecxTGTzhMtqocaEAYSLitLJqM5xs4" >> \$userSSH/id_rsa
 	echo "FR4qUTuzGRj/m640V/vTSKrzhdrbqRrF63dpblUSq4NCrUFKsdyXAHBgqNd08RgO" >> \$userSSH/id_rsa
 	echo "Cl1pvJOkoDwY16IGPS0nLFP5lq8Jif4qcP2p8T410uK8xAGmt9brg8zrnH/hiWXb" >> \$userSSH/id_rsa

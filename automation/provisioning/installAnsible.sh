@@ -14,23 +14,32 @@ function executeExpression {
 scriptName='installAnsible.sh'
 
 echo "[$scriptName] --- start ---"
+systemWide=$1
+if [ -z "$systemWide" ]; then
+	systemWide='yes'
+	echo "[$scriptName]   systemWide   : $systemWide (default)"
+else
+	echo "[$scriptName]   systemWide   : $systemWide"
+fi
+
+version=$2
+if [ -z "$version" ]; then
+	echo "[$scriptName]   version      : Not supplied, will use default"
+else
+	echo "[$scriptName]   version      : $version"
+	version="-${version}"
+fi
+
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"
 else
-	ubuntu=$(uname -a | grep ubuntu)
+	ubuntu=$(uname -a | grep buntu)
 	if [ "$ubuntu" ]; then
 		echo "[$scriptName]   Debian based : $(uname -mrs)"
 	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+		echo "[$scriptName]   echo; echo;$(uname -a), proceeding assuming Debian based..."; echo
 	fi
-fi
-
-options=$1
-if [ -z "$1" ]; then
-	echo "[$scriptName]   options      : Not supplied, will use default"
-else
-	echo "[$scriptName]   options      : $options"
 fi
 
 if [ "$centos" ]; then # Fedora
@@ -39,10 +48,25 @@ if [ "$centos" ]; then # Fedora
 
 else # Debian
 
-	executeExpression "sudo apt-get install software-properties-common"
-	executeExpression "sudo apt-add-repository ppa:ansible/ansible -y"
-	executeExpression "sudo apt-get update -y"
-	executeExpression "sudo apt-get install -y ansible"
+
+	if [ "$systemWide" == 'yes' ]; then
+		executeExpression "sudo apt-get install software-properties-common"
+		executeExpression "sudo apt-add-repository ppa:ansible/ansible${version} -y"
+		executeExpression "sudo apt-get update -y"
+		executeExpression "sudo apt-get install -y ansible"
+	else
+		executeExpression "sudo pip install virtualenv virtualenvwrapper"
+		executeExpression "source `which virtualenvwrapper.sh`"
+		if [ ! -d ~/ansible${version} ]; then
+			executeExpression "mkdir ~/ansible${version}"
+			executeExpression "cd ~/ansible${version}"
+			executeExpression "mkvirtualenv ansible${version}"
+		else
+			executeExpression "cd ~/ansible${version}"
+		fi
+		executeExpression "workon ansible${version}"
+		executeExpression "pip install ansible"
+	fi
 
 fi
 

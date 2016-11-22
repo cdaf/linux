@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	i=1
+	counter=0
 	max=10
 	success='no'
 	while [ "$success" != 'yes' ]; do
@@ -10,15 +10,13 @@ function executeExpression {
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			if [ "$?" == "0" ]; then
-				let i+=1
-				if [ "$i" -lt "$max" ]; then
-					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
-					exit $exitCode
-				else
-					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $i of ${max}"
-				fi
-			fi					 
+			counter=$((portCounter + 1))
+			if [ $counter -lt $max ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying ${counter} of ${max}"
+			fi
 		else
 			success='yes'
 		fi
@@ -48,8 +46,11 @@ if [ -z "$vitualEnv" ]; then
 
 else
 	
-	executeExpression "cd ~/ansible${version}"
-	executeExpression "workon ${projectname}"
+	executeExpression "source /usr/local/bin/virtualenvwrapper.sh"
+	executeExpression "cd $vitualEnv"
+	executeExpression "workon $(workon)"
 	executeExpression "pip install ${modules}"
+
+fi
  
 echo "[$scriptName] --- end ---"

@@ -101,7 +101,7 @@ else # Debian
 			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/setuptools*"
 			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/distribute*"
 			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/pkg_resources.py*"
-			fi
+			#			fi
 		fi
 	fi
 

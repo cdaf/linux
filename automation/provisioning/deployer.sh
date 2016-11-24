@@ -2,34 +2,34 @@
 scriptName='deployer.sh'
 
 echo "[$scriptName] --- start ---"
-deployerSide='server'
+deployerSide="$1"
 if [ -z "$deployerSide" ]; then
+	deployerSide='server'
 	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server, target or hop)"
 else
-	deployerSide="$1"
-	echo "[$scriptName]   deployerSide : $deployerSide (choices server or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (choices server, target or hop)"
 fi
 
-if [ -z "$2" ]; then
+deployUser="$2"
+if [ -z "$deployUser" ]; then
 	deployUser='deployer'
 	echo "[$scriptName]   deployUser   : $deployUser (default)"
 else
-	deployUser="$2"
 	echo "[$scriptName]   deployUser   : $deployUser"
 fi
 
-if [ -z "$3" ]; then
+deployLand="$3"
+if [ -z "$deployLand" ]; then
 	deployLand='/opt/packages/'
 	echo "[$scriptName]   deployLand   : $deployLand (default)"
 else
-	deployLand="$3"
 	echo "[$scriptName]   deployLand   : $deployLand"
 fi
 
-if [ -z "$3" ]; then
+group="$4"
+if [ -z "$group" ]; then
 	echo "[$scriptName]   group        : not supplied"
 else
-	group="$3"
 	echo "[$scriptName]   group        : $group"
 fi
 

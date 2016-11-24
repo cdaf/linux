@@ -2,9 +2,9 @@
 scriptName='deployer.sh'
 
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
-	deployerSide='server'
-	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server or target)"
+deployerSide='server'
+if [ -z "$deployerSide" ]; then
+	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server, target or hop)"
 else
 	deployerSide="$1"
 	echo "[$scriptName]   deployerSide : $deployerSide (choices server or target)"
@@ -33,14 +33,20 @@ else
 	echo "[$scriptName]   group        : $group"
 fi
 
-if [ "$deployerSide" == 'server' ]; then
+if [ "$deployerSide" == 'server' ] || [ "$deployerSide" == 'hop' ]; then
 
 	echo "[$scriptName] Prepare vagrant user keys"
 
-# cannot indent or EOF will not be detected
-su vagrant << EOF
+	if [ "$deployerSide" == 'hop' ]; then
+		runAsUser="${deployUser}"
+	else
+		runAsUser='vagrant'
+	fi
 
-	# Escape variables that need to be executed as vagrant
+# cannot indent or EOF will not be detected
+su ${runAsUser} << EOF
+
+	# Escape variables that need to be executed as ${runAsUser}
 	echo "[$scriptName] Install private key for both SSL (password decrypt) and SSH to \${HOME}"
 	userSSL="\${HOME}/.ssl"
 	if [ -d "\$userSSL" ]; then

@@ -93,14 +93,14 @@ else # Debian
 			executeExpression "pip install ansible"
 		else
 			executeExpression "pip install ansible"
-			test=$(ansible-playbook --version 2>&1)
-			IFS=' ' read -ra ADDR <<< $test
-			if [[ ${ADDR[1]} == *"Unexpected"* ]]; then
-				# Cleanup based on http://stackoverflow.com/questions/17586987/how-to-solve-pkg-resources-versionconflict-error-during-bin-python-bootstrap-py
-				echo; echo "[$scriptName] Environmnet issue encountered, cleaning"; echo
-				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/setuptools*"
-				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/distribute*"
-				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/pkg_resources.py*"
+			#			test=$(ansible-playbook --version 2>&1)
+			#			IFS=' ' read -ra ADDR <<< $test
+			#			if [[ ${ADDR[1]} == *"Unexpected"* ]]; then
+			#				# Cleanup based on http://stackoverflow.com/questions/17586987/how-to-solve-pkg-resources-versionconflict-error-during-bin-python-bootstrap-py
+			#				echo; echo "[$scriptName] Environmnet issue encountered, cleaning"; echo
+			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/setuptools*"
+			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/distribute*"
+			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/pkg_resources.py*"
 			fi
 		fi
 	fi

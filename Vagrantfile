@@ -24,11 +24,11 @@ Vagrant.configure(2) do |config|
   end
   
   # Build Server, fills the role of the build agent and delivers to the host above
-  config.vm.define 'buildserver' do |buildserver|  
+  config.vm.define 'build' do |build|  
     # Provisioning scripts at VM level are all executed, regardless of provider
-    buildserver.vm.provision 'shell', path: 'automation/remote/capabilities.sh'
+    build.vm.provision 'shell', path: 'automation/remote/capabilities.sh'
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
-    buildserver.vm.provider 'virtualbox' do |virtualbox, override|
+    build.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.101'
       override.vm.box = 'bento/centos-7.1'
       override.vm.network 'forwarded_port', guest: 22, host: 10022
@@ -37,10 +37,6 @@ Vagrant.configure(2) do |config|
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'server'  # Install Insecure preshared key for desktop testing
       override.vm.provision 'shell', path: 'automation/provisioning/internalCA.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'
-    end
-    # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up buildserver --provider hyperv
-    buildserver.vm.provider 'hyperv' do |hyperv, override|
-      override.vm.box = 'serveit/centos-7'
     end
   end
 

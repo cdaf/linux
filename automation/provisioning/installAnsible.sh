@@ -60,12 +60,13 @@ fi
 
 if [ "$centos" ]; then # Fedora
 
-	echo "[$scriptName] TODO: Fedora not implemented."
-	# For non-system wide install
-	# yum install gcc openssl-devel libffi-devel python-devel
+	if [ "$systemWide" == 'yes' ]; then
+		executeExpression "sudo yum install -y ansible${ansibleVersion}"
+	else
+		executeExpression "sudo yum install -y gcc openssl-devel libffi-devel python-devel"
+	fi
 
 else # Debian
-
 
 	if [ "$systemWide" == 'yes' ]; then
 		executeExpression "sudo apt-get install software-properties-common"
@@ -74,37 +75,32 @@ else # Debian
 		executeExpression "sudo apt-get install -y ansible"
 			
 	else
-		echo
-		echo "[$scriptName] Install to current users ($(whoami)) home directory ($HOME)."
-		echo
 		executeExpression "sudo apt-get update"
 		executeExpression "sudo apt-get install -y build-essential libssl-dev libffi-dev python-dev"
-		executeExpression "sudo pip install virtualenv virtualenvwrapper"
-		executeExpression "source `which virtualenvwrapper.sh`"
-		if [ ! -d ~/ansible${ansibleVersion} ]; then
-			executeExpression "mkdir ~/ansible${ansibleVersion}"
-			executeExpression "cd ~/ansible${ansibleVersion}"
-			executeExpression "mkvirtualenv ansible${ansibleVersion}"
-		else
-			executeExpression "cd ~/ansible${ansibleVersion}"
-		fi
-		executeExpression "workon ansible${ansibleVersion}"
-		if [ -z "$version" ]; then
-			executeExpression "pip install ansible"
-		else
-			executeExpression "pip install ansible"
-			#			test=$(ansible-playbook --version 2>&1)
-			#			IFS=' ' read -ra ADDR <<< $test
-			#			if [[ ${ADDR[1]} == *"Unexpected"* ]]; then
-			#				# Cleanup based on http://stackoverflow.com/questions/17586987/how-to-solve-pkg-resources-versionconflict-error-during-bin-python-bootstrap-py
-			#				echo; echo "[$scriptName] Environmnet issue encountered, cleaning"; echo
-			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/setuptools*"
-			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/distribute*"
-			#				executeExpression "rm -rf ~/.virtualenvs/ansible-2.1.0.0/lib/python2.7/site-packages/pkg_resources.py*"
-			#			fi
-		fi
 	fi
 
+fi
+
+if [ "$systemWide" == 'no' ]; then
+	echo
+	echo "[$scriptName] Install to current users ($(whoami)) home directory ($HOME)."
+	echo
+	# Distribution specific dependencies installed above, this process is generic for all distributions 
+	executeExpression "sudo pip install virtualenv virtualenvwrapper"
+	executeExpression "source `which virtualenvwrapper.sh`"
+	if [ ! -d ~/ansible${ansibleVersion} ]; then
+		executeExpression "mkdir ~/ansible${ansibleVersion}"
+		executeExpression "cd ~/ansible${ansibleVersion}"
+		executeExpression "mkvirtualenv ansible${ansibleVersion}"
+	else
+		executeExpression "cd ~/ansible${ansibleVersion}"
+	fi
+	executeExpression "workon ansible${ansibleVersion}"
+	if [ -z "$version" ]; then
+		executeExpression "pip install ansible"
+	else
+		executeExpression "pip install ansible==${version}"
+	fi
 fi
 
 test=$(ansible-playbook --version 2>&1)

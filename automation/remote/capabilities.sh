@@ -10,7 +10,7 @@ echo "[$scriptName]   hostname : $(hostname -f)"
 IFS=$'\n'
 for ip in `ip a | grep "inet "`; do
 	IFS=' ' read -ra ADDR <<< $ip
-	echo "[$scriptName]   ip       : ${ADDR[1]}"
+	echo "[$scriptName]         ip : ${ADDR[1]}"
 done
 
 echo

@@ -46,3 +46,4 @@ local.properties
 /*.gz
 /TasksLocal/
 /TasksRemote/
+/targetList

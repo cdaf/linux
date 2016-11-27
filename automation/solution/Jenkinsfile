@@ -1,16 +1,18 @@
 node ('master') {
-    stage 'build'
-    checkout scm
-    sh "env"
-    sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
-    archiveArtifacts artifacts: 'TasksLocal/**'
-    archiveArtifacts artifacts: '*.gz'
-   
-    stage 'CD'
-    sh "TasksLocal/delivery.sh CD"
-    stage 'TEST'
-    sh "TasksLocal/delivery.sh TEST"
-    stage 'PROD'
-    input 'Ready to go?'
-    sh "TasksLocal/delivery.sh PROD"
+  stage 'build'
+    checkout scm
+    sh "env"
+    sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+
+  stage 'CD'
+    sh "TasksLocal/delivery.sh CD"
+
+  stage 'TEST'
+    sh "TasksLocal/delivery.sh TEST"
+
+  stage 'PROD'
+    input 'Ready to go?'
+    sh "TasksLocal/delivery.sh PROD"
+    archiveArtifacts artifacts: 'TasksLocal/**'
+    archiveArtifacts artifacts: '*.gz'
 }

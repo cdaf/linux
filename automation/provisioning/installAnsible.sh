@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	counter=0
-	max=10
+	counter=1
+	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName] $1"
+		echo "[$scriptName][$counter] $1"
 		eval $1
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			counter=$((portCounter + 1))
-			if [ $counter -lt $max ]; then
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
-			else
-				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying ${counter} of ${max}"
-			fi
+			fi					 
 		else
 			success='yes'
 		fi

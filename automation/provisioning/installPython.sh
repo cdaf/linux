@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	i=1
-	max=10
+	counter=1
+	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName] $1"
+		echo "[$scriptName][$counter] $1"
 		eval $1
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			if [ "$?" == "0" ]; then
-				let i+=1
-				if [ "$i" -lt "$max" ]; then
-					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
-					exit $exitCode
-				else
-					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $i of ${max}"
-				fi
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
 			fi					 
 		else
 			success='yes'
@@ -73,7 +71,8 @@ if [ -n "$test" ]; then
 		test=${ADDR[1]}
 		echo "[$scriptName] PIP version $test already installed."
 	else
-		executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+		executeExpression "curl -O https://bootstrap.pypa.io/get-pip.py"
+		executeExpression "sudo python get-pip.py"
 		executeExpression "pip --version"
 	fi
 else	
@@ -82,7 +81,8 @@ else
 	
 		executeExpression "sudo yum install -y epel-release"
 		executeExpression "sudo yum install -y python${version}*"
-		executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python${version}"
+		executeExpression "curl-O https://bootstrap.pypa.io/get-pip.py"
+		executeExpression "sudo python${version} get-pip.py"
 		executeExpression "sudo pip install virtualenv"
 	
 	else # Debian
@@ -94,7 +94,8 @@ else
 			executeExpression "sudo apt-get update"
 			executeExpression "sudo apt-get install -y python2.7"
 			executeExpression "sudo ln -s \$(which python2.7) /usr/bin/python"
-			executeExpression "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+			executeExpression "curl-O https://bootstrap.pypa.io/get-pip.py"
+			executeExpression "sudo python${version} get-pip.py"
 
 		else # Python != v2
 			executeExpression "sudo apt-get update -y"

@@ -45,7 +45,7 @@ else
 	echo "[$scriptName]   version      : $version"
 	export ansibleVersion="-${version}"
 fi
-echo
+
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"
@@ -58,6 +58,7 @@ else
 	fi
 fi
 
+echo
 if [ "$centos" ]; then # Fedora
 
 	if [ "$systemWide" == 'yes' ]; then

@@ -133,10 +133,20 @@ EOF
 
 else # target
 
+su ${deployUser} << EOF
+
 	# Install the authorised list
-	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
-	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
-	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
+	echo "[$scriptName] Install public certificate to authorised list (~/.ssh/authorized_keys) as $deployUser"
+	userSSH="\${HOME}/.ssh"
+	if [ -d "\$userSSH" ]; then
+		echo "[$scriptName] User SSH directory (\$userSSH) exists, no action required"
+	else
+		echo "[$scriptName] Create user SSH directory (\$userSSH)"
+		mkdir \$userSSH
+	fi
+	echo "[$scriptName] Add public certificate to \${userSSH}/authorized_keys"
+	echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> \${userSSH}/authorized_keys
+EOF
 
 fi
 

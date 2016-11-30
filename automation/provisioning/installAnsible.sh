@@ -45,7 +45,7 @@ else
 	echo "[$scriptName]   version      : $version"
 	export ansibleVersion="-${version}"
 fi
-echo
+
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"
@@ -58,12 +58,12 @@ else
 	fi
 fi
 
+echo
 if [ "$centos" ]; then # Fedora
 
+	executeExpression "sudo yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
-		executeExpression "sudo yum install -y ansible${ansibleVersion}"
-	else
-		executeExpression "sudo yum install -y gcc openssl-devel libffi-devel python-devel"
+		executeExpression "sudo pip install ansible"
 	fi
 
 else # Debian

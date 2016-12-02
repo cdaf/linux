@@ -8,7 +8,12 @@ echo
 echo "[$scriptName] System features"
 echo "[$scriptName]   hostname : $(hostname -f)"
 IFS=$'\n'
-for ip in `ip a | grep "inet "`; do
+if [ -f '/sbin/ip' ]; then
+	ipList=$(/sbin/ip a | grep "inet ")
+else
+	$(ip a | grep "inet ")
+fi
+for ip in $ipList; do
 	IFS=' ' read -ra ADDR <<< $ip
 	echo "[$scriptName]         ip : ${ADDR[1]}"
 done

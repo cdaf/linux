@@ -4,6 +4,19 @@ scriptName='capabilities.sh'
 
 echo
 echo "[$scriptName] --- start ---"
+capability=$1
+if [ -z "$capability" ]; then
+	echo "[$scriptName] capability not supplied, provide listing only"
+else
+	echo "[$scriptName] capability : $capability"
+	value=$2
+	if [ -z "$value" ]; then
+		echo "[$scriptName] capability supplied, but not value supplied, exiting with code 2"; exit 2
+	else
+		echo "[$scriptName] value      : $value"
+	fi
+fi
+
 echo
 echo "[$scriptName] System features"
 echo "[$scriptName]   hostname : $(hostname -f)"
@@ -26,8 +39,19 @@ if [[ $test == *"not found"* ]]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[2]}
+	IFS='"' read -ra ADDR <<< $test
+	test=${ADDR[0]}
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[0]}
 	echo "[$scriptName] Java version : $test"
 fi	
+if [[ $capability == 'java' ]]; then
+	if [[ $value == $test ]]; then
+		echo "[$scriptName]   Capability ($capability) test ($value) passed."
+	else
+		echo; echo "[$scriptName] Capability ($capability) does not equal $value, instead $test returned, exiting with error code 99"; echo; exit 99
+	fi
+fi		
 
 test="`javac -version 2>&1`"
 if [[ $test == *"not found"* ]]; then

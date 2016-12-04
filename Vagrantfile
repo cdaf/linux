@@ -36,7 +36,7 @@ Vagrant.configure(2) do |config|
       override.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'server'  # Install Insecure preshared key for desktop testing
       override.vm.provision 'shell', path: 'automation/provisioning/internalCA.sh'
-      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh'
+      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', privileged: false
     end
   end
 

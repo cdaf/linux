@@ -38,15 +38,12 @@ if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] Java not installed."
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[2]}
-	IFS='"' read -ra ADDR <<< $test
-	test=${ADDR[0]}
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[0]}
+	IFS='"' read -ra ADDR <<< ${ADDR[2]}
+	test=${ADDR[@]}
 	echo "[$scriptName] Java version : $test"
 fi	
-if [[ $capability == 'java' ]]; then
-	if [[ $value == $test ]]; then
+if [[ "$capability" == 'java' ]]; then
+	if [[ "$test" == *"$value"* ]]; then
 		echo "[$scriptName]   Capability ($capability) test ($value) passed."
 	else
 		echo; echo "[$scriptName] Capability ($capability) does not equal $value, instead $test returned, exiting with error code 99"; echo; exit 99

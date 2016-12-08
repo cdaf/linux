@@ -124,7 +124,7 @@ else
 fi	
 
 # Ansible components
-test=$(ansible-playbook --version 2>&1)
+test=$(ansible-playbook --version 2>/dev/null)
 if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] Anisble playbook not installed."
 else

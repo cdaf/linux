@@ -25,6 +25,18 @@ centos=$(uname -a | grep el)
 echo
 echo "[$scriptName] Install base software ($install)"
 if [ -z "$centos" ]; then
+	echo
+	echo "[$scriptName] Check that APT is available"
+	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+	if [ -n "${dailyUpdate}" ]; then
+		echo
+		echo "[$scriptName] ${dailyUpdate}"
+		IFS=' ' read -ra ADDR <<< $dailyUpdate
+		echo
+		executeExpression "sudo kill -9 ${ADDR[1]}"
+		executeExpression "sleep 5"
+	fi	
+	
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
 	echo "[$scriptName] sudo apt-get update"
 	echo

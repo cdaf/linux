@@ -9,21 +9,29 @@ function executeExpression {
 		exit $exitCode
 	fi
 }  
-scriptName='addUser.sh'
+scriptName='soapui.sh'
 
 echo "[scriptName] : --- start ---"
-if [ -z "$1" ]; then
-	echo "version not passed, HALT!"
-	exit 1
+version="$1"
+if [ -z "$version" ]; then
+	echo "version not passed, HALT! Exit with code 1"; exit 1
 else
-	version="$1"
+	echo "[$scriptName]   version    : $version"
+fi
+
+mediaCache="$2"
+if [ -z "$mediaCache" ]; then
+	mediaCache='/provision'
+	echo "[$scriptName]   mediaCache : $mediaCache (default)"
+else
+	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
 
 # Set parameters
 executeExpression "soapuiVersion=\"SoapUI-${version}\""
 executeExpression "soapuiSource=\"${soapuiVersion}-linux-bin.tar.gz\""
 
-executeExpression "cp \"/vagrant/.provision/${soapuiSource}\" ."
+executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."
 executeExpression "tar -xf $soapuiSource"
 executeExpression "sudo mv $soapuiVersion /opt/"
 

@@ -9,7 +9,7 @@ function executeExpression {
 		exit $exitCode
 	fi
 }  
-scriptName='ant.sh'
+scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then

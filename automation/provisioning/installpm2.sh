@@ -42,6 +42,6 @@ echo "[$scriptName] sudo npm install pm2@latest -g"
 sudo sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done; npm -version; npm install pm2@latest -g'
 
 executeExpression "pm2 startup $SYSTEMINITDAEMON"
-executeExpression "pm2 pm2 --version"
+executeExpression "pm2 --version"
 
 echo "[$scriptName] --- end ---"

@@ -25,7 +25,7 @@ function executeExpression {
 
 scriptName='installpm2.sh'
 echo
-echo "[$scriptName] : Install pm2 components"
+echo "[$scriptName] PM2, Process Manager for Node.js"
 echo
 
 # snippet from http://unix.stackexchange.com/questions/18209/detect-init-system-using-the-shell
@@ -38,7 +38,10 @@ if [ -z "$SYSTEMINITDAEMON" ]; then
     exit 1
 fi
 
-executeExpression "sudo npm install pm2@latest -g"
+echo "[$scriptName] sudo npm install pm2@latest -g"
+sudo sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done; npm -version; npm install pm2@latest -g'
+
 executeExpression "pm2 startup $SYSTEMINITDAEMON"
+executeExpression "pm2 pm2 --version"
 
 echo "[$scriptName] --- end ---"

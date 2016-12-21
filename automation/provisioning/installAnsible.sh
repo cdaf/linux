@@ -69,6 +69,18 @@ if [ "$centos" ]; then # Fedora
 else # Debian
 
 	if [ "$systemWide" == 'yes' ]; then
+		echo
+		echo "[$scriptName] Check that APT is available"
+		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+		if [ -n "${dailyUpdate}" ]; then
+			echo
+			echo "[$scriptName] ${dailyUpdate}"
+			IFS=' ' read -ra ADDR <<< $dailyUpdate
+			echo
+			executeExpression "sudo kill -9 ${ADDR[1]}"
+			executeExpression "sleep 5"
+		fi
+
 		executeExpression "sudo apt-get install software-properties-common"
 		executeExpression "sudo apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"
 		executeExpression "sudo apt-get update"

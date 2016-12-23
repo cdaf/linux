@@ -80,7 +80,9 @@ test=$(docker --version 2>&1)
 if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] Docker           : (not installed)"
 else
-	echo "[$scriptName] Docker           : $test"
+	IFS=' ' read -ra ADDR <<< $test
+	IFS=',' read -ra ADDR <<< ${ADDR[2]}
+	echo "[$scriptName] Docker           : ${ADDR[0]}"
 fi	
 
 # Python version lists to standard error
@@ -89,8 +91,7 @@ if [[ $test == *"not found"* ]]; then
 	echo "[$scriptName] Python v2        : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] Python v2        : $test"
+	echo "[$scriptName] Python v2        : ${ADDR[1]}"
 fi	
 
 # PIP version lists to standard error

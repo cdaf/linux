@@ -36,7 +36,16 @@ echo
 
 if [ -n "$tag" ]; then
 	echo "[$scriptName] Tag image with value passed ($tag)"
-	executeExpression "docker tag -f ${imageName} ${imageName}:${tag}"
+	echo "[$scriptName] docker tag -f ${imageName} ${imageName}:${tag}"
+	docker tag -f ${imageName} ${imageName}:${tag}
+	if [ "$?" != "0" ]; then
+		#-f flag on docker tag
+		#Deprecated In Release: v1.10.0
+		#Removed In Release: v1.12.0
+		#To make tagging consistent across the various docker commands, the -f flag on the docker tag command is deprecated. It is not longer necessary to specify -f to move a tag from one image to another. Nor will docker generate an error if the -f flag is missing and the specified tag is already in use.
+		echo "[$scriptName] docker tag -f deprecated in docker release v1.10.0, try again without -f flag."
+		executeExpression "docker tag ${imageName} ${imageName}:${tag}"
+	fi
 fi
 
 echo "[$scriptName] List Resulting images. Note: label is derived from Dockerfile"

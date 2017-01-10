@@ -63,23 +63,25 @@ if [ "$centos" ]; then # Fedora
 
 	executeExpression "sudo yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
-		executeExpression "sudo pip install ansible"
+		executeExpression "sudo yum install -y epel-release"
+		executeExpression "sudo yum install -y ansible"
 	fi
 
 else # Debian
 
-	if [ "$systemWide" == 'yes' ]; then
+	echo
+	echo "[$scriptName] Check that APT is available"
+	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+	if [ -n "${dailyUpdate}" ]; then
 		echo
-		echo "[$scriptName] Check that APT is available"
-		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-		if [ -n "${dailyUpdate}" ]; then
-			echo
-			echo "[$scriptName] ${dailyUpdate}"
-			IFS=' ' read -ra ADDR <<< $dailyUpdate
-			echo
-			executeExpression "sudo kill -9 ${ADDR[1]}"
-			executeExpression "sleep 5"
-		fi
+		echo "[$scriptName] ${dailyUpdate}"
+		IFS=' ' read -ra ADDR <<< $dailyUpdate
+		echo
+		executeExpression "sudo kill -9 ${ADDR[1]}"
+		executeExpression "sleep 5"
+	fi
+
+	if [ "$systemWide" == 'yes' ]; then
 
 		executeExpression "sudo apt-get install software-properties-common"
 		executeExpression "sudo apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"

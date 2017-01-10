@@ -31,6 +31,11 @@ fi
 executeExpression "soapuiVersion=\"SoapUI-${version}\""
 executeExpression "soapuiSource=\"${soapuiVersion}-linux-bin.tar.gz\""
 
+if [ ! -f ${mediaCache}/${soapuiSource} ]; then
+	echo "[$scriptName] Media (${mediaCache}/${soapuiSource}) not found, attempting download ..."
+	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"http://smartbearsoftware.com/distrib/soapui/${version}/${soapuiSource}\""
+fi
+
 executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."
 executeExpression "tar -xf $soapuiSource"
 executeExpression "sudo mv $soapuiVersion /opt/"

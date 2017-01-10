@@ -32,6 +32,11 @@ fi
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
+if [ ! -f ${mediaCache}/${antSource} ]; then
+	echo "[$scriptName] Media (${mediaCache}/${antSource}) not found, attempting download ..."
+	executeExpression "curl -s -o ${mediaCache}/${antSource} \"http://archive.apache.org/dist/ant/binaries/${antSource}\""
+fi
+
 executeExpression "cp \"${mediaCache}/${antSource}\" ."
 executeExpression "tar -xf $antSource"
 executeExpression "sudo mv $antVersion /opt/"

@@ -71,7 +71,7 @@ if [ -n "$test" ]; then
 		test=${ADDR[1]}
 		echo "[$scriptName] PIP version $test already installed."
 	else
-		executeExpression "curl -O https://bootstrap.pypa.io/get-pip.py"
+		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
 		executeExpression "sudo python get-pip.py"
 		executeExpression "pip --version"
 	fi
@@ -81,7 +81,7 @@ else
 	
 		executeExpression "sudo yum install -y epel-release"
 		executeExpression "sudo yum install -y python${version}*"
-		executeExpression "curl-O https://bootstrap.pypa.io/get-pip.py"
+		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
 		executeExpression "sudo python${version} get-pip.py"
 		executeExpression "sudo pip install virtualenv"
 	
@@ -94,7 +94,7 @@ else
 			executeExpression "sudo apt-get update"
 			executeExpression "sudo apt-get install -y python2.7"
 			executeExpression "sudo ln -s \$(which python2.7) /usr/bin/python"
-			executeExpression "curl-O https://bootstrap.pypa.io/get-pip.py"
+			executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
 			executeExpression "sudo python${version} get-pip.py"
 
 		else # Python != v2

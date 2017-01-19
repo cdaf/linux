@@ -67,7 +67,8 @@ if [ "$installType" == "rancher" ]; then
 	echo "[$scriptName] Wait for Rancher server to startup"
 	executeExpression "sleep 60"
 	echo
-	executeExpression "curl http://localhost:8080/env/1a5/infra/hosts/add?driver=custom"
+	echo "[$scriptName] Verify server responding"
+	executeExpression "curl -s http://localhost:8080"
 	echo
 	export PYTHONIOENCODING=utf8
 	echo "[$scriptName] Create API key for PROD"
@@ -75,7 +76,7 @@ if [ "$installType" == "rancher" ]; then
 	publicValue=$(cat apiKey.json | python3 -c "import sys, json; print(json.load(sys.stdin)['publicValue'])") 
 	secretValue=$(cat apiKey.json | python3 -c "import sys, json; print(json.load(sys.stdin)['secretValue'])") 
 	
-# If in a Vagrant environment, export the API key values for use by other guests
+	# If in a Vagrant environment, export the API key values for use by other guests
 	if [ -d "/vagrant" ]; then
 		echo "RANCHER_ACCESS_KEY=$publicValue" > /vagrant/rancherAPI.key
 		echo "RANCHER_SECRET_KEY=$secretValue" >> /vagrant/rancherAPI.key
@@ -88,7 +89,7 @@ if [ "$installType" == "rancher" ]; then
 	executeExpression "curl -s -X PUT -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'X-Api-Account-Id: 1a1' -d '{\"activeValue\":\"http://localhost:18080\", \"id\":\"1as1\", \"name\":\"api.host\", \"source\":\"Database\", \"value\":\"http://${baseURL}:8080\"}' 'http://localhost:8080/v1/activesettings/1as!api.host'"
 	echo
 	echo "[$scriptName] Set the admin user"
-	executeExpression "curl -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"accessMode\":\"unrestricted\", \"enabled\":true, \"name\":\"Administrator\", \"password\":\"password\", \"username\":\"admin\"}' 'http://localhost:8080/v1/localauthconfigs' " 
+	executeExpression "curl -s -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"accessMode\":\"unrestricted\", \"enabled\":true, \"name\":\"Administrator\", \"password\":\"password\", \"username\":\"admin\"}' 'http://localhost:8080/v1/localauthconfigs' " 
 	
 else
 	# Derived from http://yayprogramming.com/auto-connect-rancher-hosts/
@@ -100,7 +101,7 @@ else
 #			echo "RANCHER_ACCESS_KEY=$RANCHER_ACCESS_KEY"
 #			echo "RANCHER_SECRET_KEY=$RANCHER_SECRET_KEY"
 		else
-			echo "[$scriptName] RANCHER_ACCESS_KEY and /vagrant/rancherAPI.key not found, exiting with error code 100"; exit 100			
+			echo "[$scriptName] RANCHER_ACCESS_KEY and /vagrant/rancherAPI.key not found, exiting with error code 100."; exit 100			
 		fi
 	fi
 	echo
@@ -119,7 +120,17 @@ else
 	echo "[$scriptName] Get registration token"
 	echo "[$scriptName] curl -s -u \$KEY $baseURL/v1/registrationtokens?projectId=$PROJECT_ID | jq -r '.data[0].token'"
 	TOKEN=$(curl -s -u $KEY $baseURL/v1/registrationtokens?projectId=$PROJECT_ID | jq -r '.data[0].token')
-	
+
+	if [ "$TOKEN" == "null" ]; then
+		echo
+		echo "[$scriptName] TOKEN is null, retry ..."
+		sleep 5
+		TOKEN=$(curl -s -u $KEY $baseURL/v1/registrationtokens?projectId=$PROJECT_ID | jq -r '.data[0].token')
+		if [ "$TOKEN" == "null" ]; then
+			echo "[$scriptName] TOKEN is null, exiting with error 101."; exit 101
+		fi
+	fi
+
 	echo
 	echo "[$scriptName] Register with token"
 	executeExpression "sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v1.1.3 $baseURL/v1/scripts/$TOKEN"

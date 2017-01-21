@@ -59,7 +59,7 @@ fi
 if [ "$installType" == "rancher" ]; then
 	echo
 	echo "[$scriptName] Install Rancher Server container instance"
-	executeExpression "sudo docker run -d --restart=always -p 8080:8080 rancher/server"
+	executeExpression "sudo docker run -d --restart=unless-stopped --name=rancher-server -p 8080:8080 rancher/server"
 	echo
 	echo "[$scriptName] List running containers"
 	executeExpression "sudo docker ps"

@@ -86,10 +86,22 @@ else
 		executeExpression "sudo pip install virtualenv"
 	
 	else # Debian
-	
+
+		echo
+		echo "[$scriptName] Check that APT is available"
+		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+		if [ -n "${dailyUpdate}" ]; then
+			echo
+			echo "[$scriptName] ${dailyUpdate}"
+			IFS=' ' read -ra ADDR <<< $dailyUpdate
+			echo
+			executeExpression "sudo kill -9 ${ADDR[1]}"
+			executeExpression "sleep 5"
+		fi
+		
 		if [ "$version" == "2" ]; then
 
-			# Recurring connectivity issues adding this ppa 			
+			# NOT SUPPORTED FOR 16.04, ONLY 14.04 TESTED 			
 			executeExpression "sudo add-apt-repository -y ppa:fkrull/deadsnakes"
 			executeExpression "sudo apt-get update"
 			executeExpression "sudo apt-get install -y python2.7"

@@ -74,5 +74,9 @@ else
 	executeExpression "sudo yum install gitlab-ci-multi-runner"
 fi
 
+echo "[$scriptName] Use the following to interactively register this runner..."
+echo
+echo "sudo gitlab-ci-multi-runner register"
+echo
 echo "[$scriptName] --- end ---"
 

@@ -111,6 +111,9 @@ else
 	KEY="$RANCHER_ACCESS_KEY:$RANCHER_SECRET_KEY"
 #	echo "KEY=$KEY"
 	PROJECT_ID=$(curl -s -u $KEY $baseURL/v1/projects | jq -r '.data[0].id')
+	if [ -z "$PROJECT_ID" ]; then
+		echo "[$scriptName] Project ID not retrieved, have you installed jq? Halt with exit code 100"; exit 100
+	fi
 
 	echo
 	echo "[$scriptName] Create registration token using Project ID $PROJECT_ID"
@@ -120,7 +123,10 @@ else
 	echo "[$scriptName] Get registration token"
 	echo "[$scriptName] curl -s -u \$KEY $baseURL/v1/registrationtokens?projectId=$PROJECT_ID | jq -r '.data[0].token'"
 	TOKEN=$(curl -s -u $KEY $baseURL/v1/registrationtokens?projectId=$PROJECT_ID | jq -r '.data[0].token')
-
+	PROJECT_ID=$(curl -s -u $KEY $baseURL/v1/projects | jq -r '.data[0].id')
+	if [ -z "$TOKEN" ]; then
+		echo "[$scriptName] Token Registration not retrieved, halt with exit code 100"; exit 100
+	fi
 	if [ "$TOKEN" == "null" ]; then
 		echo
 		echo "[$scriptName] TOKEN is null, retry ..."

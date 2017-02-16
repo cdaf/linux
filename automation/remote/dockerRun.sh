@@ -108,7 +108,6 @@ else
 fi
 echo
 echo "List the running containers (after)"
-s (after)"
 docker ps
 
 echo

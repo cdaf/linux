@@ -127,13 +127,13 @@ if [ -z "$ACTION" ]; then
     echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
     echo '  Use the visual studio template and delete the nuget and VS tasks.'
-    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects. If the repo root and solution root are the same, remove the solution prefix'
-    echo '    but ensure the working directory is selected and set to blank, otherwise the path of the ciProcess will be used.'
+    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects, with the solution in the repo root.'
 	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
 	echo '        Set the build number $(rev:r) to ensure build number is an integer'
 	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
-    echo "  Command Filename  : $solutionName/$ciProcess"
+    echo "  Command Filename  : $ciProcess"
     echo "  Command arguments : \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION"
+    echo '  Working directory : selected and set to blank (otherwise the path of the ciProcess will be used)'
 	echo
     echo 'For GitLab (requires shell runner) ...'
     echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
@@ -169,7 +169,7 @@ if [ -z "$ACTION" ]; then
 	echo
     echo 'For VSTS / TFS 2015 ...'
     echo '  Use the combination of Copy files and Retain Artefacts from Visual Studio Solution Template'
-    echo "  Source Folder   : \$(Agent.BuildDirectory)/s/$solutionName"
+    echo "  Source Folder   : \$(Agent.BuildDirectory)/s/"
     echo '  Copy files task : TasksLocal/**'
     echo '                    *.gz'
 	echo
@@ -212,7 +212,6 @@ if [ -z "$ACTION" ]; then
 	echo "  Command arguments : \$RELEASE_ENVIRONMENTNAME \$RELEASE_RELEASENAME"
 	echo "  Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
-    echo 'For GitLab (requires shell runner) ...'
     echo 'For GitLab (requires shell runner) ...'
     echo '  If using the sample .gitlab-ci.yml simply clone and change the Environment literal'
     echo '  variables:'

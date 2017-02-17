@@ -116,7 +116,7 @@ echo "$0 :   CDAF Version             : $cdafVersion"
 echo
 echo "$0 : Clean root workspace ($(pwd))"
 echo
-rm -fv *.tar *.gz *.txt targetList
+rm -fv *.tar *.gz manifest.txt targetList
 rm -rf $LOCAL_WORK_DIR $REMOTE_WORK_DIR
 echo
 echo "$0 : Remove working directories"

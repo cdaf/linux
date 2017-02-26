@@ -2,7 +2,7 @@
 
 function executeExpression {
 	counter=1
-	max=5
+	max=10
 	success='no'
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][$counter] $1"
@@ -13,6 +13,7 @@ function executeExpression {
 			counter=$((counter + 1))
 			if [ "$counter" -le "$max" ]; then
 				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+				sleep 30
 			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
@@ -65,7 +66,7 @@ if [ "$installType" == "rancher" ]; then
 	executeExpression "sudo docker ps"
 	echo
 	echo "[$scriptName] Wait for Rancher server to startup"
-	executeExpression "sleep 60"
+	executeExpression "sleep 30"
 	echo
 	echo "[$scriptName] Verify server responding"
 	executeExpression "curl -s http://localhost:8080"

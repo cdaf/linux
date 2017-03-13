@@ -46,7 +46,7 @@ if [ -z "$centos" ]; then
 		executeExpression "sleep 5"
 	fi
 	
-	executeExpression "curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash"
+	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash"
 	executeExpression "sudo apt-get install gitlab-ci-multi-runner"
 
 else
@@ -70,7 +70,7 @@ else
 		echo "[$scriptName] Exiting with error code ${exitCode}"
 		exit $exitCode
 	fi
-	executeExpression "curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.rpm.sh | sudo bash"
+	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.rpm.sh | sudo bash"
 	executeExpression "sudo yum install gitlab-ci-multi-runner"
 fi
 

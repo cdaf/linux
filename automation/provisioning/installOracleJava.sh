@@ -23,7 +23,7 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='8u111'
+	version='8u121'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	echo "[$scriptName]   version    : $version"
@@ -31,11 +31,12 @@ fi
 
 mediaCache="$3"
 if [ -z "$mediaCache" ]; then
-	mediaCache='/vagrant/.provision/'
+	mediaCache='/.provision'
 	echo "[$scriptName]   mediaCache : $mediaCache (default)"
 else
 	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
+
 echo
 javaSource="${prefix}-${version}-linux-x64.tar.gz"
 echo "[$scriptName] \$javaSource = $javaSource"

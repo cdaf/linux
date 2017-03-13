@@ -12,19 +12,28 @@ function executeExpression {
 scriptName='ant.sh'
 
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
+version="$1"
+if [ -z "$version" ]; then
 	echo "version not passed, HALT!"
 	exit 1
 else
-	version="$1"
 	echo "[$scriptName]   version    : $version"
 fi
 
+mediaCache="$2"
+if [ -z "$mediaCache" ]; then
+	mediaCache='/.provision'
+	echo "[$scriptName]   mediaCache : $mediaCache (default)"
+else
+	echo "[$scriptName]   mediaCache : $mediaCache"
+fi
+
+echo
 # Set parameters
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
-executeExpression "cp \"/vagrant/.provision/${antSource}\" ."
+executeExpression "cp \"${mediaCache}/${antSource}\" ."
 executeExpression "tar -xf $antSource"
 executeExpression "sudo mv $antVersion /opt/"
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function executeExpression {
 	counter=1
 	max=5
@@ -47,7 +46,7 @@ if [ -z "$centos" ]; then
 	fi
 	
 	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash"
-	executeExpression "sudo apt-get install gitlab-ci-multi-runner"
+	executeExpression "sudo apt-get install -y gitlab-ci-multi-runner"
 
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
@@ -71,7 +70,7 @@ else
 		exit $exitCode
 	fi
 	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.rpm.sh | sudo bash"
-	executeExpression "sudo yum install gitlab-ci-multi-runner"
+	executeExpression "sudo yum install -y gitlab-ci-multi-runner"
 fi
 
 echo "[$scriptName] Use the following to interactively register this runner..."

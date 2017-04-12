@@ -29,9 +29,9 @@ Continuous Delivery Testing
 
 Once the environment is running access the build server an execute the CD emulation. Note: On a Windows host bash tools are recommended to provide native SSH access.
 
-    vagrant ssh buildserver
-    cd C:\vagrant
-	.\automation\cdEmulate.sh
+    vagrant ssh build
+    cd /vagrant
+	./automation/cdEmulate.sh
 
 Cleanup and Destroy
 -------------------

@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -e
-
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1
@@ -45,19 +43,5 @@ su $runas << EOF
 EOF
 fi
 
-echo
-echo "[$scriptName] # Clean the workspace"
-echo
-if [ -z "$runas" ]; then
-	executeExpression "cd /vagrant/"
-	executeExpression "./automation/cdEmulate.sh clean"
-else
-su $runas << EOF
-	echo "[$scriptName] cd /vagrant/"
-	cd /vagrant/
-	echo "[$scriptName] ./automation/cdEmulate.sh clean"
-	./automation/cdEmulate.sh clean
-EOF
-fi
-
 echo "[$scriptName] --- end ---"
+exit 0

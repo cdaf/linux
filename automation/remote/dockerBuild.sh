@@ -30,25 +30,43 @@ if [ -z "$tag" ]; then
 else
 	echo "[$scriptName] tag       : $tag"
 fi
-echo
-executeExpression "docker build -t ${imageName} ."
-echo
 
-if [ -n "$tag" ]; then
-	echo "[$scriptName] Tag image with value passed ($tag)"
-	echo "[$scriptName] docker tag -f ${imageName} ${imageName}:${tag}"
-	docker tag -f ${imageName} ${imageName}:${tag}
-	if [ "$?" != "0" ]; then
-		#-f flag on docker tag
-		#Deprecated In Release: v1.10.0
-		#Removed In Release: v1.12.0
-		#To make tagging consistent across the various docker commands, the -f flag on the docker tag command is deprecated. It is not longer necessary to specify -f to move a tag from one image to another. Nor will docker generate an error if the -f flag is missing and the specified tag is already in use.
-		echo "[$scriptName] docker tag -f deprecated in docker release v1.10.0, try again without -f flag."
-		executeExpression "docker tag ${imageName} ${imageName}:${tag}"
+version=$3
+if [ -z "$version" ]; then
+	if [ -n "$tag" ]; then
+		version="$tag"
+	else
+		version='0.0.0'
 	fi
+	echo "[$scriptName] version   : $version (not passed, defaulted to tag if passed, else set to 0.0.0)"
+else
+	echo "[$scriptName] version   : $version"
 fi
 
-echo "[$scriptName] List Resulting images. Note: label is derived from Dockerfile"
-executeExpression "docker images -f label=cdaf.${imageName}.image.product=${imageName}"
+rebuild=$4
+if [ -z "$rebuild" ]; then
+	echo "[$scriptName] rebuild   : (not supplied)"
+else
+	echo "[$scriptName] rebuild   : $rebuild"
+fi
+
+buildCommand='docker build'
+if [ "$rebuild" == 'yes' ]; then
+	buildCommand+=" --no-cache=true"
+fi
+
+if [ -n "$tag" ]; then
+	buildCommand+=" --tag ${imageName}:${tag}"
+else
+	buildCommand+=" --tag ${imageName}"
+fi
+
+# Apply required label for CDAF image management
+buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+echo
+executeExpression "$buildCommand ."
+echo
+echo "[$scriptName] List Resulting images..."
+executeExpression "docker images -f label=cdaf.${imageName}.image.version"
 echo
 echo "[$scriptName] --- end ---"

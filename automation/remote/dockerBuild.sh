@@ -33,12 +33,7 @@ fi
 
 version=$3
 if [ -z "$version" ]; then
-	if [ -n "$tag" ]; then
-		version="$tag"
-	else
-		version='0.0.0'
-	fi
-	echo "[$scriptName] version   : $version (not passed, defaulted to tag if passed, else set to 0.0.0)"
+	echo "[$scriptName] version   : (not passed, please set label in Dockerfile cdaf.${imageName}.image.version)"
 else
 	echo "[$scriptName] version   : $version"
 fi

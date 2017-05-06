@@ -56,8 +56,11 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-# Apply required label for CDAF image management
-buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+if [ -n "$version" ]; then
+	# Apply required label for CDAF image management
+	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+fi
+
 echo
 executeExpression "$buildCommand ."
 echo

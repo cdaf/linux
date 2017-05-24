@@ -16,14 +16,14 @@ scriptName='installMySQL.sh'
 echo "[$scriptName] --- start ---"
 prefix="$1"
 if [ -z "$prefix" ]; then
-	echo "[$scriptName]   password : blank"
+	echo "[$scriptName]   password : (none)"
 else
 	echo "[$scriptName]   password : ****************"
 fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='canon'
+	version='5.7'
 	install='mysql-server'
 	echo "[$scriptName]   version  : $version (default, $install)"
 else
@@ -59,10 +59,10 @@ if [ -z "$centos" ]; then
 	# debconf-utils allows the passing of answer values
 	executeExpression 'sudo apt-get install -y debconf-utils'
 	echo "[$scriptName] Load installer responses"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password \$password\""
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $password"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password \$password\""
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $password"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install mysql-server/root_password password \$password\""
+	sudo debconf-set-selections <<< "$install mysql-server/root_password password $password"
+	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install  mysql-server/root_password_again password \$password\""
+	sudo debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
 	sudo apt-get install -y $install
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
@@ -70,10 +70,6 @@ if [ -z "$centos" ]; then
 		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-
-	# Problem with this method is trying to set password after install
-	# export DEBIAN_FRONTEND=noninteractive
-	# executeExpression "sudo -E apt-get -q -y install $install"
 	
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
@@ -82,6 +78,7 @@ else
 	timeout=3
 	count=0
 	while [ $count -lt $timeout ]; do
+		# A "normal" exit code is 100, so cannot use executeExpression
 		sudo yum check-update
 		exitCode=$?
 		if [ "$exitCode" != "100" ]; then
@@ -97,6 +94,13 @@ else
 		exit $exitCode
 	fi
 	echo
+	
+	executeExpression "sudo yum install -y mariadb-server mariadb"
+	executeExpression "sudo iptables -I INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT"
+	executeExpression "sudo iptables -I OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT"
+	executeExpression "sudo systemctl enable mariadb.service"
+	executeExpression "sudo systemctl start mariadb.service"
+
 fi
 
 echo "[$scriptName] --- end ---"

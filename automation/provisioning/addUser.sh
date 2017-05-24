@@ -28,23 +28,35 @@ else
 	fi
 fi
 
-if [ -z "$1" ]; then
+username=$1
+if [ -z "$username" ]; then
 	username='deployer'
 	echo "[$scriptName]   username     : $username (default)"
 else
-	username=$1
 	echo "[$scriptName]   username     : $username"
 fi
 
-if [ -z "$2" ]; then
-	groupname=$1
+groupname=$2
+if [ -z "$groupname" ]; then
+	groupname=$username
 	echo "[$scriptName]   groupname    : $groupname (defaulted to \$username)"
 else
-	groupname=$2
 	echo "[$scriptName]   groupname    : $groupname"
 fi
 
 password=$3
+if [ -z "$password" ]; then
+	echo "[$scriptName]   password     : (not supplied)"
+else
+	echo "[$scriptName]   password     : *********************"
+fi
+
+sudoer=$4
+if [ -z "$sudoer" ]; then
+	echo "[$scriptName]   sudoer       : (not supplied)"
+else
+	echo "[$scriptName]   sudoer       : $sudoer"
+fi
 
 # If the group does not exist, create it
 groupExists=$(getent group $groupname)
@@ -68,7 +80,7 @@ fi
 
 if [ -n "$password" ]
 then
-    # We cannot use the executeExpression function here beacuse this will print out the password to stdout, which we
+    # We cannot use the executeExpression function here because this will print out the password to stdout, which we
     # want to avoid. So we have to replicate its functionality.
     len=${#password} 
     passmask=`perl -e "print '*' x $len;"`
@@ -84,6 +96,11 @@ then
         echo "$0 : Exception! $cmdmask returned $exitCode"
         exit $exitCode
     fi
+fi
+
+if [ -n "$sudoer" ]; then
+	echo "[$scriptName] sudo sh -c \"echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\""
+	sudo sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
 echo "[$scriptName] --- end ---"

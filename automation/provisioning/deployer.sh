@@ -2,45 +2,51 @@
 scriptName='deployer.sh'
 
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
+deployerSide="$1"
+if [ -z "$deployerSide" ]; then
 	deployerSide='server'
-	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (default, choices server, target or hop)"
 else
-	deployerSide="$1"
-	echo "[$scriptName]   deployerSide : $deployerSide (choices server or target)"
+	echo "[$scriptName]   deployerSide : $deployerSide (choices server, target or hop)"
 fi
 
-if [ -z "$2" ]; then
+deployUser="$2"
+if [ -z "$deployUser" ]; then
 	deployUser='deployer'
 	echo "[$scriptName]   deployUser   : $deployUser (default)"
 else
-	deployUser="$2"
 	echo "[$scriptName]   deployUser   : $deployUser"
 fi
 
-if [ -z "$3" ]; then
+deployLand="$3"
+if [ -z "$deployLand" ]; then
 	deployLand='/opt/packages/'
 	echo "[$scriptName]   deployLand   : $deployLand (default)"
 else
-	deployLand="$3"
 	echo "[$scriptName]   deployLand   : $deployLand"
 fi
 
-if [ -z "$3" ]; then
+group="$4"
+if [ -z "$group" ]; then
 	echo "[$scriptName]   group        : not supplied"
 else
-	group="$3"
 	echo "[$scriptName]   group        : $group"
 fi
 
-if [ "$deployerSide" == 'server' ]; then
+if [ "$deployerSide" == 'server' ] || [ "$deployerSide" == 'hop' ]; then
 
 	echo "[$scriptName] Prepare vagrant user keys"
 
-# cannot indent or EOF will not be detected
-su vagrant << EOF
+	if [ "$deployerSide" == 'hop' ]; then
+		runAsUser="${deployUser}"
+	else
+		runAsUser='vagrant'
+	fi
 
-	# Escape variables that need to be executed as vagrant
+# cannot indent or EOF will not be detected
+su ${runAsUser} << EOF
+
+	# Escape variables that need to be executed as ${runAsUser}
 	echo "[$scriptName] Install private key for both SSL (password decrypt) and SSH to \${HOME}"
 	userSSL="\${HOME}/.ssl"
 	if [ -d "\$userSSL" ]; then
@@ -127,10 +133,20 @@ EOF
 
 else # target
 
+su ${deployUser} << EOF
+
 	# Install the authorised list
-	echo "[$scriptName] Install public certificate to authorised list (/home/$deployUser/.ssh/authorized_keys) as $deployUser"
-	sudo -u $deployUser sh -c "mkdir /home/$deployUser/.ssh/"
-	sudo -u $deployUser sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> /home/$deployUser/.ssh/authorized_keys"
+	echo "[$scriptName] Install public certificate to authorised list (~/.ssh/authorized_keys) as $deployUser"
+	userSSH="\${HOME}/.ssh"
+	if [ -d "\$userSSH" ]; then
+		echo "[$scriptName] User SSH directory (\$userSSH) exists, no action required"
+	else
+		echo "[$scriptName] Create user SSH directory (\$userSSH)"
+		mkdir \$userSSH
+	fi
+	echo "[$scriptName] Add public certificate to \${userSSH}/authorized_keys"
+	echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOf5KAunr1B36t0ywtc15zFMZPOEy2qhxoQBhIuK0smoznGzgVHipRO7MZGP+brjRX+9NIqvOF2tupGsXrd2luVRKrg0KtQUqx3JcAcGCo13TxGA4KXWm8k6SgPBjXogY9LScsU/mWrwmJ/ipw/anxPjXS4rzEAaa31uuDzOucf+GJZdtw7q/k5u6BvbMqPKSljJhxrcpvPG1UGbb4l0yQK8O0ufoPBsNbTyWhZMof/u0utJ93RpNqxsotAykOsAt4yjQWrMSYNa4RWvleMxvDTcO47N+CyThxWrlqoc7SC4yVkFq9FmwuuGW8pL0iBg7fRCyWO9kXDPFqRPHi9Hv1 vagrant@buildserver' >> \${userSSH}/authorized_keys
+EOF
 
 fi
 

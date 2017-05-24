@@ -19,19 +19,42 @@ else
 	echo "[$scriptName]   value    : $value"
 fi
 
-# Set environment (user default) variable
-systemLocation='/etc/profile.d/'
-startScript="$variable"
-startScript+='.sh'
-echo "[$scriptName] export $variable=\"$value\" > $startScript"
-echo export $variable=\"$value\" > $startScript
-echo "[$scriptName] chmod +x $startScript"
-chmod +x $startScript
-echo "[$scriptName] sudo cp -rv $startScript $systemLocation"
-sudo cp -rv $startScript $systemLocation
-rm $startScript
+level="$3"
+if [ -z "$level" ]; then
+	level='machine'
+	echo "[$scriptName]   level    : $level (default)"
+else
+	if [ "$level" == 'machine' ] || [ "$level" == 'user' ]; then
+		echo "[$scriptName]   level    : $level"
+	else
+		echo "[$scriptName] level must be machine or user, exiting with code 3"; exit 3
+	fi
+fi
 
-# Execute the script to set the variable 
-source $systemLocation/$startScript
+if [ "$level" == 'user' ]; then
+
+	echo export $variable=\"$value\" >> $HOME/.bashrc
+	
+	# Execute the script to set the variable 
+	source $HOME/.bashrc
+
+else
+
+	# Set environment (user default) variable
+	systemLocation='/etc/profile.d/'
+	startScript="$variable"
+	startScript+='.sh'
+	echo "[$scriptName] export $variable=\"$value\" > $startScript"
+	echo export $variable=\"$value\" > $startScript
+	echo "[$scriptName] chmod +x $startScript"
+	chmod +x $startScript
+	echo "[$scriptName] sudo cp -rv $startScript $systemLocation"
+	sudo cp -rv $startScript $systemLocation
+	rm $startScript
+	
+	# Execute the script to set the variable 
+	source $systemLocation/$startScript
+
+fi
 
 echo "[$scriptName] --- end ---"

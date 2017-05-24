@@ -46,7 +46,7 @@ fi
 
 if [ -d "./propertiesForLocalTasks" ]; then
 
-	ls ./$LOCAL_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT* > targetList &2> /dev/null
+	find ./propertiesForLocalTasks -name "$ENVIRONMENT*" > targetList
 	wait
 	linecount=$(wc -l < "targetList")
 	if [ "$linecount" -gt 0 ]; then

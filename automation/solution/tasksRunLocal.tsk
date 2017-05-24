@@ -5,7 +5,6 @@ PROPLD manifest.txt
 ASSIGN $productVersion+='.'
 ASSIGN $productVersion+=$BUILDNUMBER
 
-EXCREM hostname
+EXCREM whoami
 
-EXCREM ./capabilities.sh $productVersion
-
+EXCREM ./capabilities.sh test nocheck

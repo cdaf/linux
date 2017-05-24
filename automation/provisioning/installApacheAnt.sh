@@ -9,29 +9,33 @@ function executeExpression {
 		exit $exitCode
 	fi
 }  
-scriptName='ant.sh'
+scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
-version="$1"
-if [ -z "$version" ]; then
+if [ -z "$1" ]; then
 	echo "version not passed, HALT!"
 	exit 1
 else
+	version="$1"
 	echo "[$scriptName]   version    : $version"
 fi
 
 mediaCache="$2"
 if [ -z "$mediaCache" ]; then
-	mediaCache='/.provision'
+	mediaCache='/vagrant/.provision'
 	echo "[$scriptName]   mediaCache : $mediaCache (default)"
 else
 	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
 
-echo
 # Set parameters
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""
+
+if [ ! -f ${mediaCache}/${antSource} ]; then
+	echo "[$scriptName] Media (${mediaCache}/${antSource}) not found, attempting download ..."
+	executeExpression "curl -s -o ${mediaCache}/${antSource} \"http://archive.apache.org/dist/ant/binaries/${antSource}\""
+fi
 
 executeExpression "cp \"${mediaCache}/${antSource}\" ."
 executeExpression "tar -xf $antSource"

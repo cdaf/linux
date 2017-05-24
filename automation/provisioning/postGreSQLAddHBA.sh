@@ -13,9 +13,6 @@ function executeExpression {
 
 scriptName='postGreSQLAddHBA.sh'
 
-Which PostgreSQL user names they can use
-Which databases they can access
-
 echo "[$scriptName] --- start ---"
 type="$1"
 if [ -z "$type" ]; then

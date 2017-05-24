@@ -51,9 +51,9 @@ else
 		
 		# push the same file back at the target
 		echo
-		ssh -p $port -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $userHost 'cat | bash /dev/stdin ' "$escapedKey REMOTE" < $0
+		ssh -p $port -o StrictHostKeyChecking=no $userHost 'cat | bash /dev/stdin ' "$escapedKey REMOTE" < $0
 	
-		ssh -p $port -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $userHost 'cat | bash /dev/stdin ' "$userHost REMOTE TEST" < $0
+		ssh -p $port -o StrictHostKeyChecking=no $userHost 'cat | bash /dev/stdin ' "$userHost REMOTE TEST" < $0
 				
 	else
 		if [ -z "$TEST" ]; then # not test, so perform remote processes

@@ -30,16 +30,41 @@ if [ -z "$tag" ]; then
 else
 	echo "[$scriptName] tag       : $tag"
 fi
-echo
-executeExpression "docker build -t ${imageName} ."
-echo
 
-if [ -n "$tag" ]; then
-	echo "[$scriptName] Tag image with value passed ($tag)"
-	executeExpression "docker tag -f ${imageName} ${imageName}:${tag}"
+version=$3
+if [ -z "$version" ]; then
+	echo "[$scriptName] version   : (not passed, please set label in Dockerfile cdaf.${imageName}.image.version)"
+else
+	echo "[$scriptName] version   : $version"
 fi
 
-echo "[$scriptName] List Resulting images. Note: label is derived from Dockerfile"
-executeExpression "docker images -f label=cdaf.${imageName}.image.product=${imageName}"
+rebuild=$4
+if [ -z "$rebuild" ]; then
+	echo "[$scriptName] rebuild   : (not supplied)"
+else
+	echo "[$scriptName] rebuild   : $rebuild"
+fi
+
+buildCommand='docker build'
+if [ "$rebuild" == 'yes' ]; then
+	buildCommand+=" --no-cache=true"
+fi
+
+if [ -n "$tag" ]; then
+	buildCommand+=" --tag ${imageName}:${tag}"
+else
+	buildCommand+=" --tag ${imageName}"
+fi
+
+if [ -n "$version" ]; then
+	# Apply required label for CDAF image management
+	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+fi
+
+echo
+executeExpression "$buildCommand ."
+echo
+echo "[$scriptName] List Resulting images..."
+executeExpression "docker images -f label=cdaf.${imageName}.image.version"
 echo
 echo "[$scriptName] --- end ---"

@@ -49,7 +49,7 @@ fi
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
-	ls ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* > targetList &2> /dev/null
+	find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" > targetList
 	wait
 	linecount=$(wc -l < "targetList")
 	if [ "$linecount" -gt 0 ]; then

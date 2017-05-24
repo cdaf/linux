@@ -43,7 +43,7 @@ OPT_ARG=$6
 
 encryptedFileDir="./$WORK_DIR_DEFAULT/cryptRemote"
 
-echo "$0 : --- Preparing $DEPLOY_TARGET ---"
+echo "$0 : --- Preparing $DEPLOY_TARGET (DEPLOY_TARGET) ---"
 deployHost=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployHost")
 exitCode=$?
 if [ "$exitCode" != "0" ]; then

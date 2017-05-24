@@ -5,41 +5,47 @@ echo "$0 : +----------------------------+"
 echo "$0 : | Process BUILD all projects |"
 echo "$0 : +----------------------------+"
 echo
-if [ -z "$1" ]; then
+SOLUTION="$1"
+if [ -z "$SOLUTION" ]; then
 	echo "$0 : Solution not passed!"
 	exit 1
 else
-	SOLUTION="$1"
 	echo "$0 :   SOLUTION       : $SOLUTION"
 fi
 
-if [ -z "$2" ]; then
+BUILDNUMBER="$2"
+if [ -z "$BUILDNUMBER" ]; then
 	echo "$0 : Build Number not passed!"
 	exit 2
 else
-	BUILDNUMBER="$2"
 	echo "$0 :   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
-if [ -z "$3" ]; then
-	echo "$0 : Revision not passed!"
-	exit 3
+REVISION="$3"
+if [ -z "$REVISION" ]; then
+	REVISION="Revision"
+	echo "$0 :   REVISION       : $REVISION (default)"
 else
-	REVISION="$3"
 	echo "$0 :   REVISION       : $REVISION"
 fi
 
-if [ -z "$4" ]; then
-	echo "$0 : Environment not passed!"
-	exit 4
-else
-	BUILDENV="$4"
-	echo "$0 :   BUILDENV       : $BUILDENV"
-fi
-
-if [ ! -z "$5" ]; then
-	ACTION="$5"
+ACTION="$4"
+if [ -z "$ACTION" ]; then
 	echo "$0 :   ACTION         : $ACTION"
+	BUILDENV='BUILDER'
+	echo "$0 :   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
+else
+	# case insensitive by forcing to uppercase
+	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
+	if [ "$testForClean" == "CLEAN" ]; then
+		echo "$0 :   ACTION         : $ACTION (Build Environment will be set to default)"
+		BUILDENV='BUILDER'
+		echo "$0 :   BUILDENV       : $BUILDENV (default)"
+	else
+		BUILDENV="$ACTION"
+		echo "$0 :   ACTION         : $ACTION"
+		echo "$0 :   BUILDENV       : $BUILDENV (derived from action)"
+	fi
 fi
 
 # Look for automation root definition, if not found, default

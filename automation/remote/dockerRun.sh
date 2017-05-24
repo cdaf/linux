@@ -61,9 +61,25 @@ registry=$6
 if [ -z "$registry" ]; then
 	echo "[$scriptName] registry        : not passed, use local repo"
 else
-	echo "[$scriptName] registry        : $registry"
+	if [ $registry = 'none' ]; then
+		echo "[$scriptName] registry        : passed as '$registry', ignoring"
+		unset registry
+	else
+		echo "[$scriptName] registry        : $registry"
+	fi
 fi
 
+dockerOpt=$7
+if [ -z "$dockerOpt" ]; then
+	echo "[$scriptName] dockerOpt       : not passed"
+else
+	echo "[$scriptName] dockerOpt       : $dockerOpt"
+fi
+
+echo
+executeExpression "docker --version"
+
+echo
 # Globally unique label, based on port, if in use, stop and remove
 instance="${imageName}:${publishedPort}"
 echo "[$scriptName] instance        : $instance (container ID)"
@@ -86,9 +102,9 @@ done
 echo
 # Labels, other than instance, are for filter purposes, only instance is important in run context. 
 if [ -z "$registry" ]; then
-	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"
+	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name $dockerOpt --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"
 else
-	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${registry}/${imageName}:${tag}"
+	executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name $dockerOpt --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${registry}/${imageName}:${tag}"
 fi
 echo
 echo "List the running containers (after)"

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function executeExpression {
 	counter=1
 	max=5
@@ -23,29 +22,13 @@ function executeExpression {
 	done
 }  
 
-scriptName='installPostGreSQL.sh'
+scriptName='installGitLabRunner.sh'
 
 echo "[$scriptName] --- start ---"
-prefix="$1"
-if [ -z "$prefix" ]; then
-	echo "[$scriptName]   password : blank"
-else
-	echo "[$scriptName]   password : ****************"
-fi
-
-version="$2"
-if [ -z "$version" ]; then
-	version='canon'
-	install='postgresql'
-	echo "[$scriptName]   version  : $version (default, $install)"
-else
-	install="postgresql-$version"
-	echo "[$scriptName]   version  : $version ($install)"
-fi
 
 echo
 # Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution"
+echo "[$scriptName] Determine distribution (uname -a | grep el) ..."
 uname -a
 centos=$(uname -a | grep el)
 if [ -z "$centos" ]; then
@@ -62,8 +45,8 @@ if [ -z "$centos" ]; then
 		executeExpression "sleep 5"
 	fi
 	
-	executeExpression "sudo apt-get update"
-	executeExpression "sudo apt-get install -y $install"
+	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash"
+	executeExpression "sudo apt-get install -y gitlab-ci-multi-runner"
 
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
@@ -86,8 +69,13 @@ else
 		echo "[$scriptName] Exiting with error code ${exitCode}"
 		exit $exitCode
 	fi
-	echo
+	executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.rpm.sh | sudo bash"
+	executeExpression "sudo yum install -y gitlab-ci-multi-runner"
 fi
 
+echo "[$scriptName] Use the following to interactively register this runner..."
+echo
+echo "sudo gitlab-ci-multi-runner register"
+echo
 echo "[$scriptName] --- end ---"
 

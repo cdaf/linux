@@ -29,7 +29,7 @@ else
 fi
 
 echo "[$scriptName] As Vagrant user, trust the public key"
-if [ -d "$DIRECTORY" ]; then
+if [ -d "~/.ssh" ]; then
 	echo "[$scriptName] Directory ~/.ssh already exists"
 else
 	executeExpression "mkdir ~/.ssh"

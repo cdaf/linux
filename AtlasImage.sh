@@ -44,7 +44,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		executeExpression "systemctl daemon-reload"
 		executeExpression "systemctl enable hypervkvpd"
 	else # Ubuntu
-		echo;echo "[$scriptName] Ubuntu not yet supported on Hyper-V. Exit 2":exit 2
+		echo;echo "[$scriptName] Ubuntu does not require extensions (from 14.04)"
 	fi
 else # VirtualBox
 	if [ "$centos" ]; then

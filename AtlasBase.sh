@@ -43,7 +43,7 @@ executeExpression "sudo sh -c \"echo \"UseDNS no\" >> /etc/ssh/sshd_config\""
 executeExpression "sudo cat /etc/ssh/sshd_config | grep Use"
 
 echo "[$scriptName] Permission for Vagrant to perform provisioning"
-executeExpression "sudo sh -c \'echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\'"
+executeExpression 'sudo sh -c "echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers"'
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 
 echo "[$scriptName] --- end ---"

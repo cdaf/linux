@@ -39,12 +39,23 @@ executeExpression "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTk
 executeExpression "chmod 0600 $HOME/.ssh/authorized_keys"
 
 echo "[$scriptName] Configuration tweek"
-executeExpression "sudo sh -c \"echo \"UseDNS no\" >> /etc/ssh/sshd_config\""
+test=$(sudo cat /etc/ssh/sshd_config | grep UseDNS)
+if [ "$test" ]; then
+	echo "[$scriptName] Vagrant sudo permissions set"
+else
+	echo "[$scriptName]  sudo sh -c 'echo \"UseDNS no\" >> /etc/ssh/sshd_config'"
+	sudo sh -c "echo 'UseDNS no' >> /etc/ssh/sshd_config"
+fi
 executeExpression "sudo cat /etc/ssh/sshd_config | grep Use"
 
-echo "[$scriptName] Permission for Vagrant to perform provisioning"
-echo "[$scriptName]  sudo sh -c 'echo \"vagrant ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\"'"
-sudo sh -c "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+test=$(sudo cat /etc/sudoers | grep vagrant)
+if [ "$test" ]; then
+	echo "[$scriptName] Vagrant sudo permissions set"
+else
+	echo "[$scriptName] Permission for Vagrant to perform provisioning"
+	echo "[$scriptName]  sudo sh -c 'echo \"vagrant ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\"'"
+	sudo sh -c "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 
 echo "[$scriptName] --- end ---"

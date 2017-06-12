@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Emulate calling the package and deploy process as it would be from the automation toolset, 
-# e.g. Bamboo or Jenkings, replacing buildNumber with timestamp
-# workspace with temp space. The variables provided in Jenkins are emulated in the scripts
-# themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
+# Emulate calling the package and deploy process as it would be from the automation toolset, e.g. Bamboo or Jenkings. 
+# Workspace with temp space. The variables provided in Jenkins are emulated in the scripts themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
 
 # Check Action
 ACTION="$1"
@@ -46,9 +44,15 @@ if [ ! $environmentDelivery ]; then
 fi
 echo "$scriptName :   environmentDelivery : $environmentDelivery"
 
-# Use timestamp to ensure unique build number and emulate the revision ID (source control) 
-# CDM-98 reduce the build number to an 10 digit integer
-buildNumber=$(date "+%m%d%H%M%S")
+# Use a simple text file (buildnumber.counter) for incremental build number
+if [ -f "buildnumber.counter" ]; then
+	let "buildNumber=$(cat buildnumber.counter)"
+else
+	let "buildNumber=0"
+fi
+let "buildNumber=$buildNumber + 1"
+echo $buildNumber > buildnumber.counter
+
 revision="55"
 echo "$scriptName :   buildNumber         : $buildNumber"
 echo "$scriptName :   revision            : $revision"

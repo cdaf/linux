@@ -38,25 +38,6 @@ if [ -z "$automationRoot" ]; then
 	echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux not found)"
 fi
 
-# Delivery Properties Lookup values
-if [ ! $environmentDelivery ]; then
-	environmentDelivery="LINUX"
-fi
-echo "$scriptName :   environmentDelivery : $environmentDelivery"
-
-# Use a simple text file (buildnumber.counter) for incremental build number
-if [ -f "buildnumber.counter" ]; then
-	let "buildNumber=$(cat buildnumber.counter)"
-else
-	let "buildNumber=0"
-fi
-let "buildNumber=$buildNumber + 1"
-echo $buildNumber > buildnumber.counter
-
-revision="55"
-echo "$scriptName :   buildNumber         : $buildNumber"
-echo "$scriptName :   revision            : $revision"
-
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "$scriptName :   solutionRoot        : "
 for i in $(ls -d */); do
@@ -71,6 +52,30 @@ if [ -z "$solutionRoot" ]; then
 else
 	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
 fi
+
+# Delivery Properties Lookup values
+if [ -f "$solutionRoot/deliveryEnv.sh" ]; then
+	environmentDelivery=$($solutionRoot/deliveryEnv.sh)
+	echo "$scriptName :   environmentDelivery : $environmentDelivery (using override $solutionRoot/deliveryEnv.sh)"
+else
+	if [ ! $environmentDelivery ]; then
+		environmentDelivery="LINUX"
+	fi
+	echo "$scriptName :   environmentDelivery : $environmentDelivery (override $solutionRoot/deliveryEnv.sh not found)"
+fi
+
+# Use a simple text file (buildnumber.counter) for incremental build number
+if [ -f "buildnumber.counter" ]; then
+	let "buildNumber=$(cat buildnumber.counter)"
+else
+	let "buildNumber=0"
+fi
+let "buildNumber=$buildNumber + 1"
+echo $buildNumber > buildnumber.counter
+
+revision="55"
+echo "$scriptName :   buildNumber         : $buildNumber"
+echo "$scriptName :   revision            : $revision"
 
 # Check for customised CI process
 printf "$scriptName :   ciProcess           : "

@@ -14,7 +14,7 @@ scriptName='installApacheMaven.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='3.3.9'
+	version='3.5.0'
 	echo "[$scriptName]   version   : $version (default)"
 else
 	echo "[$scriptName]   version   : $version"
@@ -26,6 +26,20 @@ if [ -z "$mediaPath" ]; then
 	echo "[$scriptName]   mediaPath : $mediaPath (default)"
 else
 	echo "[$scriptName]   mediaPath : $mediaPath"
+fi
+
+# Check for media
+echo
+mediaFullPath="$mediaPath/apache-maven-${version}-bin.tar.gz"
+echo "[$scriptName] \$mediaFullPath = $mediaFullPath"
+if [ -f "$mediaFullPath" ]; then
+	echo "[$scriptName] Media found $mediaFullPath"
+else
+	echo "[$scriptName] Media not found, attempting download"
+	if [ ! -d "$mediaPath" ]; then
+		executeExpression "sudo mkdir -p $mediaPath"
+	fi
+	executeExpression "sudo curl -s -o $mediaFullPath http://www-eu.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
 fi
 
 # Set parameters

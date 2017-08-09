@@ -73,6 +73,8 @@ test=$(mvn -version 2>&1)
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] Maven            : (not installed)"
 else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[2]}
 	echo "[$scriptName] Maven            : $test"
 fi
 

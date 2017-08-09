@@ -11,20 +11,45 @@ function executeExpression {
 	fi
 }  
 
+function executeYumCheck {
+	timeout=3
+	count=0
+		echo "[$scriptName] $1"
+	exitCode=$?
+	while [ ${count} -lt ${timeout} ]; do
+		eval $1
+		exitCode=$?
+		if [ "$exitCode" != "100" ]; then
+	   	    ((count++))
+			echo "[$scriptName] yum sources update failed with exit code $exitCode, retry ${count}/${timeout} "
+		else
+			count=${timeout}
+		fi
+	done
+	if [ "$exitCode" != "100" ]; then
+		echo "[$scriptName] yum sources failed to update after ${timeout} tries."
+		echo "[$scriptName] Exiting with error code ${exitCode}"
+		exit $exitCode
+	fi
+	echo
+}  
+
 scriptName='base.sh'
 
 echo "[$scriptName] --- start ---"
 install=$1
 echo "[$scriptName]   install : $install"
-echo
-# Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
-uname -a
-centos=$(uname -a | grep el)
 
-echo
-echo "[$scriptName] Install base software ($install)"
-if [ -z "$centos" ]; then
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami  : $(whoami)"
+else
+	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
+fi
+
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
@@ -33,17 +58,16 @@ if [ -z "$centos" ]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "sudo kill -9 ${ADDR[1]}"
+		executeExpression "$elevate kill -9 ${ADDR[1]}"
 		executeExpression "sleep 5"
 	fi	
 	
-	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
-	echo "[$scriptName] sudo apt-get update"
+	echo "[$scriptName] $elevate apt-get update"
 	echo
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do
-		sudo apt-get update
+		$elevate apt-get update
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 	   	    ((count++))
@@ -61,34 +85,15 @@ if [ -z "$centos" ]; then
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-		executeExpression "sudo apt-get install -y $install"
+		executeExpression "$elevate apt-get install -y $install"
 	fi
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	echo "[$scriptName] sudo yum check-update"
-	echo
-	timeout=3
-	count=0
-	while [ ${count} -lt ${timeout} ]; do
-		sudo yum check-update
-		exitCode=$?
-		if [ "$exitCode" != "100" ]; then
-	   	    ((count++))
-			echo "[$scriptName] yum sources update failed with exit code $exitCode, retry ${count}/${timeout} "
-		else
-			count=${timeout}
-		fi
-	done
-	if [ "$exitCode" != "100" ]; then
-		echo "[$scriptName] yum sources failed to update after ${timeout} tries."
-		echo "[$scriptName] Exiting with error code ${exitCode}"
-		exit $exitCode
-	fi
 	echo
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-		executeExpression "sudo yum install -y $install"
+		executeExpression "$elevate yum install -y $install"
 	fi
 fi
  

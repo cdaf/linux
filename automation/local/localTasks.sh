@@ -92,6 +92,10 @@ if [ -d "./propertiesForLocalTasks" ]; then
 				else
 					echo "$0 :   deployTaskOverride   : $taskOverride"
 				fi
+				if [ ! -f $taskOverride ]; then
+					echo "$0 $taskOverride not found! Exit with code 3225"
+					exit 3225
+				fi
 				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$taskOverride" "$OPT_ARG" 2>&1
 				exitCode=$?
 				if [ "$exitCode" != "0" ]; then

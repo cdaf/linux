@@ -15,7 +15,7 @@ scriptName='InstallApacheTomcat.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='8.5.16'
+	version='8.5.20'
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"
@@ -60,7 +60,7 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "sudo mkdir -p $mediaCache"
 	fi
-	executeExpression "sudo curl -s -o $mediaFullPath http://www-us.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "sudo curl -s --output $mediaFullPath http://www-us.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ -n "$(getent passwd $serviceAccount)" ]; then

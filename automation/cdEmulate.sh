@@ -20,6 +20,7 @@ echo "$scriptName : --------------------"
 echo "$scriptName : Initialise Emulation"
 echo "$scriptName : --------------------"
 echo "$scriptName :   ACTION              : $ACTION"
+caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
 workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
@@ -70,7 +71,9 @@ if [ -f "buildnumber.counter" ]; then
 else
 	let "buildNumber=0"
 fi
-let "buildNumber=$buildNumber + 1"
+if [ "$caseinsensitive" != "deliveryonly" ]; then
+	let "buildNumber=$buildNumber + 1"
+fi
 echo $buildNumber > buildnumber.counter
 
 revision="55"
@@ -150,15 +153,17 @@ if [ -z "$ACTION" ]; then
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi
-$ciProcess "$buildNumber" "$revision" "$ACTION"
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "$scriptName : CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
-	exit $exitCode
+if [ "$caseinsensitive" != "deliveryonly" ]; then
+	$ciProcess "$buildNumber" "$revision" "$ACTION"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "$scriptName : CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
+		exit $exitCode
+	fi
 fi
 
-# Do not process Remote and Local Tasks if the action is just clean
-if [ -z "$ACTION" ]; then
+# Do not process Remote and Local Tasks if the action is buildonly or clean
+if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
 	echo "$scriptName : ---------- Artefact Configuration Guide -------------"
 	echo
@@ -230,11 +235,13 @@ if [ -z "$ACTION" ]; then
    	echo
 	echo "$scriptName : -------------------------------------------------------"
 
-	$cdProcess "$environmentDelivery"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : CD Failed! $cdProcess \"$environmentDelivery\". Halt with exit code = $exitCode."
-		exit $exitCode
+	if [ "$caseinsensitive" != "buildonly" ]; then
+		$cdProcess "$environmentDelivery"
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			echo "$scriptName : CD Failed! $cdProcess \"$environmentDelivery\". Halt with exit code = $exitCode."
+			exit $exitCode
+		fi
 	fi
 fi
 

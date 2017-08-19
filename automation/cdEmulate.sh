@@ -27,7 +27,7 @@ workDirRemote="TasksRemote"
 
 # Framework structure
 # Look for automation root definition, if not found, default
-for i in $(ls -d */); do
+for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.linux" ]; then
 		automationRoot="$directoryName"
@@ -35,7 +35,7 @@ for i in $(ls -d */); do
 	fi
 done
 if [ -z "$automationRoot" ]; then
-	automationRoot="automation"
+	automationRoot="./automation"
 	echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux not found)"
 fi
 

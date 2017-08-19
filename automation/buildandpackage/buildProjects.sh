@@ -63,7 +63,7 @@ fi
 
 echo
 echo "$0 : $automessage"
-AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
+AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 SOLUTIONROOT="$AUTOMATIONROOT/solution"

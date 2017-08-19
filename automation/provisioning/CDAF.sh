@@ -10,22 +10,47 @@ function executeExpression {
 	fi
 }  
 
+function setRoot {
+	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
+		directoryName=${i%%/}
+		if [ -f "$directoryName/CDAF.linux" ]; then
+			echo $directoryName
+		fi
+	done
+}  
+
 scriptName='CDAF.sh'
 
 echo "[$scriptName] --- start ---"
-echo "[$scriptName]   whoami  : $(whoami)"
+echo "[$scriptName]   whoami         : $(whoami)"
+echo "[$scriptName]   pwd            : $(pwd)"
 runas="$1"
 if [ -z "$runas" ]; then
-	echo "[$scriptName]   runas   : (not supplied, run as current user $(whoami))"
+	echo "[$scriptName]   runas          : (not supplied, run as current user $(whoami))"
 else
-	echo "[$scriptName]   runas   : $runas"
+	echo "[$scriptName]   runas          : $runas"
 fi
 
 OPT_ARG="$2"
 if [ -z "$OPT_ARG" ]; then
-	echo "[$scriptName]   OPT_ARG : (not supplied)"
+	echo "[$scriptName]   OPT_ARG        : (not supplied)"
 else
-	echo "[$scriptName]   OPT_ARG : $OPT_ARG"
+	echo "[$scriptName]   OPT_ARG        : $OPT_ARG"
+fi
+automationRoot=$(setRoot)
+if [ -z "$automationRoot" ]; then
+	if [ -d "/vagrant" ]; then
+		cd "/vagrant"
+		automationRoot=$(setRoot)
+	fi
+	if [ -z "$automationRoot" ]; then
+		automationRoot="automation"
+		echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux not found)"
+	else
+		echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux found in /vagrant)"
+	fi
+else
+	echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux found)"
 fi
 
 echo
@@ -33,13 +58,13 @@ echo "[$scriptName] Execute continuous delivery emulation"
 echo
 if [ -z "$runas" ]; then
 	executeExpression "cd /vagrant/"
-	executeExpression "./automation/cdEmulate.sh $OPT_ARG"
+	executeExpression "${automationRoot}/cdEmulate.sh $OPT_ARG"
 else
 su $runas << EOF
 	echo "[$scriptName] cd /vagrant/"
 	cd /vagrant/
-	echo "[$scriptName] ./automation/cdEmulate.sh $OPT_ARG"
-	./automation/cdEmulate.sh $OPT_ARG
+	echo "[$scriptName] ${automationRoot}/cdEmulate.sh $OPT_ARG"
+	${automationRoot}/cdEmulate.sh $OPT_ARG
 EOF
 fi
 

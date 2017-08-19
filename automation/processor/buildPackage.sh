@@ -11,7 +11,17 @@ echo "$scriptName : ===================================="
 # Processed out of order as needed for solution determination
 AUTOMATION_ROOT="$5"
 if [ -z $AUTOMATION_ROOT ]; then
-	AUTOMATION_ROOT='automation'
+	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
+		directoryName=${i%%/}
+		if [ -f "$directoryName/CDAF.linux" ]; then
+			AUTOMATION_ROOT="$directoryName"
+			rootLogging="$AUTOMATION_ROOT (CDAF.linux found)"
+		fi
+	done
+	if [ -z "$AUTOMATION_ROOT" ]; then
+		AUTOMATION_ROOT="automation"
+		rootLogging="$AUTOMATION_ROOT (CDAF.linux not found)"
+	fi
 fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -57,7 +67,7 @@ if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z $SOLUTION ]; then
-	SOLUTION=$(./$AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "solutionName")
+	SOLUTION=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : Read of SOLUTION from $solutionRoot/CDAF.solution failed! Returned $exitCode"
@@ -69,11 +79,7 @@ else
 fi 
 
 # Use passed argument to determine if a value was passed or if a default was set and used above
-if [ -z $5 ]; then
-	echo "$scriptName :   AUTOMATION_ROOT : $AUTOMATION_ROOT (Default)"
-else
-	echo "$scriptName :   AUTOMATION_ROOT : $AUTOMATION_ROOT"
-fi
+echo "$scriptName :   AUTOMATION_ROOT : $rootLogging"
 
 LOCAL_WORK_DIR="$6"
 if [ -z $LOCAL_WORK_DIR ]; then
@@ -94,20 +100,20 @@ fi
 echo "$scriptName :   pwd             : $(pwd)"
 echo "$scriptName :   hostname        : $(hostname)"
 echo "$scriptName :   whoami          : $(whoami)"
-echo "$scriptName :   CDAF Version    : $(./$AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
+echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
-./$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
+$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
 	echo
-	echo "$scriptName : Project(s) Build Failed! ./$AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
+	echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
 	exit $exitCode
 fi
     
-./$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
+$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
 	echo
-	echo "$scriptName : Solution Package Failed! ./$AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
+	echo "$scriptName : Solution Package Failed! $AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
 	exit $exitCode
 fi

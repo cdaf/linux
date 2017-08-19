@@ -25,7 +25,6 @@ if [ -z $AUTOMATION_ROOT ]; then
 fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "$scriptName :   solutionRoot    : "
 for i in $(ls -d */); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
@@ -34,10 +33,11 @@ for i in $(ls -d */); do
 done
 if [ -z "$solutionRoot" ]; then
 	solutionRoot="$AUTOMATION_ROOT/solution"
-	echo "$solutionRoot (default, project directory containing CDAF.solution not found)"
+	solutionMessage="$solutionRoot (default, project directory containing CDAF.solution not found)"
 else
-	echo "$solutionRoot ($solutionRoot/CDAF.solution found)"
+	solutionMessage="$solutionRoot ($solutionRoot/CDAF.solution found)"
 fi
+echo "$scriptName :   solutionRoot    : $solutionMessage"
 
 BUILDNUMBER="$1"
 if [[ $BUILDNUMBER == *'$'* ]]; then

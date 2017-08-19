@@ -49,7 +49,7 @@ else
 fi
 
 # Look for automation root definition, if not found, default
-for i in $(ls -d */); do
+for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.linux" ] ; then
 		AUTOMATIONROOT="$directoryName"
@@ -67,7 +67,7 @@ AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 SOLUTIONROOT="$AUTOMATIONROOT/solution"
-for i in $(ls -d */); do
+for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
 		echo "$0 : CDAF.solution file found in directory $directoryName, load solution properties"
@@ -182,7 +182,7 @@ if [ -f "projectListFile" ]; then
 			
 		else
 						
-			$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
+			../$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
 				echo "$0 : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"

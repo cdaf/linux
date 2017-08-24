@@ -1,3 +1,5 @@
+[![cdaf version](automation/cdaf-badge.png)](https://github.com/cdaf/linux/tree/master/automation)
+
 # Continuous Delivery Automation Framework for Linux and OSX
 
 For usage details, see https://github.com/cdaf/linux/blob/master/automation/Readme.md

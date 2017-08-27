@@ -123,7 +123,7 @@ if [ ! -f "$customProjectList" ]; then
 	fi
 
 	# If a custom list is not supplied, create initial list from directories in workspace
-    for i in $(ls -d */); do
+    for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 		echo ${i%%/} >> dirListFile
 	done
 else

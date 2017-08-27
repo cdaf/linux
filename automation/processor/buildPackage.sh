@@ -8,6 +8,10 @@ echo "$scriptName : ===================================="
 echo "$scriptName : Continuous Integration (CI) Starting"
 echo "$scriptName : ===================================="
 
+echo "$scriptName :   pwd             : $(pwd)"
+echo "$scriptName :   hostname        : $(hostname)"
+echo "$scriptName :   whoami          : $(whoami)"
+
 # Processed out of order as needed for solution determination
 AUTOMATION_ROOT="$5"
 if [ -z $AUTOMATION_ROOT ]; then
@@ -25,7 +29,7 @@ if [ -z $AUTOMATION_ROOT ]; then
 fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-for i in $(ls -d */); do
+for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
 		solutionRoot="$directoryName"
@@ -97,9 +101,6 @@ else
 	echo "$scriptName :   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"	
 fi
 
-echo "$scriptName :   pwd             : $(pwd)"
-echo "$scriptName :   hostname        : $(hostname)"
-echo "$scriptName :   whoami          : $(whoami)"
 echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
 $AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"

@@ -53,12 +53,27 @@ if [ -z "$method" ]; then
 else
 	echo "[$scriptName]   method   : $method (choices, peer, md5, trust)"
 fi
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami   : $(whoami)"
+else
+	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
+fi
+
 echo
-configPath=$(sudo -u postgres psql --command "SHOW hba_file;" | grep pg_hba.conf)
+echo " [$scriptName] Retrieve the path to the configuration file"
+echo " [$scriptName] configPath=\$($elevate su - postgres -c 'psql --command \"SHOW hba_file;\" | grep pg_hba.conf')"
+configPath=$($elevate su - postgres -c 'psql --command "SHOW hba_file;" | grep pg_hba.conf')
 echo
 echo " [$scriptName] Add $type $database $user $address $method to $configPath"
 echo
-sudo sh -c "echo \"$type $database $user $address $method\" >> $configPath"
-executeExpression "sudo service postgresql restart"
+executeExpression "$elevate su - postgres -c \"echo '$type $database $user $address $method' >> $configPath\""
+
+echo " [$scriptName] List the configuration $configPath"
+$elevate su - postgres -c "cat $configPath"
+
+echo
+executeExpression "$elevate service postgresql restart"
 
 echo "[$scriptName] --- end ---"

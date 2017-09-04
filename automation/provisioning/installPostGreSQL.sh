@@ -21,6 +21,29 @@ function executeExpression {
 			success='yes'
 		fi
 	done
+}
+
+function executeYumCheck {
+	counter=1
+	max=5
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
+		eval $1
+		exitCode=$?
+		# Check execution normal, anything other than 0 is an exception
+		if [ "$exitCode" != "100" ]; then
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			fi					 
+		else
+			success='yes'
+		fi
+	done
 }  
 
 scriptName='installPostGreSQL.sh'
@@ -42,13 +65,18 @@ else
 	install="postgresql-$version"
 	echo "[$scriptName]   version  : $version ($install)"
 fi
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami   : $(whoami)"
+else
+	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
+fi
 
 echo
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution"
-uname -a
-centos=$(uname -a | grep el)
-if [ -z "$centos" ]; then
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
 	echo
 	echo "[$scriptName] Check that APT is available"
@@ -58,36 +86,20 @@ if [ -z "$centos" ]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "sudo kill -9 ${ADDR[1]}"
+		executeExpression "$elevate kill -9 ${ADDR[1]}"
 		executeExpression "sleep 5"
 	fi
 	
-	executeExpression "sudo apt-get update"
-	executeExpression "sudo apt-get install -y $install"
+	executeExpression "$elevate apt-get update"
+	executeExpression "$elevate apt-get install -y $install"
 
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	echo "[$scriptName] sudo yum check-update"
-	echo
-	timeout=3
-	count=0
-	while [ $count -lt $timeout ]; do
-		sudo yum check-update
-		exitCode=$?
-		if [ "$exitCode" != "100" ]; then
-	   	    ((count++))
-			echo "[$scriptName] yum sources update failed with exit code $exitCode, retry ${count}/${timeout} "
-		else
-			count=${timeout}
-		fi
-	done
-	if [ "$exitCode" != "100" ]; then
-		echo "[$scriptName] yum sources failed to update after ${timeout} tries."
-		echo "[$scriptName] Exiting with error code ${exitCode}"
-		exit $exitCode
-	fi
-	echo
+	executeYumCheck "$elevate yum check-update"
 fi
+
+echo
+executeExpression "$elevate service postgresql restart"
 
 echo "[$scriptName] --- end ---"
 

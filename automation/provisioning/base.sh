@@ -12,27 +12,27 @@ function executeExpression {
 }  
 
 function executeYumCheck {
-	timeout=3
-	count=0
-		echo "[$scriptName] $1"
-	exitCode=$?
-	while [ ${count} -lt ${timeout} ]; do
+	counter=1
+	max=5
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
 		eval $1
 		exitCode=$?
+		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "100" ]; then
-	   	    ((count++))
-			echo "[$scriptName] yum sources update failed with exit code $exitCode, retry ${count}/${timeout} "
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			fi					 
 		else
-			count=${timeout}
+			success='yes'
 		fi
 	done
-	if [ "$exitCode" != "100" ]; then
-		echo "[$scriptName] yum sources failed to update after ${timeout} tries."
-		echo "[$scriptName] Exiting with error code ${exitCode}"
-		exit $exitCode
-	fi
-	echo
-}  
+}
 
 scriptName='base.sh'
 
@@ -89,6 +89,8 @@ if [[ "$test" == *"not found"* ]]; then
 	fi
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+	executeYumCheck "$elevate yum check-update"
+
 	echo
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo

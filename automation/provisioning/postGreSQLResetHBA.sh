@@ -53,14 +53,30 @@ if [ -z "$method" ]; then
 else
 	echo "[$scriptName]   method   : $method (choices, peer, md5, trust)"
 fi
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami   : $(whoami)"
+else
+	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
+fi
+
 echo
-configPath=$(sudo -u postgres psql --command "SHOW hba_file;" | grep pg_hba.conf)
+echo " [$scriptName] Retrieve the path to the configuration file"
+echo " [$scriptName] configPath=\$($elevate su - postgres -c 'psql --command \"SHOW hba_file;\" | grep pg_hba.conf')"
+configPath=$($elevate su - postgres -c 'psql --command "SHOW hba_file;" | grep pg_hba.conf')
 echo
 echo " [$scriptName] Reset $configPath to local access only."
 echo
 
-sudo sh -c "echo \"# Database administrative login by Unix domain socket\" > $configPath"
-sudo sh -c "echo \"local   all             postgres                                peer\" >> $configPath"
-sudo sh -c "echo \"local   all             all                                     peer\" >> $configPath"
+executeExpression "$elevate su - postgres -c \"echo '# TYPE  DATABASE        USER            ADDRESS                 METHOD' > $configPath\""
+executeExpression "$elevate su - postgres -c \"echo 'local   all             postgres                                peer' >> $configPath\""
+executeExpression "$elevate su - postgres -c \"echo 'local   all             all                                     peer' >> $configPath\""
+
+echo " [$scriptName] List the configuration $configPath"
+$elevate su - postgres -c "cat $configPath"
+
+echo
+executeExpression "$elevate service postgresql restart"
 
 echo "[$scriptName] --- end ---"

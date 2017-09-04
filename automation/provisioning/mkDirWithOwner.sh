@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-scriptName='mkDir.sh'
+
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}
+
+scriptName='mkDirWithOwner.sh'
 echo
 echo "[$scriptName] Create a directory (full path supported) and set a group owner (optional)"
 echo
@@ -25,30 +37,34 @@ else
 	echo "[$scriptName]   group     : $group"
 fi
 
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami    : $(whoami)"
+else
+	echo "[$scriptName]   whoami    : $(whoami) [elevation not required]"
+fi
+
 echo "[$scriptName] Create directory if it does not exist"
 if [ -d "$directory" ]; then
-	echo "[$scriptName] Landing directory ($directory) exists"
+	echo "[$scriptName] Landing directory [$directory] exists"
 else
-	echo "[$scriptName] Create landing directory, $directory"
-	sudo mkdir -p "$directory"
+	executeExpression "$elevate mkdir -p '$directory'"
 fi
 
 # Only attempt to set ownership if user has been supplied.
 if [ "$user" ]; then
 	if [ -z "$group" ]; then
-		echo "[$scriptName] sudo chown $user $directory"
-		sudo chown $user "$directory"
+		executeExpression "$elevate chown $user '$directory'"
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 			echo "[$scriptName] Unable to set ownership, does user exist? Exiting with exit code $exitCode"
 			exit $exitCode
 		fi
 	else
-		echo "[$scriptName] sudo chown $user:$group $directory"
-		sudo chown $user:$group "$directory"
+		executeExpression "$elevate chown $user:$group '$directory'"
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Unable to set ownership, does ($user) user and group ($group) exist? Exiting with exit code $exitCode"
+			echo "[$scriptName] Unable to set ownership, does [$user] user and group [$group] exist? Exiting with exit code $exitCode"
 			exit $exitCode
 		fi
 	fi

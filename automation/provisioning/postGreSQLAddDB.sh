@@ -24,7 +24,7 @@ fi
 
 dbUser="$2"
 if [ -z "$dbUser" ]; then
-	dbUser='mydatabaseuser'
+	dbUser='postgres'
 	echo "[$scriptName]   dbUser     : $dbUser (default)"
 else
 	echo "[$scriptName]   dbUser     : $dbUser"
@@ -32,18 +32,32 @@ fi
 
 dbPassword="$3"
 if [ -z "$dbPassword" ]; then
-	dbPassword='secretPassw0rd'
-	echo "[$scriptName]   dbPassword : $dbPassword (default)"
+	echo "[$scriptName]   dbPassword : (not passed, will not be set)"
 else
 	echo "[$scriptName]   dbPassword : ****************"
+fi
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami     : $(whoami)"
+else
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
 sqlScriptFile='/tmp/newDB.sql'
 
-executeExpression "sudo -u postgres createdb $dbName"
-executeExpression "sudo -u postgres createuser --echo $dbUser"
-executeExpression "echo \"alter user $dbUser password '\$dbPassword';\" > $sqlScriptFile"
-executeExpression "sudo -u postgres psql -d $dbName -f $sqlScriptFile"
+echo "[$scriptName] Create the database $dbName"
+executeExpression "$elevate su - postgres -c \"createdb $dbName\""
+
+echo "[$scriptName] Only attempt to create user is not postgres"
+if [ "$dbUser" != 'postgres' ]; then
+	executeExpression "$elevate su - postgres -c \"createuser --echo $dbUser\""
+fi
+
+echo "[$scriptName] Set the DB password if supplied"
+if [ -n "$dbPassword" ]; then
+	executeExpression "echo \"alter user $dbUser password '\$dbPassword';\" > $sqlScriptFile"
+	executeExpression "$elevate su - postgres -c \"psql -d $dbName -f $sqlScriptFile\""
+fi
 
 echo "[$scriptName] --- end ---"
 

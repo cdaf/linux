@@ -26,8 +26,6 @@ Vagrant.configure(2) do |config|
   # Build Server, fills the role of the build agent and delivers to the host above
   config.vm.define 'build' do |build|  
     build.vm.provision 'shell', path: 'automation/remote/capabilities.sh'
-    build.vm.provision 'shell', inline: 'sudo nmcli connection reload'
-    build.vm.provision 'shell', inline: 'sudo systemctl restart network.service'
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     build.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.101'

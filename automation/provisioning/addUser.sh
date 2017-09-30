@@ -16,16 +16,11 @@ echo
 echo "[$scriptName] Create a new user, optionally, in a predetermined group"
 echo
 echo "[$scriptName] --- start ---"
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName]   Debian based : $(uname -mrs)"
 else
-	ubuntu=$(uname -a | grep ubuntu)
-	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
-	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
-	fi
+	echo "[$scriptName]   Fedora based : $(uname -mrs)"
 fi
 
 username=$1
@@ -44,18 +39,25 @@ else
 	echo "[$scriptName]   groupname    : $groupname"
 fi
 
-password=$3
+sudoer=$3
+if [ -z "$sudoer" ]; then
+	echo "[$scriptName]   sudoer       : (not supplied)"
+else
+	echo "[$scriptName]   sudoer       : $sudoer"
+fi
+
+password=$4
 if [ -z "$password" ]; then
 	echo "[$scriptName]   password     : (not supplied)"
 else
 	echo "[$scriptName]   password     : *********************"
 fi
 
-sudoer=$4
-if [ -z "$sudoer" ]; then
-	echo "[$scriptName]   sudoer       : (not supplied)"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami       : $(whoami)"
 else
-	echo "[$scriptName]   sudoer       : $sudoer"
+	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
 
 # If the group does not exist, create it
@@ -63,19 +65,19 @@ groupExists=$(getent group $groupname)
 if [ "$groupExists" ]; then
 	echo "[$scriptName] groupname $groupname exists"
 else
-	executeExpression "sudo groupadd $groupname"
+	executeExpression "$elevate groupadd $groupname"
 fi
 
 userExists=$(id -u $username 2> /dev/null )
 if [ -z "$userExists" ]; then # User does not exist, create the user in the group
-	if [ "$centos" ]; then
-		executeExpression "sudo adduser -g $groupname $username"
+	if [[ "$test" == *"not found"* ]]; then
+		executeExpression "$elevate adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
 	else
-		executeExpression "sudo adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
+		executeExpression "$elevate adduser -g $groupname $username"
 	fi
 else # Just add the user to the group
 	echo "[$scriptName] username $username exists"
-	executeExpression "sudo usermod -a -G $groupname $username"
+	executeExpression "$elevate usermod -a -G $groupname $username"
 fi
 
 if [ -n "$password" ]
@@ -85,8 +87,8 @@ then
     len=${#password} 
     passmask=`perl -e "print '*' x $len;"`
 
-    cmdreal="echo \"$username:$password\" | sudo chpasswd"
-    cmdmask="echo \"$username:$passmask\" | sudo chpasswd"
+    cmdreal="echo \"$username:$password\" | $elevate chpasswd"
+    cmdmask="echo \"$username:$passmask\" | $elevate chpasswd"
 
     echo "[$scriptName] $cmdmask"
     eval $cmdreal
@@ -99,8 +101,8 @@ then
 fi
 
 if [ -n "$sudoer" ]; then
-	echo "[$scriptName] sudo sh -c \"echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\""
-	sudo sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
+	executeExpression '$elevate sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"'
+	executeExpression "$elevate cat /etc/sudoers"
 fi
 
 echo "[$scriptName] --- end ---"

@@ -23,6 +23,29 @@ function executeExpression {
 	done
 }  
 
+function executeYumCheck {
+	counter=1
+	max=5
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
+		eval $1
+		exitCode=$?
+		# Exit 0 and 100 are both success
+		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then
+			success='yes'
+		else
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			fi					 
+		fi
+	done
+}
+
 scriptName='installAnsible.sh'
 
 echo "[$scriptName] --- start ---"
@@ -45,30 +68,16 @@ else
 	echo "[$scriptName]   version      : $version"
 	export ansibleVersion="-${version}"
 fi
-
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami       : $(whoami)"
 else
-	ubuntu=$(uname -a | grep buntu)
-	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
-	else
-		echo "[$scriptName]   echo; echo;$(uname -a), proceeding assuming Debian based..."; echo
-	fi
+	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
 
-echo
-if [ "$centos" ]; then # Fedora
-
-	executeExpression "sudo yum install -y gcc openssl-devel libffi-devel python-devel"
-	if [ "$systemWide" == 'yes' ]; then
-		executeExpression "sudo yum install -y epel-release"
-		executeExpression "sudo yum install -y ansible"
-	fi
-
-else # Debian
-
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
@@ -77,22 +86,52 @@ else # Debian
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "sudo kill -9 ${ADDR[1]}"
+		executeExpression "$elevate kill -9 ${ADDR[1]}"
 		executeExpression "sleep 5"
+	fi	
+	
+	echo "[$scriptName] $elevate apt-get update"
+	echo
+	timeout=3
+	count=0
+	while [ ${count} -lt ${timeout} ]; do
+		$elevate apt-get update
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+	   	    ((count++))
+			echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
+		else
+			count=${timeout}
+		fi
+	done
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
+		echo "[$scriptName] Exiting with error code ${exitCode}"
+		exit $exitCode
 	fi
 
+	echo
 	if [ "$systemWide" == 'yes' ]; then
 
-		executeExpression "sudo apt-get install software-properties-common"
-		executeExpression "sudo apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"
-		executeExpression "sudo apt-get update"
-		executeExpression "sudo apt-get install -y ansible"
+		executeExpression "$elevate apt-get install -y software-properties-common"
+		executeExpression "$elevate apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"
+		executeExpression "$elevate apt-get update"
+		executeExpression "$elevate apt-get install -y ansible"
 			
 	else
-		executeExpression "sudo apt-get update"
-		executeExpression "sudo apt-get install -y build-essential libssl-dev libffi-dev python-dev"
+		executeExpression "$elevate apt-get update"
+		executeExpression "$elevate apt-get install -y build-essential libssl-dev libffi-dev python-dev"
 	fi
-
+	
+else
+	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+	centos='yes'
+	executeYumCheck "$elevate yum check-update"
+	executeExpression "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
+	if [ "$systemWide" == 'yes' ]; then
+		executeExpression "$elevate yum install -y epel-release"
+		executeExpression "$elevate yum install -y ansible"
+	fi
 fi
 
 if [ "$systemWide" == 'no' ]; then
@@ -100,7 +139,7 @@ if [ "$systemWide" == 'no' ]; then
 	echo "[$scriptName] Install to current users ($(whoami)) home directory ($HOME)."
 	echo
 	# Distribution specific dependencies installed above, this process is generic for all distributions 
-	executeExpression "sudo pip install virtualenv virtualenvwrapper"
+	executeExpression "$elevate pip install virtualenv virtualenvwrapper"
 	executeExpression "source `which virtualenvwrapper.sh`"
 	if [ ! -d ~/ansible${ansibleVersion} ]; then
 		executeExpression "mkdir ~/ansible${ansibleVersion}"

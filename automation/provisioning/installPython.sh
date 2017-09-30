@@ -23,27 +23,45 @@ function executeExpression {
 	done
 }  
 
+function executeYumCheck {
+	counter=1
+	max=5
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
+		eval $1
+		exitCode=$?
+		# Exit 0 and 100 are both success
+		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then
+			success='yes'
+		else
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			fi					 
+		fi
+	done
+}
+
 scriptName='installPython.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	version='3'
-	echo "[$scriptName]   version      : $version (default)"
+	echo "[$scriptName]   version : $version (default)"
 else
 	version=$1
-	echo "[$scriptName]   version      : $version (choices 2 or 3)"
+	echo "[$scriptName]   version : $version (choices 2 or 3)"
 fi
 
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami  : $(whoami)"
 else
-	ubuntu=$(uname -a | grep buntu)
-	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
-	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
-	fi
+	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
 if [ "$version" == "2" ]; then
@@ -72,21 +90,14 @@ if [ -n "$test" ]; then
 		echo "[$scriptName] PIP version $test already installed."
 	else
 		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-		executeExpression "sudo python get-pip.py"
+		executeExpression "$elevate python get-pip.py"
 		executeExpression "pip --version"
 	fi
 else	
 
-	if [ "$centos" ]; then # Fedora
-	
-		executeExpression "sudo yum install -y epel-release"
-		executeExpression "sudo yum install -y python${version}*"
-		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-		executeExpression "sudo python${version} get-pip.py"
-		executeExpression "sudo pip install virtualenv"
-	
-	else # Debian
-
+	test="`yum --version 2>&1`"
+	if [[ "$test" == *"not found"* ]]; then
+		echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 		echo
 		echo "[$scriptName] Check that APT is available"
 		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
@@ -95,24 +106,63 @@ else
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeExpression "sudo kill -9 ${ADDR[1]}"
+			executeExpression "$elevate kill -9 ${ADDR[1]}"
 			executeExpression "sleep 5"
-		fi
+		fi	
 		
+		echo "[$scriptName] $elevate apt-get update"
+		echo
+		timeout=3
+		count=0
+		while [ ${count} -lt ${timeout} ]; do
+			$elevate apt-get update
+			exitCode=$?
+			if [ "$exitCode" != "0" ]; then
+		   	    ((count++))
+				echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
+			else
+				count=${timeout}
+			fi
+		done
+		if [ "$exitCode" != "0" ]; then
+			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
+			echo "[$scriptName] Exiting with error code ${exitCode}"
+			exit $exitCode
+		fi
+
 		if [ "$version" == "2" ]; then
 
-			# NOT SUPPORTED FOR 16.04, ONLY 14.04 TESTED 			
-			executeExpression "sudo add-apt-repository -y ppa:fkrull/deadsnakes"
-			executeExpression "sudo apt-get update"
-			executeExpression "sudo apt-get install -y python2.7"
-			executeExpression "sudo ln -s \$(which python2.7) /usr/bin/python"
-			executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-			executeExpression "sudo python${version} get-pip.py"
+			release=$(lsb_release -r | grep 14.04)
+			if [[ "$release" == *"14.04"* ]]; then
+			
+				# 14.04
+				executeExpression "$elevate add-apt-repository -y ppa:fkrull/deadsnakes"
+				executeExpression "$elevate apt-get update"
+				executeExpression "$elevate apt-get install -y python2.7"
+				executeExpression "$elevate ln -s \$(which python2.7) /usr/bin/python"
+				executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
+				executeExpression "$elevate python${version} get-pip.py"
+			else
+				# 16.04 and above
+				executeExpression "$elevate -y python-software-properties"
+			fi
 
 		else # Python != v2
-			executeExpression "sudo apt-get update -y"
-			executeExpression "sudo apt-get install -y python${version}*"
+			executeExpression "$elevate apt-get update -y"
+			executeExpression "$elevate apt-get install -y python${version}*"
 		fi
+
+	else
+		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+		centos='yes'
+		executeYumCheck "$elevate yum check-update"
+	
+		echo
+		executeExpression "$elevate yum install -y epel-release"
+		executeExpression "$elevate yum install -y python${version}*"
+		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
+		executeExpression "$elevate python${version} get-pip.py"
+		executeExpression "$elevate pip install virtualenv"
 	fi
 	
 	echo "[$scriptName] List version details..."

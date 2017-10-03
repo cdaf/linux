@@ -13,8 +13,8 @@ Vagrant.configure(2) do |config|
     target.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.102'
       override.vm.box = 'cdaf/UbuntuLVM'
-      override.vm.network 'forwarded_port', guest: 22, host: 20022
-      override.vm.network 'forwarded_port', guest: 80, host: 20080
+      override.vm.network 'forwarded_port', guest: 22, host: 20022, auto_correct: true
+      override.vm.network 'forwarded_port', guest: 80, host: 20080, auto_correct: true
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'target'
     end
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up target --provider hyperv
@@ -30,7 +30,7 @@ Vagrant.configure(2) do |config|
     build.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.101'
       override.vm.box = 'cdaf/CentOSLVM'
-      override.vm.network 'forwarded_port', guest: 22, host: 10022
+      override.vm.network 'forwarded_port', guest: 22, host: 10022, auto_correct: true
       override.vm.provision 'shell', path: 'automation/provisioning/addHOSTS.sh', args: '172.16.17.102 target.sky.net'
       override.vm.provision 'shell', path: 'automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing

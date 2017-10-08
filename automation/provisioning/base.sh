@@ -77,9 +77,13 @@ if [[ "$test" == *"not found"* ]]; then
 		fi
 	done
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
-		echo "[$scriptName] Exiting with error code ${exitCode}"
-		exit $exitCode
+		if [ "$install" == 'update' ]; then
+			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
+			echo "[$scriptName] Exiting with error code ${exitCode}"
+			exit $exitCode
+		else
+			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries, will try with existing cache ..."
+		fi
 	fi
 	echo
 	if [ "$install" == 'update' ]; then

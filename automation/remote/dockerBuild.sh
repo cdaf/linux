@@ -33,7 +33,12 @@ fi
 
 version=$3
 if [ -z "$version" ]; then
-	echo "[$scriptName] version   : (not passed, please set label in Dockerfile cdaf.${imageName}.image.version)"
+	if [ -n "$tag" ]; then
+		version=$tag
+	else
+		$version = '0.0.0'
+	fi
+    echo "[$scriptName] version   : $version (not supplied, defaulted to tag if passed, else set to 0.0.0)"
 else
 	echo "[$scriptName] version   : $version"
 fi
@@ -56,10 +61,8 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-if [ -n "$version" ]; then
-	# Apply required label for CDAF image management
-	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
-fi
+# Apply required label for CDAF image management
+buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
 
 echo
 executeExpression "$buildCommand ."

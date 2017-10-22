@@ -28,6 +28,13 @@ else
 	echo "[$scriptName]   mediaPath : $mediaPath"
 fi
 
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami    : $(whoami)"
+else
+	echo "[$scriptName]   whoami    : $(whoami) (elevation not required)"
+fi
+
 # Check for media
 echo
 mediaFullPath="$mediaPath/apache-maven-${version}-bin.tar.gz"
@@ -37,9 +44,9 @@ if [ -f "$mediaFullPath" ]; then
 else
 	echo "[$scriptName] Media not found, attempting download"
 	if [ ! -d "$mediaPath" ]; then
-		executeExpression "sudo mkdir -p $mediaPath"
+		executeExpression "$elevate mkdir -p $mediaPath"
 	fi
-	executeExpression "sudo curl -s -o $mediaFullPath http://www-eu.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
+	executeExpression "$elevate curl -s -o $mediaFullPath https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
 fi
 
 # Set parameters
@@ -48,10 +55,10 @@ executeExpression "sourceFile=\"$runTime-bin.tar.gz\""
 
 executeExpression "cp \"$mediaPath/${sourceFile}\" ."
 executeExpression "tar -xf $sourceFile"
-executeExpression "sudo mv $runTime /opt/"
+executeExpression "$elevate mv $runTime /opt/"
 
 # Configure to directory on the default PATH
-executeExpression "sudo ln -s /opt/$runTime/bin/mvn /usr/bin/mvn"
+executeExpression "$elevate ln -s /opt/$runTime/bin/mvn /usr/bin/mvn"
 
 echo "[$scriptName] Verify install ..."
 executeExpression "mvn --version"

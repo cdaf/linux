@@ -11,7 +11,7 @@ function executeExpression {
 	fi
 }  
 
-scriptName='containerBuild.sh'
+scriptName='entryPoint.sh'
 echo "[$scriptName] --- start ---"
 buildNumber=$1
 if [ -z "$buildNumber" ]; then
@@ -20,10 +20,12 @@ else
 	echo "[$scriptName] buildNumber  : $buildNumber"
 fi
 
+executeExpression "cd /workspace"
+
 if [ -n $buildNumber ]; then
 	executeExpression "./automation/processor/buildPackage.sh $buildNumber"
 else
-	executeExpression "./automation/cdEmulate.SH buildonly"
+	executeExpression "./automation/cdEmulate.sh buildonly"
 fi
 
 echo

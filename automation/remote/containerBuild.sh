@@ -28,14 +28,7 @@ else
 	echo "[$scriptName] buildNumber  : $buildNumber"
 fi
 
-command=$3
-if [ -z "$command" ]; then
-	echo "[$scriptName] command      : (not passed, please set label in Dockerfile cdaf.${imageName}.image.command)"
-else
-	echo "[$scriptName] command      : $command"
-fi
-
-rebuildImage=$4
+rebuildImage=$3
 if [ -z "$rebuildImage" ]; then
 	echo "[$scriptName] rebuildImage : (not supplied)"
 else
@@ -59,9 +52,14 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-for imageTag in $(docker images --filter label=cdaf.${imageName}.image.version --format "{{.Tag}}"); do
-	echo "imageTag : $imageTag"
+imageTag=0
+for tag in $(docker images --filter label=cdaf.${imageName}.image.version --format "{{.Tag}}"); do
+	intTag=$((${tag}))
+	if [[ $imageTag -le $intTag ]]; then
+		imageTag=$intTag
+	fi
 done
+echo "imageTag : $imageTag"
 newTag=$((${imageTag} + 1))
 echo "newTag   : $newTag"
 
@@ -76,21 +74,15 @@ fi
 # Remove any older images	
 executeExpression "automation/remote/dockerClean.sh ${imageName} $newTag"
 
-# Retrieve the latest image number
-for imageTag in $(docker images --filter label=cdaf.${imageName}.image.version --format "{{.Tag}}"); do
-	echo "imageTag : $imageTag"
-done
-
 workspace=$(pwd)
-echo "[$scriptName] \$imageTag  : $imageTag"
+echo "[$scriptName] \$newTag    : $newTag"
 echo "[$scriptName] \$workspace : $workspace"
 
-command="automation/remote/entrypoint.sh $buildNumber"
-
-if [ -n "$command" ]; then
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${imageTag} $command"
+# If a build number is not passed, use the CDAF emulator
+if [ -z "$buildNumber" ]; then
+	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${newTag}"
 else
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${imageTag}"
+	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${newTag} automation/remote/entrypoint.sh $buildNumber"
 fi
 
 echo "[$scriptName] List and remove all stopped containers"

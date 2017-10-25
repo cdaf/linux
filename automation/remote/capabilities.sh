@@ -30,8 +30,18 @@ for ip in $ipList; do
 	IFS=' ' read -ra ADDR <<< $ip
 	echo "[$scriptName]         ip : ${ADDR[1]}"
 done
-
 echo
+
+# curl
+test="`curl --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] curl             : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] curl             : $test"
+fi	
+
 # Java version lists to standard error
 test="`java -version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then

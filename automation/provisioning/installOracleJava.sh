@@ -58,9 +58,12 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "mkdir $mediaCache"
 	fi
-	echo "[$scriptName] Media not found, please visit http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
-	echo "[$scriptName] and download to $mediaCache"
-	exit 55
+	echo "[$scriptName] Media not found, attempting download $mediaCache"
+	if [ "$prefix" == 'jdk' ]; then
+		executeExpression 'curl --silent -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.tar.gz --output $mediaCache/$javaSource'
+	else
+		executeExpression 'curl --silent -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jre-8u151-linux-x64.tar.gz --output $mediaCache/$javaSource'
+	fi
 fi
 
 echo "[$scriptName] Extract the Java binaries to current directory $(pwd))"

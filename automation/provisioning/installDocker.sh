@@ -26,18 +26,6 @@ function executeExpression {
 scriptName='installDocker.sh'
 
 echo "[$scriptName] --- start ---"
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
-else
-	ubuntu=$(uname -a | grep ubuntu)
-	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
-	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
-	fi
-fi
-
 if [ -z "$1" ]; then
 	install='canon'
 	echo "[$scriptName]   install      : $install (default canon, choices canon or latest)"
@@ -54,6 +42,23 @@ else
 	startDaemon=$2
 	echo "[$scriptName]   startDaemon  : $startDaemon (only applied to binary install)"
 fi
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami       : $(whoami)"
+else
+	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
+fi
+
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
+else
+	centos='yes'
+	echo "[$scriptName] yum found, assuming Fedora based distribution (RHEL/CentOS)"
+fi
+echo
+
 check='yes'
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
@@ -61,15 +66,15 @@ if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from 
 	if [ -n "$package" ]; then
 		# When running under vagranT, cannot extract from the replicated file share, so copy to 
 		# local file system, then extract
-		executeExpression "sudo cp $install/docker-latest.tgz /tmp"
+		executeExpression "$elevate cp $install/docker-latest.tgz /tmp"
 		executeExpression 'cd /tmp'
 		executeExpression 'tar -xvzf docker-latest.tgz'
-		executeExpression 'sudo mv docker/* /usr/bin/'
+		executeExpression '$elevate mv docker/* /usr/bin/'
 		
 		# When running under vagrant have found issues with starting daemon in provisioning mode
 		# i.e. cannot connect to docker, even when user is a member of the docker group			
 		if [ "$startDaemon" == 'yes' ] ; then
-			executeExpression 'sudo docker daemon &'
+			executeExpression '$elevate docker daemon &'
 		else
 			check='no'
 		fi
@@ -88,27 +93,41 @@ if [ -z "$package" ]; then
 
 			if [ -f /etc/os-release ]; then 
 				echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
-				echo "[$scriptName] sudo yum check-update (note: a normal exit code is non zero)"
-				sudo yum check-update 
-				executeExpression "sudo yum install -y docker"
-				executeExpression "sudo systemctl enable docker.service"
-				executeExpression "sudo systemctl start docker.service"
-				executeExpression "sudo systemctl status docker.service"
+				if [ "$elevate" ]; then
+					echo "[$scriptName] sudo yum check-update (note: a normal exit code is non zero)"
+					sudo yum check-update
+				else
+					echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
+					yum check-update
+				fi
+				executeExpression "$elevate yum install -y docker"
+				executeExpression "$elevate systemctl enable docker.service"
+				executeExpression "$elevate systemctl start docker.service"
+				executeExpression "$elevate systemctl status docker.service"
 			else
 				echo "[$scriptName] Install CentOS 6 from Docker repository"
-				sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
-				sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
-				sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
-				sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
-				sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
-				sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+				if [ "$elevate" ]; then
+					sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
+					sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
+					sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
+					sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
+					sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
+					sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+				else
+					sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
+					sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
+					sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
+					sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
+					sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
+					sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
+				fi
 				echo			
-				executeExpression "sudo cat /etc/yum.repos.d/docker.repo"
+				executeExpression "$elevate cat /etc/yum.repos.d/docker.repo"
 				echo			
 				echo "[$scriptName] Install software from repo"
-				executeExpression "sudo yum install -y docker-engine"
-				executeExpression "sudo service docker start"
-				executeExpression "sudo service docker status"
+				executeExpression "$elevate yum install -y docker-engine"
+				executeExpression "$elevate service docker start"
+				executeExpression "$elevate service docker status"
 			fi
 
 		else
@@ -125,39 +144,39 @@ if [ -z "$package" ]; then
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeExpression "sudo kill -9 ${ADDR[1]}"
+			executeExpression "$elevate kill -9 ${ADDR[1]}"
 			executeExpression "sleep 5"
 		fi
 
 		if [ "$install" == 'canon' ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
-			executeExpression "sudo apt-get update"
-			executeExpression "sudo apt-get install -y docker.io"
+			executeExpression "$elevate apt-get update"
+			executeExpression "$elevate apt-get install -y docker.io"
 
 		else
 
 			echo "[$scriptName] Specific version only supported for Ubuntu 14"
 			echo "[$scriptName] Install latest from Docker ($install)"
 			echo "[$scriptName] Add the new GPG key"
-			executeExpression "sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
+			executeExpression "$elevate apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
 	
 			echo "[$scriptName] Update sources for 14.04"
-			executeExpression "sudo sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" >> /etc/apt/sources.list.d/docker.list'"
+			executeExpression "$elevate sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" >> /etc/apt/sources.list.d/docker.list'"
 			
 			echo "[$scriptName] Update apt repository, purge and verify repository"
-			executeExpression "sudo apt-get update"
-			executeExpression "sudo apt-get purge lxc-docker"
+			executeExpression "$elevate apt-get update"
+			executeExpression "$elevate apt-get purge lxc-docker"
 			executeExpression "apt-cache policy docker-engine"
 		
 			echo "[$scriptName] Install the extras for this architecture linux-image-extra-$(uname -r)"
-			executeExpression 'sudo apt-get install -y linux-image-extra-$(uname -r)'
+			executeExpression '$elevate apt-get install -y linux-image-extra-$(uname -r)'
 	
 			echo "[$scriptName] Docker document states apparmor needs to be installed"
-			executeExpression "sudo apt-get install -y apparmor"
+			executeExpression "$elevate apt-get install -y apparmor"
 	
 			echo "[$scriptName] Docker document states apparmor needs to be installed"
-			executeExpression "sudo apt-get install -y docker-engine"
+			executeExpression "$elevate apt-get install -y docker-engine"
 			
 		fi
 		
@@ -167,7 +186,7 @@ fi
 if [ "$check" == 'yes' ] ; then
 	echo "[$scriptName] Pause for Docker to start, the list version details..."
 	sleep 5
-	executeExpression "sudo docker version"
+	executeExpression "$elevate docker version"
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"
 fi

@@ -19,6 +19,8 @@ if [ -z "$buildNumber" ]; then
 else
 	echo "[$scriptName] buildNumber  : $buildNumber"
 fi
+echo "[$scriptName] whoami       : $(whoami)"
+echo "[$scriptName] pwd          : $(pwd)"
 
 executeExpression "cd /workspace"
 

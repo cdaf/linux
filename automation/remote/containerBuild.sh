@@ -7,6 +7,9 @@ function executeExpression {
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		if [ -f "Dockerfile.source" ]; then
+			mv -f Dockerfile.source Dockerfile
+		fi
 		exit $exitCode
 	fi
 }  
@@ -33,6 +36,14 @@ if [ -z "$rebuildImage" ]; then
 	echo "[$scriptName] rebuildImage : (not supplied)"
 else
 	echo "[$scriptName] rebuildImage : $rebuildImage"
+fi
+
+# backward compatibility
+cdafVersion=$4
+if [ -z "$cdafVersion" ]; then
+	echo "[$scriptName] cdafVersion  : (not supplied, pass dockerfile if your version of docker does not support label argument)"
+else
+	echo "[$scriptName] cdafVersion  : $cdafVersion"
 fi
 
 echo "[$scriptName] \$DOCKER_HOST : $DOCKER_HOST"
@@ -65,10 +76,17 @@ echo "newTag   : $newTag"
 
 executeExpression "cat Dockerfile"
 
-if [ "$rebuildImage" == "yes" ]; then
-	executeExpression "automation/remote/dockerBuild.sh ${imageName} $newTag $newTag yes"
+if [ -z "$cdafVersion" ]; then
+	cdafVersion=$newTag
 else
-	executeExpression "automation/remote/dockerBuild.sh ${imageName} $newTag"
+	# CDAF Required Label
+	executeExpression "cp -f Dockerfile Dockerfile.source"
+	echo "LABEL	cdaf.dlan.image.version=\"$newTag\"" >> Dockerfile
+fi
+executeExpression "automation/remote/dockerBuild.sh ${imageName} $newTag $cdafVersion $rebuildImage"
+
+if [ -f "Dockerfile.source" ]; then
+	executeExpression "mv -f Dockerfile.source Dockerfile"
 fi
 
 # Remove any older images	

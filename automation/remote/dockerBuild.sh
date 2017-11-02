@@ -35,12 +35,17 @@ version=$3
 if [ -z "$version" ]; then
 	if [ -n "$tag" ]; then
 		version=$tag
+	    echo "[$scriptName] version   : $version (not supplied, defaulted to tag)"
 	else
 		$version = '0.0.0'
+	    echo "[$scriptName] version   : $version (not supplied, and tag not passed, set to 0.0.0)"
 	fi
-    echo "[$scriptName] version   : $version (not supplied, defaulted to tag if passed, else set to 0.0.0)"
 else
-	echo "[$scriptName] version   : $version"
+	if [ "$version" == 'dockerfile' ]; then # Backward compatibility
+		echo "[$scriptName] version   : $version (please set label in Dockerfile cdaf.${imageName}.image.version)"
+	else
+		echo "[$scriptName] version   : $version"
+	fi
 fi
 
 rebuild=$4
@@ -61,8 +66,10 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-# Apply required label for CDAF image management
-buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+if [ "$version" != 'dockerfile' ]; then
+	# Apply required label for CDAF image management
+	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
+fi
 
 echo
 executeExpression "$buildCommand ."

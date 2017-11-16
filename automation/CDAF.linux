@@ -3,4 +3,3 @@
 productVersion=1.6.2
 productName=Continuous Delivery Automation Framework
 solutionName=LU-CDM
-# containerBuild=automation/remote/containerBuild $SOLUTIONNAME $BUILDNUMBER

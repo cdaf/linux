@@ -2,4 +2,4 @@
 productVersion=0.0.1
 productName=My Product Name
 solutionName=myproduct
-# containerBuild=automation/remote/containerBuild $solutionName $buildNumber
+# containerBuild=automation/remote/containerBuild.sh $solutionName $buildNumber

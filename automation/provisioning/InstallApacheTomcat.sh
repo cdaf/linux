@@ -45,6 +45,13 @@ else
 	echo "[$scriptName]   mediaCache     : $mediaCache"
 fi
 
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami         : $(whoami)"
+else
+	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+fi
+
 echo
 # Set parameters
 tomcat="apache-tomcat-${version}"
@@ -58,9 +65,9 @@ if [ -f $mediaCache/${tomcat}.tar.gz ]; then
 else
 	echo "[$scriptName] Media not found, attempting download"
 	if [ ! -d "$mediaCache" ]; then
-		executeExpression "sudo mkdir -p $mediaCache"
+		executeExpression "$elevate mkdir -p $mediaCache"
 	fi
-	executeExpression "sudo curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ -n "$(getent passwd $serviceAccount)" ]; then
@@ -70,61 +77,75 @@ else
 	centos=$(uname -a | grep el)
 	if [ -z "$centos" ]; then
 		echo "[$scriptName] Create the runtime user ($serviceAccount) Ubuntu/Debian"
-		executeExpression "sudo adduser --disabled-password --gecos \"\" $serviceAccount"
+		executeExpression "$elevate adduser --disabled-password --gecos \"\" $serviceAccount"
 	else
 		echo "[$scriptName] Create the runtime user ($serviceAccount) CentOS/RHEL"
-		executeExpression "sudo adduser $serviceAccount"
+		executeExpression "$elevate adduser $serviceAccount"
 	fi
 fi
 
 echo
 echo "[$scriptName] Create application root directory and change to runtime directory"
-executeExpression "sudo mkdir -p $appRoot"
+executeExpression "$elevate mkdir -p $appRoot"
 executeExpression "cd $appRoot"
 
 echo
 echo "[$scriptName] Copy media and extract"
 
-executeExpression "sudo cp -v \"$mediaFullPath\" ."
-executeExpression "sudo tar -zxf ${tomcat}.tar.gz"
+executeExpression "$elevate cp -v \"$mediaFullPath\" ."
+executeExpression "$elevate tar -zxf ${tomcat}.tar.gz"
 
 echo
 echo "[$scriptName] Retain the default tomcat console"
-executeExpression "sudo mv -v $appRoot/$tomcat/webapps/ROOT/ $appRoot/$tomcat/webapps/console"
+executeExpression "$elevate mv -v $appRoot/$tomcat/webapps/ROOT/ $appRoot/$tomcat/webapps/console"
 
 echo
 echo "[$scriptName] Create a link (static for different versions)"
 if [ -d "$appRoot/webapps" ]; then
-	executeExpression "sudo unlink $appRoot/webapps"
+	executeExpression "$elevate unlink $appRoot/webapps"
 fi
-executeExpression "sudo ln -s $appRoot/$tomcat/webapps $appRoot/webapps"
+executeExpression "$elevate ln -s $appRoot/$tomcat/webapps $appRoot/webapps"
 
 echo
 echo "[$scriptName] Make all objects executable and owned by tomcat service account"
-executeExpression "sudo chmod 755 -R $tomcat"
-executeExpression "sudo chown -R $serviceAccount:$serviceAccount $tomcat"
+executeExpression "$elevate chmod 755 -R $tomcat"
+executeExpression "$elevate chown -R $serviceAccount:$serviceAccount $tomcat"
 
 echo
 echo "[$scriptName] Set the application folder to be group writable"
-executeExpression "sudo chmod -R g+rwx $appRoot/$tomcat/webapps"
+executeExpression "$elevate chmod -R g+rwx $appRoot/$tomcat/webapps"
 
 # If a systemd distribution, create service
 if [ -d "/etc/systemd/system/" ]; then
-	sudo sh -c "echo \"[Unit]\" > /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"Description=Apache Tomcat Web Application Container for ${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"After=syslog.target network.target\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"[Service]\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"Type=forking\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"ExecStart=$appRoot/$tomcat/bin/startup.sh\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"ExecStop=$appRoot/$tomcat/bin/shutdown.sh\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"User=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"Group=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"[Install]\" >> /etc/systemd/system/${serviceAccount}.service"
-	sudo sh -c "echo \"WantedBy=multi-user.target\" >> /etc/systemd/system/${serviceAccount}.service"
+	if [ -z $elevate ]; then
+		sh -c "echo \"[Unit]\" > /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"Description=Apache Tomcat Web Application Container for ${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"After=syslog.target network.target\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"[Service]\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"Type=forking\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"ExecStart=$appRoot/$tomcat/bin/startup.sh\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"ExecStop=$appRoot/$tomcat/bin/shutdown.sh\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"User=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"Group=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"[Install]\" >> /etc/systemd/system/${serviceAccount}.service"
+		sh -c "echo \"WantedBy=multi-user.target\" >> /etc/systemd/system/${serviceAccount}.service"
+	else
+		sudo sh -c "echo \"[Unit]\" > /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"Description=Apache Tomcat Web Application Container for ${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"After=syslog.target network.target\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"[Service]\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"Type=forking\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"ExecStart=$appRoot/$tomcat/bin/startup.sh\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"ExecStop=$appRoot/$tomcat/bin/shutdown.sh\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"User=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"Group=${serviceAccount}\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"[Install]\" >> /etc/systemd/system/${serviceAccount}.service"
+		sudo sh -c "echo \"WantedBy=multi-user.target\" >> /etc/systemd/system/${serviceAccount}.service"
+	fi
 fi
 
-executeExpression "sudo systemctl daemon-reload"
-executeExpression "sudo systemctl enable ${serviceAccount}"
-executeExpression "sudo systemctl start ${serviceAccount}"
+executeExpression "$elevate systemctl daemon-reload"
+executeExpression "$elevate systemctl enable ${serviceAccount}"
+executeExpression "$elevate systemctl start ${serviceAccount}"
 
 echo "[$scriptName] --- end ---"

@@ -95,7 +95,10 @@ if [ -d "$localPropertiesDir" ]; then
 			echo
 			echo "$0 : Warning : Default Task ($SOLUTIONROOT/tasksRunLocal.tsk) not found, override task must be defined for each properties file."
 		fi
-				
+		# Include remote tasks should they be required for re-use as local tasks
+		if [ -f "$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
+			cp -av $SOLUTIONROOT/tasksRunRemote.tsk $WORK_DIR_DEFAULT
+		fi				
 	else
 		echo
 		echo "$0 :   Properties directory ($localPropertiesDir) for local tasks exists but contains no files, no action taken."

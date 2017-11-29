@@ -189,6 +189,9 @@ else
 	    echo 'For GitLab (requires shell runner) ...'
 	    echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
 	    echo "    script: \"automation/processor/buildPackage.sh \${CI_BUILD_ID} \${CI_BUILD_REF_NAME}\""
+		echo
+	    echo 'For BlueMix ...'
+	    echo "  Command Executable : ./automation/processor/buildPackage.sh $BUILD_NUMBER"
 	    echo
 		echo "$scriptName : -------------------------------------------------------"
 	fi
@@ -272,6 +275,10 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "clean" ]; t
     echo '    ENV: "<environment>"'
     echo "    script: \"$workDirLocal/$cdInstruction \${ENV} \${CI_PIPELINE_ID}\""
     echo '    environment: <environment>'
+	echo
+	echo 'For BlueMix ...'
+	echo '  For each environment, the environment name is a literal which needs to be defined each time'
+	echo "  Command : ./$workDirLocal/$cdInstruction <environment name>"
    	echo
 	echo "$scriptName : -------------------------------------------------------"
 

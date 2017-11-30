@@ -37,7 +37,7 @@ if [ -z "$version" ]; then
 		version=$tag
 	    echo "[$scriptName] version   : $version (not supplied, defaulted to tag)"
 	else
-		$version = '0.0.0'
+		version='0.0.0'
 	    echo "[$scriptName] version   : $version (not supplied, and tag not passed, set to 0.0.0)"
 	fi
 else

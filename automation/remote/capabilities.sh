@@ -95,7 +95,16 @@ else
 	IFS=' ' read -ra ADDR <<< $test
 	IFS=',' read -ra ADDR <<< ${ADDR[2]}
 	echo "[$scriptName] Docker           : ${ADDR[0]}"
-fi	
+fi
+
+test=$(docker-compose --version 2>&1)
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Docker compose   : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	IFS=',' read -ra ADDR <<< ${ADDR[2]}
+	echo "[$scriptName] Docker compose   : ${ADDR[0]}"
+fi
 
 # Python version lists to standard error
 test="`python --version 2>&1`"

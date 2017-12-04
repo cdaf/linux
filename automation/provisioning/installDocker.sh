@@ -100,7 +100,7 @@ if [ -z "$package" ]; then
 					echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
 					yum check-update
 				fi
-				executeExpression "$elevate yum install -y docker"
+				executeExpression "$elevate yum install -y docker docker-compose"
 				executeExpression "$elevate systemctl enable docker.service"
 				executeExpression "$elevate systemctl start docker.service"
 				executeExpression "$elevate systemctl status docker.service"
@@ -125,7 +125,7 @@ if [ -z "$package" ]; then
 				executeExpression "$elevate cat /etc/yum.repos.d/docker.repo"
 				echo			
 				echo "[$scriptName] Install software from repo"
-				executeExpression "$elevate yum install -y docker-engine"
+				executeExpression "$elevate yum install -y docker-engine docker-compose"
 				executeExpression "$elevate service docker start"
 				executeExpression "$elevate service docker status"
 			fi
@@ -152,7 +152,7 @@ if [ -z "$package" ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
 			executeExpression "$elevate apt-get update"
-			executeExpression "$elevate apt-get install -y docker.io"
+			executeExpression "$elevate apt-get install -y docker.io docker-compose"
 
 		else
 
@@ -176,7 +176,7 @@ if [ -z "$package" ]; then
 			executeExpression "$elevate apt-get install -y apparmor"
 	
 			echo "[$scriptName] Docker document states apparmor needs to be installed"
-			executeExpression "$elevate apt-get install -y docker-engine"
+			executeExpression "$elevate apt-get install -y docker-engine docker-compose"
 			
 		fi
 		
@@ -186,9 +186,26 @@ fi
 if [ "$check" == 'yes' ] ; then
 	echo "[$scriptName] Pause for Docker to start, the list version details..."
 	sleep 5
-	executeExpression "$elevate docker version"
+	echo
+	test=$(docker-compose --version 2>&1)
+	if [[ "$test" == *"not found"* ]]; then
+		echo "[$scriptName] Docker compose : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		IFS=',' read -ra ADDR <<< ${ADDR[2]}
+		echo "[$scriptName] Docker compose : ${ADDR[0]}"
+	fi
+	
+	# Python version lists to standard error
+	test="`python --version 2>&1`"
+	if [[ "$test" == *"not found"* ]]; then
+		echo "[$scriptName] Python v2      : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "[$scriptName] Python v2      : ${ADDR[1]}"
+	fi
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"
 fi
- 
+echo 
 echo "[$scriptName] --- end ---"

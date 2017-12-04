@@ -187,22 +187,22 @@ if [ "$check" == 'yes' ] ; then
 	echo "[$scriptName] Pause for Docker to start, the list version details..."
 	sleep 5
 	echo
-	test=$(docker-compose --version 2>&1)
+	test=$(docker --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Docker compose : (not installed)"
+		echo "[$scriptName] Docker           : (not installed)"
 	else
 		IFS=' ' read -ra ADDR <<< $test
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "[$scriptName] Docker compose : ${ADDR[0]}"
+		echo "[$scriptName] Docker           : ${ADDR[0]}"
 	fi
 	
-	# Python version lists to standard error
-	test="`python --version 2>&1`"
+	test=$(docker-compose --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Python v2      : (not installed)"
+		echo "[$scriptName] Docker compose   : (not installed)"
 	else
 		IFS=' ' read -ra ADDR <<< $test
-		echo "[$scriptName] Python v2      : ${ADDR[1]}"
+		IFS=',' read -ra ADDR <<< ${ADDR[2]}
+		echo "[$scriptName] Docker compose   : ${ADDR[0]}"
 	fi
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"

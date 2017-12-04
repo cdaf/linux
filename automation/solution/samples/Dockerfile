@@ -1,20 +1,16 @@
-FROM microsoft/dotnet
-
+# DOCKER-VERSION 1.2.0
+FROM ubuntu
 MAINTAINER Jules Clements
 
-LABEL net.webhop.hdc.feature.version="@version@"
+# Copy solution, provision and then build
+WORKDIR solution
 
-# Seed the runtime
-RUN mkdir /opt/@project@ && cd /opt/@project@ && dotnet new 
+COPY automation automation
+COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
 
-# Copy the application code
-COPY source/ /opt/@project@
+# Provision Build Dependancies
+RUN automation-solution/bootstrapAgent.sh
 
-# List the dependency manifest and Compile
-RUN cat /opt/@project@/project.json && dotnet restore && dotnet build
-
-# Default Port for Microsoft Templates
-EXPOSE 5000
-
-WORKDIR /opt/@project@
-CMD ["dotnet", "run"]
+# Build and Package Solution, use mapped volume so the resulting package is available on the local host, i.e.
+# docker run -it -v /Users/me/mule:/workspace mule
+CMD automation/remote/entrypoint.sh

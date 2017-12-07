@@ -1,0 +1,23 @@
+EXPOSED_PORT='9876'
+
+echo "List the available images"
+docker images
+
+echo "Cleanup any previously failed smoke test"
+IMAGE_TAG="${SOLUTION}"
+docker-compose down
+docker-compose rm
+
+echo "Create Test Containers"
+IMAGE_TAG="${SOLUTION}:${BUILDNUMBER}"
+docker-compose up -d
+
+echo "Windows Docker connot connect on localhost, connect using container IP"
+containerIP=$(docker inspect --format '{{ .NetworkSettings.Networks.nat.IPAddress }}' taskslocal_web_1)
+
+echo "Testing http://${containerIP}:${EXPOSED_PORT}"
+curl -s http://${containerIP}:${EXPOSED_PORT}
+
+echo "Tear down"
+docker-compose down
+docker-compose rm

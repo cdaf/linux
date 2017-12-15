@@ -43,8 +43,8 @@ fi
 
 executeExpression "curl -O https://codeload.github.com/cdaf/linux/zip/master"
 executeExpression "unzip master"
+executeExpression "chmod -R +x ./linux-master"
 executeExpression "cd ./linux-master/"
-executeExpression "for script in $(find . -name "*.sh"); chmod -R +x $script; done"
 
 executeExpression "./automation/provisioning/base.sh 'virtualbox vagrant'"
 

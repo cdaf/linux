@@ -34,7 +34,7 @@ function executeYumCheck {
 	done
 }
 
-scriptName='boostrap-dev.sh'
+scriptName='bootstrap-dev.sh'
 echo "[$scriptName] --- start ---"
 
 if [ -d './linux-master' ]; then

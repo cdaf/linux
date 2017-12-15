@@ -36,20 +36,6 @@ function executeYumCheck {
 
 scriptName='boostrap-dev.sh'
 echo "[$scriptName] --- start ---"
-registryPort=$1
-if [ -z "$registryPort" ]; then
-	registryPort='80'
-	echo "[$scriptName]   registryPort : $registryPort (default)"
-else
-	echo "[$scriptName]   registryPort : $registryPort"
-fi
-
-initialImage=$2
-if [ -z "$initialImage" ]; then
-	echo "[$scriptName]   initialImage not supplied"
-else
-	echo "[$scriptName]   initialImage : $initialImage"
-fi
 
 if [ -d './linux-master' ]; then
 	executeExpression "rm -rf './linux-master'"

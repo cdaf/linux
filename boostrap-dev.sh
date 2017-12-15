@@ -52,7 +52,7 @@ else
 fi
 
 if [ -d './linux-master' ]; then
-	executeExpression "rm -if './linux-master'"
+	executeExpression "rm -rf './linux-master'"
 fi
 
 executeExpression "curl -O https://codeload.github.com/cdaf/linux/zip/master"

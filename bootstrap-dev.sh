@@ -57,7 +57,7 @@ if [[ "$test" == *"not found"* ]]; then
 	executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.gpg"
 	executeExpression "sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main\" > /etc/apt/sources.list.d/vscode.list'"
 	executeExpression "apt-get update"
-	executeExpression "sudo apt-get install code"
+	executeExpression "sudo apt-get install -y code"
 fi
 
 executeExpression "./automation/provisioning/installDocker.sh" # Docker and Compose

@@ -54,7 +54,7 @@ echo "[$scriptName] From https://code.visualstudio.com/docs/setup/linux"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] Debian/Ubuntu"
-	executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc | /etc/apt/trusted.gpg.d/microsoft.gpg"
+	executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.gpg"
 	executeExpression "sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main\" > /etc/apt/sources.list.d/vscode.list'"
 	executeExpression "apt-get update"
 	executeExpression "sudo apt-get install code"

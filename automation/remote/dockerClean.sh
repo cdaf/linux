@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1
@@ -35,7 +34,13 @@ tag=$2
 if [ -z "$tag" ]; then
 	echo "[$scriptName] tag not supplied, all will be removed."
 else
-	echo "[$scriptName] tag       : ${tag}"
+	re='^[0-9]+$'
+	if [[ ${tag} =~ $re ]] ; then # Tag is a number
+		echo "[$scriptName] tag       : ${tag}"
+	else
+		echo "[$scriptName] tag (${tag}) is not an integer! Exit with code 2."
+		exit 2
+	fi
 fi
 
 echo
@@ -45,7 +50,7 @@ executeExpression "docker images"
 echo
 echo "[$scriptName] Remove untagged orphaned (dangling) images"
 for imageID in $(docker images -aq -f dangling=true); do
-	executeSuppress "docker rmi $imageID"
+	executeSuppress "docker rmi -f $imageID"
 done	
 
 echo
@@ -56,7 +61,7 @@ echo "[$scriptName]   docker images --filter label=cdaf.${imageName}.image.versi
 echo "[$scriptName] Note: The actual image version value is ignored."
 if [ -z "$tag" ]; then
 	for imageID in $(docker images --filter label=cdaf.${imageName}.image.version -aq); do
-		executeSuppress "docker rmi $imageID"
+		executeSuppress "docker rmi -f $imageID"
 	done	
 else
 	# Need to read complete lines, not separation at spaces
@@ -64,10 +69,11 @@ else
 	for imageDetail in $(docker images --filter label=cdaf.${imageName}.image.version -a); do
 		IFS=' '
 		arr=($imageDetail)
-		if [[ "${arr[1]}" != 'TAG' ]]; then
-			if [[ "${arr[1]}" < "$tag" ]]; then
+		re='^[0-9]+$'
+		if [[ ${arr[1]} =~ $re ]] ; then # Tag is an integer
+			if [ "${arr[1]}" -lt "$tag" ]; then
 				echo "[$scriptName] Remove Image ${arr[0]}:${arr[1]}"
-				executeSuppress "docker rmi ${arr[2]}"
+				executeSuppress "docker rmi -f ${arr[2]}"
 			fi
 		fi
 	done	
@@ -77,4 +83,5 @@ echo
 echo "[$scriptName] List images (after)"
 executeExpression "docker images"
 
+echo
 echo "[$scriptName] --- end ---"

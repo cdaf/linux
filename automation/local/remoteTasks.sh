@@ -46,6 +46,9 @@ else
 	OPT_ARG=$5
 	echo "$0 :   OPT_ARG           : $OPT_ARG"
 fi
+echo "$0 :   whoami            : $(whoami)"
+echo "$0 :   hostname          : $(hostname)"
+echo "$0 :   pwd               : $(pwd)"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 

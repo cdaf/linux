@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Entry point for Delivery automation.
 
 scriptName=${0##*/}

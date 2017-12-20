@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Entry point for building projects and packaging solution. 
 
 scriptName=${0##*/}

@@ -40,5 +40,6 @@ echo "[$scriptName] --- start ---"
 executeExpression "curl -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
 executeExpression "tar -xzf LU-CDAF.tar.gz"
 executeExpression "./automation/remote/capabilities.sh"
+executeExpression "rm LU-CDAF.tar.gz"
 
 echo "[$scriptName] --- end ---"

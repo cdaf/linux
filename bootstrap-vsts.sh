@@ -120,7 +120,7 @@ echo "[$scriptName] Download CDAF"
 if [ -d './linux-master' ]; then
 	executeExpression "rm -rf './linux-master'"
 fi
-executeExpression "curl -O https://codeload.github.com/cdaf/linux/zip/master"
+executeExpression "curl -s -O https://codeload.github.com/cdaf/linux/zip/master"
 executeExpression "unzip master"
 executeExpression "chmod -R +x ./linux-master"
 executeExpression "cd ./linux-master/"

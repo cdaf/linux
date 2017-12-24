@@ -68,6 +68,13 @@ else
 	echo "[$scriptName]   agentName      : $agentName"
 fi
 
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami         : $(whoami)"
+else
+	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+fi
+
 echo "[$scriptName] Install Zip"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
@@ -122,7 +129,7 @@ executeExpression "cd ./linux-master/"
 
 echo
 echo "[$scriptName] Create agent user and register"
-executeExpression "./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
+executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 executeExpression "./automation/provisioning/installAgent.sh $url \$pat $pool $agentName"
 
 echo "[$scriptName] --- end ---"

@@ -74,14 +74,14 @@ executeExpression "$elevate ./bin/installdependencies.sh"
 if [ $(whoami) != 'root' ];then
 sudo su $srvAccount << EOF
 	echo "[$scriptName] /opt/vso"
-	/opt/vso
+	cd /opt/vso
 	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 else
 su $srvAccount << EOF
 	echo "[$scriptName] /opt/vso"
-	/opt/vso
+	cd /opt/vso
 	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF

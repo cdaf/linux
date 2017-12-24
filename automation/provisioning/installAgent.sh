@@ -62,10 +62,9 @@ else
 	exit 200
 fi
 
-executeExpression "mkdir vso"
-executeExpression "cd vso"
 executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-linux-x64-2.126.0.tar.gz"
-executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz"
+executeExpression "mkdir vso"
+executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz -C ./vso"
 executeExpression "sudo mv vso /opt"
 executeExpression "sudo chown -R $srvAccount /opt/vso"
 	

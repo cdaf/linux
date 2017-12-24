@@ -73,8 +73,8 @@ executeExpression "sudo ./bin/installdependencies.sh"
 sudo su $srvAccount << EOF
 	echo "[$scriptName] /opt/vso"
 	/opt/vso
-	echo "[$scriptName] ./config.sh --unattended --url $url --auth PAT --token \$pat --pool $pool --agent $agentName --replace"
-	./config.sh --token $pat --pool $pool --agent $agentName --replace
+	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
+	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 
 executeExpression "sudo ./svc.sh install"

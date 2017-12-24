@@ -54,16 +54,14 @@ fi
 
 pool="$3"
 if [ -z "$pool" ]; then
-	pool='Default'
-	echo "[$scriptName]   pool           : $pool (default)"
+	echo "[$scriptName]   pool           : (not supplied)"
 else
 	echo "[$scriptName]   pool           : $pool"
 fi
 
 agentName="$4"
 if [ -z "$agentName" ]; then
-	agentName=$(hostname)
-	echo "[$scriptName]   agentName      : $agentName (default)"
+	echo "[$scriptName]   agentName      : (not supplied)"
 else
 	echo "[$scriptName]   agentName      : $agentName"
 fi

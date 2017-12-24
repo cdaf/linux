@@ -44,19 +44,36 @@ else
 	echo "[$scriptName]   agentName      : $agentName"
 fi
 
+srvAccount="$5"
+if [ -z "$srvAccount" ]; then
+	srvAccount='vstsagent'
+	echo "[$scriptName]   srvAccount     : $srvAccount (default)"
+else
+	echo "[$scriptName]   srvAccount     : $srvAccount"
+fi
+
+echo "[$scriptName]   hostname       : $(hostname)"
+echo "[$scriptName]   pwd            : $(pwd)"
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami         : $(whoami)"
 else
-	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+	echo "[$scriptName] Installing as root user not supported by VSTS install script, exiting with exit code 200!"
+	exit 200
 fi
 
-executeExpression "mkdir myagent"
-executeExpression "cd myagent"
+executeExpression "mkdir vso"
+executeExpression "cd vso"
 executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-linux-x64-2.126.0.tar.gz"
 executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz"
-executeExpression "./config.sh --token \$pat --pool $pool --agent $agentName --replace"
-executeExpression "$elevate ./svc.sh install"
+executeExpression "sudo mv vso /opt"
+executeExpression "sudo chown -R $srvAccount /opt/vso"
+	
+su $srvAccount << EOF
+	echo "[$scriptName] ./config.sh --token \$pat --pool $pool --agent $agentName --replace"
+	./config.sh --token \$pat --pool $pool --agent $agentName --replace
+EOF
 
+executeExpression "sudo ./svc.sh install"
 	
 echo "[$scriptName] --- end ---"

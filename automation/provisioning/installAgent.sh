@@ -77,7 +77,7 @@ sudo su $srvAccount << EOF
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 
-executeExpression "sudo ./svc.sh install"
+executeExpression "sudo ./svc.sh install $srvAccount"
 
 echo "[$scriptName] --- end ---"
 exit 0

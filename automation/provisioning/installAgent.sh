@@ -67,8 +67,12 @@ executeExpression "mkdir vso"
 executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz -C ./vso"
 executeExpression "sudo mv vso /opt"
 executeExpression "sudo chown -R $srvAccount /opt/vso"
+executeExpression "cd /opt/vso"
+executeExpression "sudo ./bin/installdependencies.sh"
 
 sudo su $srvAccount << EOF
+	echo "[$scriptName] /opt/vso"
+	/opt/vso
 	echo "[$scriptName] ./config.sh --token \$pat --pool $pool --agent $agentName --replace"
 	./config.sh --token \$pat --pool $pool --agent $agentName --replace
 EOF

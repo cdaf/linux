@@ -58,26 +58,36 @@ if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami         : $(whoami)"
 else
-	echo "[$scriptName] Installing as root user not supported by VSTS install script, exiting with exit code 200!"
-	exit 200
+	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
 
 executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-linux-x64-2.126.0.tar.gz"
 executeExpression "mkdir vso"
 executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz -C ./vso"
-executeExpression "sudo mv vso /opt"
-executeExpression "sudo chown -R $srvAccount /opt/vso"
+executeExpression "$elevate mv vso /opt"
+executeExpression "$elevate chown -R $srvAccount /opt/vso"
 executeExpression "cd /opt/vso"
-executeExpression "sudo ./bin/installdependencies.sh"
+executeExpression "$elevate ./bin/installdependencies.sh"
 
+# Must execute as non elevated user as config will exit with error if elevated
+# Cannot indent or EOF is not detected
+if [ $(whoami) != 'root' ];then
 sudo su $srvAccount << EOF
 	echo "[$scriptName] /opt/vso"
 	/opt/vso
 	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
+else
+su $srvAccount << EOF
+	echo "[$scriptName] /opt/vso"
+	/opt/vso
+	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
+	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
+EOF
+fi
 
-executeExpression "sudo ./svc.sh install $srvAccount"
+executeExpression "$elevate ./svc.sh install $srvAccount"
 
 echo "[$scriptName] --- end ---"
 exit 0

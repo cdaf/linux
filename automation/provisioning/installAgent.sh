@@ -54,7 +54,7 @@ fi
 executeExpression "mkdir myagent"
 executeExpression "cd myagent"
 executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-linux-x64-2.126.0.tar.gz"
-executeExpression "tar zxvf vsts-agent-linux-x64-2.126.0.tar.gz"
+executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz"
 executeExpression "./config.sh --token \$pat --pool $pool --agent $agentName --replace"
 executeExpression "$elevate ./svc.sh install"
 

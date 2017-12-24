@@ -67,12 +67,13 @@ executeExpression "mkdir vso"
 executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz -C ./vso"
 executeExpression "sudo mv vso /opt"
 executeExpression "sudo chown -R $srvAccount /opt/vso"
-	
-su $srvAccount << EOF
+
+sudo su $srvAccount << EOF
 	echo "[$scriptName] ./config.sh --token \$pat --pool $pool --agent $agentName --replace"
 	./config.sh --token \$pat --pool $pool --agent $agentName --replace
 EOF
 
 executeExpression "sudo ./svc.sh install"
-	
+
 echo "[$scriptName] --- end ---"
+exit 0

@@ -49,7 +49,7 @@ if [ -z "$pat" ]; then
 	echo "pat not passed, HALT!"
 	exit 102
 else
-	echo "[$scriptName]   pat            : $pat"
+	echo "[$scriptName]   pat            : \$pat"
 fi
 
 pool="$3"

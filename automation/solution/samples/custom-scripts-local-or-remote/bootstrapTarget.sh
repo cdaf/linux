@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+SOLUTION="$1"
+BUILDNUMBER="$2"
+TARGET="$3"
+
 function executeExpression {
 	counter=1
 	max=5
@@ -20,12 +24,21 @@ function executeExpression {
 			success='yes'
 		fi
 	done
-}  
+}
 
 scriptName='bootstrapTarget.sh'
 
 echo "[$scriptName] --- start ---"
+echo "[$scriptName]  SOLUTION    : $SOLUTION"
+echo "[$scriptName]  BUILDNUMBER : $BUILDNUMBER"
+echo "[$scriptName]  TARGET      : $TARGET"
 echo "[$scriptName] Working directory is $(pwd)"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami         : $(whoami)"
+else
+	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+fi
 
 atomicPath='./automation'
 if [ ! -d "$atomicPath" ]; then
@@ -38,11 +51,25 @@ if [ ! -d "$atomicPath" ]; then
 	fi
 fi
 
-executeExpression "$atomicPath/provisioning/base.sh curl"
-executeExpression "$atomicPath/provisioning/installOracleJava.sh jre"
-executeExpression "$atomicPath/provisioning/InstallMuleESB.sh"
-executeExpression "$atomicPath/remote/capabilities.sh"
 
+if [ -f "/opt/initialised" ]; then
+
+	echo "/opt/initialised exists, host already intialised, delete to rerun"
+	echo
+	cat /opt/initialised
+
+else
+
+	executeExpression "$elevate $atomicPath/provisioning/base.sh curl"
+	executeExpression "$elevate $atomicPath/provisioning/installOracleJava.sh jre"
+	executeExpression "$elevate $atomicPath/provisioning/InstallMuleESB.sh"
+	executeExpression "$elevate $atomicPath/remote/capabilities.sh"
+
+	echo "Host intialised, create /opt/initialised file"
+	executeExpression "$elevate date > /opt/initialised"
+	echo
+	cat /opt/initialised
+
+fi
 echo
 echo "[$scriptName] --- end ---"
-

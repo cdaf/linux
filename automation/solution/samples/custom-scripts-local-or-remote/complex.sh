@@ -26,7 +26,7 @@ function executeExpression {
 	done
 }  
 
-scriptName='bootstrapTarget.sh'
+scriptName='complex.sh'
 
 echo "[$scriptName] --- start ---"
 echo "[$scriptName]  SOLUTION    : $SOLUTION"

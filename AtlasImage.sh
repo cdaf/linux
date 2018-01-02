@@ -29,7 +29,7 @@ else
 fi
 
 hypervisor=$1
-if [ -z "$hypervisor" ]; then
+if [ -n "$hypervisor" ]; then
 	echo "[$scriptName]   hypervisor     : $hypervisor (default)"
 else
 	echo "[$scriptName] hypervisor not passed, exit 1"; exit 1

@@ -30,7 +30,7 @@ fi
 
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
-	echo "[$scriptName]   hypervisor     : $hypervisor (default)"
+	echo "[$scriptName]   hypervisor     : $hypervisor"
 else
 	echo "[$scriptName] hypervisor not passed, exit 1"; exit 1
 fi

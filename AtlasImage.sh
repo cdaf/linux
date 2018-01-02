@@ -50,8 +50,19 @@ if [ "$hypervisor" == 'hyperv' ]; then
 	   	executeExpression "$elevate yum install -y hyperv-daemons cifs-utils"
 		executeExpression "$elevate systemctl daemon-reload"
 		executeExpression "$elevate systemctl enable hypervkvpd"
-	else # Ubuntu
-		echo;echo "[$scriptName] Ubuntu does not require extensions (from 14.04)"
+else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
+		echo;echo "[$scriptName] Ubuntu extensions are included (from 12.04), but require activation, list before and after"
+		executeExpression '$elevate cat /etc/initramfs-tools/modules"'
+		echo
+		executeExpression '$elevate sh -c "echo \"hv_vmbus\" >> /etc/initramfs-tools/modules"'
+		executeExpression '$elevate sh -c "echo \"hv_storvsc\" >> /etc/initramfs-tools/modules"'
+		executeExpression '$elevate sh -c "echo \"hv_blkvsc\" >> /etc/initramfs-tools/modules"'
+		executeExpression '$elevate sh -c "echo \"hv_netvsc\" >> /etc/initramfs-tools/modules"'
+		echo
+		executeExpression '$elevate cat /etc/initramfs-tools/modules"'
+		echo
+		executeExpression '$elevate apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)'
+		executeExpression '$elevate update-initramfs -u'
 	fi
 else # VirtualBox
 	if [ "$centos" ]; then

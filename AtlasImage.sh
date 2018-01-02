@@ -115,7 +115,7 @@ else # Ubuntu
 fi
 
 echo "[$scriptName] Image complete, shutdown VM with 1 minute pause"
-executeExpression "$elevate shutdown -h 1"
+executeExpression "$elevate shutdown -h +1"
 
 echo "[$scriptName] --- end ---"
 exit 0

@@ -66,35 +66,31 @@ else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 	fi
 else # VirtualBox
 	if [ "$centos" ]; then
+		echo;echo "[$scriptName] Install prerequisites"
 		executeExpression "$elevate yum update -y"
 		sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
 		executeExpression "$elevate cat /etc/sudoers"
-		executeExpression "$elevate rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
+		executeExpression "$elevate yum groupinstall -y 'Development Tools'"
 		executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
 		executeExpression "KERN_DIR=/usr/src/kernels/`uname -r`"
 		executeExpression "export KERN_DIR"
 	
-		echo;echo "[$scriptName] Load the Guest Editions using the VirtualBox GUI, Devices --> Insert Guest Editions ISO image"
-		executeExpression "$elevate mkdir /media/VirtualBoxGuestAdditions"
-		executeExpression "$elevate mount -r /dev/cdrom /media/VirtualBoxGuestAdditions"
-		executeExpression "cd /media/VirtualBoxGuestAdditions"
-		executeExpression "$elevate ./VBoxLinuxAdditions.run"
 	else # Ubuntu
-		echo;echo "[$scriptName] Install prerequisites, then Download and install VirtualBox extensions"
-		vbadd='5.1.10'
+		echo;echo "[$scriptName] Install prerequisites"
 		executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
-		executeExpression "wget http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
-		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
-		executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
-			
-		# This is normal for server install
-		# Could not find the X.Org or XFree86 Window System, skipping.
-		executeExpression "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
-		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
-		executeExpression "$elevate umount /media/VBoxGuestAdditions"
-		executeExpression "$elevate rmdir /media/VBoxGuestAdditions"
 	fi
-
+	echo;echo "[$scriptName] Download and install VirtualBox extensions"
+	vbadd='5.1.30'
+	executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+	executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
+	executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
+		
+	# This is normal for server install ...
+	#    Could not find the X.Org or XFree86 Window System, skipping.
+	executeExpression "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
+	executeExpression "$elevate umount /media/VBoxGuestAdditions"
+	executeExpression "$elevate rmdir /media/VBoxGuestAdditions"
 fi
 
 if [ "$centos" ]; then

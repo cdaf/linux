@@ -98,7 +98,7 @@ if [ "$centos" ]; then
 	executeExpression "$elevate yum clean all"
 	executeExpression "$elevate rm -rf /tmp/*"
 	executeExpression "$elevate rm -f /var/log/wtmp /var/log/btmp"
-	executeExpression "$elevate history -c"
+	executeExpression "history -c"
 	executeExpression "$elevate dd if=/dev/zero of=/EMPTY bs=1M"
 	executeExpression "$elevate rm -f /EMPTY"
 	executeExpression "$elevate sync"

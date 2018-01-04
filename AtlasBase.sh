@@ -12,10 +12,8 @@ function executeExpression {
 }  
 
 scriptName='AtlasBase.sh'
-echo
-echo "[$scriptName] Generic provisioning for Linux"
-echo
-echo "[$scriptName] --- start ---"
+echo; echo "[$scriptName] Generic provisioning for Linux"
+echo; echo "[$scriptName] --- start ---"
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"

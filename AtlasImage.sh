@@ -11,11 +11,19 @@ function executeExpression {
 	fi
 }  
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+	fi
+}  
+
 scriptName='AtlasBase.sh'
-echo
-echo "[$scriptName] Generic provisioning for Linux"
-echo
-echo "[$scriptName] --- start ---"
+echo; echo "[$scriptName] Generic provisioning for Linux"
+echo; echo "[$scriptName] --- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
 	echo "[$scriptName]   hypervisor   : $hypervisor"
@@ -87,7 +95,7 @@ else # VirtualBox
 		
 	# This is normal for server install ...
 	#    Could not find the X.Org or XFree86 Window System, skipping.
-	executeExpression "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	executeIgnore "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
 	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 	executeExpression "$elevate umount /media/VBoxGuestAdditions"
 	executeExpression "$elevate rmdir /media/VBoxGuestAdditions"
@@ -96,12 +104,13 @@ fi
 if [ "$centos" ]; then
 	echo "[$scriptName] Cleanup"
 	executeExpression "$elevate yum clean all"
+	executeExpression "$elevate rm -rf /var/cache/yum"
 	executeExpression "$elevate rm -rf /tmp/*"
 	executeExpression "$elevate rm -f /var/log/wtmp /var/log/btmp"
-	executeExpression "history -c"
 	executeExpression "$elevate dd if=/dev/zero of=/EMPTY bs=1M"
 	executeExpression "$elevate rm -f /EMPTY"
 	executeExpression "$elevate sync"
+	executeExpression "history -c"
 else # Ubuntu
 	executeExpression "$elevate apt-get autoremove && $elevate apt-get clean && $elevate apt-get autoclean" 
 	executeExpression "$elevate rm -r /var/log/*"

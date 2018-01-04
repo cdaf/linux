@@ -22,7 +22,7 @@ function executeExpression {
 	done
 }  
 
-scriptName='installGitLabRunner.sh'
+scriptName='installRunner.sh'
 
 echo "[$scriptName] --- start ---"
 url="$1"

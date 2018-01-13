@@ -225,10 +225,10 @@ do
 	#  required : value, the replacement value
 	if [ "$feature" == "REPLAC" ]; then
 		printf "$LINE ==> "
-		stringarray=($LINE)
-		fileName=${stringarray[1]}
-		name=${stringarray[2]}
-		value=${stringarray[3]}
+		declare -a "array=($LINE)"
+		fileName=${array[1]}
+		name=${array[2]}
+		value=${array[3]}
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then
 			EXECUTABLESCRIPT="sed -i '' -- \"s^${name}^${value}^g\" ${fileName}"

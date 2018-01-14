@@ -80,6 +80,11 @@ else # Just add the user to the group
 	executeExpression "$elevate usermod -a -G $groupname $username"
 fi
 
+if [ "$username" != "$groupname" ]; then
+	echo "[$scriptName] Ensure user has group permission"
+	executeExpression "$elevate gpasswd -a vagrant docker"
+fi
+
 if [ -n "$password" ]
 then
     # We cannot use the executeExpression function here because this will print out the password to stdout, which we

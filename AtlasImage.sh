@@ -88,7 +88,7 @@ else # VirtualBox
 		executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 	fi
 	echo;echo "[$scriptName] Download and install VirtualBox extensions"
-	vbadd='5.1.30'
+	vbadd='5.1.10'
 	executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 	executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
 	executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"

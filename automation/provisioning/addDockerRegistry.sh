@@ -11,6 +11,16 @@ function executeExpression {
 	fi
 }  
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+	fi
+}
+
 scriptName='addDockerRegistry.sh'
 echo "[$scriptName] --- start ---"
 registryPort=$1
@@ -29,7 +39,7 @@ else
 fi
 
 echo "Install registry (version 2) ..."
-executeExpression "docker run -d -p $registryPort:5000 --restart=always --name registry registry:2"
+executeIgnore "docker run -d -p $registryPort:5000 --restart=always --name registry registry:2"
 
 if [ -n "$initialImage" ]; then
 	echo "Pull initial image ($initialImage) ..."

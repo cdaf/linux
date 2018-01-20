@@ -65,6 +65,7 @@ fi
 
 ACTION="$3"
 echo "$scriptName :   ACTION          : $ACTION"
+caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
 SOLUTION="$4"
 if [[ $SOLUTION == *'$'* ]]; then
@@ -103,18 +104,26 @@ fi
 
 echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
-$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo
-	echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
-	exit $exitCode
+if [ "$caseinsensitive" == "packageonly" ]; then
+	echo "$scriptName action is ${ACTION}, do not perform build."
+else
+	$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo
+		echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
+		exit $exitCode
+	fi
 fi
-    
-$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo
-	echo "$scriptName : Solution Package Failed! $AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
-	exit $exitCode
+
+if [ "$caseinsensitive" == "buildonly" ]; then
+	echo "$scriptName action is ${ACTION}, do not perform package."
+else
+	$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo
+		echo "$scriptName : Solution Package Failed! $AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
+		exit $exitCode
+	fi
 fi

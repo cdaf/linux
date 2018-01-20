@@ -119,8 +119,8 @@ else # Ubuntu
 	executeExpression "$elevate zerofree -v /dev/sda1" 
 fi
 
-echo "[$scriptName] Image complete, shutdown VM with 1 minute pause"
-executeExpression "$elevate shutdown -h +1"
+echo "[$scriptName] Image complete, shutdown VM"
+executeExpression "$elevate shutdown -h now"
 
 echo "[$scriptName] --- end ---"
 exit 0

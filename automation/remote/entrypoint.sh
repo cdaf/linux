@@ -27,7 +27,7 @@ executeExpression "cd /workspace"
 if [ -n $buildNumber ]; then
 	executeExpression "./automation/processor/buildPackage.sh $buildNumber"
 else
-	executeExpression "./automation/cdEmulate.sh buildonly"
+	executeExpression "./automation/cdEmulate.sh cionly"
 fi
 
 echo

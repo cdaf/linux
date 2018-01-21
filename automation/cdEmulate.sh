@@ -81,7 +81,7 @@ if [ -f "buildnumber.counter" ]; then
 else
 	let "buildNumber=0"
 fi
-if [ "$caseinsensitive" != "deliveryonly" ]; then
+if [ "$caseinsensitive" != "cdonly" ]; then
 	let "buildNumber=$buildNumber + 1"
 fi
 echo $buildNumber > buildnumber.counter
@@ -195,7 +195,7 @@ else
 	    echo
 		echo "$scriptName : -------------------------------------------------------"
 	fi
-	if [ "$caseinsensitive" != "deliveryonly" ]; then
+	if [ "$caseinsensitive" != "cdonly" ]; then
 		$ciProcess "$buildNumber" "$revision" "$ACTION"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
@@ -205,8 +205,8 @@ else
 	fi
 fi
 
-# Do not process Remote and Local Tasks if the action is buildonly or clean
-if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "clean" ]; then
+# Do not process Remote and Local Tasks if the action is cionly or clean
+if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
 	echo "$scriptName : ---------- Artefact Configuration Guide -------------"
 	echo
@@ -282,7 +282,7 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "clean" ]; t
    	echo
 	echo "$scriptName : -------------------------------------------------------"
 
-	if [ "$caseinsensitive" != "buildonly" ]; then
+	if [ "$caseinsensitive" != "cionly" ]; then
 		$cdProcess "$environmentDelivery"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then

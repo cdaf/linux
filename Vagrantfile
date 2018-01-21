@@ -58,6 +58,10 @@ Vagrant.configure(2) do |config|
       override.vm.provision 'shell', path: 'automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing
       override.vm.provision 'shell', path: 'automation/provisioning/internalCA.sh'
       override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', privileged: false
+      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false
+      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', args: '. packageonly', privileged: false
+      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', args: '. cionly', privileged: false
+      override.vm.provision 'shell', path: 'automation/provisioning/CDAF.sh', args: '. cdonly', privileged: false
     end
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up build --provider hyperv
     build.vm.provider 'hyperv' do |hyperv, override|

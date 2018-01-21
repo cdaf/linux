@@ -28,7 +28,12 @@ runas="$1"
 if [ -z "$runas" ]; then
 	echo "[$scriptName]   runas          : (not supplied, run as current user $(whoami))"
 else
-	echo "[$scriptName]   runas          : $runas"
+	if [ "$runas" == '.' ]; then
+		unset runas
+		echo "[$scriptName]   runas          : (passed ., run as current user $(whoami))"
+	else
+		echo "[$scriptName]   runas          : $runas"
+	fi
 fi
 
 OPT_ARG="$2"

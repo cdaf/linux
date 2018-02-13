@@ -21,32 +21,45 @@ if [ -z "$imageName" ]; then
 	echo "[$scriptName] imageName not supplied, exit with code 1."
 	exit 1
 else
-	echo "[$scriptName] imageName    : $imageName"
+	echo "[$scriptName] imageName     : $imageName"
 fi
 
 buildNumber=$2
 if [ -z "$buildNumber" ]; then
-	echo "[$scriptName] buildNumber  : (not supplied)"
+	echo "[$scriptName] buildNumber   : (not supplied)"
 else
-	echo "[$scriptName] buildNumber  : $buildNumber"
+	echo "[$scriptName] buildNumber   : $buildNumber"
 fi
 
 rebuildImage=$3
 if [ -z "$rebuildImage" ]; then
-	echo "[$scriptName] rebuildImage : (not supplied)"
+	echo "[$scriptName] rebuildImage  : (not supplied)"
 else
-	echo "[$scriptName] rebuildImage : $rebuildImage"
+	echo "[$scriptName] rebuildImage  : $rebuildImage"
 fi
 
 # backward compatibility
 cdafVersion=$4
 if [ -z "$cdafVersion" ]; then
-	echo "[$scriptName] cdafVersion  : (not supplied, pass dockerfile if your version of docker does not support label argument)"
+	echo "[$scriptName] cdafVersion   : (not supplied, pass dockerfile if your version of docker does not support label argument)"
 else
-	echo "[$scriptName] cdafVersion  : $cdafVersion"
+	echo "[$scriptName] cdafVersion   : $cdafVersion"
 fi
 
-echo "[$scriptName] \$DOCKER_HOST : $DOCKER_HOST"
+echo "[$scriptName] \$DOCKER_HOST  : $DOCKER_HOST"
+SOLUTIONROOT="$AUTOMATIONROOT/solution"
+for i in $(ls -d */); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
+		SOLUTIONROOT="$directoryName"
+	fi
+done
+echo "[$scriptName] \$SOLUTIONROOT : $SOLUTIONROOT"
+buildImage="${imageName}_container_build"
+echo "[$scriptName] buildImage    : $buildImage"
+echo "[$scriptName] whoami        : $(whoami)"
+echo "[$scriptName] pwd           : $(pwd)"
+echo "[$scriptName] hostname      : $(hostname)"
 
 # Test Docker is running
 echo "[$scriptName] List all current images"
@@ -58,13 +71,13 @@ if [ "$rebuild" == 'yes' ]; then
 fi
 
 if [ -n "$tag" ]; then
-	buildCommand+=" --tag ${imageName}:${tag}"
+	buildCommand+=" --tag ${buildImage}:${tag}"
 else
-	buildCommand+=" --tag ${imageName}"
+	buildCommand+=" --tag ${buildImage}"
 fi
 
 imageTag=0
-for tag in $(docker images --filter label=cdaf.${imageName}.image.version --format "{{.Tag}}"); do
+for tag in $(docker images --filter label=cdaf.${buildImage}.image.version --format "{{.Tag}}"); do
 	intTag=$((${tag}))
 	if [[ $imageTag -le $intTag ]]; then
 		imageTag=$intTag
@@ -83,14 +96,14 @@ else
 	executeExpression "cp -f Dockerfile Dockerfile.source"
 	echo "LABEL	cdaf.dlan.image.version=\"$newTag\"" >> Dockerfile
 fi
-executeExpression "automation/remote/dockerBuild.sh ${imageName} $newTag $cdafVersion $rebuildImage"
+executeExpression "automation/remote/dockerBuild.sh ${buildImage} $newTag $cdafVersion $rebuildImage"
 
 if [ -f "Dockerfile.source" ]; then
 	executeExpression "mv -f Dockerfile.source Dockerfile"
 fi
 
 # Remove any older images	
-executeExpression "automation/remote/dockerClean.sh ${imageName} $newTag"
+executeExpression "automation/remote/dockerClean.sh ${buildImage} $newTag"
 
 workspace=$(pwd)
 echo "[$scriptName] \$newTag    : $newTag"
@@ -98,14 +111,21 @@ echo "[$scriptName] \$workspace : $workspace"
 
 # If a build number is not passed, use the CDAF emulator
 if [ -z "$buildNumber" ]; then
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${newTag}"
+	executeExpression "docker run --tty --volume ${workspace}:/workspace ${buildImage}:${newTag}"
 else
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${imageName}:${newTag} automation/remote/entrypoint.sh $buildNumber"
+	executeExpression "docker run --tty --volume ${workspace}:/workspace ${buildImage}:${newTag} automation/remote/entrypoint.sh $buildNumber"
 fi
 
 echo "[$scriptName] List and remove all stopped containers"
 executeExpression 'docker ps --filter "status=exited" -a'
 executeExpression 'docker rm $(docker ps --filter "status=exited" -aq)'
+
+if [ -f "$SOLUTIONROOT/imageBuild.sh" ]; then
+	executeExpression "cd $SOLUTIONROOT"
+	executeExpression "./imageBuild.sh"
+	executeExpression "../automation/remote/dockerBuild.sh ${imageName} $BUILDNUMBER"
+	executeExpression "./imageBuild.sh clean"
+fi
 
 echo
 echo "[$scriptName] --- end ---"

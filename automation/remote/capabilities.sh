@@ -185,6 +185,14 @@ else
 	echo "[$scriptName] NodeMon          : $test"
 fi	
 
+# dotnet core
+test=$(dotnet --version 2>/dev/null)
+if [ -z "$test" ]; then
+	echo "[$scriptName] dotnet core      : (not installed)"
+else
+	echo "[$scriptName] dotnet core      : $test"
+fi	
+
 echo
 echo "[$scriptName] --- end ---"
 echo

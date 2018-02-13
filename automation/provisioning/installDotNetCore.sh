@@ -67,7 +67,12 @@ fi
 
 install="$2"
 if [ -z "$install" ]; then
-	install='dotnet-sdk-2.1.4'
+	if [ "$sdk" == 'yes' ]; then
+		default='dotnet-sdk-2.1.4'
+	else
+		default='dotnet-runtime-2.0.5'
+	fi	
+	install=$default
 	echo "[$scriptName]   install : $install (default)"
 else
 	echo "[$scriptName]   install : $install"
@@ -81,10 +86,14 @@ else
 fi
 
 echo
-# Install from global repositories only supporting CentOS and Ubuntu
-echo "[$scriptName] Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported"
-uname -a
-centos=$(uname -a | grep el)
+# Determine distribution, only Ubuntu/Debian and CentOS/RHEL supported
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Yum not available, assuming Ubuntu/Debian"
+else
+	echo "[$scriptName] Yum available, assuming CentOS/Red Hat"
+	centos='yes'
+fi
 
 echo
 echo "[$scriptName] Install base software ($install)"
@@ -143,5 +152,10 @@ else
 		executeExpression "$elevate ln -s /opt/dotnet/dotnet /usr/local/bin"
 	fi
 fi
- 
+
+# dotnet core
+test=$(dotnet --version 2>/dev/null)
+echo "[$scriptName] dotnet core : $test"
+
+echo 
 echo "[$scriptName] --- end ---"

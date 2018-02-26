@@ -127,7 +127,7 @@ if [ -z "$solutionName" ]; then
 	echo "$scriptName : solutionName not defined in $solutionRoot/CDAF.solution, exiting with code 3"; exit 3
 fi
 
-if [ -z "$ACTION" ]; then
+if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
 	echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
 	echo

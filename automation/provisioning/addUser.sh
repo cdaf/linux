@@ -82,7 +82,7 @@ fi
 
 if [ "$username" != "$groupname" ]; then
 	echo "[$scriptName] Ensure user has group permission"
-	executeExpression "$elevate gpasswd -a vagrant docker"
+	executeExpression "$elevate gpasswd -a $username $groupname"
 fi
 
 if [ -n "$password" ]

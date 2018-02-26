@@ -127,81 +127,51 @@ if [ -z "$solutionName" ]; then
 	echo "$scriptName : solutionName not defined in $solutionRoot/CDAF.solution, exiting with code 3"; exit 3
 fi
 
-# If a container build command is specified, use this instead of CI process
-echo
-if [ -n "$containerBuild" ]; then
-	test=$(docker --version 2>&1)
-	if [[ "$test" == *"not found"* ]]; then
-		echo "$scriptName :   Docker              : container Build defined in $solutionRoot/CDAF.solution, but Docker not installed, will attempt to execute natively"
-	else
-		IFS=' ' read -ra ADDR <<< $test
-		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		dockerRun="${ADDR[0]}"
-		echo "$scriptName :   Docker              : $dockerRun"
-	fi
-else
-	echo "$scriptName :   containerBuild      : (not defined in $solutionRoot/CDAF.solution)"
-fi
-
-if [ -n "$dockerRun" ]; then
-
+if [ -z "$ACTION" ]; then
 	echo
 	echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
+	echo
+    echo 'For TeamCity ...'
+    echo "  Command Executable : $ciProcess"
+    echo "  Command parameters : %build.number% %build.vcs.number%"
+	echo
+    echo 'For Go (requires explicit bash invoke) ...'
+    echo '  Command   : /bin/bash'
+    echo "  Arguments : -c '$ciProcess \${GO_PIPELINE_COUNTER} \${GO_REVISION}'"
     echo
-	echo "$containerBuild"
+    echo 'For Bamboo ...'
+    echo "  Script file : $ciProcess"
+	echo "  Argument    : $solutionName \${bamboo.buildNumber} \${bamboo.repository.revision.number}"
+    echo
+    echo 'For Jenkins ...'
+    echo "  Command : ./$ciProcess \$BUILD_NUMBER \$SVN_REVISION"
+    echo
+    echo 'For Team Foundation Server/Visual Studio Team Services'
+	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
+    echo '  Use the visual studio template and delete the nuget and VS tasks.'
+    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects, with the solution in the repo root.'
+	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
+	echo '        Set the build number $(rev:r) to ensure build number is an integer'
+	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
+    echo "  Command Filename  : $ciProcess"
+    echo "  Command arguments : \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION"
+    echo '  Working directory : selected and set to blank (otherwise the path of the ciProcess will be used)'
+	echo
+    echo 'For GitLab (requires shell runner) ...'
+    echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
+    echo "    script: \"automation/processor/buildPackage.sh \${CI_BUILD_ID} \${CI_BUILD_REF_NAME}\""
+	echo
+    echo 'For BlueMix ...'
+    echo "  Command Executable : ./automation/processor/buildPackage.sh $BUILD_NUMBER"
     echo
 	echo "$scriptName : -------------------------------------------------------"
-    echo
-	executeExpression "$containerBuild"
-
-else
-
-	if [ -z "$ACTION" ]; then
-		echo
-		echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
-		echo
-	    echo 'For TeamCity ...'
-	    echo "  Command Executable : $ciProcess"
-	    echo "  Command parameters : %build.number% %build.vcs.number%"
-		echo
-	    echo 'For Go (requires explicit bash invoke) ...'
-	    echo '  Command   : /bin/bash'
-	    echo "  Arguments : -c '$ciProcess \${GO_PIPELINE_COUNTER} \${GO_REVISION}'"
-	    echo
-	    echo 'For Bamboo ...'
-	    echo "  Script file : $ciProcess"
-		echo "  Argument    : $solutionName \${bamboo.buildNumber} \${bamboo.repository.revision.number}"
-	    echo
-	    echo 'For Jenkins ...'
-	    echo "  Command : ./$ciProcess \$BUILD_NUMBER \$SVN_REVISION"
-	    echo
-	    echo 'For Team Foundation Server/Visual Studio Team Services'
-		echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
-	    echo '  Use the visual studio template and delete the nuget and VS tasks.'
-	    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects, with the solution in the repo root.'
-		echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
-		echo '        Set the build number $(rev:r) to ensure build number is an integer'
-		echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
-	    echo "  Command Filename  : $ciProcess"
-	    echo "  Command arguments : \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION"
-	    echo '  Working directory : selected and set to blank (otherwise the path of the ciProcess will be used)'
-		echo
-	    echo 'For GitLab (requires shell runner) ...'
-	    echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
-	    echo "    script: \"automation/processor/buildPackage.sh \${CI_BUILD_ID} \${CI_BUILD_REF_NAME}\""
-		echo
-	    echo 'For BlueMix ...'
-	    echo "  Command Executable : ./automation/processor/buildPackage.sh $BUILD_NUMBER"
-	    echo
-		echo "$scriptName : -------------------------------------------------------"
-	fi
-	if [ "$caseinsensitive" != "cdonly" ]; then
-		$ciProcess "$buildNumber" "$revision" "$ACTION"
-		exitCode=$?
-		if [ $exitCode -ne 0 ]; then
-			echo "$scriptName : CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
-			exit $exitCode
-		fi
+fi
+if [ "$caseinsensitive" != "cdonly" ]; then
+	$ciProcess "$buildNumber" "$revision" "$ACTION"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "$scriptName : CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
+		exit $exitCode
 	fi
 fi
 

@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}
+
 # Entry point for building projects and packaging solution. 
 
 scriptName=${0##*/}
@@ -104,26 +115,57 @@ fi
 
 echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
-if [ "$caseinsensitive" == "packageonly" ]; then
-	echo "$scriptName action is ${ACTION}, do not perform build."
-else
-	$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo
-		echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
-		exit $exitCode
+# If a container build command is specified, use this instead of CI process
+containerBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "containerBuild")
+if [ -n "$containerBuild" ]; then
+	test=$(docker --version 2>&1)
+	if [[ "$test" == *"not found"* ]]; then
+		echo "$scriptName :   Docker          : container Build defined in $solutionRoot/CDAF.solution, but Docker not installed, will attempt to execute natively"
+		unset containerBuild
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		IFS=',' read -ra ADDR <<< ${ADDR[2]}
+		dockerRun="${ADDR[0]}"
+		echo "$scriptName :   Docker          : $dockerRun"
 	fi
+else
+	echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
 fi
 
-if [ "$caseinsensitive" == "buildonly" ]; then
-	echo "$scriptName action is ${ACTION}, do not perform package."
+# CDAF 1.7.0 Container Build process
+if [ -n "$containerBuild" ]; then
+	echo "$scriptName Execute Container build, this performs cionly, options packageonly and buildonly are ignored."
+	executeExpression "$containerBuild"
+	
+	imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
+	if [ -n "$containerBuild" ]; then
+		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot\CDAF.solution"
+		executeExpression "$imageBuild"
+	else
+		echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
+	fi
 else
-	$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo
-		echo "$scriptName : Solution Package Failed! $AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
-		exit $exitCode
+	if [ "$caseinsensitive" == "packageonly" ]; then
+		echo "$scriptName action is ${ACTION}, do not perform build."
+	else
+		$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			echo
+			echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
+			exit $exitCode
+		fi
+	fi
+	
+	if [ "$caseinsensitive" == "buildonly" ]; then
+		echo "$scriptName action is ${ACTION}, do not perform package."
+	else
+		$AUTOMATION_ROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			echo
+			echo "$scriptName : Solution Package Failed! $AUTOMATION_ROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
+			exit $exitCode
+		fi
 	fi
 fi

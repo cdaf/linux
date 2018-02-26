@@ -26,7 +26,8 @@ fi
 
 buildNumber=$2
 if [ -z "$buildNumber" ]; then
-	echo "[$scriptName] buildNumber   : (not supplied)"
+	echo "[$scriptName] buildNumber not supplied, exit with code 2."
+	exit 2
 else
 	echo "[$scriptName] buildNumber   : $buildNumber"
 fi
@@ -110,11 +111,7 @@ echo "[$scriptName] \$newTag    : $newTag"
 echo "[$scriptName] \$workspace : $workspace"
 
 # If a build number is not passed, use the CDAF emulator
-if [ -z "$buildNumber" ]; then
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${buildImage}:${newTag}"
-else
-	executeExpression "docker run --tty --volume ${workspace}:/workspace ${buildImage}:${newTag} automation/remote/entrypoint.sh $buildNumber"
-fi
+executeExpression "docker run --tty --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $buildNumber"
 
 echo "[$scriptName] List and remove all stopped containers"
 executeExpression 'docker ps --filter "status=exited" -a'

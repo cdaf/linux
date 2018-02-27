@@ -75,16 +75,16 @@ else
 	echo "$scriptName :   environmentDelivery : $environmentDelivery (override $solutionRoot/deliveryEnv.sh not found)"
 fi
 
-# Use a simple text file (buildnumber.counter) for incremental build number
-if [ -f "buildnumber.counter" ]; then
-	let "buildNumber=$(cat buildnumber.counter)"
+# Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
+if [ -f "${HOME}/buildnumber.counter" ]; then
+	let "buildNumber=$(cat ${HOME}/buildnumber.counter)"
 else
 	let "buildNumber=0"
 fi
 if [ "$caseinsensitive" != "cdonly" ]; then
 	let "buildNumber=$buildNumber + 1"
 fi
-echo $buildNumber > buildnumber.counter
+echo $buildNumber > ${HOME}/buildnumber.counter
 
 revision="55"
 echo "$scriptName :   buildNumber         : $buildNumber"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function executeExpression {
-	echo "[$scriptName] $1"
+	echo "$1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
@@ -134,11 +134,13 @@ fi
 
 # CDAF 1.7.0 Container Build process
 if [ -n "$containerBuild" ]; then
+	echo
 	echo "$scriptName Execute Container build, this performs cionly, options packageonly and buildonly are ignored."
 	executeExpression "$containerBuild"
-	
+
 	imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
 	if [ -n "$containerBuild" ]; then
+		echo
 		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot\CDAF.solution"
 		executeExpression "$imageBuild"
 	else

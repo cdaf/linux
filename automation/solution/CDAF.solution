@@ -2,5 +2,5 @@
 productVersion=0.0.1
 productName=My Product Name
 solutionName=myproduct
-# containerBuild=automation/processor/containerBuild.sh ${SOLUTION} $BUILDNUMBER
-# imageBuild=automation-solution/imageBuild.sh ${SOLUTION} $BUILDNUMBER
+# containerBuild=./automation/processor/containerBuild.sh ${SOLUTION} $BUILDNUMBER
+# imageBuild=./automation-solution/imageBuild.sh ${SOLUTION} $BUILDNUMBER

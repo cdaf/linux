@@ -144,7 +144,7 @@ if [ -n "$containerBuild" ]; then
 		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot\CDAF.solution"
 		executeExpression "$imageBuild"
 	else
-		echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
+		echo "$scriptName :   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
 	fi
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then

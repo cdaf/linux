@@ -117,12 +117,5 @@ echo "[$scriptName] List and remove all stopped containers"
 executeExpression 'docker ps --filter "status=exited" -a'
 executeExpression 'docker rm $(docker ps --filter "status=exited" -aq)'
 
-if [ -f "$SOLUTIONROOT/imageBuild.sh" ]; then
-	executeExpression "cd $SOLUTIONROOT"
-	executeExpression "./imageBuild.sh"
-	executeExpression "../automation/remote/dockerBuild.sh ${imageName} $buildNumber"
-	executeExpression "./imageBuild.sh clean"
-fi
-
 echo
 echo "[$scriptName] --- end ---"

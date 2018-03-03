@@ -2,7 +2,7 @@
 REMOVE *.binary
 
 echo "If ACTION (emulation only) is clean, do not perform any further action"
-EXITIF $ACTION
+EXITIF $ACTION == 'clean'
 
 echo "Load product (solution) attributes"
 PROPLD ../$SOLUTIONROOT/CDAF.solution

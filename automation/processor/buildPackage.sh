@@ -133,7 +133,7 @@ else
 fi
 
 # CDAF 1.7.0 Container Build process
-if [ -n "$containerBuild" ]; then
+if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
 	echo "$scriptName Execute Container build, this performs cionly, options packageonly and buildonly are ignored."
 	executeExpression "$containerBuild"

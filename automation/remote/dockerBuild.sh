@@ -55,9 +55,31 @@ else
 	echo "[$scriptName] rebuild   : $rebuild"
 fi
 
+userName=$5
+if [ -z "$userName" ]; then
+	echo "[$scriptName] userName  : (not supplied)"
+else
+	echo "[$scriptName] userName  : $userName"
+fi
+
+userID=$6
+if [ -z "$userID" ]; then
+	echo "[$scriptName] userID    : (not supplied)"
+else
+	echo "[$scriptName] userID    : $userID"
+fi
+
 buildCommand='docker build'
 if [ "$rebuild" == 'yes' ]; then
 	buildCommand+=" --no-cache=true"
+fi
+
+if [ -n "$userName" ]; then
+	buildCommand+=" --build-arg userName=$userName"
+fi
+
+if [ -n "$userID" ]; then
+	buildCommand+=" --build-arg userID=$userID"
 fi
 
 if [ -n "$tag" ]; then

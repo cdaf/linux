@@ -34,7 +34,8 @@ fi
 
 rebuildImage=$3
 if [ -z "$rebuildImage" ]; then
-	echo "[$scriptName] rebuildImage  : (not supplied)"
+	rebuildImage='no'
+	echo "[$scriptName] rebuildImage  : $rebuildImage (not supplied, set to default)"
 else
 	echo "[$scriptName] rebuildImage  : $rebuildImage"
 fi
@@ -97,7 +98,7 @@ else
 	executeExpression "cp -f Dockerfile Dockerfile.source"
 	echo "LABEL	cdaf.dlan.image.version=\"$newTag\"" >> Dockerfile
 fi
-executeExpression "automation/remote/dockerBuild.sh ${buildImage} $newTag $cdafVersion $rebuildImage"
+executeExpression "automation/remote/dockerBuild.sh ${buildImage} $newTag $cdafVersion $rebuildImage $(whoami) $(id -u)" 
 
 if [ -f "Dockerfile.source" ]; then
 	executeExpression "mv -f Dockerfile.source Dockerfile"
@@ -111,7 +112,7 @@ echo "[$scriptName] \$newTag    : $newTag"
 echo "[$scriptName] \$workspace : $workspace"
 
 # If a build number is not passed, use the CDAF emulator
-executeExpression "docker run --tty --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $buildNumber"
+executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $buildNumber"
 
 echo "[$scriptName] List and remove all stopped containers"
 executeExpression 'docker ps --filter "status=exited" -a'

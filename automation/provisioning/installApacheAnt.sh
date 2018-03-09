@@ -13,8 +13,8 @@ scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	echo "version not passed, HALT!"
-	exit 1
+	version='1.9.10'
+	echo "[$scriptName]   version    : $version (default)"
 else
 	version="$1"
 	echo "[$scriptName]   version    : $version"
@@ -22,10 +22,21 @@ fi
 
 mediaCache="$2"
 if [ -z "$mediaCache" ]; then
-	mediaCache='/vagrant/.provision'
+	mediaCache='/.provision'
 	echo "[$scriptName]   mediaCache : $mediaCache (default)"
 else
 	echo "[$scriptName]   mediaCache : $mediaCache"
+fi
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami     : $(whoami)"
+else
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
+fi
+
+if [ ! -d "$mediaCache" ]; then
+	executeExpression "$elevate mkdir -p $mediaCache"
 fi
 
 # Set parameters
@@ -39,17 +50,28 @@ fi
 
 executeExpression "cp \"${mediaCache}/${antSource}\" ."
 executeExpression "tar -xf $antSource"
-executeExpression "sudo mv $antVersion /opt/"
+executeExpression "$elevate mv $antVersion /opt/"
 
 # Configure to directory on the default PATH
-executeExpression "sudo ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
+executeExpression "$elevate ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
 
 # Set environment (user default) variable
 echo ANT_HOME=\"/opt/$antVersion\" > $scriptName
 chmod +x $scriptName
-sudo mv -v $scriptName /etc/profile.d/
+executeExpression "$elevate mv -v $scriptName /etc/profile.d/"
 
 echo "[$scriptName] List start script contents ..."
 executeExpression "cat /etc/profile.d/$scriptName"
+
+# Ant version lists to standard error
+test="`ant -version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Apache Ant install failed!"
+	exit 23700
+else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[3]}
+	echo "[$scriptName] Apache Ant version $test"
+fi	
 
 echo "[$scriptName] --- end ---"

@@ -72,20 +72,20 @@ fi
 # Ant version lists to standard error
 test="`ant -version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Ant              : (not installed)"
+	echo "[$scriptName] Apache Ant       : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[3]}
-	echo "[$scriptName] Ant              : $test"
+	echo "[$scriptName] Apache Ant       : $test"
 fi	
 
 test=$(mvn -version 2>&1)
 if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Maven            : (not installed)"
+	echo "[$scriptName] Apache Maven     : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[2]}
-	echo "[$scriptName] Maven            : $test"
+	echo "[$scriptName] Apache Maven     : $test"
 fi
 
 test=$(docker --version 2>&1)

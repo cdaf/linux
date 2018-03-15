@@ -27,14 +27,14 @@ scriptName='bootstrapAgent.sh'
 echo "[$scriptName] --- start ---"
 echo "[$scriptName] Working directory is $(pwd)"
 
-atomicPath='./automation'
-if [ ! -d "$atomicPath" ]; then
+if [ -d './automation' ]; then
+	atomicPath='.'
+else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
-	atomicPath='/vagrant/automation'
-	if [ -d "$atomicPath" ]; then
-		echo "[$scriptName] $atomicPath found, will use for script execution"
+	if [ -d '/vagrant/automation' ]; then
+		atomicPath='/vagrant'
 	else
-		echo "[$scriptName] $atomicPath not found! Exit with error 34"; exit 34
+		echo "[$scriptName] $atomicPath not found for either Docker or Vagrant! Exit with error 34"; exit 34
 	fi
 fi
 
@@ -42,7 +42,7 @@ echo
 test="`curl --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] curl not installed, required to download Maven, install using package manager ..."
-	executeExpression "$atomicPath/provisioning/base.sh curl"
+	executeExpression "$atomicPath/automation/provisioning/base.sh curl"
 	executeExpression "curl --version"
 else
 	IFS=' ' read -ra ADDR <<< $test
@@ -51,9 +51,9 @@ else
 fi	
 
 echo
-executeExpression "$atomicPath/provisioning/installOracleJava.sh jdk"
-executeExpression "$atomicPath/provisioning/installApacheMaven.sh"
-executeExpression "$atomicPath/remote/capabilities.sh"
+executeExpression "$atomicPath/automation/provisioning/installOracleJava.sh jdk"
+executeExpression "$atomicPath/automation/provisioning/installApacheMaven.sh"
+executeExpression "$atomicPath/automation/remote/capabilities.sh"
 
 echo
 echo "[$scriptName] --- end ---"

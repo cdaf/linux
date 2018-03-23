@@ -1,14 +1,15 @@
 node ('master') {
   stage 'build'
     checkout scm
+    sh "cat Jenkinsfile"
     sh "env"
-    sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+    sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${JOB_NAME}"
 
   stage 'CD'
-    sh "TasksLocal/delivery.sh CD"
+    sh "TasksLocal/delivery.sh CD ${JOB_NAME}"
 
   stage 'TEST'
-    sh "TasksLocal/delivery.sh TEST"
+    sh "TasksLocal/delivery.sh TEST ${JOB_NAME}"
 
   stage 'PROD'
     input 'Ready to go?'

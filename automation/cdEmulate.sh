@@ -144,7 +144,7 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly
 	echo "  Argument    : $solutionName \${bamboo.buildNumber} \${bamboo.repository.revision.number}"
     echo
     echo 'For Jenkins ...'
-    echo "  Command : ./$ciProcess \$BUILD_NUMBER \$SVN_REVISION"
+    echo "  Command : $ciProcess \$BUILD_NUMBER \$JOB_NAME"
     echo
     echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'

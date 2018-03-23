@@ -12,9 +12,7 @@ function executeExpression {
 }  
 
 scriptName='getMedia.sh'
-echo
-echo "[$scriptName] ----- Start ------"
-echo
+echo; echo "[$scriptName] ----- Start ------"; echo
 if [ -z "$1" ]; then
 	echo "[$scriptName] URL not supplied! Exiting with exit code 1."
 	exit 1
@@ -24,7 +22,7 @@ else
 fi
 
 if [ -z "$2" ]; then
-	mediaCache='/vagrant/.provision'
+	mediaCache='/.provision'
 	echo "[$scriptName]   mediaCache  : $mediaCache (default)"
 else
 	mediaCache="$2"
@@ -40,18 +38,12 @@ if [ ! -d "$mediaCache" ]; then
 	echo
 fi
 
-cd $mediaCache
-
 if [ -f "$mediaCache/$filename" ]; then
 	echo
-	echo "[$scriptName] Filename ($filename) exists in cache, no action attempted, exit normally."
+	echo "[$scriptName] Filename ($mediaCache/$filename) exists in cache, no action attempted, exit normally."
 else
 	echo
-	executeExpression "curl -s -O $url"
+	executeExpression "curl -s $url --output $mediaCache/$filename"
 fi
 
-cd ..
-
-echo
-echo "[$scriptName] ----- Stop ------"
-echo
+echo; echo "[$scriptName] ----- Stop ------"; echo

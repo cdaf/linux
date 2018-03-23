@@ -42,7 +42,7 @@ fi
 
 mediaPath="$3"
 if [ -z "$mediaPath" ]; then
-	mediaPath='/vagrant/.provision'
+	mediaPath='/.provision'
 	echo "[$scriptName]   mediaPath    : $mediaPath (default)"
 else
 	echo "[$scriptName]   mediaPath    : $mediaPath"

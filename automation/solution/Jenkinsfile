@@ -1,4 +1,4 @@
-node ('master') {
+node  {
   stage 'build'
     checkout scm
     sh "cat Jenkinsfile"

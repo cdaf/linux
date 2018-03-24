@@ -36,7 +36,7 @@ else
 	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
-executeExpression "curl -O https://repository.mulesoft.org/nexus/content/repositories/releases/org/mule/distributions/mule-standalone/${version}/mule-standalone-${version}.tar.gz"
+executeExpression "curl -s -O https://repository.mulesoft.org/nexus/content/repositories/releases/org/mule/distributions/mule-standalone/${version}/mule-standalone-${version}.tar.gz"
 executeExpression "tar xf mule-standalone-${version}.tar.gz"
 executeExpression "$elevate mv -f ./mule-standalone-${version} ${appRoot}"
 executeExpression "$elevate ln -s ${appRoot}/mule-standalone-${version} ${appRoot}/mule"

@@ -1,58 +1,53 @@
 #!/usr/bin/env bash
-set -e
 
-# THIS FILE IS A EXAMPLE AND NOT USED, copy to each project in project.list file
-# Project Build Script, this maybe use ant, maven or simple scripts to create the build artefacts
-
-if [ -z "$1" ]; then
-	echo "$0 : Project not passed!"
-	exit 1
-else
-	PROJECT="$1"
-fi
-
-if [ -z "$2" ]; then
-	echo "$0 : Build Number not passed!"
-	exit 1
-else
-	BUILDNUMBER="$2"
-fi
-
-if [ -z "$3" ]; then
-	echo "$0 : Revision not passed!"
-	exit 1
-else
-	REVISION="$3"
-fi
-
-if [ ! -z "$4" ]; then
-	ACTION="$4"
-fi
-
-echo
-echo "$0 : Get Property value (containerPath) from ./$TARGET using getProperty.sh"
-echo 
-./getProperty.sh "./$TARGET" "containerPath"
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$0 : Retrieval of containerPath from $TARGET failed! Returned $exitCode"
-	exit $exitCode
-fi
-
-if [ "$ACTION" == "clean" ]; then
-	echo "$0 : $PROJECT Clean only, using ant"
-	echo
-	ant clean
-else
-	echo "$0 : Build $PROJECT using ant (for something this trivial, should use .tsk)"
-	echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
-	echo "$0 :   REVISION    : $REVISION"
-	echo "$0 :   pwd         : $(pwd)"
-	echo
-	ant -DbuildRevision="$BUILDNUMBER-$REVISION" -Dproject.name="$(basename $(pwd))"
+function executeExpression {
+	echo "$1"
+	eval $1
 	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "$0 : Building Failed, exit code = $exitCode."
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
+}  
+
+scriptName='build.sh'
+echo; echo "[$scriptName] --- start ---"
+PROJECT=$1
+if [ -z "$PROJECT" ]; then
+	echo "[$scriptName] PROJECT not passed!"; exit 1
+else
+	echo "[$scriptName]   PROJECT     : $PROJECT"
 fi
+
+BUILDNUMBER=$2
+if [ -z "$BUILDNUMBER" ]; then
+	echo "[$scriptName] BUILDNUMBER not passed!"; exit 2
+else
+	echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
+fi
+
+REVISION=$3
+if [ -z "$REVISION" ]; then
+	echo "[$scriptName] REVISION not passed!"; exit 3
+else
+	echo "[$scriptName]   REVISION    : $REVISION"
+fi
+
+ACTION=$4
+if [ -z "$ACTION" ]; then
+	echo "[$scriptName]   ACTION      : (not supplied)"
+else
+	echo "[$scriptName]   ACTION      : $ACTION"
+fi
+
+echo; echo "[$scriptName] Beware, CentOS has a packer binary that takes precedenced in non-interactive sessions"
+executeExpression "which packer"
+
+echo; echo "[$scriptName] verify packer install"
+executeExpression "/usr/bin/packer --version"
+
+echo; echo "[$scriptName] verify packer install"
+executeExpression "/usr/bin/packer build ubuntu.json"
+
+echo; echo "[$scriptName] --- end ---"; echo

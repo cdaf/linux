@@ -182,6 +182,10 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo
 	echo 'Configure artefact retention patterns to retain package and local tasks'
 	echo
+	echo 'For Jenkins ...'
+    echo '  Use Post-build Action Archive the Artefacts'
+	echo "  Files to archive : TasksLocal/**, *.gz, *.zip"
+	echo
     echo 'For Go ...'
     echo '  Source        | Destination | Type'
 	echo '  *.gz          | package     | Build Artifact'
@@ -229,8 +233,16 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo "  Argument    : \${bamboo.deploy.environment} \${bamboo.deploy.release}"
 	echo
 	echo 'For Jenkins ...'
-	echo '  For each environment, the environment name is a literal which needs to be defined each time'
-	echo "  Command : ./$workDirLocal/$cdInstruction <environment name>"
+	echo '  Artefacts do not retain their executable bit:'
+	echo '	chmod +x ./*/*.sh'
+	echo '  Promote plugin:'
+	echo '    For each environment, the environment name is a literal which needs to be defined each time'
+	echo "    Command : ./$workDirLocal/$cdInstruction <environment name> \$PROMOTED_NUMBER"
+	echo '  Delivery Pipeline plugin:'
+	echo '    Retrieve the upstream build number from the manifest. Can use the Job Name as Environment Name'
+	echo '    Command : ./TasksLocal/transform.sh ./TasksLocal/manifest.txt'
+	echo '    Command : eval $(./TasksLocal/transform.sh ./TasksLocal/manifest.txt)'
+	echo '    Command : ./TasksLocal/delivery.sh $JOB_NAME $BUILDNUMBER'
 	echo
 	echo 'For Team Foundation Server/Visual Studio Team Services'
 	echo '  Verify the queue for each Environment definition, and ensure Environment names do not contain spaces.'

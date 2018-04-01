@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+function executeExpression {
+	echo "$1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}
+
 # Entry point for Delivery automation.
 
 scriptName=${0##*/}
@@ -69,24 +80,17 @@ else
 	echo "$scriptName :   BUILDNUMBER      : $BUILDNUMBER"
 fi 
 
+processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
+if [ -z $processSequence ]; then
+	processSequence='remoteTasks.sh localTasks.sh'
+fi
+
 echo "$scriptName :   whoami           : $(whoami)"
 echo "$scriptName :   hostname         : $(hostname)"
 echo "$scriptName :   CDAF Version     : $(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/CDAF.properties" "productVersion")"
 workingDir=$(pwd)
 echo "$scriptName :   workingDir       : $workingDir"
 
-./$WORK_DIR_DEFAULT/remoteTasks.sh "$ENVIRONMENT" "$BUILDNUMBER" "$SOLUTION" "$WORK_DIR_DEFAULT" "$OPT_ARG"
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$scriptName : Remote Deploy process failed! Returned $exitCode"
-	echo "$scriptName : ./$WORK_DIR_DEFAULT/remoteTasks.sh $ENVIRONMENT $BUILDNUMBER $SOLUTION $WORK_DIR_DEFAULT $OPT_ARG"
-	exit $exitCode
-fi
-
-./$WORK_DIR_DEFAULT/localTasks.sh "$ENVIRONMENT" "$BUILDNUMBER" "$SOLUTION" "$WORK_DIR_DEFAULT" "$OPT_ARG"
-exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "$scriptName : Remote Deploy process failed! Returned $exitCode"
-	echo "$scriptName : ./$WORK_DIR_DEFAULT/localTasks.sh $ENVIRONMENT $BUILDNUMBER $SOLUTION $WORK_DIR_DEFAULT $OPT_ARG"
-	exit $exitCode
-fi
+for step in $processSequence; do
+	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+done

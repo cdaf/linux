@@ -2,10 +2,10 @@
 
 function executeExpression {
 	counter=1
-	max=5
+	max=3
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName][$counter] $1"
+		echo "[$counter] $1"
 		eval $1
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
@@ -24,23 +24,53 @@ function executeExpression {
 }  
 
 scriptName='installpm2.sh'
-echo
-echo "[$scriptName] PM2, Process Manager for Node.js"
-echo
+echo; echo "[$scriptName] PM2, Process Manager for Node.js. No arguments supported. Requires Node and NPM."; echo
+echo "[$scriptName] --- start ---"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami : $(whoami)"
+else
+	echo "[$scriptName]   whoami : $(whoami) (elevation not required)"
+fi
+
+test="`npm -v 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Install Error! NPM verification failed."
+	exit 1937
+else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[0]}
+	echo "[$scriptName]   NPM    : $test"
+fi	
 
 # snippet from http://unix.stackexchange.com/questions/18209/detect-init-system-using-the-shell
-INIT=`sudo sh -c "ls -l /proc/1/exe"`
+if [ -z $elevate ]; then
+	INIT=`sh -c "ls -l /proc/1/exe"`
+else
+	INIT=`sudo sh -c "ls -l /proc/1/exe"`
+fi
 if [[ "$INIT" == *"systemd"* ]]; then
   SYSTEMINITDAEMON=systemd
 fi
 if [ -z "$SYSTEMINITDAEMON" ]; then
     echo "[$scriptName] :ERROR:Startup type untested: $SYSTEMINITDAEMON"
-    exit 1
+    exit 1938
 fi
 
-echo "[$scriptName] sudo npm install pm2@latest -g"
-sudo sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done; npm -version; npm install pm2@latest -g'
+echo; echo "[$scriptName] Source all user profile start scripts"; echo
+if [ -z $elevate ]; then
+	sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done'
+else
+	sudo sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done'
+fi
 
-executeExpression "pm2 startup $SYSTEMINITDAEMON"
+echo; echo "[$scriptName] Install PM2"; echo
+executeExpression "$elevate npm install pm2@latest -g"
 
-echo "[$scriptName] --- end ---"
+if [ ! -f "/usr/bin/node" ]; then
+	executeExpression "$elevate ln -s /usr/bin/nodejs /usr/bin/node"
+fi
+executeExpression "$elevate pm2 startup $SYSTEMINITDAEMON"
+
+echo; echo "[$scriptName] --- end ---"; echo
+exit 0

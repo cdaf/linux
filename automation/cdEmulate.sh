@@ -86,7 +86,12 @@ if [ "$caseinsensitive" != "cdonly" ]; then
 fi
 echo $buildNumber > ${HOME}/buildnumber.counter
 
-revision="55"
+if [ -d .git ]; then
+	IFS=' ' read -ra ADDR <<< $(git branch | grep '*')
+	revision="${ADDR[1]}"
+else
+	revision="revision"
+fi
 echo "$scriptName :   buildNumber         : $buildNumber"
 echo "$scriptName :   revision            : $revision"
 

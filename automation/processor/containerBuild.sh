@@ -24,15 +24,29 @@ else
 	echo "[$scriptName] imageName     : $imageName"
 fi
 
-buildNumber=$2
-if [ -z "$buildNumber" ]; then
-	echo "[$scriptName] buildNumber not supplied, exit with code 2."
+BUILDNUMBER=$2
+if [ -z "$BUILDNUMBER" ]; then
+	echo "[$scriptName] BUILDNUMBER not supplied, exit with code 2."
 	exit 2
 else
-	echo "[$scriptName] buildNumber   : $buildNumber"
+	echo "[$scriptName] BUILDNUMBER   : $BUILDNUMBER"
 fi
 
-rebuildImage=$3
+REVISION=$3
+if [ -z "$REVISION" ]; then
+	echo "[$scriptName] REVISION      : (not supplied)"
+else
+	echo "[$scriptName] REVISION      : $REVISION"
+fi
+
+ACTION=$4
+if [ -z "$ACTION" ]; then
+	echo "[$scriptName] ACTION        : (not supplied)"
+else
+	echo "[$scriptName] ACTION        : $ACTION"
+fi
+
+rebuildImage=$5
 if [ -z "$rebuildImage" ]; then
 	rebuildImage='no'
 	echo "[$scriptName] rebuildImage  : $rebuildImage (not supplied, set to default)"
@@ -41,7 +55,7 @@ else
 fi
 
 # backward compatibility
-cdafVersion=$4
+cdafVersion=$6
 if [ -z "$cdafVersion" ]; then
 	echo "[$scriptName] cdafVersion   : (not supplied, pass dockerfile if your version of docker does not support label argument)"
 else
@@ -111,8 +125,17 @@ workspace=$(pwd)
 echo "[$scriptName] \$newTag    : $newTag"
 echo "[$scriptName] \$workspace : $workspace"
 
+test="`sestatus | grep 'SELinux status' 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] sestatus   : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[2]}
+	echo "[$scriptName] sestatus   : $test"
+fi	
+
 # If a build number is not passed, use the CDAF emulator
-executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $buildNumber"
+executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION $ACTION"
 
 echo "[$scriptName] List and remove all stopped containers"
 executeExpression 'docker ps --filter "status=exited" -a'

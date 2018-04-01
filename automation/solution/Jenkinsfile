@@ -13,21 +13,91 @@ node  {
     ]
   )
 
-  stage 'build'
-    checkout scm
-    sh "cat Jenkinsfile"
-    sh "env"
-    sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${JOB_NAME}"
+  try {
 
-  stage 'CD'
-    sh "TasksLocal/delivery.sh CD ${JOB_NAME}"
+    stage ('Application Build and Test') {
+      checkout scm
+      sh "cat Jenkinsfile"
+      sh "env"
+      sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${JOB_NAME}"
+    }
 
-  stage 'TEST'
-    sh "TasksLocal/delivery.sh TEST ${JOB_NAME}"
+  } catch (e) {
+    
+    currentBuild.result = "FAILED"
+    println currentBuild.result
+    notifyFailed()
+    throw e
 
-  stage 'PROD'
-    input 'Ready to go?'
-    sh "TasksLocal/delivery.sh PROD"
-    archiveArtifacts artifacts: 'TasksLocal/**'
-    archiveArtifacts artifacts: '*.gz'
+  }
+  
+}
+
+if (env.BRANCH_NAME == 'master') {
+  node {
+    try {
+      stage ('Packer Image') {
+        sh "TasksLocal/delivery.sh PACKER"
+      }
+
+      stage ('Tarraform Automated Test') {
+        sh "TasksLocal/delivery.sh CD"
+      }
+
+    } catch (e) {
+    
+      currentBuild.result = "FAILED"
+      println currentBuild.result
+      notifyFailed()
+      throw e
+    }
+  }
+
+  stage ('Test Manager Approval') { input "Deploy to Acceptence Test?" }
+
+  node {
+    try {
+      stage ('Tarraform Acceptance Test') {
+        sh "TasksLocal/delivery.sh TEST"
+      }
+
+    } catch (e) {
+      currentBuild.result = "FAILED"
+      println currentBuild.result
+      notifyFailed()
+      throw e
+    }
+  }
+
+  stage ('Product Owner Approval') { input "Deploy to Production?" }
+
+  node {
+    try {
+      stage ('Tarraform Production') {
+        sh "TasksLocal/delivery.sh PROD"
+      }
+
+    } catch (e) {
+      currentBuild.result = "FAILED"
+      println currentBuild.result
+      notifyFailed()
+      throw e
+    }
+  }
+
+}
+
+def notifyFailed() {
+
+  emailext (
+    to: "jenkins@SP1.hdc.webhop.net",
+    subject: "Jenkins Job [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}] failure",
+    body: "Check console output at ${env.BUILD_URL}"
+  )
+
+  emailext (
+    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+    subject: "Jenkins Job [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}] failure",
+    body: "Check console output at ${env.BUILD_URL}"
+  )
 }

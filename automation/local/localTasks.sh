@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
+
+function executeExpression {
+	echo "$1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 echo
 echo "$0 : +--------------------------------+"
 echo "$0 : | Process Locally Executed Tasks |"
-echo "$0 : +--------------------------------+"
-echo
+echo "$0 : +--------------------------------+"; echo
 if [ -z "$1" ]; then
 	echo "$0 Environment Argument not passed. HALT!"
 	exit 1
@@ -76,15 +87,7 @@ if [ -d "./propertiesForLocalTasks" ]; then
 			scriptOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
 			if [ "$scriptOverride" ]; then
 				echo "$0 :   deployScriptOverride : $scriptOverride"
-				echo
-				echo "./$scriptOverride $SOLUTION $BUILDNUMBER $LOCAL_TASK_TARGET"
-				./$scriptOverride "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET"
-				exitCode=$?
-				if [ "$exitCode" != "0" ]; then
-					echo "$0 : $scriptOverride failed! Returned $exitCode"
-					exit $exitCode
-				fi
-					
+			executeExpression "./$scriptOverride '$SOLUTION' '$BUILDNUMBER' '$LOCAL_TASK_TARGET'" 
 			else
 			
 				echo "$0 :   deployScriptOverride : (property not defined)"

@@ -12,28 +12,50 @@ node  {
 	  )
     ]
   )
-
-  try {
-
-    stage ('Application Build and Test') {
-      checkout scm
-      sh "cat Jenkinsfile"
-      sh "env"
-      sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${JOB_NAME}"
-    }
-
-  } catch (e) {
-    
-    currentBuild.result = "FAILED"
-    println currentBuild.result
-    notifyFailed()
-    throw e
-
-  }
-  
 }
 
-if (env.BRANCH_NAME == 'master') {
+if (env.BRANCH_NAME != 'master') {
+
+  node {
+    try {
+
+      withEnv(["BRANCH_NAME=${env.BRANCH_NAME}"]) {
+        stage ('Application Build and Test') {
+          checkout scm
+          sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
+          sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+        }
+      }
+
+    } catch (e) {
+    
+      currentBuild.result = "FAILED"
+      println currentBuild.result
+      notifyFailed()
+      throw e
+    }
+  }
+
+} else {
+
+  node {
+    try {
+
+      stage ('Application Build and Test') {
+        checkout scm
+        sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
+        sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} master"
+      }
+
+    } catch (e) {
+    
+      currentBuild.result = "FAILED"
+      println currentBuild.result
+      notifyFailed()
+      throw e
+    }
+  }
+
   node {
     try {
       stage ('Packer Image') {

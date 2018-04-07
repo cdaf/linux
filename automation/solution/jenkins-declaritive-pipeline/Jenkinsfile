@@ -2,13 +2,15 @@ pipeline {
 	agent none
 	options {
 		buildDiscarder(logRotator(numToKeepStr: '10'))
-        timeout(time: 1, unit: 'HOURS')
 	}
 	triggers {
 		pollSCM 'H/3 * * * *'
 	}
 	stages {
 		stage('Application Build and Test') {
+			options {
+		        timeout(time: 1, unit: 'HOURS')
+			}
 			agent any 
 			steps {
 				checkout scm

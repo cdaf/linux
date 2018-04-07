@@ -2,6 +2,7 @@ pipeline {
 	agent none
 	options {
 		buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 1, unit: 'HOURS')
 	}
 	triggers {
 		pollSCM 'H/3 * * * *'
@@ -33,6 +34,11 @@ pipeline {
 		stage ('Test Manager Approval') {
 			when { branch 'master'}
 			steps {
+				emailext (
+					subject: "Test Manager Approval pending for ${env.JOB_NAME}",
+					body: "${env.BUILD_URL}",
+					recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+				)
 				timeout(time:1, unit:'DAYS') {
 					input message:'Deploy to Acceptence Test?'
 				}
@@ -50,6 +56,11 @@ pipeline {
 		stage ('Product Owner Approval') {
 			when { branch 'master'}
 			steps {
+				emailext (
+					subject: "Product Owner Approval pending for ${env.JOB_NAME}",
+					body: "${env.BUILD_URL}",
+					recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+				)
 				timeout(time:2, unit:'DAYS') {
 					input message:'Deploy to Production?'
 				}
@@ -71,18 +82,18 @@ pipeline {
         unstable {
             echo 'I am unstable :/'
 			emailext (
-				subject: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-				body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-              <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+				subject: "Jenkins Job Unstable : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+				body: "${env.BUILD_URL}",
+                attachLog: true,
 				recipientProviders: [[$class: 'DevelopersRecipientProvider']]
 			)
         }
         failure {
             echo 'I failed :('
 			emailext (
-				subject: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-				body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-              <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+				subject: "Jenkins Job Failed : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+				body: "${env.BUILD_URL}",
+                attachLog: true,
 				recipientProviders: [[$class: 'DevelopersRecipientProvider']]
 			)
         }

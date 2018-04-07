@@ -11,6 +11,7 @@ AUTOMATIONROOT=$6
 
 localArtifactListFile="$SOLUTIONROOT/storeForLocal"
 localPropertiesDir="$SOLUTIONROOT/propertiesForLocalTasks"
+solutionCustomDir="$SOLUTIONROOT/custom"
 localCustomDir="$SOLUTIONROOT/customLocal"
 localCryptDir="$SOLUTIONROOT/cryptLocal"
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
@@ -38,6 +39,13 @@ if [ -d  "$localCryptDir" ]; then
 	echo "found ($localCryptDir)"
 else
 	echo "none ($localCryptDir)"
+fi
+
+printf "$0 :   custom scripts              : "
+if [ -d  "$solutionCustomDir" ]; then
+	echo "found ($solutionCustomDir)"
+else
+	echo "none ($solutionCustomDir)"
 fi
 
 printf "$0 :   local custom scripts        : "
@@ -112,9 +120,15 @@ if [ -d "$localCryptDir" ]; then
 	cp -avR $localCryptDir/* $WORK_DIR_DEFAULT/${localCryptDir##*/}
 fi
 
+# CDAF 1.7.3 Solution Custom scripts, included in Local and Remote
+if [ -d "$solutionCustomDir" ]; then
+	printf "$0 :   Custom scripts        : "	
+	cp -avR $solutionCustomDir/* $WORK_DIR_DEFAULT/
+fi
+
 # CDM-114 Copy custom scripts to root
 if [ -d "$localCustomDir" ]; then
-	printf "$0 :   Local custom scripts : "	
+	printf "$0 :   Local custom scripts  : "	
 	cp -avR $localCustomDir/* $WORK_DIR_DEFAULT/
 fi
 

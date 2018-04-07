@@ -9,7 +9,7 @@ WORK_DIR_DEFAULT=$4
 SOLUTIONROOT=$5
 AUTOMATIONROOT=$6
 
-remoteCustomDir="./$SOLUTIONROOT/customRemote"
+solutionCustomDir="./$SOLUTIONROOT/custom"
 remoteCustomDir="./$SOLUTIONROOT/customRemote"
 remoteCryptDir="./$SOLUTIONROOT/cryptRemote"
 remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
@@ -23,6 +23,13 @@ if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
 else
 	echo "none ($remoteArtifactListFile)"
+fi
+
+printf "$0 :   custom scripts         : "
+if [ -d  "$solutionCustomDir" ]; then
+	echo "found ($solutionCustomDir)"
+else
+	echo "none ($solutionCustomDir)"
 fi
 
 printf "$0 :   remote custom scripts  : "
@@ -62,6 +69,13 @@ else
 		echo
 		echo "$0 :   Remote encrypted files in $remoteCryptDir: "	
 		cp -avR $remoteCryptDir/* $WORK_DIR_DEFAULT
+	fi
+	
+    # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote
+	if [ -d  "$solutionCustomDir" ]; then
+		echo
+		echo "$0 :   Custom scripts in $solutionCustomDir           : "	
+		cp -avR $solutionCustomDir/* $WORK_DIR_DEFAULT/
 	fi
 	
 	if [ -d  "$remoteCustomDir" ]; then

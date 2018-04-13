@@ -15,7 +15,7 @@ else
 end
 
 # If this environment variable is set, RAM and CPU allocations for virtual machines are increase by this factor, so must be an integer
-# [Environment]::SetEnvironmentVariable('SCALE_FACTOR', '2', 'Machine')
+# ./automation/provisioning/setenv.sh SCALE_FACTOR 2
 if ENV['SCALE_FACTOR']
   scale = ENV['SCALE_FACTOR'].to_i
 else
@@ -29,6 +29,12 @@ end
 
 vRAM = baseRAM * scale
 vCPU = scale
+
+# If this environment variable is set, then the location defined will be used for media
+# ./automation/provisioning/setenv.sh SYNCED_FOLDER /opt/.provision
+if ENV['SYNCED_FOLDER']
+  synchedFolder = ENV['SYNCED_FOLDER']
+end
 
 Vagrant.configure(2) do |config|
 
@@ -46,6 +52,9 @@ Vagrant.configure(2) do |config|
       virtualbox.memory = "#{vRAM}"
       virtualbox.cpus = "#{vCPU}"
       override.vm.network 'private_network', ip: '172.16.17.103'
+      if synchedFolder
+        override.vm.synced_folder "#{synchedFolder}", "/.provision"
+      end
       override.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'target'
     end
 
@@ -69,6 +78,9 @@ Vagrant.configure(2) do |config|
       virtualbox.memory = "#{vRAM}"
       virtualbox.cpus = "#{vCPU}"
       override.vm.network 'private_network', ip: '172.16.17.101'
+      if synchedFolder
+        override.vm.synced_folder "#{synchedFolder}", "/.provision"
+      end
       override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: '172.16.17.103 target.sky.net'
       override.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
       override.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing

@@ -26,6 +26,12 @@ scriptName='bootstrapAgent.sh'
 
 echo "[$scriptName] --- start ---"
 echo "[$scriptName] Working directory is $(pwd)"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami  : $(whoami)"
+else
+	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
+fi
 
 if [ -d './automation' ]; then
 	atomicPath='.'
@@ -51,8 +57,8 @@ else
 fi	
 
 echo
-executeExpression "$atomicPath/automation/provisioning/installOracleJava.sh jdk"
-executeExpression "$atomicPath/automation/provisioning/installApacheMaven.sh"
+executeExpression "$elevate $atomicPath/automation/provisioning/installOracleJava.sh jdk"
+executeExpression "$elevate $atomicPath/automation/provisioning/installApacheMaven.sh"
 executeExpression "$atomicPath/automation/remote/capabilities.sh"
 
 echo

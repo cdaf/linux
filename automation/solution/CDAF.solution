@@ -3,5 +3,5 @@ productVersion=0.0.1
 productName=My Product Name
 solutionName=myproduct
 # containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
-# imageBuild=./automation-solution/imageBuild.sh $SOLUTION $BUILDNUMBER
+# imageBuild=./automation-solution/imageBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 # processSequence=localTasks.sh remoteTasks.sh

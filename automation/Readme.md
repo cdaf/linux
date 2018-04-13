@@ -34,7 +34,7 @@ Execution Engine
 ----------------
 To alleviate the burden of argument passing, exception handling and logging, the execution engine has been provided. The execution engine will essentially execute the native interpretive language (PowerShell or bash), line by line, but each execution will be tested for exceptions (trivial in bash, significantly more complex in PowerShell) and, with careful usage, the driver files (.tsk) can be used on Windows workstations, while target Linux servers for Continuous Delivery. To provide translated runtime, the following keywords are supported
 
-| Keyword | Description                       | Example                    |
+| Keyword | Description                       | Example                         |
 | --------|-----------------------------------|---------------------------------|
 | ASSIGN  | set a variable                    | ASSIGN $test="Hello World"      |
 | CMPRSS  | Compress directory to file        | CMPRSS packageName dirName      |
@@ -78,7 +78,7 @@ All scripts contained in the /local folder are copied to the TasksLocal director
 
 Deploy (many)
 --------------
-Default task definitions, these can be overridden using deployScriptOverride or deployTaskOverride in properties file
+Default task definitions, these can be overridden using deployScriptOverride or deployTaskOverride (a space separated list is supported) in properties file
 
 	tasksRunLocal.tsk
 	tasksRunRemote.tsk
@@ -97,6 +97,7 @@ Encrypted files (for passwords)
 
 Custom elements, i,.e. deployScriptOverride and deployTaskOverride scripts
 
+	/custom
 	/customRemote
 	/customLocal
 

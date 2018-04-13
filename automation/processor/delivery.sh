@@ -80,17 +80,20 @@ else
 	echo "$scriptName :   BUILDNUMBER      : $BUILDNUMBER"
 fi 
 
-processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
-if [ -z $processSequence ]; then
-	processSequence='remoteTasks.sh localTasks.sh'
-fi
-
 echo "$scriptName :   whoami           : $(whoami)"
 echo "$scriptName :   hostname         : $(hostname)"
 echo "$scriptName :   CDAF Version     : $(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/CDAF.properties" "productVersion")"
 workingDir=$(pwd)
 echo "$scriptName :   workingDir       : $workingDir"
 
+processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
+if [ -z $processSequence ]; then
+	processSequence='remoteTasks.sh localTasks.sh'
+else
+	echo "$scriptName :   processSequence  : $processSequence (override)"
+fi
+
 for step in $processSequence; do
+	echo
 	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
 done

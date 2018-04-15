@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 scriptName='setenv.sh'
 
 echo "[$scriptName] --- start ---"
@@ -31,30 +43,27 @@ else
 	fi
 fi
 
-if [ "$level" == 'user' ]; then
-
-	echo export $variable=\"$value\" >> $HOME/.bashrc
-	
-	# Execute the script to set the variable 
-	source $HOME/.bashrc
-
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami  : $(whoami)"
 else
+	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
+fi
 
-	# Set environment (user default) variable
+if [ "$level" == 'user' ]; then
+	executeExpression "echo 'export $variable=\"$value\"' >> $HOME/.bashrc"
+	executeExpression "source $HOME/.bashrc"
+else
 	systemLocation='/etc/profile.d/'
 	startScript="$variable"
 	startScript+='.sh'
-	echo "[$scriptName] export $variable=\"$value\" > $startScript"
-	echo export $variable=\"$value\" > $startScript
-	echo "[$scriptName] chmod +x $startScript"
-	chmod +x $startScript
-	echo "[$scriptName] sudo cp -rv $startScript $systemLocation"
-	sudo cp -rv $startScript $systemLocation
-	rm $startScript
-	
-	# Execute the script to set the variable 
-	source $systemLocation/$startScript
-
+	executeExpression "echo 'export $variable=\"$value\"' > $startScript"
+	executeExpression "chmod +x $startScript"
+	executeExpression "$elevate cp -rv $startScript $systemLocation"
+	executeExpression "rm $startScript"
+	executeExpression "source $systemLocation/$startScript"
 fi
+
+executeExpression "echo \$$variable"
 
 echo "[$scriptName] --- end ---"

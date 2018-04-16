@@ -7,17 +7,26 @@ pipeline {
 		pollSCM 'H/3 * * * *'
 	}
 	stages {
-		stage('Application Build and Test') {
+		stage('Synchronise with Source Control') {
 			options {
 		        timeout(time: 1, unit: 'HOURS')
 			}
 			agent any 
+//			agent { label 'osx' } 
 			steps {
 				checkout scm
-				sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
-				sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
 			}
 		}
+    stage('Application Build and Unit Test') {
+      options {
+            timeout(time: 1, unit: 'HOURS')
+      }
+      agent any 
+      steps {
+        sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
+        sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+      }
+    }
 		stage('Packer Image') {
 			when { branch 'master'}
 			agent any 

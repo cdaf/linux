@@ -98,16 +98,19 @@ if [ -d "./propertiesForLocalTasks" ]; then
 				else
 					echo "$0 :   deployTaskOverride   : $taskOverride"
 				fi
-				if [ ! -f $taskOverride ]; then
-					echo "$0 $taskOverride not found! Exit with code 3225"
-					exit 3225
-				fi
-				./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$taskOverride" "$OPT_ARG" 2>&1
-				exitCode=$?
-				if [ "$exitCode" != "0" ]; then
-					echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$taskOverride\" \"$OPT_ARG\" failed! Returned $exitCode"
-					exit $exitCode
-				fi
+				for overrideTask in $taskOverride; do
+					echo; echo "$0 : Execute $overrideTask"
+					if [ ! -f "$overrideTask" ]; then
+						echo "$0 $overrideTask not found! Exit with code 3225"
+						exit 3225
+					fi
+					./execute.sh "$SOLUTION" "$BUILDNUMBER" "$LOCAL_TASK_TARGET" "$overrideTask" "$OPT_ARG" 2>&1
+					exitCode=$?
+					if [ "$exitCode" != "0" ]; then
+						echo "$0 : ./execute.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$LOCAL_TASK_TARGET\" \"$overrideTask\" \"$OPT_ARG\" failed! Returned $exitCode"
+						exit $exitCode
+					fi
+				done
 			fi
 							
 		done < targetList

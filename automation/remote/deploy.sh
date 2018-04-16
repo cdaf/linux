@@ -72,17 +72,18 @@ else
 		taskOverride="tasksRunRemote.tsk"
 		echo "$0 :   deployTaskOverride   : tasksRunRemote.tsk (default)"
 	fi
-	if [ ! -f $taskOverride ]; then
-		echo "$0 $taskOverride not found! Exit with code 3226"
-		exit 3226
-	fi
-	echo
-	echo "$0 : Starting deploy process ..."
-	./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$taskOverride" "$OPT_ARG"
-	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : ./execute.sh $SOLUTION $BUILDNUMBER $DEPLOY_TARGET $taskOverride $OPT_ARG failed! Returned $exitCode"
-		exit $exitCode
-	fi
-
+	for overrideTask in $taskOverride; do
+		if [ ! -f $overrideTask ]; then
+			echo "$0 $overrideTask not found! Exit with code 3226"
+			exit 3226
+		fi
+		echo
+		echo "$0 : Starting deploy process ..."
+		./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$overrideTask" "$OPT_ARG"
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "$0 : ./execute.sh $SOLUTION $BUILDNUMBER $DEPLOY_TARGET $overrideTask $OPT_ARG failed! Returned $exitCode"
+			exit $exitCode
+		fi
+	done
 fi

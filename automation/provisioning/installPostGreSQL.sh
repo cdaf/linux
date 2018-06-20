@@ -92,14 +92,22 @@ if [[ "$test" == *"not found"* ]]; then
 	
 	executeExpression "$elevate apt-get update"
 	executeExpression "$elevate apt-get install -y $install"
+	echo
+	executeExpression "$elevate service postgresql restart"
 
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	executeYumCheck "$elevate yum check-update"
+	executeExpression "$elevate yum install -y postgresql-server postgresql-contrib"
+	executeExpression "$elevate sudo postgresql-setup initdb"
+	fileName='/var/lib/pgsql/data/pg_hba.conf'
+	name='ident'
+	value='md5'
+	executeExpression "$elevate sed -i 's^${name}^${value}^g' ${fileName}"
+	executeExpression "$elevate cat ${fileName}"
+	executeExpression "$elevate sudo systemctl start postgresql"
+	executeExpression "$elevate sudo systemctl enable postgresql"
 fi
-
-echo
-executeExpression "$elevate service postgresql restart"
 
 echo "[$scriptName] --- end ---"
 

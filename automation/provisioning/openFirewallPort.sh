@@ -27,19 +27,21 @@ else
 fi
 
 if [ -z "$1" ]; then
-	port='80'
-	echo "[$scriptName]   port         : $port (default)"
+	portList='80'
+	echo "[$scriptName]   portList     : $portList (default)"
 else
-	port=$1
-	echo "[$scriptName]   port         : $port"
+	portList=$1
+	echo "[$scriptName]   portList     : $portList (can be space separated list)"
 fi
 echo
 if [ "$ubuntu" ]; then
-	executeExpression "sudo ufw allow $port"
+	executeExpression "sudo ufw allow $portList"
 else
 	executeExpression "ip a"
 	executeExpression "sudo firewall-cmd --get-default-zone"
-	executeExpression "sudo firewall-cmd --zone=public --add-port=$port/tcp --permanent"
+	for port in ${portList}; do
+		executeExpression "sudo firewall-cmd --zone=public --add-port=${port}/tcp --permanent"
+	done
 	executeExpression "sudo firewall-cmd --reload"
 	executeExpression "sudo firewall-cmd --state"
 	executeExpression "sudo firewall-cmd --get-active-zones"

@@ -146,7 +146,7 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly
     echo
     echo 'For Bamboo ...'
     echo "  Script file : $ciProcess"
-	echo "  Argument    : $solutionName \${bamboo.buildNumber} \${bamboo.repository.revision.number}"
+	echo "  Argument    : \${bamboo.buildNumber} \${bamboo.repository.branch.name}"
     echo
     echo 'For Jenkins ...'
     echo "  Command : $ciProcess \$BUILD_NUMBER \$JOB_NAME"

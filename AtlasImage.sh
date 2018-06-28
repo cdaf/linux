@@ -28,7 +28,7 @@ hypervisor=$1
 if [ -n "$hypervisor" ]; then
 	echo "[$scriptName]   hypervisor   : $hypervisor"
 else
-	echo "[$scriptName] hypervisor not passed, exit 1"; exit 1
+	echo "[$scriptName]   hypervisor   : (not passed, extension install will not be attempted)"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -72,33 +72,35 @@ else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 		executeExpression "$elevate apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)"
 		executeExpression "$elevate update-initramfs -u"
 	fi
-else # VirtualBox
-	if [ "$centos" ]; then
-		echo;echo "[$scriptName] Install prerequisites"
-		executeExpression "$elevate yum update -y"
-		sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
-		executeExpression "$elevate cat /etc/sudoers"
-		executeExpression "$elevate yum groupinstall -y 'Development Tools'"
-		executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
-		executeExpression "KERN_DIR=/usr/src/kernels/`uname -r`"
-		executeExpression "export KERN_DIR"
-	
-	else # Ubuntu
-		echo;echo "[$scriptName] Install prerequisites"
-		executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
-	fi
-	echo;echo "[$scriptName] Download and install VirtualBox extensions"
-	vbadd='5.1.10'
-	executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
-	executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
-	executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
+else
+	if [ "$hypervisor" == 'virtualbox' ]; then
+		if [ "$centos" ]; then
+			echo;echo "[$scriptName] Install prerequisites"
+			executeExpression "$elevate yum update -y"
+			sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
+			executeExpression "$elevate cat /etc/sudoers"
+			executeExpression "$elevate yum groupinstall -y 'Development Tools'"
+			executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
+			executeExpression "KERN_DIR=/usr/src/kernels/`uname -r`"
+			executeExpression "export KERN_DIR"
 		
-	# This is normal for server install ...
-	#    Could not find the X.Org or XFree86 Window System, skipping.
-	executeIgnore "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
-	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
-	executeExpression "$elevate umount /media/VBoxGuestAdditions"
-	executeExpression "$elevate rmdir /media/VBoxGuestAdditions"
+		else # Ubuntu
+			echo;echo "[$scriptName] Install prerequisites"
+			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
+		fi
+		echo;echo "[$scriptName] Download and install VirtualBox extensions"
+		vbadd='5.1.10'
+		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
+		executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
+			
+		# This is normal for server install ...
+		#    Could not find the X.Org or XFree86 Window System, skipping.
+		executeIgnore "$elevate sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
+		executeExpression "$elevate umount /media/VBoxGuestAdditions"
+		executeExpression "$elevate rmdir /media/VBoxGuestAdditions"
+	fi
 fi
 
 if [ "$centos" ]; then

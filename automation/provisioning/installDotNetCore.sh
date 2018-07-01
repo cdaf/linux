@@ -117,9 +117,7 @@ if [ -z "$centos" ]; then
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-        . /etc/os-release
-        echo "[$scriptName] Detected Ubuntu Version: $VERSION_ID"
-        
+        . /etc/os-release        
 	    # Check for LTS first, if not, assume latest (17.04 = zesty)
         if [ "$VERSION_ID" == "14.04" ]; then
         	tag='trusty'
@@ -133,7 +131,11 @@ if [ -z "$centos" ]; then
 			echo "[$scriptName] Ubuntu $VERSION_ID not supported, determine code, update and retry."
 			exit 180
         fi
-        if [ "$tag" == 'zesty' ]; then
+
+        echo "[$scriptName] Detected Ubuntu Version: $VERSION_ID"
+        echo "[$scriptName] Ubuntu Version codename: $tag"
+
+        if [ "$tag" == 'bionic' ]; then
 			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys EB3E94ADBE1229CF"
 			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893"
 		else

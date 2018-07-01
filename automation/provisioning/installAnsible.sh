@@ -46,6 +46,17 @@ function executeYumCheck {
 	done
 }
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+	fi
+	return $exitCode
+}
+
 scriptName='installAnsible.sh'
 
 echo "[$scriptName] --- start ---"
@@ -129,7 +140,10 @@ else
 	executeYumCheck "$elevate yum check-update"
 	executeExpression "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
-		executeExpression "$elevate yum install -y epel-release"
+		executeIgnore "$elevate yum install -y epel-release"
+		if [ $? -ne 0 ]; then
+		    executeExpression "yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+		fi
 		executeExpression "$elevate yum install -y ansible"
 	fi
 fi

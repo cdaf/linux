@@ -128,7 +128,16 @@ if [ -z "$centos" ]; then
         else
 			tag='zesty'
         fi
-		executeExpression "$elevate apt-get install -y gpgv"
+		test="`gpg --version 2>&1`"
+		if [[ "$test" == *"not found"* ]]; then
+			executeExpression "$elevate apt-get install -y gpgv"
+			test="`gpg --version 2>&1`"
+			if [[ "$test" == *"not found"* ]]; then
+				executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
+			fi
+		fi
+		readarray -t test < <(echo "$test")
+		echo "[$scriptName] ${test[0]}"
         executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
         executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
         

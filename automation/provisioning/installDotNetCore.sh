@@ -138,7 +138,7 @@ if [ -z "$centos" ]; then
 		fi
 		readarray -t test < <(echo "$test")
 		echo "[$scriptName] ${test[0]}"
-        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
+        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg > microsoft.gpg"
         executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
         
         # Could not get to work with HTTPS

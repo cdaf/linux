@@ -95,8 +95,7 @@ else
 	centos='yes'
 fi
 
-echo
-echo "[$scriptName] Install base software ($install)"
+echo; echo "[$scriptName] Install base software ($install)"
 if [ -z "$centos" ]; then
 	echo
 	echo "[$scriptName] Check that APT is available"
@@ -129,6 +128,7 @@ if [ -z "$centos" ]; then
         else
 			tag='zesty'
         fi
+		executeExpression "$elevate apt-get install -y gpgv"
         executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
         executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
         
@@ -157,5 +157,4 @@ fi
 test=$(dotnet --version 2>/dev/null)
 echo "[$scriptName] dotnet core : $test"
 
-echo 
-echo "[$scriptName] --- end ---"
+echo; echo "[$scriptName] --- end ---"

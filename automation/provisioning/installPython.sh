@@ -57,6 +57,13 @@ else
 	echo "[$scriptName]   version : $version (choices 2 or 3)"
 fi
 
+install=$2
+if [ -z "$install" ]; then
+	echo "[$scriptName]   install : (PiP install list not supplied, no additional action will be attempted)"
+else
+	echo "[$scriptName]   install : $install"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami  : $(whoami)"
@@ -175,5 +182,13 @@ else
 		executeExpression "pip3 --version"
 	fi
 fi	
+
+if [ ! -z "$install" ]; then
+	if [ "$version" == "2" ]; then
+		executeExpression "pip install $install"
+	else
+		executeExpression "pip3 install $install"
+	fi
+fi
  
 echo "[$scriptName] --- end ---"

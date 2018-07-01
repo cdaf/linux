@@ -125,22 +125,32 @@ if [ -z "$centos" ]; then
         	tag='trusty'
         elif [ "$VERSION_ID" == "16.04" ]; then
         	tag='xenial'
+        elif [ "$VERSION_ID" == "17.04" ]; then
+        	tag='zesty'
+        elif [ "$VERSION_ID" == "18.04" ]; then
+        	tag='bionic'
         else
-			tag='zesty'
+			echo "[$scriptName] Ubuntu $VERSION_ID not supported, determine code, update and retry."
+			exit 180
         fi
-		test="`gpg --version 2>&1`"
-		if [[ "$test" == *"not found"* ]]; then
-			executeExpression "$elevate apt-get install -y gpgv"
+        if [ "$tag" == 'zesty' ]; then
+			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys EB3E94ADBE1229CF"
+			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893"
+		else
 			test="`gpg --version 2>&1`"
 			if [[ "$test" == *"not found"* ]]; then
-				executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
+				executeExpression "$elevate apt-get install -y gpgv"
+				test="`gpg --version 2>&1`"
+				if [[ "$test" == *"not found"* ]]; then
+					executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
+				fi
 			fi
+			readarray -t test < <(echo "$test")
+			echo "[$scriptName] ${test[0]}"
+	        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
+	        executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
+	        
 		fi
-		readarray -t test < <(echo "$test")
-		echo "[$scriptName] ${test[0]}"
-        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg > microsoft.gpg"
-        executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
-        
         # Could not get to work with HTTPS
 		executeExpression "$elevate sh -c 'echo \"deb [arch=amd64] http://packages.microsoft.com/repos/microsoft-ubuntu-${tag}-prod ${tag} main\" > /etc/apt/sources.list.d/dotnetdev.list'"
         executeExpression "$elevate apt-get update"            

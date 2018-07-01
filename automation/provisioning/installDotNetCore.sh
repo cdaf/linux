@@ -132,6 +132,17 @@ if [ -z "$centos" ]; then
 			exit 180
         fi
 
+		test="`gpg --version 2>&1`"
+		if [[ "$test" == *"not found"* ]]; then
+			executeExpression "$elevate apt-get install -y gpgv"
+			test="`gpg --version 2>&1`"
+			if [[ "$test" == *"not found"* ]]; then
+				executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
+			fi
+		fi
+		readarray -t test < <(echo "$test")
+		echo "[$scriptName] ${test[0]}"
+
         echo "[$scriptName] Detected Ubuntu Version: $VERSION_ID"
         echo "[$scriptName] Ubuntu Version codename: $tag"
 
@@ -139,16 +150,6 @@ if [ -z "$centos" ]; then
 			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys EB3E94ADBE1229CF"
 			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893"
 		else
-			test="`gpg --version 2>&1`"
-			if [[ "$test" == *"not found"* ]]; then
-				executeExpression "$elevate apt-get install -y gpgv"
-				test="`gpg --version 2>&1`"
-				if [[ "$test" == *"not found"* ]]; then
-					executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
-				fi
-			fi
-			readarray -t test < <(echo "$test")
-			echo "[$scriptName] ${test[0]}"
 	        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
 	        executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
 	        

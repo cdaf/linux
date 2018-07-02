@@ -137,11 +137,13 @@ if [ -z "$centos" ]; then
 			executeExpression "$elevate apt-get install -y gpgv"
 			test="`gpg --version 2>&1`"
 			if [[ "$test" == *"not found"* ]]; then
-				executeExpression "ln -s /usr/bin/gpgv /usr/bin/gpg"
+				echo "[$scriptName] Unable to install gpg using apt-get, exiting! (exit code 3594)"
+				exit 3594
 			fi
+		else
+			readarray -t test < <(echo "$test")
+			echo "[$scriptName] ${test[0]}"
 		fi
-		readarray -t test < <(echo "$test")
-		echo "[$scriptName] ${test[0]}"
 
         echo "[$scriptName] Detected Ubuntu Version: $VERSION_ID"
         echo "[$scriptName] Ubuntu Version codename: $tag"

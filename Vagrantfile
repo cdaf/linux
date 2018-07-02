@@ -43,8 +43,11 @@ Vagrant.configure(2) do |config|
     target.vm.box = "#{vagrantBox}"
 
     target.vm.provision 'shell', path: './automation/remote/capabilities.sh'
+    
+    # Deploy user has ownership of landing directory and trusts the build server via the public key
     target.vm.provision 'shell', path: './automation/provisioning/addUser.sh', args: 'deployer'
     target.vm.provision 'shell', path: './automation/provisioning/mkDirWithOwner.sh', args: '/opt/packages deployer'
+    target.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'target'
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     target.vm.provider 'virtualbox' do |virtualbox, override|
@@ -55,7 +58,6 @@ Vagrant.configure(2) do |config|
       if synchedFolder
         override.vm.synced_folder "#{synchedFolder}", "/.provision"
       end
-      override.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'target'
     end
 
     # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up target --provider hyperv

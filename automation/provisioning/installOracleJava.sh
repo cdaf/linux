@@ -99,5 +99,6 @@ executeExpression "$elevate mv -v oracle-java.sh /etc/profile.d/"
 
 # Execute the script to set the variable 
 executeExpression "source /etc/profile.d/oracle-java.sh"
+executeExpression "java -version"
 
 echo "[$scriptName] --- end ---"

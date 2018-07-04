@@ -60,7 +60,10 @@ executeExpression "$elevate mv $runTime /opt/"
 # Configure to directory on the default PATH
 executeExpression "$elevate ln -s /opt/$runTime/bin/mvn /usr/bin/mvn"
 
-echo "[$scriptName] Verify install ..."
+echo "[$scriptName] Verify install (reload environment variables first)..."
+for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name *.sh); do
+	executeExpression "source $script"
+done
 executeExpression "mvn --version"
 
 echo "[$scriptName] --- end ---"

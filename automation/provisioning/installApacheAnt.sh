@@ -64,7 +64,7 @@ echo "[$scriptName] List start script contents ..."
 executeExpression "cat /etc/profile.d/$scriptName"
 
 echo "[$scriptName] Reload environment variables and verify version ..."
-for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name *.sh); do
+for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name '*.sh'); do
 	executeExpression "source $script"
 done
 

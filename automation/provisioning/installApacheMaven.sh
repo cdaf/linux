@@ -61,7 +61,7 @@ executeExpression "$elevate mv $runTime /opt/"
 executeExpression "$elevate ln -s /opt/$runTime/bin/mvn /usr/bin/mvn"
 
 echo "[$scriptName] Verify install (reload environment variables first)..."
-for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name *.sh); do
+for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name '*.sh'); do
 	executeExpression "source $script"
 done
 executeExpression "mvn --version"

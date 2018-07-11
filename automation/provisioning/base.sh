@@ -25,7 +25,8 @@ function executeYumCheck {
 		else
 			counter=$((counter + 1))
 			if [ "$counter" -le "$max" ]; then
-				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max} after 20 second pause ..."
+				sleep 20
 			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode

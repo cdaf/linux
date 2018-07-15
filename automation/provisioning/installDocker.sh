@@ -132,7 +132,10 @@ if [ -z "$package" ]; then
 			fi
 
 		else
-			echo "[$scriptName] Only canonical for CentOS/RHEL supported"
+			echo "[$scriptName] Only canonical for RHEL supported"
+			executeExpression "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
+			executeExpression "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+			executeExpression "$elevate yum install docker-ce"
 		fi
 		
 	else # Debian

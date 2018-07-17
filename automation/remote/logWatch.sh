@@ -44,7 +44,7 @@ echo
 # seed or replace the differencing file
 : > prevtest.log
 for (( c=1; c<=$waitTime; c++ )); do
-	tail $logFile > test.log
+	cat $logFile > test.log
 	test=$(cat test.log | grep "$stringMatch")
 	diff test.log prevtest.log
 	mv test.log prevtest.log

@@ -68,9 +68,9 @@ fi
 install="$2"
 if [ -z "$install" ]; then
 	if [ "$sdk" == 'yes' ]; then
-		default='dotnet-sdk-2.1.4'
+		default='dotnet-sdk-2.1'
 	else
-		default='dotnet-runtime-2.0.5'
+		default='aspnetcore-runtime-2.1'
 	fi	
 	install=$default
 	echo "[$scriptName]   install : $install (default)"
@@ -117,48 +117,13 @@ if [ -z "$centos" ]; then
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-        . /etc/os-release        
-	    # Check for LTS first, if not, assume latest (17.04 = zesty)
-        if [ "$VERSION_ID" == "14.04" ]; then
-        	tag='trusty'
-        elif [ "$VERSION_ID" == "16.04" ]; then
-        	tag='xenial'
-        elif [ "$VERSION_ID" == "17.04" ]; then
-        	tag='zesty'
-        elif [ "$VERSION_ID" == "18.04" ]; then
-        	tag='bionic'
-        else
-			echo "[$scriptName] Ubuntu $VERSION_ID not supported, determine code, update and retry."
-			exit 180
-        fi
+		executeExpression "$elevate apt-get install -y apt-utils apt-transport-https"
 
-		test="`gpg --version 2>&1`"
-		if [[ "$test" == *"not found"* ]]; then
-			executeExpression "$elevate apt-get install -y gpgv"
-			test="`gpg --version 2>&1`"
-			if [[ "$test" == *"not found"* ]]; then
-				echo "[$scriptName] Unable to install gpg using apt-get, exiting! (exit code 3594)"
-				exit 3594
-			fi
-		else
-			readarray -t test < <(echo "$test")
-			echo "[$scriptName] ${test[0]}"
-		fi
-
-        echo "[$scriptName] Detected Ubuntu Version: $VERSION_ID"
-        echo "[$scriptName] Ubuntu Version codename: $tag"
-
-        if [ "$tag" == 'bionic' ]; then
-			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys EB3E94ADBE1229CF"
-			executeExpression "$elevate apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893"
-		else
-	        executeExpression "curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg"
-	        executeExpression "$elevate mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg"
-	        
-		fi
-        # Could not get to work with HTTPS
-		executeExpression "$elevate sh -c 'echo \"deb [arch=amd64] http://packages.microsoft.com/repos/microsoft-ubuntu-${tag}-prod ${tag} main\" > /etc/apt/sources.list.d/dotnetdev.list'"
-        executeExpression "$elevate apt-get update"            
+		# Source to load $VERSION_ID
+        . /etc/os-release
+        executeExpression "curl -O -s https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb"
+        executeExpression "$elevate dpkg -i packages-microsoft-prod.deb"
+		executeExpression "$elevate apt-get update"
 		executeExpression "$elevate apt-get install -y $install"
 	fi
 else    
@@ -170,10 +135,9 @@ else
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-		executeExpression "$elevate yum install -y libunwind libicu"
-		executeExpression "curl -sSL -o dotnet.tar.gz https://go.microsoft.com/fwlink/?linkid=848821"
-		executeExpression "$elevate mkdir -p /opt/dotnet && $elevate tar zxf dotnet.tar.gz -C /opt/dotnet"
-		executeExpression "$elevate ln -s /opt/dotnet/dotnet /usr/local/bin"
+		executeExpression "$elevate rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm"
+		executeExpression "$elevate yum update"
+		executeExpression "$elevate yum install -y $install"
 	fi
 fi
 

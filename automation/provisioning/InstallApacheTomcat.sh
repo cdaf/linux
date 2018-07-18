@@ -15,7 +15,7 @@ scriptName='InstallApacheTomcat.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='8.5.23'
+	version='8.5.32'
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"

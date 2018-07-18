@@ -23,7 +23,7 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='8u171'
+	version='8u181'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	echo "[$scriptName]   version    : $version"
@@ -60,9 +60,9 @@ else
 	fi
 	echo "[$scriptName] Media not found, attempting download $mediaCache"
 	if [ "$prefix" == 'jdk' ]; then
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	else
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jre-8u171-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	fi
 fi
 

@@ -21,7 +21,7 @@ function executeIgnore {
 	fi
 }  
 
-scriptName='AtlasBase.sh'
+scriptName='AtlasImage.sh'
 echo; echo "[$scriptName] Generic provisioning for Linux"
 echo; echo "[$scriptName] --- start ---"
 hypervisor=$1

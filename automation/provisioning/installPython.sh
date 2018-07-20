@@ -46,6 +46,21 @@ function executeYumCheck {
 	done
 }
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		if [ "$exitCode" == "1" ]; then
+			echo "$0 : Warning: Returned $exitCode assuming already installed and continuing ..."
+		else
+			echo "$0 : Error! Returned $exitCode, exiting!"; exit $exitCode 
+		fi
+	fi
+	return $exitCode
+}
+
 scriptName='installPython.sh'
 
 echo "[$scriptName] --- start ---"
@@ -165,7 +180,16 @@ else
 		executeYumCheck "$elevate yum check-update"
 	
 		echo
-		executeExpression "$elevate yum install -y epel-release"
+
+		if [ "$systemWide" == 'yes' ]; then
+			if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+			    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+			else
+				executeExpression "$elevate yum install -y epel-release"
+			fi
+			executeExpression "$elevate yum install -y ansible"
+		fi
+
 		executeExpression "$elevate yum install -y python${version}*"
 		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
 		executeExpression "$elevate python${version} get-pip.py"

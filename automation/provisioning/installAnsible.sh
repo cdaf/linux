@@ -52,7 +52,11 @@ function executeIgnore {
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+		if [ "$exitCode" == "1" ]; then
+			echo "$0 : Warning: Returned $exitCode assuming already installed and continuing ..."
+		else
+			echo "$0 : Error! Returned $exitCode, exiting!"; exit $exitCode 
+		fi
 	fi
 	return $exitCode
 }
@@ -140,9 +144,10 @@ else
 	executeYumCheck "$elevate yum check-update"
 	executeExpression "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
-		executeIgnore "$elevate yum install -y epel-release"
-		if [ $? -ne 0 ]; then
-		    executeExpression "yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+		if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm" # Ignore if already installed
+		else
+			executeExpression "$elevate yum install -y epel-release"
 		fi
 		executeExpression "$elevate yum install -y ansible"
 	fi

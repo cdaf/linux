@@ -46,6 +46,21 @@ function executeYumCheck {
 	done
 }
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		if [ "$exitCode" == "1" ]; then
+			echo "$0 : Warning: Returned $exitCode assuming already installed and continuing ..."
+		else
+			echo "$0 : Error! Returned $exitCode, exiting!"; exit $exitCode 
+		fi
+	fi
+	return $exitCode
+}
+
 scriptName='installNodeJS.sh'
 echo
 echo "[$scriptName] --- start ---"
@@ -133,9 +148,17 @@ if [ -z "$version" ]; then
 	else
 		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 		executeYumCheck "$elevate yum check-update"
+
+		if [ "$systemWide" == 'yes' ]; then
+			if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+			    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+			else
+				executeExpression "$elevate yum install -y epel-release"
+			fi
+		fi
 	
 		echo
-		executeExpression "$elevate yum install -y epel-release curl sudo gcc-c++ make"
+		executeExpression "$elevate yum install -y curl sudo gcc-c++ make"
 		echo;echo "[$scriptName] Aligning to Ubuntu 16.04 canonical version, i.e. v4"
 		executeExpression "curl --silent --location https://rpm.nodesource.com/setup_4.x | $elevate bash -"
 		executeExpression "$elevate yum install -y nodejs"

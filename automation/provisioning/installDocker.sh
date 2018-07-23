@@ -24,6 +24,21 @@ function executeExpression {
 	done
 }  
 
+function executeIgnore {
+	echo "[$scriptName] $1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, warn if exception but do not fail
+	if [ "$exitCode" != "0" ]; then
+		if [ "$exitCode" == "1" ]; then
+			echo "$0 : Warning: Returned $exitCode assuming already installed and continuing ..."
+		else
+			echo "$0 : Error! Returned $exitCode, exiting!"; exit $exitCode 
+		fi
+	fi
+	return $exitCode
+}
+
 scriptName='installDocker.sh'
 
 echo "[$scriptName] --- start ---"
@@ -89,7 +104,13 @@ fi
 if [ -z "$package" ]; then
 
 	if [ "$centos" ]; then
-	
+
+		if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+		    install='latest'
+			echo "[$scriptName] For RHEL, only $install supported"
+		    executeIgnore "$elevate subscription-manager repos --enable=rhel-7-server-extras-rpms" # Ignore if already installed
+		fi
+
 		if [ "$install" == 'canon' ]; then
 
 			if [ -f /etc/os-release ]; then 
@@ -132,7 +153,6 @@ if [ -z "$package" ]; then
 			fi
 
 		else
-			echo "[$scriptName] For RHEL, only latest supported"
 			executeExpression "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
 			executeExpression "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
 			executeExpression "$elevate yum install -y docker-ce"

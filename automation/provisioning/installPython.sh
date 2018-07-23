@@ -86,6 +86,20 @@ else
 	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
+else
+	fedora='yes'
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+	else
+		echo "[$scriptName] CentOS Linux"
+	fi
+fi
+echo
+
 if [ "$version" == "2" ]; then
 	test="`python --version 2>&1`"
 	test=$(echo $test | grep 'Python 2.')
@@ -117,8 +131,7 @@ if [ -n "$test" ]; then
 	fi
 else	
 
-	test="`yum --version 2>&1`"
-	if [[ "$test" == *"not found"* ]]; then
+	if [ -z "$fedora" ]; then
 		echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 		echo
 		echo "[$scriptName] Check that APT is available"
@@ -182,7 +195,8 @@ else
 		echo
 
 		if [ "$systemWide" == 'yes' ]; then
-			if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+			if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+				echo "[$scriptName] Red Hat Enterprise Linux"
 			    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 			else
 				executeExpression "$elevate yum install -y epel-release"

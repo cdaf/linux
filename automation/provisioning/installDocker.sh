@@ -70,8 +70,13 @@ test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
 else
-	centos='yes'
-	echo "[$scriptName] yum found, assuming Fedora based distribution (RHEL/CentOS)"
+	fedora='yes'
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+	else
+		echo "[$scriptName] CentOS Linux"
+	fi
 fi
 echo
 
@@ -103,9 +108,10 @@ fi
 # If not binary install, or binary not found, install via repos 
 if [ -z "$package" ]; then
 
-	if [ "$centos" ]; then
+	if [ "$fedora" ]; then
 
-		if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+			echo "[$scriptName] Red Hat Enterprise Linux"
 		    install='latest'
 			echo "[$scriptName] For RHEL, only $install supported"
 		    executeIgnore "$elevate subscription-manager repos --enable=rhel-7-server-extras-rpms" # Ignore if already installed

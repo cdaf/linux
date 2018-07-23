@@ -92,6 +92,19 @@ fi
 
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
+else
+	fedora='yes'
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+	else
+		echo "[$scriptName] CentOS Linux"
+	fi
+fi
+echo
+
+if [ -z "$fedora" ]; then
 	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 	echo
 	echo "[$scriptName] Check that APT is available"
@@ -140,11 +153,11 @@ if [[ "$test" == *"not found"* ]]; then
 	
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	centos='yes'
 	executeYumCheck "$elevate yum check-update"
 	executeExpression "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
-		if [ -f "/etc/redhat-release" ]; then # Red Hat Enterprise Linux (RHEL)
+		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+			echo "[$scriptName] Red Hat Enterprise Linux"
 		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm" # Ignore if already installed
 		else
 			executeExpression "$elevate yum install -y epel-release"

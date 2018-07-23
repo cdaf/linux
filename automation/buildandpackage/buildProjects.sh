@@ -88,7 +88,7 @@ if [ -f "build.sh" ]; then
 	echo "REVISION=$REVISION" >> ./solution.properties
 	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
-	./build.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "$ACTION"
+	./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		echo "$0 : $PROJECT Build Failed, exit code = $exitCode."

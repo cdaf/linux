@@ -34,7 +34,14 @@ else
 	echo "[$scriptName]   REVISION    : $REVISION"
 fi
 
-ACTION=$4
+BUILDENV=$4
+if [ -z "$BUILDENV" ]; then
+	echo "[$scriptName]   BUILDENV    : (not supplied)"
+else
+	echo "[$scriptName]   BUILDENV    : $BUILDENV"
+fi
+
+ACTION=$5
 if [ -z "$ACTION" ]; then
 	echo "[$scriptName]   ACTION      : (not supplied)"
 else

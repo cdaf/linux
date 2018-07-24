@@ -111,7 +111,6 @@ if [ -z "$package" ]; then
 	if [ "$fedora" ]; then
 
 		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-			echo "[$scriptName] Red Hat Enterprise Linux"
 		    install='latest'
 			echo "[$scriptName] For RHEL, only $install supported"
 		    executeIgnore "$elevate subscription-manager repos --enable=rhel-7-server-extras-rpms" # Ignore if already installed

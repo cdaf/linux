@@ -11,7 +11,7 @@ else
 fi
 
 if [ -z "$2" ]; then
-	hostname='target.sky.net'
+	hostname='server-1.sky.net'
 	echo "[$scriptName]   hostname : $hostname (default)"
 else
 	hostname=$2

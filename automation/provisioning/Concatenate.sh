@@ -11,7 +11,7 @@ else
 fi
 
 if [ -z "$2" ]; then
-	targetfile='target.sky.net'
+	targetfile='server-1.sky.net'
 	echo "[$scriptName]   targetfile : $targetfile (default)"
 else
 	targetfile=$2

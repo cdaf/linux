@@ -1,4 +1,4 @@
 # Properties corresponding to the Vagrantfile
-deployHost=target.sky.net
+deployHost=server-1.sky.net
 deployUser=deployer
 deployLand=/opt/packages/$DEPLOY_TARGET

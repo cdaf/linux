@@ -86,6 +86,15 @@ else
 		rm ./solution.properties
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote
+		if [ -f "predeploy.properties" ]; then
+			echo
+			echo "Load predeploy.properties ... "
+			propertiesList=$($AUTOMATIONHELPER/transform.sh "predeploy.properties")
+			printf "$propertiesList"
+			eval $propertiesList
+		else
+			echo "$0 :   predeploy   : (predeploy.properties not found, skipping)"
+		fi
 		echo
 		echo "Load Target Properties ... "
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$TARGET")

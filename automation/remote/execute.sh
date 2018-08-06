@@ -123,12 +123,12 @@ do
 		echo $condition
 		
 		if [ -z "$condition" ]; then
-			printf "$LINE ==> if [ \$${exitVar} ]; then exit"
-			EXECUTABLESCRIPT="if [ \$${exitVar} ]; then "
+			printf "$LINE ==> if [ ${exitVar} ]; then exit"
+			EXECUTABLESCRIPT="if [ ${exitVar} ]; then "
 			EXECUTABLESCRIPT+="echo \". Controlled exit due to \$exitVar being set\";exit;fi"
 		else
-			printf "$LINE ==> if [[ \$${exitVar} == '$condition' ]]; then exit"
-			EXECUTABLESCRIPT="if [[ \$${exitVar} == '$condition' ]]; then "
+			printf "$LINE ==> if [[ ${exitVar} == '$condition' ]]; then exit"
+			EXECUTABLESCRIPT="if [[ ${exitVar} == '$condition' ]]; then "
 			EXECUTABLESCRIPT+="echo \". Controlled exit due to $exitVar = $condition\";exit;fi"
 		fi
 	fi

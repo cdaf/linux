@@ -2,19 +2,17 @@
 scriptName='addHOSTS.sh'
 
 echo "[$scriptName] : --- start ---"
-if [ -z "$1" ]; then
-	ip='172.16.17.102'
-	echo "[$scriptName]   ip       : $ip (default)"
+ip=$1
+if [ -z "$ip" ]; then
+	echo "[$scriptName]   ip not supplied!"; exit 110
 else
-	ip=$1
 	echo "[$scriptName]   ip       : $ip"
 fi
 
-if [ -z "$2" ]; then
-	hostname='server-1.sky.net'
-	echo "[$scriptName]   hostname : $hostname (default)"
+hostname=$2
+if [ -z "hostname" ]; then
+	echo "[$scriptName]   hostname not supplied!"; exit 120
 else
-	hostname=$2
 	echo "[$scriptName]   hostname : $hostname"
 fi
 

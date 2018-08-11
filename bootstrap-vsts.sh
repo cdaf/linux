@@ -65,7 +65,7 @@ fi
 # If executing in a Vagrant VM, use the latest from GitHub
 if [ -d '/vagrant' ]; then
 	if [ -d 'linux-master' ]; then
-		executeExpression "rmm -rf linux-master"
+		executeExpression "rm -rf linux-master"
 	fi
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip linux-master.zip"

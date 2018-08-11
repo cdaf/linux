@@ -61,11 +61,18 @@ fi
 if [ -d './Vagrantfile' ]; then
 	executeExpression "rm -f './Vagrantfile'"
 fi
-executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-executeExpression "tar -xzf LU-CDAF.tar.gz"
 
-echo
-echo "[$scriptName] Create agent user and register"
+# If executing in a Vagrant VM, use the latest from GitHub
+if [ -d '/vagrant' ]; then
+	executeExpression "curl https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
+	executeExpression "unzip linux-master.zip"
+	executeExpression "cd linux-master/"
+else
+	executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+	executeExpression "tar -xzf LU-CDAF.tar.gz"
+fi
+
+echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 executeExpression "./automation/provisioning/installAgent.sh $url \$pat $pool $agentName"
 

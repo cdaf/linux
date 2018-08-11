@@ -60,10 +60,14 @@ if [ $(whoami) != 'root' ];then
 else
 	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
+versimediaon='2.136.1'
+echo "[$scriptName]   version        : $version"
 
-executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-linux-x64-2.126.0.tar.gz"
+media="vsts-agent-linux-x64-${version}.tar.gz"
+
+executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/${version}/${media}"
 executeExpression "mkdir vso"
-executeExpression "tar zxf vsts-agent-linux-x64-2.126.0.tar.gz -C ./vso"
+executeExpression "tar zxf ${media} -C ./vso"
 executeExpression "$elevate mv vso /opt"
 executeExpression "$elevate chown -R $srvAccount /opt/vso"
 executeExpression "cd /opt/vso"

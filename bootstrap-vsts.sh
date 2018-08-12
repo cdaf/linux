@@ -43,6 +43,14 @@ else
 	echo "[$scriptName]   agentName      : $agentName"
 fi
 
+stable="$5"
+if [ -z "$stable" ]; then
+	stable='no'
+	echo "[$scriptName]   stable         : $stable (not supplied, set to default)"
+else
+	echo "[$scriptName]   stable         : $stable"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami         : $(whoami)"
@@ -62,8 +70,8 @@ if [ -d './Vagrantfile' ]; then
 	executeExpression "rm -f './Vagrantfile'"
 fi
 
-# If executing in a Vagrant VM, use the latest from GitHub
-if [ -d '/vagrant' ]; then
+# Default is to use the latest from GitHub
+if [[ stable == 'no' ]]; then
 	if [ -d 'linux-master' ]; then
 		executeExpression "rm -rf linux-master"
 	fi

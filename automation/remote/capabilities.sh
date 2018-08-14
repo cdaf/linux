@@ -32,6 +32,13 @@ for ip in $ipList; do
 done
 echo
 
+if [ -f './linux-master/automation/CDAF.linux' ]; then
+	test=$(cat ./linux-master/automation/CDAF.linux | grep productVersion)
+	IFS='=' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName] CDAF Box Version : $test"
+fi
+
 # curl
 test="`curl --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then

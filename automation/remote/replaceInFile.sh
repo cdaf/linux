@@ -51,5 +51,5 @@ else
 	fi
 fi
 
-diff --side-by-side "${filename}" "/tmp/$(basename ${filename})"
+diff --side-by-side "/tmp/$(basename ${filename})" "${filename}"
 exit 0

@@ -32,8 +32,8 @@ for ip in $ipList; do
 done
 echo
 
-if [ -f './linux-master/automation/CDAF.linux' ]; then
-	test=$(cat ./linux-master/automation/CDAF.linux | grep productVersion)
+if [ -f '/home/vagrant/linux-master/automation/CDAF.linux' ]; then
+	test=$(cat /home/vagrant/linux-master/automation/CDAF.linux | grep productVersion)
 	IFS='=' read -ra ADDR <<< $test
 	test=${ADDR[1]}
 	echo "[$scriptName] CDAF Box Version : $test"

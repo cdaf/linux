@@ -1,52 +1,59 @@
 #!/usr/bin/env bash
+scriptName='AtlasImage.sh'
+imageLog='/VagrantBox.txt'
 
 function executeExpression {
-	echo "[$scriptName] $1"
+	Write-Host "[$scriptName][$(date)] $1"
+	echo "[$scriptName] $1" >> $imageLog
+}
+
+function executeExpression {
+	writeLog "$1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		writeLog "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
 
 function executeIgnore {
-	echo "[$scriptName] $1"
+	writeLog "[$scriptName] $1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+		writeLog "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
 	fi
 }  
 
 scriptName='AtlasImage.sh'
-echo; echo "[$scriptName] Generic provisioning for Linux"
-echo; echo "[$scriptName] --- start ---"
+echo; writeLog "[$scriptName] Generic provisioning for Linux"
+echo; writeLog "[$scriptName] --- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
-	echo "[$scriptName]   hypervisor   : $hypervisor"
+	writeLog "[$scriptName]   hypervisor   : $hypervisor"
 else
-	echo "[$scriptName]   hypervisor   : (not passed, extension install will not be attempted)"
+	writeLog "[$scriptName]   hypervisor   : (not passed, extension install will not be attempted)"
 fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami       : $(whoami)"
+	writeLog "[$scriptName]   whoami       : $(whoami)"
 else
-	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
+	writeLog "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
 
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
+	writeLog "[$scriptName]   Fedora based : $(uname -mrs)"
 else
 	ubuntu=$(uname -a | grep ubuntu)
 	if [ "$ubuntu" ]; then
-		echo "[$scriptName]   Debian based : $(uname -mrs)"
+		writeLog "[$scriptName]   Debian based : $(uname -mrs)"
 	else
-		echo "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+		writeLog "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
 	fi
 fi
 
@@ -59,7 +66,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		executeExpression "$elevate systemctl daemon-reload"
 		executeExpression "$elevate systemctl enable hypervkvpd"
 else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
-		echo;echo "[$scriptName] Ubuntu extensions are included (from 12.04), but require activation, list before and after"
+		echo;writeLog "[$scriptName] Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "$elevate cat /etc/initramfs-tools/modules"
 		echo
 		executeExpression '$elevate sh -c "echo \"hv_vmbus\" >> /etc/initramfs-tools/modules"'
@@ -75,7 +82,7 @@ else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ "$centos" ]; then
-			echo;echo "[$scriptName] Install prerequisites"
+			echo;writeLog "[$scriptName] Install prerequisites"
 			executeExpression "$elevate yum update -y"
 			sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
 			executeExpression "$elevate cat /etc/sudoers"
@@ -85,11 +92,11 @@ else
 			executeExpression "export KERN_DIR"
 		
 		else # Ubuntu
-			echo;echo "[$scriptName] Install prerequisites"
+			echo;writeLog "[$scriptName] Install prerequisites"
 			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
 		vbadd='5.2.16'
-		echo;echo "[$scriptName] Download and install VirtualBox extensions version $vbadd"; echo
+		echo;writeLog "[$scriptName] Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
 		executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
@@ -104,7 +111,7 @@ else
 fi
 
 if [ "$centos" ]; then
-	echo "[$scriptName] Cleanup"
+	writeLog "[$scriptName] Cleanup"
 	executeExpression "$elevate yum clean all"
 	executeExpression "$elevate rm -rf /var/cache/yum"
 	executeExpression "$elevate rm -rf /tmp/*"
@@ -121,8 +128,8 @@ else # Ubuntu
 	executeExpression "$elevate zerofree -v /dev/sda1" 
 fi
 
-echo "[$scriptName] Image complete, shutdown VM"
+writeLog "[$scriptName] Image complete, shutdown VM"
 executeExpression "$elevate shutdown -h now"
 
-echo "[$scriptName] --- end ---"
+writeLog "[$scriptName] --- end ---"
 exit 0

@@ -32,7 +32,7 @@ executeExpression 'Copy-Item -Recurse $extract\automation .'
 git branch
 if ( $LASTEXITCODE -eq 0 ) {
 	executeExpression 'cd automation'
-	executeExpression 'foreach ($script in Get-ChildItem) {git add $script}'
+	executeExpression 'foreach ($file in Get-ChildItem) {git add $file}'
 	executeExpression 'foreach ($script in Get-ChildItem -Recurse *.sh) {git add $script; git update-index --chmod=+x $script}'
 	executeExpression 'cd ..'
 } else {

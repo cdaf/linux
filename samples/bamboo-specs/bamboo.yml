@@ -1,0 +1,19 @@
+---
+project:
+  key: TOOL
+  plan:
+    key: SLAYER
+    name: cicd-template
+stages:
+  - jobs:
+      - scripts:
+          - '#!/bin/bash'
+          - "./ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+        interpreter: shell
+#        requirements:
+#          - system.builder.mvn3.Maven 3
+        artifacts:
+          - name: Package
+            path: '*.gz'
+          - name: TasksLocal
+            path: 'TasksLocal/**'

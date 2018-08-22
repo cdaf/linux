@@ -39,28 +39,41 @@ else
 fi
 
 echo
-echo "[$scriptName] Monitor log of $logFile for match on \"$stringMatch\"."
+echo "[$scriptName] Monitor log of $container for match on \"$stringMatch\"."
 echo
-# seed or replace the differencing file
-: > prevtest.log
-for (( c=1; c<=$waitTime; c++ )); do
-	cat $logFile > test.log
-	test=$(cat test.log | grep "$stringMatch")
-	diff test.log prevtest.log
-	mv test.log prevtest.log
-	if [ -z "$test" ]; then
-		sleep 1
-	else
-		echo "[$scriptName] \"$stringMatch\" found."
-		c=$waitTime
+
+wait=5
+retryMax=$((waitTime / wait))
+retryCount=0
+lastLineNumber=0
+exitCode=4366
+while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
+	sleep $wait
+	output=$(cat $logFile)
+	if [ -z "$output" ]; then
+		echo "[$scriptName]   no output ..."
+    else
+		lineCount=1
+		while read -r line; do
+	    	if [ $lineCount -gt $lastLineNumber ]; then
+				echo "> $line"
+				lastLineNumber=$lineCount
+			fi	
+			let "lineCount=lineCount+1"
+		done < <(echo "$output")
+	
+		found=$(echo $output | grep "$stringMatch")
+	    if [ ! -z "$found" ]; then
+			echo "[$scriptName] stringMatch ($stringMatch) found."
+		    exitCode=0
+		fi
 	fi
+
+	if [ $retryCount -ge $retryMax ]; then
+		echo "[$scriptName] Retry maximum ($retryMax) reached, exiting with code 334"
+		exitCode=335
+	fi
+	let "retryCount=retryCount+1"
 done
-
-if [ -z "$test" ]; then
-	echo "[$scriptName] \'$stringMatch\' not found! Exiting with code 99"
-	exit 99
-fi
-
-sleep 2
 
 echo; echo "[$scriptName] --- end ---"

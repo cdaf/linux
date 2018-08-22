@@ -14,12 +14,12 @@ function executeExpression {
 scriptName='dockerLog.sh'
 echo
 echo "[$scriptName] --- start ---"
-imageName=$1
-if [ -z "$imageName" ]; then
-	echo "[$scriptName] imageName not passed, exiting with code 1."
+container=$1
+if [ -z "$container" ]; then
+	echo "[$scriptName] container not passed, exiting with code 1."
 	exit 1
 else
-	echo "[$scriptName] imageName   : $imageName"
+	echo "[$scriptName] container   : $container"
 fi
 
 stringMatch=$2
@@ -39,27 +39,47 @@ else
 fi
 
 echo
-echo "[$scriptName] Monitor log of $imageName for match on \"$stringMatch\"."
+echo "[$scriptName] Monitor log of $container for match on \"$stringMatch\"."
 echo
-# seed or replace the differencing file
-: > prevtest.log
-for (( c=1; c<=$waitTime; c++ )); do
-	test=$(docker logs $imageName | grep "$stringMatch")
-	docker logs $imageName > test.log
-	diff test.log prevtest.log
-	mv test.log prevtest.log
-	if [ -z "$test" ]; then
-		sleep 1
-	else
-		echo "[$scriptName] \"$stringMatch\" found."
-		c=$waitTime
-	fi
-done
 
-if [ -z "$test" ]; then
-	echo "[$scriptName] \'$stringMatch\' not found! Exiting with code 99"
-	exit 99
-fi
+wait=5
+retryMax=$((waitTime / wait))
+retryCount=0
+lastLineNumber=0
+exitCode=4366
+while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
+	sleep $wait
+	if [[ "$container" == 'DOCKER-COMPOSE' ]]; then
+		output=$(docker-compose logs)
+	else
+		output=$(docker logs $container)
+	fi
+	if [ -z "$output" ]; then
+		echo "[$scriptName]   no output ..."
+    else
+		lineCount=1
+		while read -r line; do
+	    	if [ $lineCount -gt $lastLineNumber ]; then
+				echo "> $line"
+				lastLineNumber=$lineCount
+			fi	
+			let "lineCount=lineCount+1"
+		done < <(echo "$output")
+	
+		found=$(echo $output | grep "$stringMatch")
+	    if [ ! -z "$found" ]; then
+			echo "[$scriptName] stringMatch ($stringMatch) found."
+		    exitCode=0
+		fi
+	fi
+
+	if [ $retryCount -ge $retryMax ]; then
+		echo "[$scriptName] Retry maximum ($retryMax) reached, exiting with code 334"
+		exitCode=335
+	fi
+	let "retryCount=retryCount+1"
+done
 
 echo
 echo "[$scriptName] --- end ---"
+exit $exitCode

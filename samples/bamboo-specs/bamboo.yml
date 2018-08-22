@@ -8,7 +8,7 @@ stages:
   - jobs:
       - scripts:
           - '#!/bin/bash'
-          - "./ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+          - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.revision.number}"
         interpreter: shell
 #        requirements:
 #          - system.builder.mvn3.Maven 3

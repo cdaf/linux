@@ -126,7 +126,11 @@ if [ -n "$test" ]; then
 		echo "[$scriptName] PIP version $test already installed."
 	else
 		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-		executeExpression "$elevate python get-pip.py"
+		if [ "$version" == "2" ]; then
+			executeExpression "$elevate python get-pip.py"
+		else
+			executeExpression "$elevate python${version} get-pip.py"
+		fi
 		executeExpression "pip --version"
 	fi
 else	
@@ -225,7 +229,7 @@ if [ ! -z "$install" ]; then
 	if [ "$version" == "2" ]; then
 		executeExpression "pip install $install"
 	else
-		executeExpression "pip3 install $install"
+		executeExpression "pip${$version} install $install"
 	fi
 fi
  

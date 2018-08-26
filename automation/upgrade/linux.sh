@@ -36,10 +36,8 @@ if [ $? -eq 0 ]; then
 else
 	svn ls
 	if [ $? -eq 0 ]; then
-		for script in $(find . -name "*.sh"); do
-			svn add $script 2>/dev/null
-			svn propset svn:executable ON -R $script
-		done
+	executeExpression 'for file in $(find .); do svn add $file --force; done'
+		executeExpression 'for script in $(find . -name "*.sh"); svn propset svn:executable ON -R $script; done'
 	fi
 fi
 

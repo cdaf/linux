@@ -58,7 +58,7 @@ if [ -d "buildImage" ]; then
 else
 	executeExpression "mkdir buildImage"
 fi
-executeExpression "cp springboot/Dockerfile buildImage"
+executeExpression "cp automation-solution/Dockerfile buildImage"
 executeExpression "cp springboot/target/*.jar buildImage"
 executeExpression "cd buildImage"
 

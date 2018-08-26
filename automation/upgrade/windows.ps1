@@ -36,7 +36,15 @@ if ( $LASTEXITCODE -eq 0 ) {
 	executeExpression 'foreach ($script in Get-ChildItem -Recurse *.sh) {git add $script; git update-index --chmod=+x $script}'
 	executeExpression 'cd ..'
 } else {
-	cmd /c "exit 0"
+	svn ls
+	if ( $LASTEXITCODE -eq 0 ) {
+		foreach ($script in Get-ChildItem -Recurse *.sh) {
+			svn add $script --force
+			svn propset svn:executable ON $script
+		}
+	} else {
+		cmd /c "exit 0"
+	}
 }
 
 Write-Host "`n[$scriptName] ---------- stop ----------"

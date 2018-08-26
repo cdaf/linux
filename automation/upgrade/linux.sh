@@ -33,6 +33,14 @@ if [ $? -eq 0 ]; then
 	executeExpression 'for file in $(find .); do git add $file; done'
 	executeExpression 'for script in $(find . -name "*.sh"); do chmod +x $script; git update-index --chmod=+x $script; done'
 	executeExpression 'cd ..'
+else
+	svn ls
+	if [ $? -eq 0 ]; then
+		for script in $(find . -name "*.sh"); do
+			svn add $script 2>/dev/null
+			svn propset svn:executable ON -R $script
+		done
+	fi
 fi
 
 echo "[$scriptName] --- end ---"

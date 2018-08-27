@@ -161,7 +161,8 @@ else
 		fi
 	fi
 
-	if [ -n "$imageBuild" ]; then
+	# Avoid a recursive call to image build if actually processing a container build
+	if [ -n "$imageBuild" ] && [ -z "$containerBuild" ]; then
 		executeExpression "$imageBuild"
 	fi
 	

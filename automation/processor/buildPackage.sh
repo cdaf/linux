@@ -115,7 +115,7 @@ fi
 
 echo "$scriptName :   CDAF Version    : $($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")"
 
-# 1.7.0 If a container build command is specified, use this instead of CI process
+# If a container build command is specified, use this instead of CI process
 containerBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "containerBuild")
 if [ -n "$containerBuild" ]; then
 	test=$(docker --version 2>&1)
@@ -127,27 +127,24 @@ if [ -n "$containerBuild" ]; then
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
 		dockerRun="${ADDR[0]}"
 		echo "$scriptName :   Docker          : $dockerRun"
-		echo "$scriptName :   containerBuild  : $containerBuild"
 	fi
 else
 	echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
 fi
 
-# 1.7.7 imageBuild supported for container and non container build
-imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
-if [ -n "$imageBuild" ]; then
-	echo "$scriptName :   imageBuild      : $imageBuild"
-else
-	echo "$scriptName :   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
-fi
-imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
+# CDAF 1.7.0 Container Build process
 if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
 	echo "$scriptName Execute Container build, this performs cionly, options packageonly and buildonly are ignored."
 	executeExpression "$containerBuild"
 
-	if [ -n "$imageBuild" ]; then
+	imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
+	if [ -n "$containerBuild" ]; then
+		echo
+		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot\CDAF.solution"
 		executeExpression "$imageBuild"
+	else
+		echo "$scriptName :   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
 	fi
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then
@@ -160,11 +157,6 @@ else
 			echo "$scriptName : Project(s) Build Failed! $AUTOMATION_ROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
 			exit $exitCode
 		fi
-	fi
-
-	# Avoid a recursive call to image build if actually processing a container build
-	if [ -n "$imageBuild" ] && [ ! -n "$containerBuild" ]; then
-		executeExpression "$imageBuild"
 	fi
 	
 	if [ "$caseinsensitive" == "buildonly" ]; then

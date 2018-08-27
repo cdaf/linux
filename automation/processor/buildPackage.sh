@@ -127,6 +127,7 @@ if [ -n "$containerBuild" ]; then
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
 		dockerRun="${ADDR[0]}"
 		echo "$scriptName :   Docker          : $dockerRun"
+		echo "$scriptName :   containerBuild  : $containerBuild"
 	fi
 else
 	echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
@@ -162,7 +163,7 @@ else
 	fi
 
 	# Avoid a recursive call to image build if actually processing a container build
-	if [ -n "$imageBuild" ] && [ -z "$containerBuild" ]; then
+	if [ -n "$imageBuild" ] && [ ! -n "$containerBuild" ]; then
 		executeExpression "$imageBuild"
 	fi
 	

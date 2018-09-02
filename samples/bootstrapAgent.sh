@@ -33,14 +33,28 @@ else
 	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
-if [ -d './automation' ]; then
+# First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant, default is to use the latest from GitHub (stable='no')
+if [ -d './automation/provisioning' ]; then
 	atomicPath='.'
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
 	if [ -d '/vagrant/automation' ]; then
 		atomicPath='/vagrant'
 	else
-		echo "[$scriptName] $atomicPath not found for either Docker or Vagrant! Exit with error 34"; exit 34
+		if [[ $stable == 'no' ]]; then
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			if [ -d 'linux-master' ]; then
+				executeExpression "rm -rf linux-master"
+			fi
+			executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
+			executeExpression "unzip linux-master.zip"
+			executeExpression "cd linux-master/"
+		else
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+			executeExpression "tar -xzf LU-CDAF.tar.gz"
+		fi
+		atomicPath='.'
 	fi
 fi
 

@@ -92,7 +92,7 @@ EOF
 fi
 
 executeExpression "$elevate ./svc.sh install $srvAccount"
-executeExpression "sudo service vsts.agent.cdaf.$(hostname) start"
+executeExpression "sudo systemctl start vsts.agent.cdaf.$(hostname)"
 
 echo "[$scriptName] --- end ---"
 exit 0

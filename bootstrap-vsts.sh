@@ -11,7 +11,7 @@ function executeExpression {
 	fi
 }
 
-scriptName='bootstrap-vsts.sh'
+scriptName='bootstrapAgent.sh'
 echo "[$scriptName] --- start ---"
 url="$1"
 if [ -z "$url" ]; then
@@ -58,34 +58,34 @@ else
 	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
 
-echo
-echo "[$scriptName] Download CDAF"
-if [ -d './automation' ]; then
-	executeExpression "rm -rf './automation'"
-fi
-if [ -d './Readme.md' ]; then
-	executeExpression "rm -f './Readme.md'"
-fi
-if [ -d './Vagrantfile' ]; then
-	executeExpression "rm -f './Vagrantfile'"
-fi
-
-# Default is to use the latest from GitHub
-if [[ stable == 'no' ]]; then
-	if [ -d 'linux-master' ]; then
-		executeExpression "rm -rf linux-master"
-	fi
-	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-	executeExpression "unzip linux-master.zip"
-	executeExpression "cd linux-master/"
+# First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant, default is to use the latest from GitHub (stable='no')
+if [ -d './automation/provisioning' ]; then
+	atomicPath='./automation/provisioning'
 else
-	executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-	executeExpression "tar -xzf LU-CDAF.tar.gz"
+	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
+	if [ -d '/vagrant/automation' ]; then
+		atomicPath='/vagrant/automation/provisioning'
+	else
+		if [[ $stable == 'no' ]]; then
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			if [ -d 'linux-master' ]; then
+				executeExpression "rm -rf linux-master"
+			fi
+			executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
+			executeExpression "unzip linux-master.zip"
+			atomicPath='./linux-master/automation/provisioning'
+		else
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+			executeExpression "tar -xzf LU-CDAF.tar.gz"
+			atomicPath='./automation/provisioning'
+		fi
+	fi
 fi
 
 echo; echo "[$scriptName] Create agent user and register"
-executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
-executeExpression "./automation/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
-executeExpression "./automation/provisioning/installAgent.sh $url \$pat $pool $agentName"
+executeExpression "$elevate ${atomicPath}/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
+executeExpression "$elevate ${atomicPath}/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
+executeExpression "$elevate ${atomicPath}/installAgent.sh $url \$pat $pool $agentName"
 
 echo "[$scriptName] --- end ---"

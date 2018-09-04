@@ -3,21 +3,7 @@
     Author  : Jules Clements
     Version : See CDAF.linux
 
-# Framework Overview
-
-The automation framework provides a "lowest common denominator" approach, where underlying action are implemented in bash.
-
-This automation framework functionality is based on user defined solution files. By default the /solution folder stores these files, however, a stand alone folder, in the solution root is supported, identified by the CDAF.solution file in the root.
-
-# Frequently Asked Questions
-
-## Why use CDAF
-
-To provide a consistent approach to Continuous Delivery and leverage the efforts of others to provide greater reusability and easier problem determination. CDAF will provide the building blocks for common tasks, with rich logging and exeception handling. The CDAf provides toolset configuration guidance, keeping the actions loosely coupled with the toolset, to allow visibilty and traceability through source control rather than direct changes.
-
-## Why not have a shared folder for CDAF on the system
-
-CDAF principles are to have a minimum level of system dependency. By having solution specific copies each solution can use differing versions of CDAF, and once a solution is upgraded, that upgrade will be propogated to all uses (at next update/pull/get) where a system provisioned solution will requrie all users to update to the same version, even if their current solution has not been tested for this system wide change.
+This readme focuses on implementation details of the framework, see the overview documentation, see http://cdaf.io/about
 
 # Provisioning
 
@@ -110,24 +96,18 @@ Custom elements, i,.e. deployScriptOverride and deployTaskOverride scripts
 
 # Continuous Delivery Emulation
 
-To support Continuous Delivery, the automation of Deployment is required, to automate deployment, the automation of packaging is required, and to automate packaging, the automation of build is required.  
+To support Continuous Delivery, the automation of Deployment is required, to automate deployment, the automation of packaging is required, and to automate packaging, the automation of build is required.
 
-## Automated Build
+## Build and Package  
+
+### Automated Build
 
 If it exists, each project in the Project.list file is processed, in order (to support cross project dependencies), if the file does not exist, all project directores are processed, alphabetically.
 Each project directory is entered and the build.sh script is executed. Each build script is expected to support build and clean actions.
 
-## Automated Packaging
+### Automated Packaging
 
 The artifacts from each project are copied to the root workspace, along with local and remote support scripts. The remote support scripts and include with the build artifacts in a single zip file, while the local scripts and retained in a directory (DeployLocal). It is the package.sh script which manages this, leaving only artifacts that are to be retained in the workspace root.
-
-## Remote Tasks
-
-The automation of deployment uses ssh to create a remote connection to each target in the local/properties files for the environment symbol, i.e. CD, ST, etc. The zip file (Package) is copied to the target host and extracted, the properties file for that target is also copied and then the entry script (deploy.sh) is called.
-
-## Local Tasks
-
-Executed from the current host, i.e. the build server or agent, and may connect to remove hosts through direct protocols, i.e. WebDAV, ODBC/JDBC, HTTP(S), etc.
 
 ## Container Builds
 
@@ -143,3 +123,10 @@ Alter the bootstrapAgent.sh to fulfill the build dependencies. Note: if you have
 
     override.vm.provision 'shell', path: './automation-solution/bootstrapAgent.sh'
 
+## Remote Tasks
+
+The automation of deployment uses ssh to create a remote connection to each target in the local/properties files for the environment symbol, i.e. CD, ST, etc. The zip file (Package) is copied to the target host and extracted, the properties file for that target is also copied and then the entry script (deploy.sh) is called.
+
+## Local Tasks
+
+Executed from the current host, i.e. the build server or agent, and may connect to remove hosts through direct protocols, i.e. WebDAV, ODBC/JDBC, HTTP(S), etc.

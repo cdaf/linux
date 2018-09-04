@@ -160,6 +160,23 @@ else
 	echo "[$scriptName] Ansible playbook : ${ADDR[1]}"
 fi	
 
+# Ruby
+test="`ruby --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Ruby             : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	echo "[$scriptName] Ruby             : ${ADDR[1]}"
+fi	
+
+# Puppet
+test="`puppet --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] Puppet           : (not installed)"
+else
+	echo "[$scriptName] Puppet           : $test"
+fi	
+
 # NodeJS components
 test=$(node --version 2>/dev/null)
 if [ -z "$test" ]; then

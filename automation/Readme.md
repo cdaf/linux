@@ -9,6 +9,16 @@ The automation framework provides a "lowest common denominator" approach, where 
 
 This automation framework functionality is based on user defined solution files. By default the /solution folder stores these files, however, a stand alone folder, in the solution root is supported, identified by the CDAF.solution file in the root.
 
+# Frequently Asked Questions
+
+## Why use CDAF
+
+To provide a consistent approach to Continuous Delivery and leverage the efforts of others to provide greater reusability and easier problem determination. CDAF will provide the building blocks for common tasks, with rich logging and exeception handling. The CDAf provides toolset configuration guidance, keeping the actions loosely coupled with the toolset, to allow visibilty and traceability through source control rather than direct changes.
+
+## Why not have a shared folder for CDAF on the system
+
+CDAF principles are to have a minimum level of system dependency. By having solution specific copies each solution can use differing versions of CDAF, and once a solution is upgraded, that upgrade will be propogated to all uses (at next update/pull/get) where a system provisioned solution will requrie all users to update to the same version, even if their current solution has not been tested for this system wide change.
+
 # Provisioning
 
 When using for the first time, the users workstation needs to be prepared by provisioning the following features
@@ -119,12 +129,17 @@ The automation of deployment uses ssh to create a remote connection to each targ
 
 Executed from the current host, i.e. the build server or agent, and may connect to remove hosts through direct protocols, i.e. WebDAV, ODBC/JDBC, HTTP(S), etc.
 
-# Frequently Asked Questions
+## Container Builds
 
-## Why use CDAF
+This functionality allows for multiple build requirements (which maybe mutually exclusive at a system level) to be combined on a single host. It is expected that the build dependencies are defined in code (bootstrapAgent.sh) and not image based. This exploits the disk layer mechanisms of Docker to only rebuild the agent image if a change in definition occurs and not every time a build is perform.
 
-To provide a consistent approach to Continuous Delivery and leverage the efforts of others to provide greater reusability and easier problem determination. CDAF will provide the building blocks for common tasks, with rich logging and exeception handling. The CDAf provides toolset configuration guidance, keeping the actions loosely coupled with the toolset, to allow visibilty and traceability through source control rather than direct changes.
+### Applying a Container Build
 
-## Why not have a shared folder for CDAF on the system
+ - Copy the Dockerfile from the automation/solution directory to the root of your solution
+ - Copy the bootstrapAgent.sh from the automation/solution to your solution folder
+ - uncomment the containerBuild line from the CDAF.solution in your solution folder
 
-CDAF principles are to have a minimum level of system dependency. By having solution specific copies each solution can use differing versions of CDAF, and once a solution is upgraded, that upgrade will be propogated to all uses (at next update/pull/get) where a system provisioned solution will requrie all users to update to the same version, even if their current solution has not been tested for this system wide change.
+Alter the bootstrapAgent.sh to fulfill the build dependencies. Note: if you have a Vagrantfile for your solution, ideally the same bootstrap would be used for both Vagrant and Container Build implementations:
+
+    override.vm.provision 'shell', path: './automation-solution/bootstrapAgent.sh'
+

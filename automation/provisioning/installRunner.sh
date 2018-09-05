@@ -139,6 +139,10 @@ else
 		executeExpression "$elevate useradd --comment 'GitLab Runner' --create-home ${runas} --shell /bin/bash"
 	else
 		echo "[$scriptName] ${runas} exists with UID ${uid}"
+		if [ ! -d "/home/${runas}" ];then
+			executeExpression "$elevate mkdir /home/${runas}"
+			executeExpression "$elevate chown -R ${runas}:${runas} /home/${runas}"
+		fi
 	fi
 	executeExpression "$elevate /usr/local/bin/gitlab-runner install --user=${runas} --working-directory=/home/${runas}"
 	executeExpression "$elevate /usr/local/bin/gitlab-runner start"

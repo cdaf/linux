@@ -38,7 +38,7 @@ if ( $LASTEXITCODE -eq 0 ) {
 } else {
 	svn ls
 	if ( $LASTEXITCODE -eq 0 ) {
-		executeExpression 'foreach ($file in Get-ChildItem) {svn add $script --force}'
+		executeExpression 'foreach ($file in Get-ChildItem) {svn add $file --force}'
 		executeExpression 'foreach ($script in Get-ChildItem -Recurse *.sh) {svn propset svn:executable ON $script}'
 	} else {
 		cmd /c "exit 0"

@@ -1,0 +1,15 @@
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=vsts&tabs=yaml%2Cbatch
+
+pool:
+  vmImage: 'Ubuntu 16.04'
+  
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: |
+    ./automation/processor/buildPackage.sh $(Build.DefinitionName) $(Build.DefinitionName)
+    cp TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
+    cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
+    
+- task: PublishBuildArtifacts@1

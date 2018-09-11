@@ -1,4 +1,6 @@
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-yaml
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=vsts&tabs=yaml
 
 name: $(TeamProject)_$(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 

@@ -10,7 +10,7 @@ variables:
 
 steps:
 - script: |
-    ./automation/processor/buildPackage.sh $(rev:r) $(SourceBranchName)
+    ./automation/processor/buildPackage.sh $(Build.rev:r) $(Build.SourceBranchName)
     cp TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
     cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
     

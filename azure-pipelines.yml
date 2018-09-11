@@ -1,4 +1,6 @@
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=vsts&tabs=yaml%2Cbatch
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables
+
+name: $(TeamProject)_$(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 pool:
   vmImage: 'Ubuntu 16.04'
@@ -8,7 +10,7 @@ variables:
 
 steps:
 - script: |
-    ./automation/processor/buildPackage.sh $(Build.DefinitionName) $(Build.DefinitionName)
+    ./automation/processor/buildPackage.sh $(rev:r) $(SourceBranchName)
     cp TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
     cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
     

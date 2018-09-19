@@ -148,7 +148,7 @@ if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ]; then
 	fi
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then
-		echo "$scriptName action is ${ACTION}, do not perform build."
+		echo; echo "$scriptName action is ${ACTION}, do not perform build."
 	else
 		$AUTOMATION_ROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
 		exitCode=$?

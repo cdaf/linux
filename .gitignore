@@ -52,3 +52,6 @@ local.properties
 /projectListFile
 /*_virtualbox/
 /*_virtualbox.txt
+/automation-solution/
+/propertiesForLocalTasks/
+/propertiesForRemoteTasks/

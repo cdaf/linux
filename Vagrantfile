@@ -86,7 +86,7 @@ Vagrant.configure(2) do |config|
     build.vm.provider 'virtualbox' do |virtualbox, override|
       virtualbox.memory = "#{vRAM}"
       virtualbox.cpus = "#{vCPU}"
-      override.vm.network 'private_network', ip: '172.16.17.100'
+      override.vm.network 'private_network', ip: '172.16.17.99'
       if synchedFolder
         override.vm.synced_folder "#{synchedFolder}", "/.provision"
       end

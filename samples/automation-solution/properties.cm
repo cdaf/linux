@@ -1,0 +1,7 @@
+context  target            deployTaskOverride
+remote   vagrant.server-1  azureARM.tsk
+remote   LINUX_LOCALHOST   azureARM.tsk
+local    dev.target-1      azureARM.tsk
+local    dev.target-2      azureARM.tsk
+local    dev.target-3      azureARM.tsk
+local    LINUX_LOOPBACK    azureARM.tsk

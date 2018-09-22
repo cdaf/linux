@@ -126,16 +126,19 @@ if [ -d "$localGenPropDir" ]; then
 	done
 fi
 
+# Merge Local tasks with general tasks, local first
+if [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then
+	cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT
+fi
+
+if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
+	echo "'$SOLUTIONROOT/tasksRun.tsk' -> '$WORK_DIR_DEFAULT/tasksRunLocal.tsk'"
+	cat $SOLUTIONROOT/tasksRun.tsk >> $WORK_DIR_DEFAULT/tasksRunLocal.tsk
+fi
+
 # If there are properties files but no default task, log a warning (not an error because may have override tasks defined in properties files themselves)
 filesInDir=$(ls $WORK_DIR_DEFAULT/${localPropertiesDir##*/})
-if [ -n "$filesInDir" ] && [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then
-	cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "$0 : cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
-		exit $exitCode
-	fi
-else
+if [ -n "$filesInDir" ] && [ -f "$WORK_DIR_DEFAULT/tasksRunLocal.tsk" ]; then
 	echo; echo "$0 : Warning : Default Task ($SOLUTIONROOT/tasksRunLocal.tsk) not found, override task must be defined for each properties file."
 fi
 

@@ -59,10 +59,15 @@ else
 	echo
 	cp -avR ./$AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT
 	
+	# Merge Remote tasks with general tasks, remote first
 	if [ -f  "./$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
 		echo
 		printf "Tasks to execute on remote host : "	
 		cp -av ./$SOLUTIONROOT/tasksRunRemote.tsk $WORK_DIR_DEFAULT
+	fi
+	if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
+		echo "'$SOLUTIONROOT/tasksRun.tsk' -> '$WORK_DIR_DEFAULT/tasksRunRemote.tsk'"
+		cat $SOLUTIONROOT/tasksRun.tsk >> $WORK_DIR_DEFAULT/tasksRunRemote.tsk
 	fi
 	
 	if [ -d  "$remoteCryptDir" ]; then

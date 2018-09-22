@@ -113,6 +113,9 @@ fi
 
 # Merge files into directory, i.e. don't replace any properties provided above
 if [ -d "$localGenPropDir" ]; then
+	if [ ! -d $WORK_DIR_DEFAULT/${localPropertiesDir} ]; then
+		mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
+	fi
 	echo; echo "$0 :   Processing generated properties directory (./propertiesForLocalTasks):"; echo
 	for generatedPropertyPath in $(find ./propertiesForLocalTasks/ -type f); do
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
@@ -169,6 +172,9 @@ fi
 # Merge files into directory, i.e. don't replace any properties provided above
 if [ -d "$remoteGenPropDir" ]; then
 	echo; echo "$0 :   Processing generated properties directory (./propertiesForRemoteTasks):"; echo
+	if [ ! -d $WORK_DIR_DEFAULT/${remotePropertiesDir} ]; then
+		mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
+	fi
 	for generatedPropertyPath in $(find ./propertiesForRemoteTasks/ -type f); do
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}'"

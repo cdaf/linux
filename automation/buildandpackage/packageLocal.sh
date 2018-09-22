@@ -16,7 +16,7 @@ solutionCustomDir="$SOLUTIONROOT/custom"
 localCustomDir="$SOLUTIONROOT/customLocal"
 localCryptDir="$SOLUTIONROOT/cryptLocal"
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
-remoteGenPropDir="./propertiesForLocalTasks"
+remoteGenPropDir="./propertiesForRemoteTasks"
 
 echo "$0 : --- PACKAGE locally executed scripts and artefacts ---"; echo
 echo "$0 :   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
@@ -113,11 +113,11 @@ fi
 
 # Merge files into directory, i.e. don't replace any properties provided above
 if [ -d "$localGenPropDir" ]; then
-	if [ ! -d $WORK_DIR_DEFAULT/${localPropertiesDir} ]; then
+	echo; echo "$0 : Processing generated properties directory (${localGenPropDir}):"; echo
+	if [ ! -d $WORK_DIR_DEFAULT/${localPropertiesDir##*/} ]; then
 		mkdir -v $WORK_DIR_DEFAULT/${localPropertiesDir##*/}
 	fi
-	echo; echo "$0 :   Processing generated properties directory (./propertiesForLocalTasks):"; echo
-	for generatedPropertyPath in $(find ./propertiesForLocalTasks/ -type f); do
+	for generatedPropertyPath in $(find ${localGenPropDir}/ -type f); do
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${localPropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> $WORK_DIR_DEFAULT/${localPropertiesDir##*/}/${generatedPropertyFile}
@@ -134,12 +134,6 @@ fi
 if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
 	echo "'$SOLUTIONROOT/tasksRun.tsk' -> '$WORK_DIR_DEFAULT/tasksRunLocal.tsk'"
 	cat $SOLUTIONROOT/tasksRun.tsk >> $WORK_DIR_DEFAULT/tasksRunLocal.tsk
-fi
-
-# If there are properties files but no default task, log a warning (not an error because may have override tasks defined in properties files themselves)
-filesInDir=$(ls $WORK_DIR_DEFAULT/${localPropertiesDir##*/})
-if [ -n "$filesInDir" ] && [ -f "$WORK_DIR_DEFAULT/tasksRunLocal.tsk" ]; then
-	echo; echo "$0 : Warning : Default Task ($SOLUTIONROOT/tasksRunLocal.tsk) not found, override task must be defined for each properties file."
 fi
 
 if [ -d "$localCryptDir" ]; then
@@ -174,18 +168,18 @@ fi
 
 # Merge files into directory, i.e. don't replace any properties provided above
 if [ -d "$remoteGenPropDir" ]; then
-	echo; echo "$0 :   Processing generated properties directory (./propertiesForRemoteTasks):"; echo
-	if [ ! -d $WORK_DIR_DEFAULT/${remotePropertiesDir} ]; then
+	echo; echo "$0 : Processing generated properties directory (${remoteGenPropDir}):"; echo
+	if [ ! -d $WORK_DIR_DEFAULT/${remotePropertiesDir##*/} ]; then
 		mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
 	fi
-	for generatedPropertyPath in $(find ./propertiesForRemoteTasks/ -type f); do
+	for generatedPropertyPath in $(find ${remoteGenPropDir}/ -type f); do
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}
 	done
 fi
 
-echo "$0 :   Copy all helper scripts from remote to local : "; echo
+echo; echo "$0 : Copy all helper scripts from remote to local : "; echo
 cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
@@ -193,12 +187,12 @@ if [ $exitCode -ne 0 ]; then
 	exit $exitCode
 fi
 
-# Process Build Artefacts
+# Process Specific Local artifacts
 ./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $localArtifactListFile $WORK_DIR_DEFAULT
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "$0 : ./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $localArtifactListFile $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
-	exit $exitCode
+
+# Process generic artifacts, i.e. applies to both local and remote
+if [ -f "${SOLUTIONROOT}/storeFor" ]; then
+	./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT
 fi
 
 # If zipLocal property set in CDAF.solution of any build property, then a package will be created from the local takss

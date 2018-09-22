@@ -114,6 +114,14 @@ else
 	echo "none ($remoteArtifactListFile)"
 fi
 
+genericArtifactListFile="./$SOLUTIONROOT/storeFor"
+printf "$0 :   generic artifact list    : "
+if [ -f  "$genericArtifactListFile" ]; then
+	echo "found ($genericArtifactListFile)"
+else
+	echo "none ($genericArtifactListFile)"
+fi
+
 echo "$0 :   pwd                      : $(pwd)"
 echo "$0 :   hostname                 : $(hostname)"
 echo "$0 :   whoami                   : $(whoami)"
@@ -164,8 +172,8 @@ else
 				fi
 			done
 		done < <(echo "$config")
-		if [ -d "$SOLUTIONROOT/propertiesForRemoteTasks" ] && [ -d "./propertiesForRemoteTasks/" ]; then
-			echo "$0 : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForRemoteTasks"
+		if [ -d "${remotePropertiesDir}" ] && [ -d "./propertiesForRemoteTasks/" ]; then
+			echo "$0 : Generated properties will be merged with any defined properties in ${remotePropertiesDir}"
 		fi
 		if [ -d "$SOLUTIONROOT/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
 			echo "$0 : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForLocalTasks"
@@ -209,7 +217,7 @@ else
 
 	# Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
-	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ]; then
+	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
 		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then

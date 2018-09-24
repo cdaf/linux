@@ -171,3 +171,17 @@ else
 		fi
 	fi
 fi
+
+if [[ "$ACTION" == "staging@"* ]]; then # Primarily for VSTS / Azure pipelines & IBM BlueMix
+	IFS='@' read -ra arr <<< $ACTION
+	if [ ! -d "${arr[1]}" ]; then
+		executeExpression "mkdir -p '${arr[1]}'"
+	fi
+	executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
+	for packageFile in $(find . -maxdepth 1 -type f -name "*.gz"); do
+		executeExpression "cp -f '${packageFile}' '${arr[1]}'"
+	done
+fi
+
+echo; echo "$scriptName : Continuous Integration (CI) Finished"
+exit 0

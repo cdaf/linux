@@ -45,7 +45,7 @@ fi
 
 stable="$5"
 if [ -z "$stable" ]; then
-	stable='no'
+	stable='yes'
 	echo "[$scriptName]   stable         : $stable (not supplied, set to default)"
 else
 	echo "[$scriptName]   stable         : $stable"

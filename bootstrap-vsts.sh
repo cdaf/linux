@@ -11,7 +11,7 @@ function executeExpression {
 	fi
 }
 
-scriptName='bootstrapAgent.sh'
+scriptName='bootstrap-vsts.sh'
 echo "[$scriptName] --- start ---"
 url="$1"
 if [ -z "$url" ]; then

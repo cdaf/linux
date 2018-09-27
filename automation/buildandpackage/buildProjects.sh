@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 
-echo
-echo "$0 : +----------------------------+"
+echo; echo "$0 : +----------------------------+"
 echo "$0 : | Process BUILD all projects |"
-echo "$0 : +----------------------------+"
-echo
+echo "$0 : +----------------------------+"; echo
 SOLUTION="$1"
 if [ -z "$SOLUTION" ]; then
 	echo "$0 : Solution not passed!"
 	exit 1
 else
-	echo "$0 :   SOLUTION       : $SOLUTION"
+	echo "$0 :   SOLUTION         : $SOLUTION"
 fi
 
 BUILDNUMBER="$2"
@@ -18,33 +16,33 @@ if [ -z "$BUILDNUMBER" ]; then
 	echo "$0 : Build Number not passed!"
 	exit 2
 else
-	echo "$0 :   BUILDNUMBER    : $BUILDNUMBER"
+	echo "$0 :   BUILDNUMBER      : $BUILDNUMBER"
 fi
 
 REVISION="$3"
 if [ -z "$REVISION" ]; then
 	REVISION="Revision"
-	echo "$0 :   REVISION       : $REVISION (default)"
+	echo "$0 :   REVISION         : $REVISION (default)"
 else
-	echo "$0 :   REVISION       : $REVISION"
+	echo "$0 :   REVISION         : $REVISION"
 fi
 
 ACTION="$4"
 if [ -z "$ACTION" ]; then
-	echo "$0 :   ACTION         : $ACTION"
+	echo "$0 :   ACTION           : $ACTION"
 	BUILDENV='BUILDER'
-	echo "$0 :   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
+	echo "$0 :   BUILDENV         : $BUILDENV (default because ACTION not supplied)"
 else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
-		echo "$0 :   ACTION         : $ACTION (Build Environment will be set to default)"
+		echo "$0 :   ACTION           : $ACTION (Build Environment will be set to default)"
 		BUILDENV='BUILDER'
-		echo "$0 :   BUILDENV       : $BUILDENV (default)"
+		echo "$0 :   BUILDENV         : $BUILDENV (default)"
 	else
 		BUILDENV="$ACTION"
-		echo "$0 :   ACTION         : $ACTION"
-		echo "$0 :   BUILDENV       : $BUILDENV (derived from action)"
+		echo "$0 :   ACTION           : $ACTION"
+		echo "$0 :   BUILDENV         : $BUILDENV (derived from action)"
 	fi
 fi
 
@@ -53,16 +51,14 @@ for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.linux" ] ; then
 		AUTOMATIONROOT="$directoryName"
-		echo "$0 :   AUTOMATIONROOT : $AUTOMATIONROOT (CDAF.linux found)"
+		echo "$0 :   AUTOMATIONROOT   : $AUTOMATIONROOT (CDAF.linux found)"
 	fi
 done
 if [ -z "$AUTOMATIONROOT" ]; then
 	AUTOMATIONROOT="automation"
-	echo "$0 :   AUTOMATIONROOT : $AUTOMATIONROOT (CDAF.linux not found)"
+	echo "$0 :   AUTOMATIONROOT   : $AUTOMATIONROOT (CDAF.linux not found)"
 fi
 
-echo
-echo "$0 : $automessage"
 AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -70,19 +66,68 @@ SOLUTIONROOT="$AUTOMATIONROOT/solution"
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
-		echo "$0 : CDAF.solution file found in directory $directoryName, load solution properties"
 		SOLUTIONROOT="$directoryName"
-		propertiesList=$($AUTOMATIONHELPER/transform.sh "$directoryName/CDAF.solution")
-		echo
-		echo "$propertiesList"
-		eval $propertiesList
 	fi
 done
 
+printf "$0 :   Properties Driver : "
+propertiesDriver="$SOLUTIONROOT/properties.cm"
+if [ -f $propertiesDriver ]; then
+	echo "found ($propertiesDriver)"
+else
+	echo "none ($propertiesDriver)"
+fi
+
+echo; echo "$0 : CDAF.solution file found in directory $SOLUTIONROOT, load solution properties"
+if [ -f $SOLUTIONROOT/CDAF.solution ]; then
+	propertiesList=$($AUTOMATIONHELPER/transform.sh "$SOLUTIONROOT/CDAF.solution")
+	echo; echo "$propertiesList"
+	eval $propertiesList
+else
+	echo; echo "$0 : CDAF.solution file not found!"; exit 8823
+fi
+
+echo; echo "$0 : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
+	if [ -d  "${packageDir}" ]; then
+		echo "  removed ${packageDir}"
+		rm -rf ${packageDir}
+	fi
+done
+
+# Properties generator (added in release 1.7.8)
+if [ -f $propertiesDriver ]; then
+	echo; echo "$0 : Generating properties files from ${propertiesDriver}"
+	header=$(head -n 1 ${propertiesDriver})
+	read -ra columns <<<"$header"
+	config=$(tail -n +2 ${propertiesDriver})
+	while read -r line; do
+		read -ra arr <<<"$line"
+		if [[ "${arr[0]}" == 'remote' ]]; then
+			cdafPath="./propertiesForRemoteTasks"
+		else
+			cdafPath="./propertiesForLocalTasks"
+		fi
+		echo "$0 : Generating ${cdafPath}/${arr[1]}"
+		if [ ! -d ${cdafPath} ]; then
+			mkdir -p ${cdafPath}
+		fi
+		for i in "${!columns[@]}"; do
+			if [ $i -gt 1 ]; then # do not create entries for context and target
+				echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
+			fi
+		done
+	done < <(echo "$config")
+	if [ -d "$SOLUTIONROOT/propertiesForRemoteTasks" ] && [ -d "./propertiesForRemoteTasks/" ]; then
+		echo "$0 : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForRemoteTasks"
+	fi
+	if [ -d "$SOLUTIONROOT/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
+		echo "$0 : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForLocalTasks"
+	fi
+fi
+
 if [ -f "build.sh" ]; then
-	echo
-	echo "$0 : build.sh found in solution root, executing in $(pwd)"
-	echo
+	echo; echo "$0 : build.sh found in solution root, executing in $(pwd)"; echo
 	# Additional properties that are not passed as arguments, but loaded by execute automatically
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
@@ -98,9 +143,7 @@ fi
 	
 if [ -f "build.tsk" ]; then
 
-	echo
-	echo "$0 : build.tsk found in solution root, executing in $(pwd)"
-	echo
+	echo; echo "$0 : build.tsk found in solution root, executing in $(pwd)"; echo
 	# Additional properties that are not passed as arguments, explicit load is required
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
@@ -148,16 +191,13 @@ if [ -f "dirListFile" ]; then
 fi
 
 if [ -f "projectListFile" ]; then
-	echo "$0 :   Projects to process :"
-	echo
+	echo "$0 :   Projects to process :"; echo
 	cat projectListFile
 
 	while read PROJECT
 	do
 		
-		echo
-		echo "$0 : --- BUILD $PROJECT ---"
-		echo
+		echo; echo "$0 : --- BUILD $PROJECT ---"; echo
 		cd $PROJECT
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
@@ -207,8 +247,6 @@ if [ -f "projectListFile" ]; then
 
 else
 
-	echo
-	echo "$0 : No projects found, no build action attempted."
-	echo
+	echo; echo "$0 : No projects found, no build action attempted."; echo
 
 fi

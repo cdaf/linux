@@ -74,14 +74,6 @@ for i in $(ls -d */); do
 done
 echo "$0 :   SOLUTIONROOT             : $SOLUTIONROOT"
 
-printf "$0 :   Properties Driver        : "
-propertiesDriver="$SOLUTIONROOT/properties.cm"
-if [ -f $propertiesDriver ]; then
-	echo "found ($propertiesDriver)"
-else
-	echo "none ($propertiesDriver)"
-fi
-
 printf "$0 :   Pre-package Tasks        : "
 prepackageTasks="$SOLUTIONROOT/package.tsk"
 if [ -f $prepackageTasks ]; then
@@ -133,9 +125,9 @@ echo; echo "$0 : Clean root workspace ($(pwd))"; echo
 rm -fv *.tar *.gz manifest.txt targetList
 
 echo; echo "$0 : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-for packageDir in $(echo "$REMOTE_WORK_DIR $LOCAL_WORK_DIR ./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
+for packageDir in $(echo "$REMOTE_WORK_DIR $LOCAL_WORK_DIR"); do
 	if [ -d  "${packageDir}" ]; then
-		echo "removed ${packageDir}"
+		echo "  removed ${packageDir}"
 		rm -rf ${packageDir}
 	fi
 done
@@ -148,38 +140,6 @@ fi
 if [ "$testForClean" == "CLEAN" ]; then
 	echo; echo "$0 : Solution Workspace Clean Only"
 else
-
-	# Properties generator (added in release 1.7.8)
-	if [ -f $propertiesDriver ]; then
-		echo; echo "$0 : Generating properties files from ${propertiesDriver}"
-		header=$(head -n 1 ${propertiesDriver})
-		read -ra columns <<<"$header"
-		config=$(tail -n +2 ${propertiesDriver})
-		while read -r line; do
-			read -ra arr <<<"$line"
-			if [[ "${arr[0]}" == 'remote' ]]; then
-				cdafPath="./propertiesForRemoteTasks"
-			else
-				cdafPath="./propertiesForLocalTasks"
-			fi
-			echo "$0 : Generating ${cdafPath}/${arr[1]}"
-			if [ ! -d ${cdafPath} ]; then
-				mkdir -p ${cdafPath}
-			fi
-			for i in "${!columns[@]}"; do
-				if [ $i -gt 1 ]; then # do not create entries for context and target
-					echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
-				fi
-			done
-		done < <(echo "$config")
-		if [ -d "${remotePropertiesDir}" ] && [ -d "./propertiesForRemoteTasks/" ]; then
-			echo "$0 : Generated properties will be merged with any defined properties in ${remotePropertiesDir}"
-		fi
-		if [ -d "$SOLUTIONROOT/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
-			echo "$0 : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForLocalTasks"
-		fi
-		
-	fi
 
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then

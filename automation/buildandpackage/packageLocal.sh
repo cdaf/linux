@@ -131,6 +131,7 @@ if [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then
 	cp -av $SOLUTIONROOT/tasksRunLocal.tsk $WORK_DIR_DEFAULT
 fi
 
+# 1.7.8 Merge generic tasks into explicit tasks
 if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
 	echo "'$SOLUTIONROOT/tasksRun.tsk' -> '$WORK_DIR_DEFAULT/tasksRunLocal.tsk'"
 	cat $SOLUTIONROOT/tasksRun.tsk >> $WORK_DIR_DEFAULT/tasksRunLocal.tsk

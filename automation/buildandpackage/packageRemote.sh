@@ -58,6 +58,8 @@ if [ -f  "./$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
 	printf "Tasks to execute on remote host : "	
 	cp -av ./$SOLUTIONROOT/tasksRunRemote.tsk $WORK_DIR_DEFAULT
 fi
+
+# 1.7.8 Merge generic tasks into explicit tasks
 if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
 	echo "'$SOLUTIONROOT/tasksRun.tsk' -> '$WORK_DIR_DEFAULT/tasksRunRemote.tsk'"
 	cat $SOLUTIONROOT/tasksRun.tsk >> $WORK_DIR_DEFAULT/tasksRunRemote.tsk

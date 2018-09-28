@@ -45,7 +45,7 @@ fi
 
 stable="$5"
 if [ -z "$stable" ]; then
-	stable='no'
+	stable='no' # I change this to no when there is a required pending change in installAgent.sh
 	echo "[$scriptName]   stable         : $stable (not supplied, set to default)"
 else
 	echo "[$scriptName]   stable         : $stable"
@@ -83,6 +83,11 @@ executeExpression "$elevate ${atomicPath}/base.sh curl" # ensure curl is install
 
 if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
 	executeExpression "$elevate ${atomicPath}/base.sh unzip"
+	if [ -d "cdaf_edge" ]; then
+		executeExpression "rm -rf cdaf_edge"
+	fi
+	executeExpression "mkdir cdaf_edge"
+	executeExpression "cd cdaf_edge"
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip linux-master.zip"
 	atomicPath='./linux-master/automation/provisioning'

@@ -175,7 +175,7 @@ else
 		exit $exitCode
 	fi
 
-	# Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
+	# 1.7.8 Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
 	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
 		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"

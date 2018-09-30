@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-scriptName=${0##*/}
+scriptName=$(basename $0)
 
 # Arguments are not validated in sub-scripts, only at entry point
 DRIVER=$1
@@ -14,7 +14,7 @@ if [ -f  "$DRIVER" ]; then
 		#deleting lines starting with # ,blank lines ,lines with only spaces
 		ARTIFACT=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $line)
 
-		if [ ! -z $ARTIFACT ]; then
+		if [ ! -z "$ARTIFACT" ]; then
 			# There must be a more elegant way to do this, but the current implementation is to overcome variable expansion when containing / character(s)
 			declare -a artArray=${ARTIFACT};
 			x=0

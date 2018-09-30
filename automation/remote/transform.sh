@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 # Read in two files, the definition file and template file, the name values in the
 # definition file replace the tokens (substitution variables) in the template.
@@ -7,7 +8,7 @@ set -e
 # from the properties file, without new lines or comments.
 
 if [ -z "$1" ]; then
-	echo "$0 Definition File not passed. HALT!"
+	echo "$scriptName Definition File not passed. HALT!"
 	exit 1
 else
 	PROPERTIES=$1
@@ -16,7 +17,7 @@ fi
 if [ -n "$2" ]; then
 	TOKENISED=$2
 	if [ ! -f "$2" ]; then
-		echo "$0 Template File ($TOKENISED) not found. HALT!"
+		echo "$scriptName Template File ($TOKENISED) not found. HALT!"
 		exit 2
 	fi
 fi
@@ -32,7 +33,7 @@ do
 		echo "  ${array[0]}=\"${array[1]}\""
 	else		
 		name="%${array[0]}%"
-#		echo "$0 : Replace $name with ${array[1]}"
+#		echo "$scriptName : Replace $name with ${array[1]}"
 
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then

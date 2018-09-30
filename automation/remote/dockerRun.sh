@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+scriptName=${0##*/}
 
 function executeExpression {
 	echo "[$scriptName] $1"
@@ -6,12 +7,11 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
 
-scriptName='dockerRun.sh'
 echo
 echo "[$scriptName] Start a container instance, if an instance (based on \"instance\") exists it is"
 echo "[$scriptName] stopped and removed before starting the new instance."

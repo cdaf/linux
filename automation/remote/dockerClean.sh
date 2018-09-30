@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
+scriptName=${0##*/}
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
@@ -16,9 +18,7 @@ function executeSuppress {
 	# There is no exception handling as new host will return errors when removing non existing containers.
 }  
 
-scriptName='dockerClean.sh'
-echo
-echo "[$scriptName] Clean image from registry based on Product label. If a tag is passed,"
+echo; echo "[$scriptName] Clean image from registry based on Product label. If a tag is passed,"
 echo "[$scriptName] only images with a tag value less that the one supplied and removed."
 echo
 echo "[$scriptName] --- start ---"

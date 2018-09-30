@@ -5,7 +5,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }
@@ -56,7 +56,7 @@ if [ -z $SOLUTION ]; then
 	SOLUTION=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "SOLUTION")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Read of SOLUTION from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
+		echo "$scriptName : Read of SOLUTION from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
 		exit $exitCode
 	fi
 	echo "$scriptName :   SOLUTION         : $SOLUTION (derived from $WORK_DIR_DEFAULT/manifest.txt)"
@@ -72,7 +72,7 @@ if [ -z $BUILDNUMBER ]; then
 	BUILDNUMBER=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "BUILDNUMBER")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Read of BUILDNUMBER from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
+		echo "$scriptName : Read of BUILDNUMBER from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
 		exit $exitCode
 	fi
 	echo "$scriptName :   BUILDNUMBER      : $BUILDNUMBER (derived from $WORK_DIR_DEFAULT/manifest.txt)"

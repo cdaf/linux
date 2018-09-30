@@ -6,7 +6,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		if [ -f "Dockerfile.source" ]; then
 			mv -f Dockerfile.source Dockerfile
 		fi
@@ -14,7 +14,8 @@ function executeExpression {
 	fi
 }  
 
-scriptName='containerBuild.sh'
+scriptName=${0##*/}
+
 echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then

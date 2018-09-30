@@ -2,16 +2,17 @@
 # Cannot perform logging becuase the return value is anything echoed
 
 set -e
+scriptName=${0##*/}
 
 if [ -z "$1" ]; then
-	echo "$0 : Target not supplied. HALT!"
+	echo "$scriptName : Target not supplied. HALT!"
 	exit 1
 else
 	TARGET=$1
 fi
 
 if [ -z "$2" ]; then
-	echo "$0 : Directory not supplied"
+	echo "$scriptName : Directory not supplied"
 	exit 2
 else
 	DIRECTORY=$2
@@ -34,7 +35,7 @@ fi
 password=$(openssl rsautl -decrypt -inkey $privateKey -in $DIRECTORY/$CRYPTFILE) 
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "$0 : Unable to decrypt $CRYPTFILE! Returned $exitCode"
+	echo "$scriptName : Unable to decrypt $CRYPTFILE! Returned $exitCode"
 	exit $exitCode
 fi
 echo $password

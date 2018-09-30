@@ -1,32 +1,33 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 # This deploy script processes the package, and is therefore dependant on the build
 # and package processes.
 
 if [ -z "$1" ]; then
-	echo "$0 : Solution not passed. HALT!"
+	echo "$scriptName : Solution not passed. HALT!"
 	exit 1
 else
 	SOLUTION=$1
 fi
 
 if [ -z "$2" ]; then
-	echo "$0 : Version not passed. HALT!"
+	echo "$scriptName : Version not passed. HALT!"
 	exit 2
 else
 	BUILDNUMBER=$2
 fi
 
 if [ -z "$3" ]; then
-	echo "$0 : Target not passed. HALT!"
+	echo "$scriptName : Target not passed. HALT!"
 	exit 3
 else
 	TARGET=$3
 fi
 
 if [ -z "$4" ]; then
-	echo "$0 : Execution Definition file (.tsk) not passed. HALT!"
+	echo "$scriptName : Execution Definition file (.tsk) not passed. HALT!"
 	exit 4
 else
 	TASKLIST=$4
@@ -35,35 +36,35 @@ fi
 echo
 echo "~~~~~~ Starting Execution Engine ~~~~~~~"
 echo
-echo "$0 :   SOLUTION    : $SOLUTION"
-echo "$0 :   BUILDNUMBER : $BUILDNUMBER"
-echo "$0 :   TARGET      : $TARGET"
-echo "$0 :   TASKLIST    : $TASKLIST"
+echo "$scriptName :   SOLUTION    : $SOLUTION"
+echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER"
+echo "$scriptName :   TARGET      : $TARGET"
+echo "$scriptName :   TASKLIST    : $TASKLIST"
 
 if [ -z "$5" ]; then
-	echo "$0 :   OPT_ARG     : (not passed)"
+	echo "$scriptName :   OPT_ARG     : (not passed)"
 else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
 		ACTION=$5
-		echo "$0 :   ACTION      : $ACTION"
+		echo "$scriptName :   ACTION      : $ACTION"
 	else
 		OPT_ARG=$5
-		echo "$0 :   OPT_ARG     : $OPT_ARG"
+		echo "$scriptName :   OPT_ARG     : $OPT_ARG"
 	fi
 fi
 
 # Set the temporary directory (system wide)
 TMPDIR=/tmp
-echo "$0 :   TMPDIR      : $TMPDIR"
+echo "$scriptName :   TMPDIR      : $TMPDIR"
 
 # If this is a CI process, load temporary file as variables (implicit parameter passing) 
 # this is not required in the PowerShell version as variables are global
 AUTOMATIONHELPER=.
 if [ -f "../build.properties" ] ;then
 	echo
-	echo "$0 : Load ../build.properties"
+	echo "$scriptName : Load ../build.properties"
 	echo
 	eval $(cat ../build.properties)
 	AUTOMATIONHELPER="../$AUTOMATIONROOT/remote"
@@ -76,7 +77,7 @@ else
 	# If not build, is it a package process?
 	if [ -f "./solution.properties" ] ;then
 		echo
-		echo "$0 : Load ./solution.properties"
+		echo "$scriptName : Load ./solution.properties"
 		echo
 		eval $(cat ./solution.properties)
 		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
@@ -93,7 +94,7 @@ else
 			printf "$propertiesList"
 			eval $propertiesList
 		else
-			echo "$0 :   predeploy   : (predeploy.properties not found, skipping)"
+			echo "$scriptName :   predeploy   : (predeploy.properties not found, skipping)"
 		fi
 		echo
 		echo "Load Target Properties ... "
@@ -300,7 +301,7 @@ do
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+			echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 			exit $exitCode
 		fi
 	fi

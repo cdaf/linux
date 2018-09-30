@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 if [ -z "$1" ]; then
-	echo "$0 Properties file not supplied"
+	echo "$scriptName Properties file not supplied"
 	exit 1
 else
 	PROP_FILE=$1
 fi
 
 if [ -z "$2" ]; then
-	echo "$0 Property name not supplied"
+	echo "$scriptName Property name not supplied"
 	exit 1
 else
 	PROP_NAME=$2

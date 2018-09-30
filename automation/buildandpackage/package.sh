@@ -1,36 +1,37 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 if [ -z "$1" ]; then
-	echo "$0 : Solution Name not supplied. HALT!"
+	echo "$scriptName : Solution Name not supplied. HALT!"
 	exit 1
 else
 	SOLUTION=$1
 fi
 
 if [ -z "$2" ]; then
-	echo "$0 : Build Identifier not supplied. HALT!"
+	echo "$scriptName : Build Identifier not supplied. HALT!"
 	exit 2
 else
 	BUILDNUMBER=$2
 fi
 
 if [ -z "$3" ]; then
-	echo "$0 : Source Control System Revision ID not supplied. HALT!"
+	echo "$scriptName : Source Control System Revision ID not supplied. HALT!"
 	exit 3
 else
 	REVISION=$3
 fi
 
 if [ -z "$4" ]; then
-	echo "$0 : Local Working Directory not supplied. HALT!"
+	echo "$scriptName : Local Working Directory not supplied. HALT!"
 	exit 4
 else
 	LOCAL_WORK_DIR=$4
 fi
 
 if [ -z "$4" ]; then
-	echo "$0 : Local Working Directory not supplied. HALT!"
+	echo "$scriptName : Local Working Directory not supplied. HALT!"
 	exit 4
 else
 	REMOTE_WORK_DIR=$5
@@ -40,27 +41,27 @@ fi
 ACTION="$6"
 
 echo
-echo "$0 : +-----------------+"
-echo "$0 : | Package Process |"
-echo "$0 : +-----------------+"
-echo "$0 :   SOLUTION                 : $SOLUTION"
-echo "$0 :   BUILDNUMBER              : $BUILDNUMBER"
-echo "$0 :   REVISION                 : $REVISION"
-echo "$0 :   LOCAL_WORK_DIR           : $LOCAL_WORK_DIR"
-echo "$0 :   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
-echo "$0 :   ACTION                   : $ACTION"
+echo "$scriptName : +-----------------+"
+echo "$scriptName : | Package Process |"
+echo "$scriptName : +-----------------+"
+echo "$scriptName :   SOLUTION                 : $SOLUTION"
+echo "$scriptName :   BUILDNUMBER              : $BUILDNUMBER"
+echo "$scriptName :   REVISION                 : $REVISION"
+echo "$scriptName :   LOCAL_WORK_DIR           : $LOCAL_WORK_DIR"
+echo "$scriptName :   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
+echo "$scriptName :   ACTION                   : $ACTION"
 
 # Look for automation root definition, if not found, default
 for i in $(ls -d */); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.linux" ]; then
 		AUTOMATIONROOT="$directoryName"
-		echo "$0 :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux found)"
+		echo "$scriptName :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux found)"
 	fi
 done
 if [ -z "$AUTOMATIONROOT" ]; then
 	AUTOMATIONROOT="automation"
-	echo "$0 :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux not found)"
+	echo "$scriptName :   AUTOMATIONROOT           : $AUTOMATIONROOT (CDAF.linux not found)"
 fi
 
 # Process all entry values
@@ -72,9 +73,9 @@ for i in $(ls -d */); do
 		SOLUTIONROOT="$directoryName"
 	fi
 done
-echo "$0 :   SOLUTIONROOT             : $SOLUTIONROOT"
+echo "$scriptName :   SOLUTIONROOT             : $SOLUTIONROOT"
 
-printf "$0 :   Pre-package Tasks        : "
+printf "$scriptName :   Pre-package Tasks        : "
 prepackageTasks="$SOLUTIONROOT/package.tsk"
 if [ -f $prepackageTasks ]; then
 	echo "found ($prepackageTasks)"
@@ -82,7 +83,7 @@ else
 	echo "none ($prepackageTasks)"
 fi
 
-printf "$0 :   Post-package Tasks       : "
+printf "$scriptName :   Post-package Tasks       : "
 postpackageTasks="$SOLUTIONROOT/wrap.tsk"
 if [ -f $postpackageTasks ]; then
 	echo "found ($postpackageTasks)"
@@ -91,7 +92,7 @@ else
 fi
 
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
-printf "$0 :   Remote Target Directory  : "
+printf "$scriptName :   Remote Target Directory  : "
 if [ -d  "$remotePropertiesDir" ]; then
 	echo "found ($remotePropertiesDir)"
 else
@@ -99,7 +100,7 @@ else
 fi
 
 remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
-printf "$0 :   remote artifact list     : "
+printf "$scriptName :   remote artifact list     : "
 if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
 else
@@ -107,24 +108,24 @@ else
 fi
 
 genericArtifactListFile="./$SOLUTIONROOT/storeFor"
-printf "$0 :   generic artifact list    : "
+printf "$scriptName :   generic artifact list    : "
 if [ -f  "$genericArtifactListFile" ]; then
 	echo "found ($genericArtifactListFile)"
 else
 	echo "none ($genericArtifactListFile)"
 fi
 
-echo "$0 :   pwd                      : $(pwd)"
-echo "$0 :   hostname                 : $(hostname)"
-echo "$0 :   whoami                   : $(whoami)"
+echo "$scriptName :   pwd                      : $(pwd)"
+echo "$scriptName :   hostname                 : $(hostname)"
+echo "$scriptName :   whoami                   : $(whoami)"
 
 cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
-echo "$0 :   CDAF Version             : $cdafVersion"
+echo "$scriptName :   CDAF Version             : $cdafVersion"
 
-echo; echo "$0 : Clean root workspace ($(pwd))"; echo
+echo; echo "$scriptName : Clean root workspace ($(pwd))"; echo
 rm -fv *.tar *.gz manifest.txt targetList
 
-echo; echo "$0 : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+echo; echo "$scriptName : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
 for packageDir in $(echo "$REMOTE_WORK_DIR $LOCAL_WORK_DIR"); do
 	if [ -d  "${packageDir}" ]; then
 		echo "  removed ${packageDir}"
@@ -138,7 +139,7 @@ if [ ! -z "$ACTION" ]; then
 fi
 
 if [ "$testForClean" == "CLEAN" ]; then
-	echo; echo "$0 : Solution Workspace Clean Only"
+	echo; echo "$scriptName : Solution Workspace Clean Only"
 else
 
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
@@ -149,7 +150,7 @@ else
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			echo "$scriptName : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi
@@ -159,19 +160,19 @@ else
 	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
-		echo; echo "$0 : CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
+		echo; echo "$scriptName : CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
 		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
 		echo; echo "$propertiesList"
 		cat $SOLUTIONROOT/CDAF.solution >> manifest.txt	
 	fi
-	echo; echo "$0 : Created manifest.txt file ..."; echo
+	echo; echo "$scriptName : Created manifest.txt file ..."; echo
 	while read line; do echo "  $line"; done < manifest.txt
 	
-	echo; echo "$0 : Always create local artefacts, even if all tasks are remote"; echo
+	echo; echo "$scriptName : Always create local artefacts, even if all tasks are remote"; echo
 	./$AUTOMATIONROOT/buildandpackage/packageLocal.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$0 : ./packageLocal.sh failed! Exit code = $exitCode."
+		echo "$scriptName : ./packageLocal.sh failed! Exit code = $exitCode."
 		exit $exitCode
 	fi
 
@@ -181,7 +182,7 @@ else
 		./$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "$0 : ./packageRemote.sh failed! Exit code = $exitCode."
+			echo "$scriptName : ./packageRemote.sh failed! Exit code = $exitCode."
 			exit $exitCode
 		fi
 	fi
@@ -192,10 +193,10 @@ else
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "$0 : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			echo "$scriptName : Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi
 fi
 
-echo; echo "$0 : --- Solution Packaging Complete ---"
+echo; echo "$scriptName : --- Solution Packaging Complete ---"

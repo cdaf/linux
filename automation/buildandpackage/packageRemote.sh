@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 # Arguments are not validated in sub-scripts, only at entry point
 SOLUTION=$1
@@ -14,38 +15,38 @@ remoteCustomDir="./$SOLUTIONROOT/customRemote"
 remoteCryptDir="./$SOLUTIONROOT/cryptRemote"
 remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
 
-echo; echo "$0 : --- PACKAGE remotely executed scripts and artifacts ---"
-echo "$0 :   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
+echo; echo "$scriptName : --- PACKAGE remotely executed scripts and artifacts ---"
+echo "$scriptName :   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
 
-printf "$0 :   remote artifact list        : "
+printf "$scriptName :   remote artifact list        : "
 if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
 else
 	echo "none ($remoteArtifactListFile)"
 fi
 
-printf "$0 :   custom scripts              : "
+printf "$scriptName :   custom scripts              : "
 if [ -d  "$solutionCustomDir" ]; then
 	echo "found ($solutionCustomDir)"
 else
 	echo "none ($solutionCustomDir)"
 fi
 
-printf "$0 :   remote custom scripts       : "
+printf "$scriptName :   remote custom scripts       : "
 if [ -d  "$remoteCustomDir" ]; then
 	echo "found ($remoteCustomDir)"
 else
 	echo "none ($remoteCustomDir)"
 fi
 
-printf "$0 :   remote encrypted files      : "
+printf "$scriptName :   remote encrypted files      : "
 if [ -d  "$remoteCryptDir" ]; then
 	echo "found ($remoteCryptDir)"
 else
 	echo "none ($remoteCryptDir)"
 fi
 
-echo; echo "$0 : Create working directory and seed with solution files"
+echo; echo "$scriptName : Create working directory and seed with solution files"
 mkdir -v $WORK_DIR_DEFAULT
 mv -v manifest.txt $WORK_DIR_DEFAULT
 cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
@@ -67,20 +68,20 @@ fi
 
 if [ -d  "$remoteCryptDir" ]; then
 	echo
-	echo "$0 :   Remote encrypted files in $remoteCryptDir: "	
+	echo "$scriptName :   Remote encrypted files in $remoteCryptDir: "	
 	cp -avR $remoteCryptDir/* $WORK_DIR_DEFAULT
 fi
 
 # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote
 if [ -d  "$solutionCustomDir" ]; then
 	echo
-	echo "$0 :   Custom scripts in $solutionCustomDir           : "	
+	echo "$scriptName :   Custom scripts in $solutionCustomDir           : "	
 	cp -avR $solutionCustomDir/* $WORK_DIR_DEFAULT/
 fi
 
 if [ -d  "$remoteCustomDir" ]; then
 	echo
-	echo "$0 :   Remote custom scripts in $remoteCustomDir : "	
+	echo "$scriptName :   Remote custom scripts in $remoteCustomDir : "	
 	cp -avR $remoteCustomDir/* $WORK_DIR_DEFAULT/
 fi
 
@@ -93,11 +94,11 @@ if [ -f "${SOLUTIONROOT}/storeFor" ]; then
 fi
 
 cd $WORK_DIR_DEFAULT
-echo; echo "$0 : Create the package (tarball) file, excluding git or svn control files"; echo
+echo; echo "$scriptName : Create the package (tarball) file, excluding git or svn control files"; echo
 tar -zcv --exclude='.git' --exclude='.svn' -f ../$SOLUTION-$BUILDNUMBER.tar.gz .
 exitCode=$?
 if [ $exitCode -ne 0 ]; then
-	echo "$0 : tar -zcv --exclude=\'.git\' --exclude=\'.svn\' -f ../$SOLUTION-$BUILDNUMBER.tar.gz . failed! Exit = $exitCode"
+	echo "$scriptName : tar -zcv --exclude=\'.git\' --exclude=\'.svn\' -f ../$SOLUTION-$BUILDNUMBER.tar.gz . failed! Exit = $exitCode"
 	exit $exitCode
 fi
 cd ..

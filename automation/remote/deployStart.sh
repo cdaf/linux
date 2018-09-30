@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 set -e
+scriptName=${0##*/}
 
 if [ -z "$1" ]; then
-	echo "$0 : Version not supplied. HALT!"
+	echo "$scriptName : Version not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$2" ]; then
-	echo "$0 : Environment Definition not supplied. HALT!"
+	echo "$scriptName : Environment Definition not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$3" ]; then
-	echo "$0 : List of Start Scripts not supplied. HALT!"
+	echo "$scriptName : List of Start Scripts not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$4" ]; then
-	echo "$0 : Absolute Path of Configuration Files not supplied. HALT!"
+	echo "$scriptName : Absolute Path of Configuration Files not supplied. HALT!"
 	exit 1
 fi
 
@@ -33,7 +34,7 @@ do
 
 	EXEC_CHECK=$(ls -F -1 "$$4/$SCRIPT" | grep "*")
 	if [ -z "$EXEC_CHECK" ]; then
-		echo "$0 : Set startup script $$4/$SCRIPT executable"
+		echo "$scriptName : Set startup script $$4/$SCRIPT executable"
 		chmod +x "$$4/$SCRIPT"
 	fi
 done < ./build/$3

@@ -6,40 +6,40 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Failed with exit: $exitCode"; echo; exit $exitCode
+		echo "$scriptName : Failed with exit: $exitCode"; echo; exit $exitCode
 	fi
 }  
 
-scriptName='ansibleVirtualEnv.sh'
+scriptName=${0##*/}
 
 echo
 echo "[$scriptName] --- start ---"
 virtualenv=$1
 if [ -z "$virtualenv" ]; then
-	echo "$0 virtualenv not supplied, exit with error code 1"; exit 1
+	echo "$scriptName virtualenv not supplied, exit with error code 1"; exit 1
 else
-	echo "$0 virtualenv : $virtualenv"
+	echo "$scriptName virtualenv : $virtualenv"
 fi
 
 playbook=$2
 if [ -z "$playbook" ]; then
-	echo "$0 playbook not supplied, exit with error code 2"; exit 2
+	echo "$scriptName playbook not supplied, exit with error code 2"; exit 2
 else
-	echo "$0 playbook   : $playbook"
+	echo "$scriptName playbook   : $playbook"
 fi
 
 inventory=$3
 if [ -z "$inventory" ]; then
-	echo "$0 inventory not supplied, exit with error code 3"; exit 3
+	echo "$scriptName inventory not supplied, exit with error code 3"; exit 3
 else
-	echo "$0 inventory  : $inventory"
+	echo "$scriptName inventory  : $inventory"
 fi
 
 optArg=$4
 if [ -z "$optArg" ]; then
-	echo "$0 optArg not supplied"
+	echo "$scriptName optArg not supplied"
 else
-	echo "$0 optArg    : $optArg"
+	echo "$scriptName optArg    : $optArg"
 fi
 
 echo

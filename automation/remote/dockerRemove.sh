@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+scriptName=${0##*/}
 
 function executeExpression {
 	echo "[$scriptName] $1"
@@ -6,12 +7,11 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
 
-scriptName='dockerRemove.sh'
 echo
 echo "[$scriptName] This script stops and removes all instances for the imageName, based "
 echo "[$scriptName] on environment tag. Use this to purge all targets for the environment."

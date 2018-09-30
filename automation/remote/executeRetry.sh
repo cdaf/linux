@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-scriptName='executeRetry.sh'
+scriptName=${0##*/}
 
 echo "[$scriptName] --- start ---"
 wait="$2"

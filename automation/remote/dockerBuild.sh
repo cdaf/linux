@@ -6,14 +6,14 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
 
-scriptName='dockerBuild.sh'
-echo
-echo "[$scriptName] Build docker image, resulting image naming \${imageName}"
+scriptName=${0##*/}
+
+echo; echo "[$scriptName] Build docker image, resulting image naming \${imageName}"
 echo
 echo "[$scriptName] --- start ---"
 imageName=$1

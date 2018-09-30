@@ -5,7 +5,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }
@@ -86,7 +86,7 @@ if [ -z $SOLUTION ]; then
 	SOLUTION=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Read of SOLUTION from $solutionRoot/CDAF.solution failed! Returned $exitCode"
+		echo "$scriptName : Read of SOLUTION from $solutionRoot/CDAF.solution failed! Returned $exitCode"
 		exit $exitCode
 	fi
 	echo "$scriptName :   SOLUTION        : $SOLUTION (derived from $solutionRoot/CDAF.solution)"

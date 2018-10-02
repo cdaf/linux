@@ -31,7 +31,7 @@ executeExpression 'cp -r $extract/automation .'
 git branch
 if [ $? -eq 0 ]; then
 	executeExpression 'cd automation'
-	executeExpression 'for file in $(find .); do git add $file; done'
+	executeExpression 'for file in $(find .); do git add --ignore-removal $file; done'
 	executeExpression 'for script in $(find . -name "*.sh"); do chmod +x $script; git update-index --chmod=+x $script; done'
 	executeExpression 'cd ..'
 else

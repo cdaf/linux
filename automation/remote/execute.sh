@@ -63,9 +63,7 @@ echo "$scriptName :   TMPDIR      : $TMPDIR"
 # this is not required in the PowerShell version as variables are global
 AUTOMATIONHELPER=.
 if [ -f "../build.properties" ] ;then
-	echo
-	echo "$scriptName : Load ../build.properties"
-	echo
+	echo; echo "$scriptName : Load ../build.properties"; echo
 	eval $(cat ../build.properties)
 	AUTOMATIONHELPER="../$AUTOMATIONROOT/remote"
 	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
@@ -76,9 +74,7 @@ if [ -f "../build.properties" ] ;then
 else
 	# If not build, is it a package process?
 	if [ -f "./solution.properties" ] ;then
-		echo
-		echo "$scriptName : Load ./solution.properties"
-		echo
+		echo; echo "$scriptName : Load ./solution.properties"; echo
 		eval $(cat ./solution.properties)
 		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh ./solution.properties)
@@ -88,8 +84,7 @@ else
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote
 		if [ -f "predeploy.properties" ]; then
-			echo
-			echo "Load predeploy.properties ... "
+			echo; echo "Load predeploy.properties ... "
 			propertiesList=$($AUTOMATIONHELPER/transform.sh "predeploy.properties")
 			printf "$propertiesList"
 			eval $propertiesList
@@ -101,14 +96,13 @@ else
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$TARGET")
 		printf "$propertiesList"
 		eval $propertiesList
-		echo
-		echo			
 	fi
+	echo; echo			
 fi
 
 # Process Task Execution
-while read LINE
-do
+executionList=$(< $TASKLIST)
+while read LINE; do
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	
@@ -306,6 +300,6 @@ do
 		fi
 	fi
 	
-done < $TASKLIST
-echo
-echo "~~~~~~ Shutdown Execution Engine ~~~~~~"
+done < <(echo "$executionList")
+
+echo; echo "~~~~~~ Shutdown Execution Engine ~~~~~~"

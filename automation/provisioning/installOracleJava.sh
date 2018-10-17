@@ -27,8 +27,8 @@ if [ -z "$version" ]; then
 	urlUID='8u191-b12/2787e4a523244c269598db4e85c51e0c'
 	echo "[$scriptName]   version    : ${version}@${urlUID} (default)"
 else
-	version=$(${version%@*})
 	urlUID=$(echo ${version##*@})
+	version=$(${version%@*})
 	echo "[$scriptName]   version    : ${version}@${urlUID} (must be passed as version@urlUID)"
 fi
 

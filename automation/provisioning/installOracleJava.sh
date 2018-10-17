@@ -23,10 +23,13 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='8u181'
-	echo "[$scriptName]   version    : $version (default)"
+	version='8u191'
+	urlUID='8u191-b12/2787e4a523244c269598db4e85c51e0c'
+	echo "[$scriptName]   version    : ${version}@${urlUID} (default)"
 else
-	echo "[$scriptName]   version    : $version"
+	version=$(${version%@*})
+	urlUID=$(echo ${version##*@})
+	echo "[$scriptName]   version    : ${version}@${urlUID} (must be passed as version@urlUID)"
 fi
 
 mediaCache="$3"
@@ -60,9 +63,9 @@ else
 	fi
 	echo "[$scriptName] Media not found, attempting download $mediaCache"
 	if [ "$prefix" == 'jdk' ]; then
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jdk-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	else
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jre-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	fi
 fi
 

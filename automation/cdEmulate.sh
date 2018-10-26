@@ -274,8 +274,8 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
     echo '    environment: <environment>'
 	echo
 	echo 'For BlueMix ...'
-	echo '  Artifact directory becomes the root of the workspace, so need to create relative path using script executor'
-	echo '    ./TasksLocal/delivery.sh $IDS_JOB_NAME'
+	echo '  Ensure staging@ directive has been used in build or the relative path will be incorrect'
+	echo '    ./TasksLocal/delivery.sh $IDS_STAGE_NAME $IDS_JOB_NAME'
    	echo
 	echo "$scriptName : -------------------------------------------------------"
 

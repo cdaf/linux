@@ -31,7 +31,11 @@ vRAM = baseRAM * scale
 vCPU = scale
 
 # This is provided to make scaling easier
-MAX_SERVER_TARGETS = 1
+if ENV['MAX_SERVER_TARGETS']
+  put "Deploy targets (MAX_SERVER_TARGETS) = #{ENV['MAX_SERVER_TARGETS']}" 
+else
+  MAX_SERVER_TARGETS = 1
+end
 
 # If this environment variable is set, then the location defined will be used for media
 # ./automation/provisioning/setenv.sh SYNCED_FOLDER /opt/.provision

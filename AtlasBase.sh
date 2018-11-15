@@ -2,7 +2,7 @@
 imageLog='/VagrantBox.txt'
 scriptName='AtlasBase.sh'
 
-function executeExpression {
+function writeLog {
 	Write-Host "[$scriptName][$(date)] $1"
 	echo "[$scriptName] $1" >> $imageLog
 }

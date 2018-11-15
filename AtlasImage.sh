@@ -3,7 +3,7 @@ scriptName='AtlasImage.sh'
 imageLog='/VagrantBox.txt'
 
 function writeLog {
-	Write-Host "[$scriptName][$(date)] $1"
+	echo "[$scriptName][$(date)] $1"
 	sudo sh -c "echo '[$scriptName] $1' >> $imageLog"
 }
 

@@ -4,7 +4,7 @@ scriptName='AtlasBase.sh'
 
 function writeLog {
 	Write-Host "[$scriptName][$(date)] $1"
-	echo "[$scriptName] $1" >> $imageLog
+	sudo sh -c "echo '[$scriptName] $1' >> $imageLog"
 }
 
 function executeExpression {

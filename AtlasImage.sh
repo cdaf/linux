@@ -33,7 +33,12 @@ echo; writeLog "Generic provisioning for Linux"
 echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
-	writeLog "  hypervisor   : $hypervisor"
+	if [ "$hypervisor" == 'virtualbox' ]; then
+		vbadd='5.2.22'
+		writeLog "  hypervisor   : $hypervisor (installing extension version ${vbadd})"
+	else
+		writeLog "  hypervisor   : $hypervisor"
+	fi
 else
 	writeLog "  hypervisor   : (not passed, extension install will not be attempted)"
 fi
@@ -127,7 +132,6 @@ else
 			executeExpression "$elevate apt-get upgrade -y"
 			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
-		vbadd='5.1.38'
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"

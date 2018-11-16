@@ -77,6 +77,9 @@ Vagrant.configure(2) do |config|
         hyperv.memory = "#{vRAM}"
         hyperv.cpus = "#{vCPU}"
         hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
+        if ENV['VAGRANT_SMB_USER']
+          override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+        end
       end
     end
   end
@@ -113,6 +116,9 @@ Vagrant.configure(2) do |config|
       hyperv.memory = "#{vRAM}"
       hyperv.cpus = "#{vCPU}"
       hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
+      if ENV['VAGRANT_SMB_USER']
+        override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+      end
     end
   end
 

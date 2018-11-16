@@ -95,7 +95,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 	   	executeExpression "$elevate yum install -y hyperv-daemons cifs-utils"
 		executeExpression "$elevate systemctl daemon-reload"
 		executeExpression "$elevate systemctl enable hypervkvpd"
-else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
+	else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 		echo;writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "$elevate cat /etc/initramfs-tools/modules"
 		echo
@@ -106,6 +106,7 @@ else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 		echo
 		executeExpression "$elevate cat /etc/initramfs-tools/modules"
 		echo
+		executeExpression "$elevate apt-get upgrade -y"
 		executeExpression "$elevate apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)"
 		executeExpression "$elevate update-initramfs -u"
 	fi
@@ -123,6 +124,7 @@ else
 		
 		else # Ubuntu
 			echo;writeLog "Install prerequisites"
+			executeExpression "$elevate apt-get upgrade -y"
 			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
 		vbadd='5.1.38'

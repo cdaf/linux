@@ -19,7 +19,7 @@ function executeExpression {
 }  
 
 function executeIgnore {
-	writeLog "[$scriptName] $1"
+	writeLog "$1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
@@ -29,31 +29,31 @@ function executeIgnore {
 }  
 
 scriptName='AtlasImage.sh'
-echo; writeLog "[$scriptName] Generic provisioning for Linux"
-echo; writeLog "[$scriptName] --- start ---"
+echo; writeLog "Generic provisioning for Linux"
+echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
-	writeLog "[$scriptName]   hypervisor   : $hypervisor"
+	writeLog "  hypervisor   : $hypervisor"
 else
-	writeLog "[$scriptName]   hypervisor   : (not passed, extension install will not be attempted)"
+	writeLog "  hypervisor   : (not passed, extension install will not be attempted)"
 fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	writeLog "[$scriptName]   whoami       : $(whoami)"
+	writeLog "  whoami       : $(whoami)"
 else
-	writeLog "[$scriptName]   whoami       : $(whoami) (elevation not required)"
+	writeLog "  whoami       : $(whoami) (elevation not required)"
 fi
 
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
-	writeLog "[$scriptName]   Fedora based : $(uname -mrs)"
+	writeLog "  Fedora based : $(uname -mrs)"
 else
 	ubuntu=$(uname -a | grep ubuntu)
 	if [ "$ubuntu" ]; then
-		writeLog "[$scriptName]   Debian based : $(uname -mrs)"
+		writeLog "  Debian based : $(uname -mrs)"
 	else
-		writeLog "[$scriptName]   $(uname -a), proceeding assuming Debian based..."; echo
+		writeLog "  $(uname -a), proceeding assuming Debian based..."; echo
 	fi
 fi
 
@@ -66,7 +66,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		executeExpression "$elevate systemctl daemon-reload"
 		executeExpression "$elevate systemctl enable hypervkvpd"
 else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
-		echo;writeLog "[$scriptName] Ubuntu extensions are included (from 12.04), but require activation, list before and after"
+		echo;writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "$elevate cat /etc/initramfs-tools/modules"
 		echo
 		executeExpression '$elevate sh -c "echo \"hv_vmbus\" >> /etc/initramfs-tools/modules"'
@@ -82,7 +82,7 @@ else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ "$centos" ]; then
-			echo;writeLog "[$scriptName] Install prerequisites"
+			echo;writeLog "Install prerequisites"
 			executeExpression "$elevate yum update -y"
 			sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
 			executeExpression "$elevate cat /etc/sudoers"
@@ -92,11 +92,11 @@ else
 			executeExpression "export KERN_DIR"
 		
 		else # Ubuntu
-			echo;writeLog "[$scriptName] Install prerequisites"
+			echo;writeLog "Install prerequisites"
 			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
 		vbadd='5.1.10'
-		echo;writeLog "[$scriptName] Download and install VirtualBox extensions version $vbadd"; echo
+		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"
 		executeExpression "$elevate mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
@@ -111,7 +111,7 @@ else
 fi
 
 if [ "$centos" ]; then
-	writeLog "[$scriptName] Cleanup"
+	writeLog "Cleanup"
 	executeExpression "$elevate yum clean all"
 	executeExpression "$elevate rm -rf /var/cache/yum"
 	executeExpression "$elevate rm -rf /tmp/*"
@@ -128,8 +128,8 @@ else # Ubuntu
 	executeExpression "$elevate zerofree -v /dev/sda1" 
 fi
 
-writeLog "[$scriptName] Image complete, shutdown VM"
+writeLog "Image complete, shutdown VM"
 executeExpression "$elevate shutdown -h now"
 
-writeLog "[$scriptName] --- end ---"
+writeLog "--- end ---"
 exit 0

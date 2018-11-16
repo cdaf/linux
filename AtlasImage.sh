@@ -95,7 +95,7 @@ else
 			echo;writeLog "Install prerequisites"
 			executeExpression "$elevate apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
-		vbadd='5.1.10'
+		vbadd='5.1.38'
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "$elevate mkdir /media/VBoxGuestAdditions"

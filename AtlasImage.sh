@@ -42,8 +42,38 @@ if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	writeLog "  whoami       : $(whoami)"
 else
-	writeLog "  whoami       : $(whoami) (elevation not required)"
+	writeLog "  HALT! Do Not Run as Root, this will apply incorrect permission"; exit 773
 fi
+
+writeLog "As Vagrant user, trust the public key"
+if [ -d "$HOME/.ssh" ]; then
+	writeLog "Directory $HOME/.ssh already exists"
+else
+	executeExpression "mkdir $HOME/.ssh"
+fi
+executeExpression "chmod 0700 $HOME/.ssh"
+executeExpression "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ==' > $HOME/.ssh/authorized_keys"
+executeExpression "chmod 0600 $HOME/.ssh/authorized_keys"
+
+test=$(sudo cat /etc/ssh/sshd_config | grep UseDNS)
+if [ "$test" ]; then
+	writeLog "Vagrant sudo permissions set"
+else
+	writeLog "Configuration tweek"
+	writeLog "  sudo sh -c \"echo 'UseDNS no' >> /etc/ssh/sshd_config\""
+	sudo sh -c "echo 'UseDNS no' >> /etc/ssh/sshd_config"
+fi
+executeExpression "sudo cat /etc/ssh/sshd_config | grep Use"
+
+test=$(sudo cat /etc/sudoers | grep vagrant)
+if [ "$test" ]; then
+	writeLog "Vagrant sudo permissions set"
+else
+	writeLog "Permission for Vagrant to perform provisioning"
+	writeLog "  sudo sh -c \"echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\""
+	sudo sh -c "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+fi
+executeExpression "sudo cat /etc/sudoers | grep PASS"
 
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then

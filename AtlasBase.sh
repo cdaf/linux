@@ -47,6 +47,24 @@ else
 	writeLog "  whoami       : $(whoami)"
 fi
 
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	ubuntu=$(uname -a | grep ubuntu)
+	if [ "$ubuntu" ]; then
+		writeLog "  Debian based : $(uname -mrs)"
+	else
+		writeLog "  $(uname -a), Unknown distributation, exiting!"; exit 883
+	fi
+else
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+		rhel='yes'
+	else
+		echo "[$scriptName] CentOS Linux : $centos"
+	fi
+fi
+
 writeLog "As Vagrant user, trust the public key"
 if [ -d "$HOME/.ssh" ]; then
 	writeLog "Directory $HOME/.ssh already exists"
@@ -76,24 +94,6 @@ else
 	sudo sh -c 'echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
-
-test="`yum --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	ubuntu=$(uname -a | grep ubuntu)
-	if [ "$ubuntu" ]; then
-		writeLog "  Debian based : $(uname -mrs)"
-	else
-		writeLog "  $(uname -a), Unknown distributation, exiting!"; exit 883
-	fi
-else
-	centos=$(cat /etc/redhat-release | grep CentOS)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux"
-		rhel='yes'
-	else
-		echo "[$scriptName] CentOS Linux : $centos"
-	fi
-fi
 
 if [ "$hypervisor" == 'hyperv' ]; then
 	if [ "$centos" ]; then

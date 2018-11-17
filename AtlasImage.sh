@@ -94,7 +94,7 @@ else
 		echo "[$scriptName] Red Hat Enterprise Linux"
 		rhel='yes'
 	else
-		echo "[$scriptName] CentOS Linux"
+		echo "[$scriptName] CentOS Linux : $centos"
 	fi
 fi
 
@@ -130,7 +130,7 @@ else
 			executeExpression "$elevate cat /etc/sudoers"
 			executeExpression "$elevate yum groupinstall -y 'Development Tools'"
 			if [ "$rhel" ]; then # Use named for Red Hat
-				executeExpression "$elevate yum install -y gcc kernel-devel-$(uname -r) kernel-headers dkms make bzip2 perl
+				executeExpression "$elevate yum install -y gcc kernel-devel-$(uname -r) kernel-headers dkms make bzip2 perl"
 			else
 				executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
 			fi

@@ -134,7 +134,7 @@ else
 			executeExpression "$elevate yum install -y kernel-headers"
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
-			executeExpression "echo $KERN_DIR"
+			executeExpression "ls $KERN_DIR"
 		
 		else # Ubuntu
 			echo;writeLog "Install prerequisites"

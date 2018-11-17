@@ -32,7 +32,7 @@ echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
 	if [ "$hypervisor" == 'virtualbox' ]; then
-		vbadd='5.2.22'
+		vbadd='5.1.10'
 		writeLog "  hypervisor   : $hypervisor (installing extension version ${vbadd})"
 	else
 		writeLog "  hypervisor   : $hypervisor"

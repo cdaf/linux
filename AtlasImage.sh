@@ -43,11 +43,11 @@ else
 	writeLog "  hypervisor   : (not passed, extension install will not be attempted)"
 fi
 
-if [ $(whoami) != 'root' ];then
+if [[ $(whoami) != 'vagrant' ]];then
+	writeLog "  HALT! Do Not Run as Root or any user other than vagrant, this will apply incorrect permission"; exit 773
+else
 	elevate='sudo'
 	writeLog "  whoami       : $(whoami)"
-else
-	writeLog "  HALT! Do Not Run as Root, this will apply incorrect permission"; exit 773
 fi
 
 writeLog "As Vagrant user, trust the public key"
@@ -65,8 +65,8 @@ if [ "$test" ]; then
 writeLog "Configuration tweek already applied"
 else
 	writeLog "Configuration tweek"
-	writeLog "  sudo sh -c \"echo 'UseDNS no' >> /etc/ssh/sshd_config\""
-	sudo sh -c "echo 'UseDNS no' >> /etc/ssh/sshd_config"
+	writeLog "  sudo sh -c 'echo \"UseDNS no\" >> /etc/ssh/sshd_config'"
+	sudo sh -c 'echo "UseDNS no" >> /etc/ssh/sshd_config'
 fi
 executeExpression "sudo cat /etc/ssh/sshd_config | grep Use"
 
@@ -75,8 +75,8 @@ if [ "$test" ]; then
 	writeLog "Vagrant sudo permissions already set"
 else
 	writeLog "Permission for Vagrant to perform provisioning"
-	writeLog "  sudo sh -c \"echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\""
-	sudo sh -c "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+	writeLog "  sudo sh -c 'echo \"vagrant ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers'"
+	sudo sh -c 'echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 

@@ -62,7 +62,7 @@ executeExpression "chmod 0600 $HOME/.ssh/authorized_keys"
 
 test=$(sudo cat /etc/ssh/sshd_config | grep UseDNS)
 if [ "$test" ]; then
-	writeLog "Vagrant sudo permissions set"
+writeLog "Configuration tweek already applied"
 else
 	writeLog "Configuration tweek"
 	writeLog "  sudo sh -c \"echo 'UseDNS no' >> /etc/ssh/sshd_config\""
@@ -72,7 +72,7 @@ executeExpression "sudo cat /etc/ssh/sshd_config | grep Use"
 
 test=$(sudo cat /etc/sudoers | grep vagrant)
 if [ "$test" ]; then
-	writeLog "Vagrant sudo permissions set"
+	writeLog "Vagrant sudo permissions already set"
 else
 	writeLog "Permission for Vagrant to perform provisioning"
 	writeLog "  sudo sh -c \"echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\""
@@ -80,15 +80,21 @@ else
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 
-centos=$(uname -mrs | grep .el)
-if [ "$centos" ]; then
-	writeLog "  Fedora based : $(uname -mrs)"
-else
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
 	ubuntu=$(uname -a | grep ubuntu)
 	if [ "$ubuntu" ]; then
 		writeLog "  Debian based : $(uname -mrs)"
 	else
-		writeLog "  $(uname -a), proceeding assuming Debian based..."; echo
+		writeLog "  $(uname -a), Unknown distributation, exiting!"; exit 883
+	fi
+else
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+		rhel='yes'
+	else
+		echo "[$scriptName] CentOS Linux"
 	fi
 fi
 
@@ -123,8 +129,12 @@ else
 			sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
 			executeExpression "$elevate cat /etc/sudoers"
 			executeExpression "$elevate yum groupinstall -y 'Development Tools'"
-			executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
-			executeExpression "KERN_DIR=/usr/src/kernels/`uname -r`"
+			if [ -z "$centos" ]; then # RHEL
+				executeExpression "$elevate yum install -y gcc kernel-devel-$(uname -r) kernel-headers dkms make bzip2 perl
+			else
+				executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"
+			fi
+			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 		
 		else # Ubuntu

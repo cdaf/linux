@@ -129,7 +129,7 @@ else
 			sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
 			executeExpression "$elevate cat /etc/sudoers"
 			executeExpression "$elevate yum groupinstall -y 'Development Tools'"
-			if [ -z "$centos" ]; then # RHEL
+			if [ "$rhel" ]; then # Use named for Red Hat
 				executeExpression "$elevate yum install -y gcc kernel-devel-$(uname -r) kernel-headers dkms make bzip2 perl
 			else
 				executeExpression "$elevate yum install -y gcc kernel-devel kernel-headers dkms make bzip2 perl"

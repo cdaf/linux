@@ -28,6 +28,30 @@ function executeIgnore {
 	fi
 }  
 
+function prepCentos {
+	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
+	echo;writeLog "Remove additional packages"
+	executeExpression "sudo systemctl stop postfix"
+	executeExpression "sudo systemctl disable postfix"
+	executeExpression "sudo yum -y remove postfix"
+	executeExpression "sudo systemctl stop chronyd"
+	executeExpression "sudo systemctl disable chronyd"
+	executeExpression "sudo yum -y remove chrony"
+	executeExpression "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
+	executeExpression "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
+	executeExpression "sudo yum -y remove avahi-autoipd avahi-libs avahi"
+	executeExpression "sudo service network restart"
+	executeExpression "sudo chkconfig network on"
+	executeExpression "sudo systemctl restart network"
+
+	echo;writeLog "Upgrade System"
+	executeExpression "sudo yum update -y"
+
+	echo;writeLog "Set configuration to not require tty"
+	sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
+	executeExpression "sudo cat /etc/sudoers"
+}
+
 echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
@@ -97,9 +121,7 @@ fi
 
 if [ "$hypervisor" == 'hyperv' ]; then
 	if [ "$centos" ]; then
-		executeExpression "sudo yum update -y"
-		sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
-		executeExpression "sudo cat /etc/sudoers"
+		prepCentos
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
 		executeExpression "sudo systemctl enable hypervkvpd"
@@ -121,10 +143,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ "$centos" ]; then
-			echo;writeLog "Install prerequisites"
-			executeExpression "sudo yum update -y"
-			sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
-			executeExpression "sudo cat /etc/sudoers"
+			prepCentos
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
@@ -159,18 +178,6 @@ if [ "$centos" ]; then
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"
 	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
-	executeExpression "sudo systemctl stop postfix"
-	executeExpression "sudo systemctl disable postfix"
-	executeExpression "sudo yum -y remove postfix"
-	executeExpression "sudo systemctl stop chronyd"
-	executeExpression "sudo systemctl disable chronyd"
-	executeExpression "sudo yum -y remove chrony"
-	executeExpression "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
-	executeExpression "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
-	executeExpression "sudo yum -y remove avahi-autoipd avahi-libs avahi"
-	executeExpression "sudo service network restart"
-	executeExpression "sudo chkconfig network on"
-	executeExpression "sudo systemctl restart network"
 	executeExpression "sudo yum -y autoremove"
 	executeExpression "sudo yum -y remove yum-utils"
 

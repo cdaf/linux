@@ -172,7 +172,6 @@ else
 		executeExpression "sudo umount /media/VBoxGuestAdditions"
 		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
 		if [ "$centos" ]; then
-			prepCentos
 			executeExpression "sudo yum remove -y kernel-headers"
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"

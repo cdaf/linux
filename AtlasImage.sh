@@ -154,7 +154,6 @@ else
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
-		
 		else # Ubuntu
 			echo;writeLog "Install prerequisites"
 			executeExpression "sudo apt-get upgrade -y"
@@ -172,6 +171,16 @@ else
 		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo umount /media/VBoxGuestAdditions"
 		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+		if [ "$centos" ]; then
+			prepCentos
+			executeExpression "sudo yum remove -y kernel-headers"
+			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
+			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
+			executeExpression "sudo yum groupremove -y 'Development Tools'"
+		else # Ubuntu
+			echo;writeLog "Install prerequisites"
+			executeExpression "sudo apt-get remove -y linux-headers-$(uname -r) build-essential dkms"
+		fi
 	fi
 fi
 

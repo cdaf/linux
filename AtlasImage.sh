@@ -98,7 +98,7 @@ fi
 if [ "$hypervisor" == 'hyperv' ]; then
 	if [ "$centos" ]; then
 		executeExpression "sudo yum update -y"
-		sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
+		sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
 		executeExpression "sudo cat /etc/sudoers"
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
@@ -123,7 +123,7 @@ else
 		if [ "$centos" ]; then
 			echo;writeLog "Install prerequisites"
 			executeExpression "sudo yum update -y"
-			sudo sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
+			sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
 			executeExpression "sudo cat /etc/sudoers"
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
@@ -155,6 +155,25 @@ fi
 
 if [ "$centos" ]; then
 	writeLog "Cleanup"
+
+	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
+	executeExpression "sudo yum -y install yum-utils"
+	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
+	executeExpression "sudo systemctl stop postfix"
+	executeExpression "sudo systemctl disable postfix"
+	executeExpression "sudo yum -y remove postfix"
+	executeExpression "sudo systemctl stop chronyd"
+	executeExpression "sudo systemctl disable chronyd"
+	executeExpression "sudo yum -y remove chrony"
+	executeExpression "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
+	executeExpression "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
+	executeExpression "sudo yum -y remove avahi-autoipd avahi-libs avahi"
+	executeExpression "sudo service network restart"
+	executeExpression "sudo chkconfig network on"
+	executeExpression "sudo systemctl restart network"
+	executeExpression "sudo yum -y autoremove"
+	executeExpression "sudo yum -y remove yum-utils"
+
 	executeExpression "sudo yum clean all"
 	executeExpression "sudo rm -rf /var/cache/yum"
 	executeExpression "sudo rm -rf /tmp/*"
@@ -162,6 +181,7 @@ if [ "$centos" ]; then
 	executeIgnore "sudo dd if=/dev/zero of=/EMPTY bs=1M"
 	executeExpression "sudo rm -f /EMPTY"
 	executeExpression "sudo sync"
+	executeExpression "cat /dev/null > ~/.bash_history"
 	executeExpression "history -c"
 else # Ubuntu
 	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 

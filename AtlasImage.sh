@@ -48,7 +48,10 @@ function prepCentos {
 	executeExpression "sudo yum update -y"
 
 	echo;writeLog "Set configuration to not require tty"
-	sudo sed -i 's/^\(Defaults.*requiretty\)/#\1/' /etc/sudoers
+	writeLog "  sudo sh -c 'sed -i \"s/^\(Defaults.*requiretty\)/#\1/\" /etc/sudoers'"
+	sudo sh -c 'sed -i "s/^\(Defaults.*requiretty\)/#\1/" /etc/sudoers'
+	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
+	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
 }
 

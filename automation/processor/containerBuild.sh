@@ -35,7 +35,8 @@ fi
 
 REVISION=$3
 if [ -z "$REVISION" ]; then
-	echo "[$scriptName] REVISION      : (not supplied)"
+	REVISION='container_build'
+	echo "[$scriptName] REVISION      : $REVISION (not supplied, set to default)"
 else
 	echo "[$scriptName] REVISION      : $REVISION"
 fi
@@ -72,11 +73,12 @@ for i in $(ls -d */); do
 	fi
 done
 echo "[$scriptName] \$SOLUTIONROOT : $SOLUTIONROOT"
-buildImage="${imageName}_container_build"
+buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')"
 echo "[$scriptName] buildImage    : $buildImage"
-echo "[$scriptName] whoami        : $(whoami)"
+echo "[$scriptName] DOCKER_HOST   : $DOCKER_HOST"
 echo "[$scriptName] pwd           : $(pwd)"
 echo "[$scriptName] hostname      : $(hostname)"
+echo "[$scriptName] whoami        : $(whoami)"
 
 # Test Docker is running
 echo "[$scriptName] List all current images"

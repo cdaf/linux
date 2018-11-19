@@ -28,33 +28,6 @@ function executeIgnore {
 	fi
 }  
 
-function prepCentos {
-	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
-	echo;writeLog "Remove additional packages"
-	executeIgnore "sudo systemctl stop postfix"
-	executeIgnore "sudo systemctl disable postfix"
-	executeIgnore "sudo yum -y remove postfix"
-	executeIgnore "sudo systemctl stop chronyd"
-	executeIgnore "sudo systemctl disable chronyd"
-	executeIgnore "sudo yum -y remove chrony"
-	executeIgnore "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
-	executeIgnore "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
-	executeIgnore "sudo yum -y remove avahi-autoipd avahi-libs avahi"
-	executeExpression "sudo service network restart"
-	executeExpression "sudo chkconfig network on"
-	executeExpression "sudo systemctl restart network"
-
-	echo;writeLog "Upgrade System"
-	executeExpression "sudo yum update -y"
-
-	echo;writeLog "Set configuration to not require tty"
-	writeLog "  sudo sh -c 'sed -i \"s/^\(Defaults.*requiretty\)/#\1/\" /etc/sudoers'"
-	sudo sh -c 'sed -i "s/^\(Defaults.*requiretty\)/#\1/" /etc/sudoers'
-	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
-	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
-	executeExpression "sudo cat /etc/sudoers"
-}
-
 echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
@@ -122,9 +95,39 @@ else
 	fi
 fi
 
+echo;writeLog "Perform provider independent steps"
+if [ "$centos" ]; then
+	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
+	echo;writeLog "Remove additional packages"
+	executeIgnore "sudo systemctl stop postfix"
+	executeIgnore "sudo systemctl disable postfix"
+	executeIgnore "sudo yum -y remove postfix"
+	executeIgnore "sudo systemctl stop chronyd"
+	executeIgnore "sudo systemctl disable chronyd"
+	executeIgnore "sudo yum -y remove chrony"
+	executeIgnore "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
+	executeIgnore "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
+	executeIgnore "sudo yum -y remove avahi-autoipd avahi-libs avahi"
+	executeExpression "sudo service network restart"
+	executeExpression "sudo chkconfig network on"
+	executeExpression "sudo systemctl restart network"
+
+	echo;writeLog "Upgrade System"
+	executeExpression "sudo yum update -y"
+
+	echo;writeLog "Set configuration to not require tty"
+	writeLog "  sudo sh -c 'sed -i \"s/^\(Defaults.*requiretty\)/#\1/\" /etc/sudoers'"
+	sudo sh -c 'sed -i "s/^\(Defaults.*requiretty\)/#\1/" /etc/sudoers'
+	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
+	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
+	executeExpression "sudo cat /etc/sudoers"
+else # Ubuntu
+	executeExpression "sudo apt-get upgrade -y"
+fi
+
+echo;writeLog "Perform provider specific steps"
 if [ "$hypervisor" == 'hyperv' ]; then
 	if [ "$centos" ]; then
-		prepCentos
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
 		executeExpression "sudo systemctl enable hypervkvpd"
@@ -139,14 +142,12 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		echo
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
 		echo
-		executeExpression "sudo apt-get upgrade -y"
 		executeExpression "sudo apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)"
 		executeExpression "sudo update-initramfs -u"
 	fi
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ "$centos" ]; then
-			prepCentos
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
@@ -154,12 +155,6 @@ else
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
-		else # Ubuntu
-			echo;writeLog "Install prerequisites"
-			executeExpression "sudo apt-get upgrade -y"
-			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
-		fi
-		if [ "$centos" ]; then
 			echo;writeLog "Fake install for CentOS to try and get this to work"; echo
 			fakeadd='5.1.10'
 			executeExpression "curl -O http://download.virtualbox.org/virtualbox/${fakeadd}/VBoxGuestAdditions_${fakeadd}.iso"
@@ -173,8 +168,11 @@ else
 			executeExpression "rm VBoxGuestAdditions_${fakeadd}.iso"
 			executeExpression "sudo umount /media/VBoxGuestAdditions"
 			executeExpression "sudo rmdir /media/VBoxGuestAdditions"
-			
+		else # Ubuntu
+			echo;writeLog "Install prerequisites"
+			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
+
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo mkdir /media/VBoxGuestAdditions"

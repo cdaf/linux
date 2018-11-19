@@ -32,7 +32,7 @@ echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
 	if [ "$hypervisor" == 'virtualbox' ]; then
-		vbadd='5.1.10'
+		vbadd='5.2.22'
 		writeLog "  hypervisor   : $hypervisor (installing extension version ${vbadd})"
 	else
 		writeLog "  hypervisor   : $hypervisor"
@@ -138,14 +138,26 @@ else
 			executeExpression "sudo apt-get upgrade -y"
 			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
+		if [ "$centos" ]; then
+			echo;writeLog "Fake install for CentOS to try and get this to work"; echo
+			fakeadd='5.1.10'
+			executeExpression "curl -O http://download.virtualbox.org/virtualbox/${fakeadd}/VBoxGuestAdditions_${fakeadd}.iso"
+			executeExpression "sudo mkdir /media/VBoxGuestAdditions"
+			executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${fakeadd}.iso /media/VBoxGuestAdditions"
+				
+			echo;writeLog "This is normal for server install ..."
+			writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
+			
+			executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+			executeExpression "rm VBoxGuestAdditions_${fakeadd}.iso"
+			executeExpression "sudo umount /media/VBoxGuestAdditions"
+			executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+			
+		fi
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
 		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo mkdir /media/VBoxGuestAdditions"
 		executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
-			
-		echo;writeLog "This is normal for server install ..."
-		writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-		
 		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
 		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo umount /media/VBoxGuestAdditions"

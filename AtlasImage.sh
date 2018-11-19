@@ -28,6 +28,33 @@ function executeIgnore {
 	fi
 }  
 
+function prepCentos {
+	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
+	echo;writeLog "Remove additional packages"
+	executeIgnore "sudo systemctl stop postfix"
+	executeIgnore "sudo systemctl disable postfix"
+	executeIgnore "sudo yum -y remove postfix"
+	executeIgnore "sudo systemctl stop chronyd"
+	executeIgnore "sudo systemctl disable chronyd"
+	executeIgnore "sudo yum -y remove chrony"
+	executeIgnore "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
+	executeIgnore "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
+	executeIgnore "sudo yum -y remove avahi-autoipd avahi-libs avahi"
+	executeExpression "sudo service network restart"
+	executeExpression "sudo chkconfig network on"
+	executeExpression "sudo systemctl restart network"
+
+	echo;writeLog "Upgrade System"
+	executeExpression "sudo yum update -y"
+
+	echo;writeLog "Set configuration to not require tty"
+	writeLog "  sudo sh -c 'sed -i \"s/^\(Defaults.*requiretty\)/#\1/\" /etc/sudoers'"
+	sudo sh -c 'sed -i "s/^\(Defaults.*requiretty\)/#\1/" /etc/sudoers'
+	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
+	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
+	executeExpression "sudo cat /etc/sudoers"
+}
+
 echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
@@ -97,9 +124,7 @@ fi
 
 if [ "$hypervisor" == 'hyperv' ]; then
 	if [ "$centos" ]; then
-		executeExpression "sudo yum update -y"
-		sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
-		executeExpression "sudo cat /etc/sudoers"
+		prepCentos
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
 		executeExpression "sudo systemctl enable hypervkvpd"
@@ -121,10 +146,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ "$centos" ]; then
-			echo;writeLog "Install prerequisites"
-			executeExpression "sudo yum update -y"
-			sudo sed --in-place --expression='s/^Defaults\s*requiretty/# &/' /etc/sudoers
-			executeExpression "sudo cat /etc/sudoers"
+			prepCentos
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
@@ -132,7 +154,6 @@ else
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
-		
 		else # Ubuntu
 			echo;writeLog "Install prerequisites"
 			executeExpression "sudo apt-get upgrade -y"
@@ -162,11 +183,27 @@ else
 		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo umount /media/VBoxGuestAdditions"
 		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+#		if [ "$centos" ]; then
+#			executeExpression "sudo yum remove -y kernel-headers"
+#			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
+#			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
+#			executeExpression "sudo yum groupremove -y 'Development Tools'"
+#		else # Ubuntu
+#			echo;writeLog "Install prerequisites"
+#			executeExpression "sudo apt-get remove -y linux-headers-$(uname -r) build-essential dkms"
+#		fi
 	fi
 fi
 
 if [ "$centos" ]; then
 	writeLog "Cleanup"
+
+	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
+	executeExpression "sudo yum -y install yum-utils"
+	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
+	executeExpression "sudo yum -y autoremove"
+	executeExpression "sudo yum -y remove yum-utils"
+
 	executeExpression "sudo yum clean all"
 	executeExpression "sudo rm -rf /var/cache/yum"
 	executeExpression "sudo rm -rf /tmp/*"
@@ -174,6 +211,7 @@ if [ "$centos" ]; then
 	executeIgnore "sudo dd if=/dev/zero of=/EMPTY bs=1M"
 	executeExpression "sudo rm -f /EMPTY"
 	executeExpression "sudo sync"
+	executeExpression "cat /dev/null > ~/.bash_history"
 	executeExpression "history -c"
 else # Ubuntu
 	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 

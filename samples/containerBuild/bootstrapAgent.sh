@@ -64,7 +64,7 @@ echo
 test="`curl --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] curl not installed, required to download Maven, install using package manager ..."
-	executeExpression "$atomicPath/automation/provisioning/base.sh curl"
+	executeExpression "$atomicPath/provisioning/base.sh curl"
 	executeExpression "curl --version"
 else
 	IFS=' ' read -ra ADDR <<< $test

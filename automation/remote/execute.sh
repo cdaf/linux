@@ -283,7 +283,11 @@ while read LINE; do
 		if [ -n "$EXECUTABLESCRIPT" ]; then
 			# Do not echo line if it is an echo itself or it is determining controlled exit
 			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
-				echo $(eval echo "$EXECUTABLESCRIPT")
+				if [ "${LINE:0:2}" != "if" ] && [ "${LINE:0:3}" != "for" ]; then
+					echo $(eval echo "$EXECUTABLESCRIPT")
+				else
+					echo "$EXECUTABLESCRIPT"
+				fi
 			fi
 		else
 			# Do not add whitespace line feed when script has a comment

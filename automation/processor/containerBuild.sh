@@ -138,8 +138,7 @@ else
 fi	
 
 # If a build number is not passed, use the CDAF emulator
-echo "export MSYS_NO_PATHCONV=1"
-export MSYS_NO_PATHCONV=1
+executeExpression "export MSYS_NO_PATHCONV=1"
 executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION $ACTION"
 
 echo "[$scriptName] List and remove all stopped containers"

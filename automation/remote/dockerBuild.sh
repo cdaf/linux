@@ -88,6 +88,21 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
+if [ -n "$http_proxy" ]; then
+	echo; echo "[$scriptName] \$http_proxy is set (${http_proxy}), pass as \$proxy to build"
+	buildCommand+=" --build-arg proxy=${http_proxy}"
+else
+	if [ -n "$HTTP_PROXY" ]; then
+		echo; echo "[$scriptName] \$HTTP_PROXY is set (${HTTP_PROXY}), pass as \$proxy to build"
+		buildCommand+=" --build-arg proxy=${HTTP_PROXY}"
+	fi
+fi
+
+if [ -n "$CONTAINER_IMAGE" ]; then
+	echo; echo "[$scriptName] \$CONTAINER_IMAGE is set (${CONTAINER_IMAGE}), pass as \$CONTAINER_IMAGE to build"
+	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
+fi
+
 if [ "$version" != 'dockerfile' ]; then
 	# Apply required label for CDAF image management
 	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"

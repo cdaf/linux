@@ -64,7 +64,6 @@ else
 	echo "[$scriptName] cdafVersion   : $cdafVersion"
 fi
 
-echo "[$scriptName] \$DOCKER_HOST  : $DOCKER_HOST"
 SOLUTIONROOT="$AUTOMATIONROOT/solution"
 for i in $(ls -d */); do
 	directoryName=${i%%/}
@@ -72,7 +71,7 @@ for i in $(ls -d */); do
 		SOLUTIONROOT="$directoryName"
 	fi
 done
-echo "[$scriptName] \$SOLUTIONROOT : $SOLUTIONROOT"
+echo "[$scriptName] SOLUTIONROOT  : $SOLUTIONROOT"
 buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')"
 echo "[$scriptName] buildImage    : $buildImage"
 echo "[$scriptName] DOCKER_HOST   : $DOCKER_HOST"
@@ -128,10 +127,11 @@ workspace=$(pwd)
 echo "[$scriptName] \$newTag    : $newTag"
 echo "[$scriptName] \$workspace : $workspace"
 
-test="`sestatus | grep 'SELinux status' 2>&1`"
+test="`sestatus 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] sestatus   : (not installed)"
 else
+	test="`sestatus | grep 'SELinux status' 2>&1`"
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[2]}
 	echo "[$scriptName] sestatus   : $test"

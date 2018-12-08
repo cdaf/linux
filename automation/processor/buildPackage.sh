@@ -132,6 +132,20 @@ else
 	echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
 fi
 
+# Support for image as an environment variable, do not overwrite if already set
+containerImage=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "containerImage")
+if [ -z "$containerImage" ]; then
+	echo "$scriptName :   containerImage  : (not defined in $solutionRoot/CDAF.solution)"
+else
+	echo "$scriptName :   containerImage  : $containerImage"
+	if [ -z $CONTAINER_IMAGE ]; then
+		export CONTAINER_IMAGE="$containerImage"
+		echo "$scriptName :   CONTAINER_IMAGE : $CONTAINER_IMAGE"
+	else
+		echo "$scriptName :   CONTAINER_IMAGE : $CONTAINER_IMAGE (not changed as already set)"
+	fi
+fi
+
 # CDAF 1.7.0 Container Build process
 if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo

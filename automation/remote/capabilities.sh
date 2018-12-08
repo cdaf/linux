@@ -19,17 +19,33 @@ fi
 
 echo
 echo "[$scriptName] System features"
-echo "[$scriptName]   hostname : $(hostname -f)"
-IFS=$'\n'
-if [ -f '/sbin/ip' ]; then
-	ipList=$(/sbin/ip a | grep "inet ")
+test="`hostname -f 2>&1`"
+if [ $? -ne 0 ]; then
+	echo "[$scriptName]   hostname : $(hostname)"
 else
-	$(ip a | grep "inet ")
+	echo "[$scriptName]   hostname : $test"
 fi
-for ip in $ipList; do
-	IFS=' ' read -ra ADDR <<< $ip
-	echo "[$scriptName]         ip : ${ADDR[1]}"
-done
+IFS=$'\n'
+test="`ip a 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	test="`ifconfig 2>&1`"
+	if [[ "$test" == *"not found"* ]]; then
+		test="`ipconfig 2>&1`" # MING
+		if [[ "$test" == *"not found"* ]]; then
+			echo "[$scriptName]         ip : $(hostname -I)" # inside a container
+		else
+			ipconfig | grep IPv4
+		fi
+	else
+		echo "[$scriptName]         ip : $test"
+	fi
+else
+	test="`ip a | grep 'inet ' 2>&1`"
+	for ip in $test; do
+		IFS=' ' read -ra ADDR <<< $ip
+		echo "[$scriptName]         ip : ${ADDR[1]}"
+	done
+fi
 echo
 
 if [ -f '/home/vagrant/linux-master/automation/CDAF.linux' ]; then

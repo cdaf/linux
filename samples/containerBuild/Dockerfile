@@ -1,5 +1,8 @@
 # DOCKER-VERSION 1.2.0
-FROM ubuntu
+# Allow override of image as environment variable
+ARG CONTAINER_IMAGE
+FROM ${CONTAINER_IMAGE}
+
 MAINTAINER Jules Clements
 
 # Copy solution, provision and then build

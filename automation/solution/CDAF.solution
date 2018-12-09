@@ -3,5 +3,6 @@ productVersion=0.0.1
 productName=My Product Name
 solutionName=myproduct
 # containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
+# containerImage=ubuntu@sha256:6d0e0c26489e33f5a6f0020edface2727db9489744ecc9b4f50c7fa671f23c49
 # imageBuild=./automation-solution/imageBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 # processSequence=localTasks.sh remoteTasks.sh

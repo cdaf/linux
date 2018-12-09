@@ -137,11 +137,11 @@ containerImage=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.so
 if [ -z "$containerImage" ]; then
 	echo "$scriptName :   containerImage  : (not defined in $solutionRoot/CDAF.solution)"
 else
-	echo "$scriptName :   containerImage  : $containerImage"
 	if [ -z $CONTAINER_IMAGE ]; then
 		export CONTAINER_IMAGE="$containerImage"
-		echo "$scriptName :   CONTAINER_IMAGE : $CONTAINER_IMAGE"
+		echo "$scriptName :   CONTAINER_IMAGE : $CONTAINER_IMAGE (set to \$containerImage)"
 	else
+		echo "$scriptName :   containerImage  : $containerImage"
 		echo "$scriptName :   CONTAINER_IMAGE : $CONTAINER_IMAGE (not changed as already set)"
 	fi
 fi

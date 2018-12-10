@@ -5,6 +5,9 @@ FROM ${CONTAINER_IMAGE}
 
 MAINTAINER Jules Clements
 
+ARG proxy
+ENV http_proxy=$proxy
+
 # Copy solution, provision and then build
 WORKDIR solution
 

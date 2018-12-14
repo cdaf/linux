@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 scriptName=${0##*/}
 
 # Arguments are not validated in sub-scripts, only at entry point
@@ -203,11 +202,6 @@ if [ "$zipLocal" ]; then
 	echo ; echo "$scriptName : Create the package (tarball) file, excluding git or svn control files"; echo
 	cd $WORK_DIR_DEFAULT
 	tar -zcv --exclude='.git' --exclude='.svn' -f ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz .
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : tar -zcv --exclude=\'.git\' --exclude=\'.svn\' -f ../$SOLUTION-$zipLocal-$BUILDNUMBER.tar.gz . failed! Exit = $exitCode"
-		exit $exitCode
-	fi
 	cd ..
 else
 	echo; echo "$scriptName : zipLocal not set in CDAF.solution of any build property, no additional action."; echo

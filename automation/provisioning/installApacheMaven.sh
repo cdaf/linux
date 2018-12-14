@@ -15,24 +15,31 @@ echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
 	version='3.5.0'
-	echo "[$scriptName]   version   : $version (default)"
+	echo "[$scriptName]   version    : $version (default)"
 else
-	echo "[$scriptName]   version   : $version"
+	echo "[$scriptName]   version    : $version"
 fi
 
 mediaPath="$2"
 if [ -z "$mediaPath" ]; then
 	mediaPath='/.provision'
-	echo "[$scriptName]   mediaPath : $mediaPath (default)"
+	echo "[$scriptName]   mediaPath  : $mediaPath (default)"
 else
-	echo "[$scriptName]   mediaPath : $mediaPath"
+	echo "[$scriptName]   mediaPath  : $mediaPath"
 fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami    : $(whoami)"
+	echo "[$scriptName]   whoami     : $(whoami)"
 else
-	echo "[$scriptName]   whoami    : $(whoami) (elevation not required)"
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
+fi
+
+if [ -n "$http_proxy" ]; then
+	echo "[$scriptName]   http_proxy : $http_proxy"
+	optArg="--proxy $http_proxy"
+else
+	echo "[$scriptName]   http_proxy : (not set)"
 fi
 
 # Check for media
@@ -46,7 +53,7 @@ else
 	if [ ! -d "$mediaPath" ]; then
 		executeExpression "$elevate mkdir -p $mediaPath"
 	fi
-	executeExpression "$elevate curl -s -o $mediaFullPath https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
+	executeExpression "$elevate curl -s -o $mediaFullPath $optArg https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
 fi
 
 # Set parameters

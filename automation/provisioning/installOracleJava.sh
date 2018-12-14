@@ -47,6 +47,13 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
+if [ -n "$http_proxy" ]; then
+	echo "[$scriptName]   http_proxy : $http_proxy"
+	optArg="--proxy $http_proxy"
+else
+	echo "[$scriptName]   http_proxy : (not set)"
+fi
+
 echo
 javaSource="${prefix}-${version}-linux-x64.tar.gz"
 echo "[$scriptName] \$javaSource = $javaSource"
@@ -63,9 +70,9 @@ else
 	fi
 	echo "[$scriptName] Media not found, attempting download $mediaCache"
 	if [ "$prefix" == 'jdk' ]; then
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jdk-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' $optArg http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jdk-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	else
-		executeExpression "curl --silent -L -b 'oraclelicense=a' http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jre-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
+		executeExpression "curl --silent -L -b 'oraclelicense=a' $optArg http://download.oracle.com/otn-pub/java/jdk/${urlUID}/jre-${version}-linux-x64.tar.gz --output $mediaCache/$javaSource"
 	fi
 fi
 

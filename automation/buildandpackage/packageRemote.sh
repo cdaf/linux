@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 scriptName=${0##*/}
 
 # Arguments are not validated in sub-scripts, only at entry point
@@ -96,11 +95,7 @@ fi
 cd $WORK_DIR_DEFAULT
 echo; echo "$scriptName : Create the package (tarball) file, excluding git or svn control files"; echo
 tar -zcv --exclude='.git' --exclude='.svn' -f ../$SOLUTION-$BUILDNUMBER.tar.gz .
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "$scriptName : tar -zcv --exclude=\'.git\' --exclude=\'.svn\' -f ../$SOLUTION-$BUILDNUMBER.tar.gz . failed! Exit = $exitCode"
-	exit $exitCode
-fi
+
 cd ..
 
 exit 0

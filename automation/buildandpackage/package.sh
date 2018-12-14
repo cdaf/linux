@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 scriptName=${0##*/}
 
 if [ -z "$1" ]; then

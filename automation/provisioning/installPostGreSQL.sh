@@ -32,7 +32,9 @@ function executeYumCheck {
 		eval $1
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
-		if [ "$exitCode" != "100" ]; then
+		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then
+			echo "[$scriptName] Yum cache updated successfully (exit code 0 and 100 are treated as success)"
+		else
 			counter=$((counter + 1))
 			if [ "$counter" -le "$max" ]; then
 				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"

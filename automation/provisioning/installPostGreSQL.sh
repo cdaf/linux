@@ -16,7 +16,7 @@ function executeExpression {
 			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
-			fi					 
+			fi
 		else
 			success='yes'
 		fi
@@ -34,6 +34,7 @@ function executeYumCheck {
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then
 			echo "[$scriptName] Yum cache updated successfully (exit code 0 and 100 are treated as success)"
+			success='yes'
 		else
 			counter=$((counter + 1))
 			if [ "$counter" -le "$max" ]; then
@@ -41,18 +42,16 @@ function executeYumCheck {
 			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
-			fi					 
-		else
-			success='yes'
+			fi
 		fi
 	done
-}  
+}
 
 scriptName='installPostGreSQL.sh'
 
 echo "[$scriptName] --- start ---"
-prefix="$1"
-if [ -z "$prefix" ]; then
+password="$1"
+if [ -z "$password" ]; then
 	echo "[$scriptName]   password : blank"
 else
 	echo "[$scriptName]   password : ****************"
@@ -91,7 +90,7 @@ if [[ "$test" == *"not found"* ]]; then
 		executeExpression "$elevate kill -9 ${ADDR[1]}"
 		executeExpression "sleep 5"
 	fi
-	
+
 	executeExpression "$elevate apt-get update"
 	executeExpression "$elevate apt-get install -y $install"
 	echo
@@ -111,5 +110,18 @@ else
 	executeExpression "$elevate sudo systemctl enable postgresql"
 fi
 
-echo "[$scriptName] --- end ---"
+executeExpression "psql --version"
 
+if [ -n "$password" ]; then
+	echo "[$scriptName] alter user postgres with password '********************';"
+	if [ -z "$elevate" ]; then
+su postgres << EOF
+	psql -U postgres -d postgres -c "alter user postgres with password '$password';"
+EOF
+	else
+		sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password '$password';"
+	fi
+
+fi
+
+echo "[$scriptName] --- end ---"

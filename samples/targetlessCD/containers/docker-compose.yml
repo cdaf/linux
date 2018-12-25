@@ -1,0 +1,16 @@
+version: "3"
+services:
+    mule:
+        image: "${MULE_TAG}"
+        volumes:
+          - ${WORK_SPACE}:/solution/workspace
+        ports:
+            - "8091:8081"
+    test:
+        image: "${TEST_TAG}"
+        volumes:
+          - ${WORK_SPACE}:/solution/workspace
+        links:
+          - mule:mule
+        depends_on:
+          - mule

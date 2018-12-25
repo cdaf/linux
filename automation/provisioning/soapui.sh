@@ -21,10 +21,21 @@ fi
 
 mediaCache="$2"
 if [ -z "$mediaCache" ]; then
-	mediaCache='/provision'
+	mediaCache='/.provision'
 	echo "[$scriptName]   mediaCache : $mediaCache (default)"
 else
 	echo "[$scriptName]   mediaCache : $mediaCache"
+fi
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami     : $(whoami)"
+else
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
+fi
+
+if [ ! -d "$mediaCache" ]; then
+	executeExpression "mkdir $mediaCache"
 fi
 
 # Set parameters
@@ -38,9 +49,9 @@ fi
 
 executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."
 executeExpression "tar -xf $soapuiSource"
-executeExpression "sudo mv $soapuiVersion /opt/"
+executeExpression "$elevate mv $soapuiVersion /opt/"
 
 # Configure to directory on the default PATH
-executeExpression "sudo ln -s /opt/$soapuiVersion/ /opt/soapui"
+executeExpression "$elevate ln -s /opt/$soapuiVersion/ /opt/soapui"
 
 echo "[scriptName] : --- end ---"

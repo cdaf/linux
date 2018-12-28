@@ -7,49 +7,43 @@ PROPLD manifest.txt
 branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
 
 ASSIGN $id="${SOLUTION}_${branch}"
+export WORK_SPACE="$(dirname "$(pwd)")"
 
-cd containers
+cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..
 
 ASSIGN $composePersist="/tmp/${id}"
 MAKDIR $composePersist
-VECOPY containers/docker-compose.yml $composePersist
-VECOPY containers/mule/runner.sh $composePersist
-VECOPY containers/test/executeTests.sh $composePersist
-VECOPY dockerLog.sh $composePersist
-VECOPY dockerClean.sh $composePersist
-VECOPY *.zip $composePersist
+VECOPY compose/docker-compose.yml $composePersist
 cd $composePersist
 
-export WORK_SPACE=$(pwd)
-
 echo "Cleanup from previously test"
-export MULE_TAG="${id}_mule"
+export TARGET_TAG="${id}_target"
 export TEST_TAG="${id}_test"
 docker-compose down --remove-orphans
 docker-compose rm -f
 
 echo "Set build number for environment"
-export MULE_TAG="${id}_mule:${BUILDNUMBER}"
+export TARGET_TAG="${id}_target:${BUILDNUMBER}"
 export TEST_TAG="${id}_test:${BUILDNUMBER}"
 
-echo "Start and wait for mule start (default wait time is 1 minute)"
-docker-compose up -d mule
-containerID=$(docker ps -aq --filter "ancestor=$MULE_TAG")
-./dockerLog.sh $containerID ' health-smoke-tests-1.0.0-SNAPSHOT             '
+echo "Deploy to target (allow up to 2 minutes)"
+docker-compose up -d target
+containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
+$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'Watch log to keep container alive' 120
 
-echo "Start and watch the test container (allowing 5 minutes to complete)"
+echo "Execute tests (allow 5 minutes to complete)"
 docker-compose up -d test
 containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
-./dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
+$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
 
 echo "List running containers"
 docker ps
 
 echo "Tear down if not master"
-if [ -z "$MULE_COMPOSE_KEEP" ]; then docker-compose down ; fi
-if [ -z "$MULE_COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
+if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose down ; fi
+if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
 
-./dockerClean.sh ${id}_mule ${BUILDNUMBER}
-./dockerClean.sh ${id}_test ${BUILDNUMBER}
+$WORK_SPACE/TasksLocal/dockerClean.sh ${id}_target ${BUILDNUMBER}
+$WORK_SPACE/TasksLocal/dockerClean.sh ${id}_test ${BUILDNUMBER}

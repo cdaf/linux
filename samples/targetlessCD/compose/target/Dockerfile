@@ -19,10 +19,10 @@ RUN ./automation/provisioning/base.sh curl
 COPY bootstrapTarget.sh .
 RUN ./bootstrapTarget.sh
 
+# Place entry script
+COPY keepAlive.sh .
+
 # Move to subdirectory for mount, i.e. /solution/workspace
 WORKDIR workspace
 
-ENV MULE_ENV dev
-ENV secret.key=
-
-CMD ["./runner.sh", "arg1"]
+CMD ["../keepAlive.sh", "arg1"]

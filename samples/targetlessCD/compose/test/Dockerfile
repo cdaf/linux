@@ -16,10 +16,13 @@ COPY automation automation
 RUN ./automation/provisioning/base.sh curl
 
 # Same provisioning used in Vagrantfile
-COPY bootstrapTarget.sh .
-RUN ./bootstrapTarget.sh
+COPY bootstrapTest.sh .
+RUN ./bootstrapTest.sh
+
+# Place entry script
+COPY executeTest.sh .
 
 # Move to subdirectory for mount, i.e. /solution/workspace
 WORKDIR workspace
 
-CMD ["./executeTests.sh", "arg1"]
+CMD ["../executeTest.sh", "arg1"]

@@ -22,21 +22,18 @@ function executeExpression {
 	done
 }  
 
-scriptName='runner.sh'
+scriptName='keepAlive.sh'
 
 echo "[$scriptName] --- start ---"
+ENVIRONMENT="$1"
+if [ -z "$ENVIRONMENT" ]; then
+	echo "[$scriptName] ENVIRONMENT not passed, exit 101"; exit 101
+else
+	echo "[$scriptName]   ENVIRONMENT : $ENVIRONMENT"
+fi
 
-echo "[$scriptName] Working directory is $(pwd). Deploy domain and app"; echo
+executeExpression "./TasksLocal/delivery.sh $ENVIRONMENT"
 
-executeExpression "cp health-smoke-tests-*.zip /opt/mule/apps"
-executeExpression "cp integration-domain-*.zip /opt/mule/domains/integration-domain.zip"
-
-echo; echo "[$scriptName] Start mule and watch logs to keep container alive ..."; echo
-
-executeExpression "cat /opt/mule/conf/wrapper.conf"
-
-executeExpression "/opt/mule/bin/mule start"
-executeExpression "/opt/mule/bin/mule status"
-
-echo;echo "tail -1000f /opt/mule/logs/mule_ee.log";echo
-tail -1000f /opt/mule/logs/mule_ee.log
+echo 'Watch log to keep container alive' > /tmp/cdaf.log
+echo;echo "tail -1000f /tmp/cdaf.log";echo
+tail -1000f /tmp/cdaf.log

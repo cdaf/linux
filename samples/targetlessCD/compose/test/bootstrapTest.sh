@@ -25,6 +25,14 @@ function executeExpression {
 scriptName='bootstrapTarget.sh'
 
 echo "[$scriptName] --- start ---"
+
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami     : $(whoami)"
+else
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
+fi
+
 if [ -n "$http_proxy" ]; then
 	echo "[$scriptName]   http_proxy : $http_proxy"
 	optArg="--proxy $http_proxy"
@@ -47,7 +55,6 @@ else
 	fi
 fi
 
-executeExpression "$atomicPath/automation/provisioning/installOracleJava.sh jre"
 executeExpression "$atomicPath/automation/remote/capabilities.sh"
 
 echo; echo "[$scriptName] --- end ---"

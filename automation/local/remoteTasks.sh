@@ -53,28 +53,16 @@ echo "$scriptName :   pwd               : $(pwd)"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
-	find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" > targetList
-	wait
-	linecount=$(wc -l < "targetList")
-	if [ "$linecount" -gt 0 ]; then
+	taskList=$(find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" )
+	if [ -n "$taskList" ]; then
+		echo; echo "$scriptName : Preparing to process targets : "; echo		 
+		for DEPLOY_TARGET in $taskList; do
+			echo "  ${DEPLOY_TARGET##*/}"
+		done
+		echo
 
-		# Build the list of targets				
-		ls -L -1 ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
-		# Wait for the pipe subprocess to complete 
-		wait
-		
-		echo
-		echo "$scriptName : Preparing to process targets : "
-		echo		 
-		while read LIST_TARGET
-		do
-			echo "  $LIST_TARGET"
-		
-		done < targetList
-		echo
-		while read DEPLOY_TARGET
-		do
-		
+		for DEPLOY_TARGET in $taskList; do
+			DEPLOY_TARGET=${DEPLOY_TARGET##*/}		
 			./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT $OPT_ARG
 			exitCode=$?
 			if [ "$exitCode" != "0" ]; then
@@ -84,23 +72,11 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 		
 			lastTarget=$(echo $DEPLOY_TARGET)
 		
-		done < targetList
-		
-		if [ -z $lastTarget ]; then
-			echo
-			echo "$scriptName : No Targets processed, if this is unexpected, check that properties file exists with prefix of $ENVIRONMENT."
-			
-		fi
-				
+		done				
 	else
-		echo
-		echo "$scriptName :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
-		
+		echo; echo "$scriptName :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 	fi
-	rm -f targetList
 	
 else
-	echo
-	echo "$scriptName :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
-	
+	echo; echo "$scriptName :   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
 fi

@@ -61,27 +61,15 @@ echo "$scriptName :   pwd          : $(pwd)"
 
 if [ -d "./propertiesForLocalTasks" ]; then
 
-	find ./propertiesForLocalTasks -name "$ENVIRONMENT*" > targetList
-	wait
-	linecount=$(wc -l < "targetList")
-	if [ "$linecount" -gt 0 ]; then
-
-		ls -L -1 ./propertiesForLocalTasks/$ENVIRONMENT* | xargs -n 1 basename > targetList &2> /dev/null
-		# Wait for the pipe subprocess to complete 
-		wait
-		
-		echo
-		echo "$scriptName : Preparing to process targets : "
-		echo		 
-		while read LIST_TARGET
-		do
-			echo "  $LIST_TARGET"
-		
-		done < targetList
+	taskList=$(find ./propertiesForLocalTasks -name "$ENVIRONMENT*" )
+	if [ -n "$taskList" ]; then
+		echo; echo "$scriptName : Preparing to process targets : "; echo		 
+		for LOCAL_TASK_TARGET in $taskList; do
+			echo "  ${LOCAL_TASK_TARGET##*/}"
+		done
 				
-		while read LOCAL_TASK_TARGET
-		do
-		
+		for LOCAL_TASK_TARGET in $taskList; do
+			LOCAL_TASK_TARGET=${LOCAL_TASK_TARGET##*/}
 			echo
 			echo "$scriptName :   LOCAL_TASK_TARGET    : $LOCAL_TASK_TARGET"
 
@@ -114,10 +102,9 @@ if [ -d "./propertiesForLocalTasks" ]; then
 				done
 			fi
 							
-		done < targetList
+		done
 		
 		cd ..
-		rm -f targetList
 	
 	else
 		echo

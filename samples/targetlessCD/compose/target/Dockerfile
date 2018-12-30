@@ -25,4 +25,4 @@ COPY keepAlive.sh .
 # Move to subdirectory for mount, i.e. /solution/workspace
 WORKDIR workspace
 
-CMD ["../keepAlive.sh", "arg1"]
+CMD ["../keepAlive.sh", "SERVER"]

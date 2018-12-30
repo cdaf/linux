@@ -25,4 +25,4 @@ COPY executeTest.sh .
 # Move to subdirectory for mount, i.e. /solution/workspace
 WORKDIR workspace
 
-CMD ["../executeTest.sh", "arg1"]
+CMD ["../executeTest.sh", "TARGETLESS"]

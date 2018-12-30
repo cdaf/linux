@@ -25,8 +25,14 @@ function executeExpression {
 scriptName='executeTests.sh'
 
 echo "[$scriptName] ---------- start ----------"
+ENVIRONMENT="$1"
+if [ -z "$ENVIRONMENT" ]; then
+	echo "[$scriptName] ENVIRONMENT not passed, exit 101"; exit 101
+else
+	echo "[$scriptName]   ENVIRONMENT : $ENVIRONMENT"
+fi
 
-echo "[$scriptName] Working directory is $(pwd)"
+executeExpression "./TasksLocal/delivery.sh $ENVIRONMENT"
 
 echo "[$scriptName] Automated Test Execution Completed Successfully."
 

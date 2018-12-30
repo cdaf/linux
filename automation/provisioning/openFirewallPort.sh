@@ -42,23 +42,42 @@ else
 	echo "[$scriptName]   transport    : $transport"
 fi
 
-echo
-if [ "$ubuntu" ]; then
-	executeExpression "sudo ufw allow $portList"
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami       : $(whoami)"
+else
+	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
+fi
+
+test="`ip -V 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName]   ip           : (not installed)"
 else
 	executeExpression "ip a"
-	executeExpression "sudo firewall-cmd --get-default-zone"
-	for port in ${portList}; do
-		executeExpression "sudo firewall-cmd --zone=public --add-port=${port}/${transport} --permanent"
-	done
-	executeExpression "sudo firewall-cmd --reload"
-	executeExpression "sudo firewall-cmd --state"
-	executeExpression "sudo firewall-cmd --get-active-zones"
-	
-	firewall-cmd --zone=public --list-all
-	
-	# View status
-	systemctl status firewalld
+fi
+
+test="`firewall-cmd 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] firewall-cmd not installed, not action attempted, exiting normally."
+else
+	echo
+	if [ "$ubuntu" ]; then
+		executeExpression "$elevate ufw allow $portList"
+	else
+		executeExpression "$elevate firewall-cmd --get-default-zone"
+		for port in ${portList}; do
+			executeExpression "$elevate firewall-cmd --zone=public --add-port=${port}/${transport} --permanent"
+		done
+		executeExpression "$elevate firewall-cmd --reload"
+		executeExpression "$elevate firewall-cmd --state"
+		executeExpression "$elevate firewall-cmd --get-active-zones"
+		
+		firewall-cmd --zone=public --list-all
+		
+		# View status
+		systemctl status firewalld
+	fi
 fi
 
 echo "[$scriptName] : --- end ---"
+exit 0

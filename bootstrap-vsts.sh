@@ -59,11 +59,11 @@ else
 fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-if [ -d './automation/provisioning' ]; then
+if [ -f './automation/CDAF.linux' ]; then
 	atomicPath='./automation/provisioning'
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
-	if [ -d '/vagrant/automation' ]; then
+	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation/provisioning'
 	else
 		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"

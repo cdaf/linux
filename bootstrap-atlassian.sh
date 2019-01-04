@@ -28,20 +28,23 @@ else
 fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-if [ -d './automation/provisioning' ]; then
+if [ -f './automation/CDAF.linux' ]; then
 	atomicPath='./automation/provisioning'
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
-	if [ -d '/vagrant/automation' ]; then
+	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation/provisioning'
 	else
-		echo "[$scriptName] $atomicPath not found for Vagrant, download stable release from cdaf.io"
+		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+		if [ -d 'linux-master' ]; then
+			executeExpression "rm -rf linux-master"
+		fi
+		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
 		executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
 		executeExpression "tar -xzf LU-CDAF.tar.gz"
 		atomicPath='./automation/provisioning'
 	fi
 fi
-
 echo; echo "[$scriptName] Install PostGreSQL"
 
 executeExpression "$elevate ${atomicPath}/installPostGreSQL.sh $password"

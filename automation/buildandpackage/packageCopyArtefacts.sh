@@ -7,7 +7,7 @@ DRIVER=$1
 WORK_DIR_DEFAULT=$2
 
 if [ -f  "$DRIVER" ]; then
-	echo; echo "$scriptName : Copy artifacts defined in $DRIVER"; echo
+	echo; echo "[$scriptName] Copy artifacts defined in $DRIVER"; echo
 	config=$(cat ${DRIVER}) # cat will read all lines, native READ will miss lines that done have line-feed
 	while read -r line; do
 
@@ -62,7 +62,7 @@ if [ -f  "$DRIVER" ]; then
 			cp $copyParent -av $source $targetPath
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "$scriptName : cp -v ../$ARTIFACT . failed! Exit code = $exitCode."
+				echo "[$scriptName] cp $copyParent -av $source $targetPath failed! Exit code = $exitCode."
 				exit $exitCode
 			fi
 			
@@ -72,7 +72,7 @@ if [ -f  "$DRIVER" ]; then
 	done < <(echo "$config")
 
 	if [ -z "$artefactList" ]; then
-		echo "$scriptName :   [WARN] No artefacts processed from definition file ($DRIVER)."
+		echo "[$scriptName]   [WARN] No artefacts processed from definition file ($DRIVER)."
 	fi
 			
 fi

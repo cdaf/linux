@@ -38,7 +38,7 @@ fi
 echo "[$scriptName]   sensitive : $sensitive"
 parentDirectory=$(dirname "${fileName}")
 
-su $userName << EOF
+su "$userName" << EOF
 	if [ ! -d "${parentDirectory}" ]; then
 		mkdir -pv ${parentDirectory}
 		if [ "$?" != "0" ]; then

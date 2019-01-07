@@ -2,7 +2,7 @@
 
 function executeExpression {
 	echo "[$scriptName] $1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then

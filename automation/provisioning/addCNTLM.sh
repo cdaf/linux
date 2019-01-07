@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 scriptName='addCNTLM.sh'
 
-echo
-echo "[$scriptName] User following to mask password"
+echo; echo "[$scriptName] User following to mask password"
 echo "[$scriptName] read -s password"
 echo "[$scriptName] Example call"
-echo "[$scriptName] ./addCNTLM.sh username DOMAIN proxyserver.example.com:port $password"
-echo
+echo "[$scriptName] ./addCNTLM.sh username DOMAIN proxyserver.example.com:port $password"; echo
 echo "[$scriptName] : --- start ---"
 if [ -z "$1" ]; then
 	echo "[$scriptName]   username not supplied, exiting with code 101!"
@@ -49,8 +47,8 @@ else
 fi
 
 echo 'Determine the RPM name from the media directory'
-rpm=$(ls -1 $media/cntlm*.rpm)
-sudo rpm -i $rpm
+rpm=$(ls -1 "$media/cntlm*.rpm")
+sudo rpm -i "$rpm"
 
 echo 'Load settings and list configuration settings'
 sudo sh -c "echo \"Username        $username\" > /etc/cntlm.conf"

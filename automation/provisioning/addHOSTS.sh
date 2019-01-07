@@ -10,7 +10,7 @@ else
 fi
 
 hostname=$2
-if [ -z "hostname" ]; then
+if [ -z "$hostname" ]; then
 	echo "[$scriptName]   hostname not supplied!"; exit 120
 else
 	echo "[$scriptName]   hostname : $hostname"

@@ -43,7 +43,7 @@ else
 			ssh-keygen -t rsa
 		fi
 		
-		publicKey=$(cat $HOME/.ssh/id_rsa.pub)
+		publicKey=$(cat "$HOME/.ssh/id_rsa.pub")
 		echo "$0 : $publicKey"
 		printf '%q\n' "$publicKey"
 		escapedKey=$(printf '%q\n' "$publicKey")

@@ -2,7 +2,7 @@
 
 function executeExpression {
 	echo "[$scriptName] $1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
@@ -17,7 +17,7 @@ function executeYumCheck {
 	success='no'
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][$counter] $1"
-		eval $1
+		eval "$1"
 		exitCode=$?
 		# Exit 0 and 100 are both success
 		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then

@@ -2,7 +2,7 @@
 
 function executeExpression {
 	echo "[$scriptName] $1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
@@ -16,7 +16,7 @@ echo
 echo "[$scriptName] Create a new user, optionally, in a predetermined group"
 echo
 echo "[$scriptName] --- start ---"
-test="`yum --version 2>&1`"
+test=$(yum --version 2>&1)
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName]   Debian based : $(uname -mrs)"
 else
@@ -53,7 +53,7 @@ else
 	echo "[$scriptName]   password     : *********************"
 fi
 
-if [ $(whoami) != 'root' ];then
+if [ "$(whoami)" != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami       : $(whoami)"
 else
@@ -90,13 +90,13 @@ then
     # We cannot use the executeExpression function here because this will print out the password to stdout, which we
     # want to avoid. So we have to replicate its functionality.
     len=${#password} 
-    passmask=`perl -e "print '*' x $len;"`
+    passmask=$(perl -e "print '*' x $len;")
 
     cmdreal="echo \"$username:$password\" | $elevate chpasswd"
     cmdmask="echo \"$username:$passmask\" | $elevate chpasswd"
 
     echo "[$scriptName] $cmdmask"
-    eval $cmdreal
+    eval "$cmdreal"
 
     # Check execution normal, anything other than 0 is an exception
     if [ "$exitCode" != "0" ]; then
@@ -106,7 +106,7 @@ then
 fi
 
 if [ -n "$sudoer" ]; then
-	executeExpression '$elevate sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"'
+	executeExpression "$elevate sh -c \"echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\""
 	executeExpression "$elevate cat /etc/sudoers"
 fi
 

@@ -6,7 +6,7 @@ function executeExpression {
 	success='no'
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][$counter] $1"
-		eval $1
+		eval "$1"
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
@@ -26,7 +26,7 @@ function executeExpression {
 
 function executeIgnore {
 	echo "[$scriptName] $1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
 	if [ "$exitCode" != "0" ]; then

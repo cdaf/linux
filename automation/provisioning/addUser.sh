@@ -106,7 +106,7 @@ then
 fi
 
 if [ -n "$sudoer" ]; then
-	executeExpression "$elevate sh -c \"echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers\""
+	executeExpression '$elevate sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"'
 	executeExpression "$elevate cat /etc/sudoers"
 fi
 

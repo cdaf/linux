@@ -1,21 +1,21 @@
 stages:
   - build
-  - automated test
-  - manual test
+  - targetlessCD
+  - staging
   - live
 
 cdaf-ci:
   stage: build
   tags:
     - bash
-  script: "automation/processor/buildPackage.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
+  script: "automation/processor/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
   artifacts:
     paths:
     - TasksLocal/
     - "${CI_PROJECT_NAME}-${CI_BUILD_ID}.tar.gz"
 
 cd:
-  stage: automated test
+  stage: targetlessCD
   tags:
     - bash
   variables:
@@ -26,7 +26,7 @@ cd:
   - cdaf-ci
 
 test:
-  stage: manual test
+  stage: staging
   tags:
     - bash
   variables:

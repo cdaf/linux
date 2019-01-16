@@ -23,8 +23,8 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='8u192'
-	urlUID='8u192-b12/750e1c8617c5452694857ad95c3ee230'
+	version='8u201'
+	urlUID='8u201-b09/42970487e3af4f5aa5bca3f542482c60'
 	echo "[$scriptName]   version    : ${version}@${urlUID} (default)"
 else
 	urlUID=$(echo ${version##*@})

@@ -23,7 +23,7 @@ ENVIRONMENT="$1"
 if [[ $ENVIRONMENT == *'$'* ]]; then
 	ENVIRONMENT=$(eval echo $ENVIRONMENT)
 fi
-if [ -z $ENVIRONMENT ]; then
+if [ -z "$ENVIRONMENT" ]; then
 	echo "$scriptName : Environment required! EXiting code 1"; exit 1
 fi 
 echo "$scriptName :   ENVIRONMENT      : $ENVIRONMENT"
@@ -32,7 +32,7 @@ RELEASE="$2"
 if [[ $RELEASE == *'$'* ]]; then
 	RELEASE=$(eval echo $RELEASE)
 fi
-if [ -z $RELEASE ]; then
+if [ -z "$RELEASE" ]; then
 	RELEASE='Release'
 	echo "$scriptName :   RELEASE          : $RELEASE (default)"
 else
@@ -43,7 +43,7 @@ OPT_ARG="$3"
 echo "$scriptName :   OPT_ARG          : $OPT_ARG"
 
 LOCAL_WORK_DIR="$4"
-if [ -z $WORK_DIR_DEFAULT ]; then
+if [ -z "$WORK_DIR_DEFAULT" ]; then
 	WORK_DIR_DEFAULT='TasksLocal'
 fi 
 echo "$scriptName :   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
@@ -52,7 +52,7 @@ SOLUTION="$5"
 if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
-if [ -z $SOLUTION ]; then
+if [ -z "$SOLUTION" ]; then
 	SOLUTION=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "SOLUTION")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
@@ -68,7 +68,7 @@ BUILDNUMBER="$6"
 if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi
-if [ -z $BUILDNUMBER ]; then
+if [ -z "$BUILDNUMBER" ]; then
 	BUILDNUMBER=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "BUILDNUMBER")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
@@ -87,7 +87,7 @@ workingDir=$(pwd)
 echo "$scriptName :   workingDir       : $workingDir"
 
 processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
-if [ -z $processSequence ]; then
+if [ -z "$processSequence" ]; then
 	processSequence='remoteTasks.sh localTasks.sh'
 else
 	echo "$scriptName :   processSequence  : $processSequence (override)"

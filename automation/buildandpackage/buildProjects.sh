@@ -10,7 +10,7 @@ if [ -z "$SOLUTION" ]; then
 	echo "$scriptName : Solution not passed!"
 	exit 1
 else
-	echo "$scriptName :   SOLUTION         : $SOLUTION"
+	echo "$scriptName :   SOLUTION          : $SOLUTION"
 fi
 
 BUILDNUMBER="$2"
@@ -18,33 +18,33 @@ if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName : Build Number not passed!"
 	exit 2
 else
-	echo "$scriptName :   BUILDNUMBER      : $BUILDNUMBER"
+	echo "$scriptName :   BUILDNUMBER       : $BUILDNUMBER"
 fi
 
 REVISION="$3"
 if [ -z "$REVISION" ]; then
 	REVISION="Revision"
-	echo "$scriptName :   REVISION         : $REVISION (default)"
+	echo "$scriptName :   REVISION          : $REVISION (default)"
 else
-	echo "$scriptName :   REVISION         : $REVISION"
+	echo "$scriptName :   REVISION          : $REVISION"
 fi
 
 ACTION="$4"
 if [ -z "$ACTION" ]; then
-	echo "$scriptName :   ACTION           : $ACTION"
+	echo "$scriptName :   ACTION            : $ACTION"
 	BUILDENV='BUILDER'
-	echo "$scriptName :   BUILDENV         : $BUILDENV (default because ACTION not supplied)"
+	echo "$scriptName :   BUILDENV          : $BUILDENV (default because ACTION not supplied)"
 else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
-		echo "$scriptName :   ACTION           : $ACTION (Build Environment will be set to default)"
+		echo "$scriptName :   ACTION            : $ACTION (Build Environment will be set to default)"
 		BUILDENV='BUILDER'
-		echo "$scriptName :   BUILDENV         : $BUILDENV (default)"
+		echo "$scriptName :   BUILDENV          : $BUILDENV (default)"
 	else
 		BUILDENV="$ACTION"
-		echo "$scriptName :   ACTION           : $ACTION"
-		echo "$scriptName :   BUILDENV         : $BUILDENV (derived from action)"
+		echo "$scriptName :   ACTION            : $ACTION"
+		echo "$scriptName :   BUILDENV          : $BUILDENV (derived from action)"
 	fi
 fi
 
@@ -53,12 +53,12 @@ for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.linux" ] ; then
 		AUTOMATIONROOT="$directoryName"
-		echo "$scriptName :   AUTOMATIONROOT   : $AUTOMATIONROOT (CDAF.linux found)"
+		echo "$scriptName :   AUTOMATIONROOT    : $AUTOMATIONROOT (CDAF.linux found)"
 	fi
 done
 if [ -z "$AUTOMATIONROOT" ]; then
 	AUTOMATIONROOT="automation"
-	echo "$scriptName :   AUTOMATIONROOT   : $AUTOMATIONROOT (CDAF.linux not found)"
+	echo "$scriptName :   AUTOMATIONROOT    : $AUTOMATIONROOT (CDAF.linux not found)"
 fi
 
 AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
@@ -72,16 +72,17 @@ for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	fi
 done
 
-printf "$scriptName :   Properties Driver : "
-propertiesDriver="$SOLUTIONROOT/properties.cm"
-if [ -f $propertiesDriver ]; then
-	echo "found ($propertiesDriver)"
+configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name *.cm)
+if [ -z "$configManagementList" ]; then
+	echo "$scriptName :   Properties Driver : none ($SOLUTIONROOT/*.cm)"
 else
-	echo "none ($propertiesDriver)"
+	for propertiesDriver in $configManagementList; do
+		echo "$scriptName :   Properties Driver : $propertiesDriver"
+	done
 fi
 
 echo; echo "$scriptName : CDAF.solution file found in directory $SOLUTIONROOT, load solution properties"
-if [ -f $SOLUTIONROOT/CDAF.solution ]; then
+if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 	propertiesList=$($AUTOMATIONHELPER/transform.sh "$SOLUTIONROOT/CDAF.solution")
 	echo; echo "$propertiesList"
 	eval $propertiesList
@@ -97,8 +98,8 @@ for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks")
 	fi
 done
 
-# Properties generator (added in release 1.7.8)
-if [ -f $propertiesDriver ]; then
+# Properties generator (added in release 1.7.8, extended to list in 1.8.11)
+for propertiesDriver in $configManagementList; do
 	echo; echo "$scriptName : Generating properties files from ${propertiesDriver}"
 	header=$(head -n 1 ${propertiesDriver})
 	read -ra columns <<<"$header"
@@ -126,7 +127,7 @@ if [ -f $propertiesDriver ]; then
 	if [ -d "$SOLUTIONROOT/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
 		echo "$scriptName : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForLocalTasks"
 	fi
-fi
+done
 
 if [ -f "build.sh" ]; then
 	echo; echo "$scriptName : build.sh found in solution root, executing in $(pwd)"; echo

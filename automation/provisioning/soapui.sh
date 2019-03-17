@@ -14,7 +14,8 @@ scriptName='soapui.sh'
 echo "[scriptName] : --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	echo "version not passed, HALT! Exit with code 1"; exit 1
+	version='5.5.0'
+	echo "[$scriptName]   version    : $version (not supplied, set to default)"
 else
 	echo "[$scriptName]   version    : $version"
 fi
@@ -44,7 +45,7 @@ executeExpression "soapuiSource=\"${soapuiVersion}-linux-bin.tar.gz\""
 
 if [ ! -f ${mediaCache}/${soapuiSource} ]; then
 	echo "[$scriptName] Media (${mediaCache}/${soapuiSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"http://smartbearsoftware.com/distrib/soapui/${version}/${soapuiSource}\""
+	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"https://s3.amazonaws.com/downloads.eviware/soapuios/${version}/${soapuiSource}\""
 fi
 
 executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."

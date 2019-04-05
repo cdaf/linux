@@ -96,9 +96,11 @@ fi
 
 imageTag=0
 for tag in $(docker images --filter label=cdaf.${buildImage}.image.version --format "{{.Tag}}"); do
-	intTag=$((${tag}))
-	if [[ $imageTag -le $intTag ]]; then
-		imageTag=$intTag
+	if [ "${tag}" != '<none>' ]; then
+		intTag=$((${tag}))
+		if [[ $imageTag -le $intTag ]]; then
+			imageTag=$intTag
+		fi
 	fi
 done
 echo "imageTag : $imageTag"

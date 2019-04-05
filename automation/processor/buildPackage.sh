@@ -146,10 +146,50 @@ else
 	fi
 fi
 
+configManagementList=$(find $solutionRoot -mindepth 1 -maxdepth 1 -type f -name *.cm)
+if [ -z "$configManagementList" ]; then
+	echo "$scriptName :   CM Driver       : none ($solutionRoot/*.cm)"
+else
+	for propertiesDriver in $configManagementList; do
+		echo "$scriptName :   CM Driver       : $propertiesDriver"
+	done
+fi
+
+# Properties generator (added in release 1.7.8, extended to list in 1.8.11)
+for propertiesDriver in $configManagementList; do
+	echo; echo "$scriptName : Generating properties files from ${propertiesDriver}"
+	header=$(head -n 1 ${propertiesDriver})
+	read -ra columns <<<"$header"
+	config=$(tail -n +2 ${propertiesDriver})
+	while read -r line; do
+		read -ra arr <<<"$line"
+		if [[ "${arr[0]}" == 'remote' ]]; then
+			cdafPath="./propertiesForRemoteTasks"
+		else
+			cdafPath="./propertiesForLocalTasks"
+		fi
+		echo "$scriptName :   Generating ${cdafPath}/${arr[1]}"
+		if [ ! -d ${cdafPath} ]; then
+			mkdir -p ${cdafPath}
+		fi
+		for i in "${!columns[@]}"; do
+			if [ $i -gt 1 ]; then # do not create entries for context and target
+				echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
+			fi
+		done
+	done < <(echo "$config")
+	if [ -d "$solutionRoot/propertiesForRemoteTasks" ] && [ -d "./propertiesForRemoteTasks/" ]; then
+		echo "$scriptName : Generated properties will be merged with any defined properties in $solutionRoot/propertiesForRemoteTasks"
+	fi
+	if [ -d "$solutionRoot/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
+		echo "$scriptName : Generated properties will be merged with any defined properties in $solutionRoot/propertiesForLocalTasks"
+	fi
+done
+
 # CDAF 1.7.0 Container Build process
-if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ]; then
+if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
 	echo
-	echo "$scriptName Execute Container build, this performs cionly, options packageonly and buildonly are ignored."
+	echo "$scriptName Execute Container build, this performs cionly, options clean and packageonly are ignored."
 	executeExpression "$containerBuild"
 
 	imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")

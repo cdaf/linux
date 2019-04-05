@@ -72,15 +72,6 @@ for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	fi
 done
 
-configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name *.cm)
-if [ -z "$configManagementList" ]; then
-	echo "$scriptName :   Properties Driver : none ($SOLUTIONROOT/*.cm)"
-else
-	for propertiesDriver in $configManagementList; do
-		echo "$scriptName :   Properties Driver : $propertiesDriver"
-	done
-fi
-
 echo; echo "$scriptName : CDAF.solution file found in directory $SOLUTIONROOT, load solution properties"
 if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 	propertiesList=$($AUTOMATIONHELPER/transform.sh "$SOLUTIONROOT/CDAF.solution")
@@ -95,37 +86,6 @@ for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks")
 	if [ -d  "${packageDir}" ]; then
 		echo "  removed ${packageDir}"
 		rm -rf ${packageDir}
-	fi
-done
-
-# Properties generator (added in release 1.7.8, extended to list in 1.8.11)
-for propertiesDriver in $configManagementList; do
-	echo; echo "$scriptName : Generating properties files from ${propertiesDriver}"
-	header=$(head -n 1 ${propertiesDriver})
-	read -ra columns <<<"$header"
-	config=$(tail -n +2 ${propertiesDriver})
-	while read -r line; do
-		read -ra arr <<<"$line"
-		if [[ "${arr[0]}" == 'remote' ]]; then
-			cdafPath="./propertiesForRemoteTasks"
-		else
-			cdafPath="./propertiesForLocalTasks"
-		fi
-		echo "$scriptName : Generating ${cdafPath}/${arr[1]}"
-		if [ ! -d ${cdafPath} ]; then
-			mkdir -p ${cdafPath}
-		fi
-		for i in "${!columns[@]}"; do
-			if [ $i -gt 1 ]; then # do not create entries for context and target
-				echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
-			fi
-		done
-	done < <(echo "$config")
-	if [ -d "$SOLUTIONROOT/propertiesForRemoteTasks" ] && [ -d "./propertiesForRemoteTasks/" ]; then
-		echo "$scriptName : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForRemoteTasks"
-	fi
-	if [ -d "$SOLUTIONROOT/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
-		echo "$scriptName : Generated properties will be merged with any defined properties in $SOLUTIONROOT/propertiesForLocalTasks"
 	fi
 done
 

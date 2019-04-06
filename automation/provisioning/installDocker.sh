@@ -30,11 +30,7 @@ function executeIgnore {
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
 	if [ "$exitCode" != "0" ]; then
-		if [ "$exitCode" == "1" ]; then
-			echo "$0 : Warning: Returned $exitCode assuming already installed and continuing ..."
-		else
-			echo "$0 : Error! Returned $exitCode, exiting!"; exit $exitCode 
-		fi
+		echo "$0 : Warning: Returned $exitCode continuing ..."
 	fi
 	return $exitCode
 }

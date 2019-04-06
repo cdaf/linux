@@ -81,14 +81,6 @@ else
 	echo; echo "$scriptName : CDAF.solution file not found!"; exit 8823
 fi
 
-echo; echo "$scriptName : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
-	if [ -d  "${packageDir}" ]; then
-		echo "  removed ${packageDir}"
-		rm -rf ${packageDir}
-	fi
-done
-
 if [ -f "build.sh" ]; then
 	echo; echo "$scriptName : build.sh found in solution root, executing in $(pwd)"; echo
 	# Additional properties that are not passed as arguments, but loaded by execute automatically
@@ -122,54 +114,44 @@ fi
 
 customProjectList="$SOLUTIONROOT/buildProjects"
 
-if [ ! -f "$customProjectList" ]; then
-
-	if [ -f "dirListFile" ]; then
-		rm dirListFile
-	fi
-
-	# If a custom list is not supplied, create initial list from directories in workspace
-    for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
-		echo ${i%%/} >> dirListFile
-	done
+if [ -f "$customProjectList" ]; then
+	dirList=$(cat $customProjectList)
 else
-	cp $customProjectList dirListFile
+	dirList=$(find . -mindepth 1 -maxdepth 1 -type d)
 fi
 
 # Create a list of projects based on directories containing build script entry point
-if [ -f "projectListFile" ]; then
-	rm projectListFile
-fi
-while read DIR; do
+while read -r line; do
 
-	if [ -f "$DIR/build.sh" ] || [ -f "$DIR/build.tsk" ]; then
-		echo $DIR >> projectListFile
-	fi
-
-done < dirListFile
-
-# Cleanup temp file
-if [ -f "dirListFile" ]; then
-	rm dirListFile
-fi
-
-if [ -f "projectListFile" ]; then
-	echo "$scriptName :   Projects to process :"; echo
-	cat projectListFile
-
-	while read PROJECT
-	do
+echo "DEBUG $line"
+	if [ -f "$line/build.sh" ] || [ -f "$line/build.tsk" ]; then
+		projectsToBuild+=$line
 		
-		echo; echo "$scriptName : --- BUILD $PROJECT ---"; echo
-		cd $PROJECT
+echo "DEBUG projectsToBuild $projectsToBuild"
+		
+	fi
+done < <(echo "$dirList")
+
+if [ -z "$projectsToBuild" ]; then
+	echo; echo "$scriptName : No projects found, no build action attempted."
+else
+	echo "$scriptName :   Projects to process :"; echo
+	while read -r line; do
+		echo "  ${line##*/}"
+	done < <(echo "$projectsToBuild")
+
+	while read -r projectName; do
+		
+		echo; echo "$scriptName : --- BUILD ${projectName##*/} ---"; echo
+		cd $projectName
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "$scriptName : cd $PROJECT failed! Exit code = $exitCode."
+			echo "$scriptName : cd $projectName failed! Exit code = $exitCode."
 			exit $exitCode
 		fi
 
 		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
-		echo "PROJECT=$PROJECT" > ../build.properties
+		echo "PROJECT=${projectName##*/}" > ../build.properties
 		echo "REVISION=$REVISION" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
@@ -179,7 +161,7 @@ if [ -f "projectListFile" ]; then
 			./build.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "$ACTION"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "$scriptName : $PROJECT Build Failed, exit code = $exitCode."
+				echo "$scriptName : $projectName Build Failed, exit code = $exitCode."
 				exit $exitCode
 			fi
 			
@@ -188,28 +170,19 @@ if [ -f "projectListFile" ]; then
 			../$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "$scriptName : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
+				echo "$scriptName : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $projectName build.tsk) failed! Returned $exitCode"
 				exit $exitCode
 			fi
 		fi
 		
 		cd ..
 	
-		lastProject=$(echo $PROJECT)
+		lastProject=$(echo $projectName)
 	
-	done < projectListFile
+	done < <(echo "$projectsToBuild")
 	
 	if [ -z $lastProject ]; then
-		echo
-		echo "$scriptName : No projects found containing build.sh, no build action attempted."
-		echo
+		echo; echo "$scriptName : No projects found containing build.sh, no build action attempted."
 	fi
-	
-	# Cleanup temp file
-	rm projectListFile
-
-else
-
-	echo; echo "$scriptName : No projects found, no build action attempted."; echo
 
 fi

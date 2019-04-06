@@ -155,6 +155,14 @@ else
 	done
 fi
 
+echo; echo "$scriptName : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
+	if [ -d  "${packageDir}" ]; then
+		echo "  removed ${packageDir}"
+		rm -rf ${packageDir}
+	fi
+done
+
 # Properties generator (added in release 1.7.8, extended to list in 1.8.11)
 for propertiesDriver in $configManagementList; do
 	echo; echo "$scriptName : Generating properties files from ${propertiesDriver}"

@@ -17,15 +17,11 @@ else
 fi
 
 # No diagnostics or information can be echoed in this script as the echo is used as the return mechanism
-sed -e 's/#.*$//' -e '/^ *$/d' $PROP_FILE > fileWithoutComments
-
-while read LINE
-do           
+fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
+while read -r LINE; do
 	IFS="\="
 	read -ra array <<< "$LINE"
 	if [ "${array[0]}" == "$PROP_NAME" ]; then
 		echo "${array[1]}"
 	fi
-done < fileWithoutComments
-
-rm fileWithoutComments
+done < <(echo "$fileWithoutComments")

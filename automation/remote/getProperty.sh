@@ -17,7 +17,7 @@ else
 fi
 
 # No diagnostics or information can be echoed in this script as the echo is used as the return mechanism
-fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
+fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROP_FILE)
 while read -r LINE; do
 	IFS="\="
 	read -ra array <<< "$LINE"

@@ -23,10 +23,8 @@ if [ -n "$2" ]; then
 fi
 
 #deleting lines starting with # ,blank lines ,lines with only spaces
-sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES > fileWithoutComments
-
-while read LINE
-do           
+fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
+while read -r LINE; do
 	IFS="\="
 	read -ra array <<< "$LINE"
 	if [ -z "$TOKENISED" ]; then
@@ -43,6 +41,4 @@ do
 		fi
 	fi
 
-done < fileWithoutComments
-
-rm fileWithoutComments
+done < <(echo "$fileWithoutComments")

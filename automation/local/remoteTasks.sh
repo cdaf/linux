@@ -53,7 +53,7 @@ echo "$scriptName :   pwd               : $(pwd)"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
-	taskList=$(find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" )
+	taskList=$(find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" | sort)
 	if [ -n "$taskList" ]; then
 		echo; echo "$scriptName : Preparing to process targets : "; echo		 
 		for DEPLOY_TARGET in $taskList; do

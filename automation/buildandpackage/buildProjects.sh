@@ -121,26 +121,21 @@ else
 fi
 
 # Create a list of projects based on directories containing build script entry point
-while read -r line; do
-
-echo "DEBUG $line"
-	if [ -f "$line/build.sh" ] || [ -f "$line/build.tsk" ]; then
-		projectsToBuild+=$line
-		
-echo "DEBUG projectsToBuild $projectsToBuild"
-		
+for folder in $dirList; do
+	if [ -f "$folder/build.sh" ] || [ -f "$folder/build.tsk" ]; then
+		projectsToBuild+="$folder "
 	fi
-done < <(echo "$dirList")
+done
 
 if [ -z "$projectsToBuild" ]; then
 	echo; echo "$scriptName : No projects found, no build action attempted."
 else
 	echo "$scriptName :   Projects to process :"; echo
-	while read -r line; do
-		echo "  ${line##*/}"
-	done < <(echo "$projectsToBuild")
+	for projectName in $projectsToBuild; do
+		echo "  ${projectName##*/}"
+	done
 
-	while read -r projectName; do
+	for projectName in $projectsToBuild; do
 		projectName=${projectName##*/}
 		echo; echo "$scriptName : --- BUILD ${projectName} ---"; echo
 		cd ${projectName}
@@ -179,7 +174,7 @@ else
 	
 		lastProject=$(echo $projectName)
 	
-	done < <(echo "$projectsToBuild")
+	done
 	
 	if [ -z $lastProject ]; then
 		echo; echo "$scriptName : No projects found containing build.sh, no build action attempted."

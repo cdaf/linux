@@ -87,7 +87,11 @@ if [ "$caseinsensitive" != "cdonly" ]; then
 fi
 echo $buildNumber > ${HOME}/buildnumber.counter
 
-revision="master"
+if [  ]; then
+	revision=$CDAF_BRANCH_NAME
+else
+	revision="dev"
+fi
 echo "$scriptName :   buildNumber         : $buildNumber"
 echo "$scriptName :   revision            : $revision"
 

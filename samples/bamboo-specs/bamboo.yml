@@ -2,8 +2,8 @@
 project:
   key: TOOL
   plan:
-    key: SLAYER
-    name: cicd-template
+    key: NEW
+    name: The New Key Must be 3 characters
 stages:
   - jobs:
       - scripts:

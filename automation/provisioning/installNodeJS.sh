@@ -212,6 +212,7 @@ if [ -n "$version" ]; then
 		else
 			executeExpression "curl -sL https://rpm.nodesource.com/setup_${version}.x | $elevate -E bash -"
 		fi
+		executeExpression "$elevate yum install -y nodejs"
 		
 	fi
 		

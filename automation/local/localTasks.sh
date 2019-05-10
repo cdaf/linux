@@ -76,7 +76,7 @@ if [ -d "./propertiesForLocalTasks" ]; then
 			scriptOverride=$(./getProperty.sh "propertiesForLocalTasks/$LOCAL_TASK_TARGET" "deployScriptOverride")
 			if [ "$scriptOverride" ]; then
 				echo "[$scriptName]   deployScriptOverride : $scriptOverride"
-			executeExpression "./$scriptOverride '$SOLUTION' '$BUILDNUMBER' '$LOCAL_TASK_TARGET'" 
+			executeExpression "./$scriptOverride '$SOLUTION' '$BUILDNUMBER' '$LOCAL_TASK_TARGET' '$OPT_ARG'" 
 			else
 			
 				echo "[$scriptName]   deployScriptOverride : (property not defined)"

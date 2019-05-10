@@ -53,7 +53,7 @@ if [ "$scriptOverride" ]; then
 	fi	 	
 	echo "[$scriptName]   deployScriptOverride : deployScriptOverride"  
 	printf "[$scriptName]   Executing ==> "  
-	overrideExecute="./$scriptOverride $SOLUTION $BUILDNUMBER $DEPLOY_TARGET"
+	overrideExecute="./$scriptOverride '$SOLUTION' '$BUILDNUMBER' '$DEPLOY_TARGET' '$OPT_ARG'"
 	echo
 	echo "$overrideExecute"
 	eval $overrideExecute

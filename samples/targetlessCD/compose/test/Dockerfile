@@ -12,8 +12,8 @@ ENV http_proxy=$proxy
 WORKDIR solution
 
 # Provision and restore dependancies
-COPY automation automation
-RUN ./automation/provisioning/base.sh curl
+COPY automation/provisioning/base.sh automation/provisioning/base.sh
+COPY automation/remote/capabilities.sh automation/remote/capabilities.sh
 
 # Same provisioning used in Vagrantfile
 COPY bootstrapTest.sh .

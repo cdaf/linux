@@ -55,6 +55,7 @@ else
 	fi
 fi
 
+executeExpression "$atomicPath/automation/provisioning/base.sh 'curl'"
 executeExpression "$atomicPath/automation/remote/capabilities.sh"
 
 echo; echo "[$scriptName] --- end ---"

@@ -40,17 +40,20 @@ else
 	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
 
-atomicPath='./automation'
-if [ ! -d "$atomicPath" ]; then
-	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
-	atomicPath='/vagrant/automation'
-	if [ -d "$atomicPath" ]; then
-		echo "[$scriptName] $atomicPath found, will use for script execution"
+# First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
+if [ -d './automation/provisioning' ]; then
+	atomicPath='.'
+else
+	echo "[$scriptName] Provisioning directory (./automation/provisioning) not found in workspace, looking for alternative ..."
+	if [ -d '/vagrant/automation' ]; then
+		atomicPath='/vagrant'
 	else
-		echo "[$scriptName] $atomicPath not found! Exit with error 34"; exit 34
+		echo "[$scriptName] /vagrant/automation not found for Vagrant, download from CDAF published site"
+		executeExpression "curl -s -O $optArg http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+		executeExpression "tar -xzf LU-CDAF.tar.gz"
+		atomicPath='.'
 	fi
 fi
-
 
 if [ -f "/opt/initialised" ]; then
 

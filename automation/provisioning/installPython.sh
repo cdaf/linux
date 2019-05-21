@@ -229,7 +229,7 @@ if [ ! -z "$install" ]; then
 	if [ "$version" == "2" ]; then
 		executeExpression "pip install $install"
 	else
-		executeExpression "pip${$version} install $install"
+		executeExpression "pip${version} install $install"
 	fi
 fi
  

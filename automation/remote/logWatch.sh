@@ -39,9 +39,7 @@ else
 	echo "[$scriptName] waitTime    : $waitTime (seconds)"
 fi
 
-echo
-echo "[$scriptName] Monitor log of $container for match on \"$stringMatch\"."
-echo
+echo ; echo "[$scriptName] Monitor log file $logFile for match on \"$stringMatch\"." ; echo
 
 wait=5
 retryMax=$((waitTime / wait))

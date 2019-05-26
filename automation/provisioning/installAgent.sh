@@ -60,7 +60,7 @@ if [ $(whoami) != 'root' ];then
 else
 	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
-version='2.136.1'
+version='2.150.3'
 echo "[$scriptName]   version        : $version"
 
 media="vsts-agent-linux-x64-${version}.tar.gz"

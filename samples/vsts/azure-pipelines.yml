@@ -25,7 +25,9 @@ variables:
 
 steps:
 - script: |
-    ./automation/processor/buildPackage.sh $(Build.BuildId) $(Build.SourceBranchName)
+    ./automation/processor/entry.sh $(Build.BuildId) $(Build.SourceBranchName)
+    exitCode=$?
+    if [ "$exitCode" != "0" ]; then exit $exitCode; fi
     cp -r TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
     cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
     

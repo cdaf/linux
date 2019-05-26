@@ -25,6 +25,16 @@ if [ $? -ne 0 ]; then
 else
 	echo "[$scriptName]   hostname : $test"
 fi
+
+if [ -f '/etc/centos-release' ]; then
+	echo "[$scriptName]   distro   : $(cat /etc/centos-release)"
+else
+	test=$(lsb_release --all | grep Description)
+	IFS=' ' read -ra ADDR <<< $test
+	test=${ADDR[1]}
+	echo "[$scriptName]   distro   : $test"
+fi
+
 IFS=$'\n'
 test="`ip a 2>&1`"
 if [[ "$test" == *"not found"* ]]; then

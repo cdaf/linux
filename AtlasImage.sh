@@ -147,7 +147,10 @@ if [ "$hypervisor" == 'hyperv' ]; then
 	fi
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
-		if [ "$centos" ]; then
+		if [ "$ubuntu" ]; then
+			echo;writeLog "Install prerequisites"
+			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
+		else # CentOS or RHEL
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
@@ -168,9 +171,6 @@ else
 			executeExpression "rm VBoxGuestAdditions_${fakeadd}.iso"
 			executeExpression "sudo umount /media/VBoxGuestAdditions"
 			executeExpression "sudo rmdir /media/VBoxGuestAdditions"
-		else # Ubuntu
-			echo;writeLog "Install prerequisites"
-			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		fi
 
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
@@ -193,7 +193,13 @@ else
 	fi
 fi
 
-if [ "$centos" ]; then
+if [ "$ubuntu" ]; then
+	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 
+	executeExpression "sudo rm -r /var/log/*"
+	executeExpression "sudo telinit 1"
+	executeExpression "sudo mount -o remount,ro /dev/sda1"
+	executeExpression "sudo zerofree -v /dev/sda1" 
+else # CentOS or RHEL
 	writeLog "Cleanup"
 
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
@@ -211,12 +217,6 @@ if [ "$centos" ]; then
 	executeExpression "sudo sync"
 	executeExpression "cat /dev/null > ~/.bash_history"
 	executeExpression "history -c"
-else # Ubuntu
-	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 
-	executeExpression "sudo rm -r /var/log/*"
-	executeExpression "sudo telinit 1"
-	executeExpression "sudo mount -o remount,ro /dev/sda1"
-	executeExpression "sudo zerofree -v /dev/sda1" 
 fi
 
 writeLog "Image complete, shutdown VM"

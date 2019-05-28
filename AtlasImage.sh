@@ -96,7 +96,9 @@ else
 fi
 
 echo;writeLog "Perform provider independent steps"
-if [ "$centos" ]; then
+if [ "$ubuntu" ]; then
+	executeExpression "sudo apt-get upgrade -y"
+else # CentOS or RHEL
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	echo;writeLog "Remove additional packages"
 	executeIgnore "sudo systemctl stop postfix"
@@ -121,8 +123,6 @@ if [ "$centos" ]; then
 	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
 	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
-else # Ubuntu
-	executeExpression "sudo apt-get upgrade -y"
 fi
 
 echo;writeLog "Perform provider specific steps"

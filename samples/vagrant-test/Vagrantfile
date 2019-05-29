@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+
+# Different VM images can be used by changing this variable, for example to use Windows Server 2016 with GUI
+# $env:OVERRIDE_IMAGE = 'cdaf/CentOSLVM'
+if ENV['OVERRIDE_IMAGE']
+  vagrantBox = ENV['OVERRIDE_IMAGE']
+else
+  vagrantBox = 'cdaf/UbuntuLVM'
+end
+
+# If this environment variable is set, then the location defined will be used for media
+# ./automation/provisioning/setenv.sh SYNCED_FOLDER /opt/.provision
+if ENV['SYNCED_FOLDER']
+  synchedFolder = ENV['SYNCED_FOLDER']
+end
+
+Vagrant.configure(2) do |config|
+  
+  # Build Server, fills the role of the build agent and delivers to the host above
+  config.vm.define 'build' do |build|  
+    build.vm.box = "#{vagrantBox}"
+
+    # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
+    build.vm.provider 'virtualbox' do |virtualbox, override|
+      override.vm.network 'private_network', ip: '172.16.17.77'
+      override.vm.provision 'shell', path: './automation/remote/capabilities.sh'
+    end
+
+    # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up build --provider hyperv
+    build.vm.provider 'hyperv' do |hyperv, override|
+      hyperv.vmname = "linux-build"
+      hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
+      if ENV['VAGRANT_SMB_USER']
+        override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+      end
+    end
+  end
+
+end

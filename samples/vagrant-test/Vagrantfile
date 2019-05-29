@@ -22,19 +22,21 @@ end
 
 Vagrant.configure(2) do |config|
   
-  # Build Server, fills the role of the build agent and delivers to the host above
-  config.vm.define 'build' do |build|  
-    build.vm.box = "#{vagrantBox}"
+  # Atlas Box construction test definition
+  config.vm.define 'test' do |test|  
+    test.vm.box = "#{vagrantBox}"
+    test.vm.provision 'shell', inline: 'echo ; echo "List IP addresses for verification"; echo'
+    test.vm.provision 'shell', inline: 'ip a'
+    test.vm.provision 'shell', inline: 'echo ; echo "Test Complete"; echo'
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
-    build.vm.provider 'virtualbox' do |virtualbox, override|
+    test.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.77'
-      override.vm.provision 'shell', path: './automation/remote/capabilities.sh'
     end
 
-    # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up build --provider hyperv
-    build.vm.provider 'hyperv' do |hyperv, override|
-      hyperv.vmname = "linux-build"
+    # Microsoft Hyper-V does not support NAT or setting hostname
+    test.vm.provider 'hyperv' do |hyperv, override|
+      hyperv.vmname = "linux-test"
       hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
       if ENV['VAGRANT_SMB_USER']
         override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"

@@ -47,6 +47,13 @@ else
 	writeLog "  whoami       : $(whoami)"
 fi
 
+if [ -n "$HTTP_PROXY" ]; then
+	writeLog "  HTTP_PROXY   : $HTTP_PROXY"
+	curlOpt="-x $HTTP_PROXY"
+else
+	writeLog "  HTTP_PROXY   : (not set)"
+fi
+
 writeLog "As Vagrant user, trust the public key"
 if [ -d "$HOME/.ssh" ]; then
 	writeLog "Directory $HOME/.ssh already exists"
@@ -160,7 +167,7 @@ else
 			executeExpression "ls $KERN_DIR"
 			echo;writeLog "Fake install for CentOS to try and get this to work"; echo
 			fakeadd='5.1.10'
-			executeExpression "curl -O http://download.virtualbox.org/virtualbox/${fakeadd}/VBoxGuestAdditions_${fakeadd}.iso"
+			executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${fakeadd}/VBoxGuestAdditions_${fakeadd}.iso"
 			executeExpression "sudo mkdir /media/VBoxGuestAdditions"
 			executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${fakeadd}.iso /media/VBoxGuestAdditions"
 				
@@ -174,7 +181,7 @@ else
 		fi
 
 		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
-		executeExpression "curl -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+		executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo mkdir /media/VBoxGuestAdditions"
 		executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
 		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"

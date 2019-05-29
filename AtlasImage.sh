@@ -127,11 +127,7 @@ fi
 
 echo;writeLog "Perform provider specific steps"
 if [ "$hypervisor" == 'hyperv' ]; then
-	if [ "$centos" ]; then
-	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
-		executeExpression "sudo systemctl daemon-reload"
-		executeExpression "sudo systemctl enable hypervkvpd"
-	else # Ubuntu, from https://oitibs.com/hyper-v-lis-on-ubuntu-16/
+	if [ "$ubuntu" ]; then # from https://oitibs.com/hyper-v-lis-on-ubuntu-16
 		echo;writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
 		echo
@@ -144,11 +140,15 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		echo
 		executeExpression "sudo apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)"
 		executeExpression "sudo update-initramfs -u"
+else # CentOS & RHEL
+	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
+		executeExpression "sudo systemctl daemon-reload"
+		executeExpression "sudo systemctl enable hypervkvpd"
 	fi
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
+		echo;writeLog "Install prerequisites"
 		if [ "$ubuntu" ]; then
-			echo;writeLog "Install prerequisites"
 			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
 		else # CentOS or RHEL
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
@@ -181,18 +181,19 @@ else
 		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo umount /media/VBoxGuestAdditions"
 		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
-		if [ "$centos" ]; then
+		echo;writeLog "Clean-up prerequisites"
+		if [ "$ubuntu" ]; then
+			executeExpression "sudo apt-get remove -y linux-headers-$(uname -r) build-essential dkms"
+		else # CentOS & RHEL
 			executeExpression "sudo yum remove -y kernel-headers"
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum groupremove -y 'Development Tools'"
-		else # Ubuntu
-			echo;writeLog "Install prerequisites"
-			executeExpression "sudo apt-get remove -y linux-headers-$(uname -r) build-essential dkms"
 		fi
 	fi
 fi
 
+writeLog "Cleanup"
 if [ "$ubuntu" ]; then
 	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
@@ -200,8 +201,6 @@ if [ "$ubuntu" ]; then
 	executeExpression "sudo mount -o remount,ro /dev/sda1"
 	executeExpression "sudo zerofree -v /dev/sda1" 
 else # CentOS or RHEL
-	writeLog "Cleanup"
-
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"
 	executeExpression "sudo package-cleanup -y --oldkernels --count=1"

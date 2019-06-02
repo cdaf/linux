@@ -134,8 +134,9 @@ fi
 
 echo;writeLog "Perform provider specific steps"
 if [ "$hypervisor" == 'hyperv' ]; then
-	if [ "$ubuntu" ]; then # from https://oitibs.com/hyper-v-lis-on-ubuntu-16
-		echo;writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
+	if [ "$ubuntu" ]; then
+		echo;writeLog "Based on https://oitibs.com/hyper-v-lis-on-ubuntu-18-04/"
+		writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
 		echo
 		executeExpression 'sudo sh -c "echo \"hv_vmbus\" >> /etc/initramfs-tools/modules"'
@@ -143,9 +144,9 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		executeExpression 'sudo sh -c "echo \"hv_blkvsc\" >> /etc/initramfs-tools/modules"'
 		executeExpression 'sudo sh -c "echo \"hv_netvsc\" >> /etc/initramfs-tools/modules"'
 		echo
-		executeExpression "sudo cat /etc/initramfs-tools/modules"
+		executeExpression "sudo cat /etc/initramfs-tools/modules"			
 		echo
-		executeExpression "sudo apt-get install -y --install-recommends linux-cloud-tools-$(uname -r)"
+		executeExpression "sudo apt-get install -y --install-recommends linux-virtual linux-cloud-tools-virtual linux-tools-virtual"
 		executeExpression "sudo update-initramfs -u"
 else # CentOS & RHEL
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
@@ -192,11 +193,13 @@ fi
 
 writeLog "Cleanup"
 if [ "$ubuntu" ]; then
-	executeExpression "sudo apt-get autoremove && sudo apt-get clean && sudo apt-get autoclean" 
+	executeExpression "sudo apt-get autoremove" 
+	executeExpression "sudo apt-get clean" 
+	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
 	executeExpression "sudo mount -o remount,ro /dev/sda1"
-	executeExpression "sudo zerofree -v /dev/sda1" 
+	executeExpression "sudo zerofree -v /dev/sda1"	
 else # CentOS or RHEL
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"

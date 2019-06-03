@@ -157,7 +157,7 @@ else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		echo;writeLog "Install prerequisites"
 		if [ "$ubuntu" ]; then
-			executeExpression "sudo apt-get install -y linux-headers-$(uname -r) build-essential dkms"
+			executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
 		else # CentOS or RHEL
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
@@ -166,23 +166,19 @@ else
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
-		fi
+			echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
+			executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+			executeExpression "sudo mkdir /media/VBoxGuestAdditions"
+			executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
+	
+			echo;writeLog "This is normal for server install ..."
+			writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
+			executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+			executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
+			executeExpression "sudo umount /media/VBoxGuestAdditions"
+			executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+			echo;writeLog "Clean-up prerequisites"
 
-		echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
-		executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
-		executeExpression "sudo mkdir /media/VBoxGuestAdditions"
-		executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
-
-		echo;writeLog "This is normal for server install ..."
-		writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
-		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
-		executeExpression "sudo umount /media/VBoxGuestAdditions"
-		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
-		echo;writeLog "Clean-up prerequisites"
-		if [ "$ubuntu" ]; then
-			executeExpression "sudo apt-get remove -y linux-headers-$(uname -r) build-essential dkms"
-		else # CentOS & RHEL
 			executeExpression "sudo yum remove -y kernel-headers"
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"

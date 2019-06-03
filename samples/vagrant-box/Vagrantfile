@@ -10,4 +10,9 @@ Vagrant.configure(2) do |config|
   #virtbox: config.vm.provider 'virtualbox' do |virtualbox, override|
   #virtbox:   virtualbox.linked_clone = true
   #virtbox: end
+  #hyper-v: config.vm.provider 'hyperv' do |hyperv, override|
+  #hyper-v:   hyperv.auto_start_action = 'Start'
+  #hyper-v:   hyperv.linked_clone = true
+  #hyper-v:   hyperv.enable_virtualization_extensions = true
+  #hyper-v: end
 end

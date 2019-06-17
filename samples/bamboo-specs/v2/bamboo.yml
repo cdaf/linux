@@ -1,0 +1,61 @@
+---
+version: 2
+
+plan:
+  project-key: CDAF
+  key: LUC
+  name: The New Key Must be 3 characters
+
+stages:
+  - Build Stage:
+    - Build Job
+
+Build Job:
+  tasks:
+    - script:
+        - '#!/bin/bash'
+        - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+
+  artifacts:
+    - name: Package
+      pattern: '*.gz'
+      shared: true
+    - name: TasksLocal
+      pattern: 'TasksLocal/**'
+      shared: true
+
+---
+version: 2
+
+deployment:
+  name: LU-CDM
+  source-plan: CDAF-LUC
+
+release-naming:
+  next-version-name: ${bamboo.buildNumber}
+
+environments:
+  - DOCKER
+  - TEST
+
+DOCKER:
+  triggers:
+    - build-success
+  tasks:
+    - clean
+    - artifact-download:
+        destination: ${bamboo.working.directory}
+    - script:
+        - '#!/bin/bash'
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+
+TEST:
+  triggers:
+    - environment-success: DOCKER
+  tasks:
+    - clean
+    - artifact-download:
+        destination: ${bamboo.working.directory}
+    - script:
+        - '#!/bin/bash'
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"

@@ -61,6 +61,15 @@ function executeIgnore {
 	return $exitCode
 }
 
+function installPiP {
+	executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
+	if [ "$1" == "2" ]; then
+		executeExpression "$elevate python get-pip.py"
+	else
+		executeExpression "$elevate python${1} get-pip.py"
+	fi
+}
+
 scriptName='installPython.sh'
 
 echo "[$scriptName] --- start ---"
@@ -125,13 +134,7 @@ if [ -n "$test" ]; then
 		test=${ADDR[1]}
 		echo "[$scriptName] PIP version $test already installed."
 	else
-		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-		if [ "$version" == "2" ]; then
-			executeExpression "$elevate python get-pip.py"
-		else
-			executeExpression "$elevate python${version} get-pip.py"
-		fi
-		executeExpression "pip --version"
+		installPiP $version
 	fi
 else	
 
@@ -179,11 +182,11 @@ else
 				executeExpression "$elevate apt-get update"
 				executeExpression "$elevate apt-get install -y python2.7"
 				executeExpression "$elevate ln -s \$(which python2.7) /usr/bin/python"
-				executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-				executeExpression "$elevate python${version} get-pip.py"
+				installPiP ${version}
 			else
 				# 16.04 and above
-				executeExpression "$elevate -y python-software-properties"
+				executeExpression "$elevate apt-get install -y python-minimal"
+				installPiP ${version}
 			fi
 
 		else # Python != v2
@@ -209,8 +212,7 @@ else
 		fi
 
 		executeExpression "$elevate yum install -y python${version}*"
-		executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-		executeExpression "$elevate python${version} get-pip.py"
+		installPiP ${version}
 		executeExpression "$elevate pip install virtualenv"
 	fi
 	
@@ -223,7 +225,7 @@ else
 		executeExpression "python3 --version"
 		executeExpression "pip3 --version"
 	fi
-fi	
+fi
 
 if [ ! -z "$install" ]; then
 	if [ "$version" == "2" ]; then

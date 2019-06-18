@@ -35,10 +35,10 @@ release-naming:
   next-version-name: ${bamboo.buildNumber}
 
 environments:
-  - DOCKER
-  - TEST
+  - NO_PROP
+  - LINUX
 
-DOCKER:
+NO_PROP:
   triggers:
     - build-success:
         branch: master
@@ -50,9 +50,9 @@ DOCKER:
         - '#!/bin/bash'
         - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
 
-TEST:
+LINUX:
   triggers:
-    - environment-success: DOCKER
+    - environment-success: NO_PROP
   tasks:
     - clean
     - artifact-download:

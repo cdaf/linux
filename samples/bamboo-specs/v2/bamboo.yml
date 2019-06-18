@@ -40,7 +40,8 @@ environments:
 
 DOCKER:
   triggers:
-    - build-success
+    - build-success:
+        branch: master
   tasks:
     - clean
     - artifact-download:

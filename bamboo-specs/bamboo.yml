@@ -4,7 +4,7 @@ version: 2
 plan:
   project-key: CDAF
   key: LUC
-  name: The New Key Must be 3 characters
+  name: CDAf Public Contribute
 
 stages:
   - Build Stage:

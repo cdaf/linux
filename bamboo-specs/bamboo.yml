@@ -28,8 +28,8 @@ Build Job:
 version: 2
 
 deployment:
-  name: LU-CDM
-  source-plan: CDAF-LUC
+  name: CDAFL
+  source-plan: CDAF-CDAFL
 
 release-naming:
   next-version-name: ${bamboo.buildNumber}

@@ -155,6 +155,15 @@ else
 	done
 fi
 
+pivotList=$(find $solutionRoot -mindepth 1 -maxdepth 1 -type f -name *.pv)
+if [ -z "$pivotList" ]; then
+	echo "$scriptName :   PV Driver       : none ($solutionRoot/*.pv)"
+else
+	for propertiesDriver in $pivotList; do
+		echo "$scriptName :   PV Driver       : $propertiesDriver"
+	done
+fi
+
 echo; echo "$scriptName : Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
 for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
 	if [ -d  "${packageDir}" ]; then
@@ -182,16 +191,39 @@ for propertiesDriver in $configManagementList; do
 		fi
 		for i in "${!columns[@]}"; do
 			if [ $i -gt 1 ]; then # do not create entries for context and target
-				echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
+				if [ -n "${arr[$i]}" ]; then
+					echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
+				fi
 			fi
 		done
 	done < <(echo "$config")
-	if [ -d "$solutionRoot/propertiesForRemoteTasks" ] && [ -d "./propertiesForRemoteTasks/" ]; then
-		echo "$scriptName : Generated properties will be merged with any defined properties in $solutionRoot/propertiesForRemoteTasks"
-	fi
-	if [ -d "$solutionRoot/propertiesForLocalTasks" ] && [ -d "./propertiesForLocalTasks/" ]; then
-		echo "$scriptName : Generated properties will be merged with any defined properties in $solutionRoot/propertiesForLocalTasks"
-	fi
+done
+
+# 1.9.3 add pivoted CM table support
+for propertiesDriver in $pivotList; do
+	echo; echo "$scriptName : Generating properties files from ${propertiesDriver}"
+	IFS=$'\r\n' GLOBIGNORE='*' command eval 'rows=($(cat $propertiesDriver))'
+	read -ra columns <<<"${rows[0]}"
+	read -ra paths <<<"${rows[1]}"
+	for (( i=2; i<=${#rows[@]}; i++ )); do
+		read -ra arr <<<"${rows[$i]}"
+		for (( j=1; j<=${#arr[@]}; j++ )); do
+			if [ -n "${columns[$j]}" ] && [ -n "${arr[$j]}" ] ; then
+				if [[ "${paths[$j]}" == 'remote' ]]; then
+					cdafPath="./propertiesForRemoteTasks"
+				else
+					cdafPath="./propertiesForLocalTasks"
+				fi
+				if [ ! -d "${cdafPath}" ]; then
+					mkdir -p ${cdafPath}
+				fi
+				if [ ! -f "${cdafPath}/${columns[$j]}" ]; then
+					echo "$scriptName :   Generating ${cdafPath}/${columns[$j]}"
+				fi
+				echo "${arr[0]}=${arr[$j]}" >> "${cdafPath}/${columns[$j]}"
+			fi
+		done
+	done
 done
 
 # CDAF 1.7.0 Container Build process

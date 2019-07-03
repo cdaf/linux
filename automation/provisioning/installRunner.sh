@@ -71,6 +71,13 @@ else
 	echo "[$scriptName]   runas    : $runas"
 fi
 
+version="$7"
+if [ -z "$version" ]; then
+	echo "[$scriptName]   version  : (not supplied, will use default)"
+else
+	echo "[$scriptName]   version  : $version"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami   : $(whoami)"
@@ -131,8 +138,13 @@ if [ -z "$runas" ]; then
 		executeExpression "$elevate yum install -y gitlab-ci-multi-runner"
 	fi
 else
-	echo; echo "[$scriptName] runas user supplied, will install latest to allow customisation"
-	executeExpression "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+	if [ -z "$version" ]; then
+		echo; echo "[$scriptName] runas user supplied, will install latest to allow customisation"
+		executeExpression "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+	else
+		echo; echo "[$scriptName] runas user and version supplied, will install version $version to allow customisation"
+		executeExpression "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/v${version}/binaries/gitlab-runner-linux-amd64"
+	fi
 	executeExpression "$elevate chmod +x /usr/local/bin/gitlab-runner"
 	uid="`id -u ${runas} 2>&1`"
 	if [ "$exitCode" != "0" ]; then

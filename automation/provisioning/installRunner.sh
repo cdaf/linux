@@ -105,8 +105,8 @@ if [ -z "$runas" ]; then
 			executeExpression "sleep 5"
 		fi
 		
-		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | $elevate bash"
-		executeExpression "$elevate apt-get install -y gitlab-ci-multi-runner"
+		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | $elevate bash"
+		executeExpression "$elevate apt-get install -y gitlab-runner"
 	
 	else
 		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
@@ -134,8 +134,8 @@ if [ -z "$runas" ]; then
 			echo "[$scriptName] Exiting with error code ${exitCode}"
 			exit $exitCode
 		fi
-		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.rpm.sh | $elevate bash"
-		executeExpression "$elevate yum install -y gitlab-ci-multi-runner"
+		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | $elevate bash"
+		executeExpression "$elevate yum install -y gitlab-runner"
 	fi
 else
 	if [ -z "$version" ]; then

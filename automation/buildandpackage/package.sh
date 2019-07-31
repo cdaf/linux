@@ -157,7 +157,6 @@ else
 	echo "# Manifest for revision $SOLUTION" > manifest.txt
 	echo "SOLUTION=$SOLUTION" >> manifest.txt
 	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
-	echo "REVISION=$REVISION" >> manifest.txt
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 		echo; echo "$scriptName : CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"

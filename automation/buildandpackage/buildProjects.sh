@@ -147,13 +147,12 @@ else
 
 		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
 		echo "PROJECT=${projectName}" > ../build.properties
-		echo "REVISION=$REVISION" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
 		if [ -f "build.sh" ]; then
 		
-			./build.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "$ACTION"
+			./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
 				echo "$scriptName : $projectName Build Failed, exit code = $exitCode."
@@ -162,6 +161,7 @@ else
 			
 		else
 						
+			echo "REVISION=$REVISION" >> ../build.properties
 			../$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then

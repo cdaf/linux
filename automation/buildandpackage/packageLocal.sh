@@ -15,6 +15,7 @@ localGenPropDir="./propertiesForLocalTasks"
 solutionCustomDir="$SOLUTIONROOT/custom"
 localCustomDir="$SOLUTIONROOT/customLocal"
 localCryptDir="$SOLUTIONROOT/cryptLocal"
+cryptDir="$SOLUTIONROOT/crypt"
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
 remoteGenPropDir="./propertiesForRemoteTasks"
 
@@ -47,6 +48,13 @@ if [ -d  "$localCryptDir" ]; then
 	echo "found ($localCryptDir)"
 else
 	echo "none ($localCryptDir)"
+fi
+
+printf "$scriptName :   common encrypted files      : "
+if [ -d  "$cryptDir" ]; then
+	echo "found ($cryptDir)"
+else
+	echo "none ($cryptDir)"
 fi
 
 printf "$scriptName :   custom scripts              : "
@@ -141,6 +149,13 @@ if [ -d "$localCryptDir" ]; then
 	printf "$scriptName :   Local encrypted files : "	
 	mkdir -v $WORK_DIR_DEFAULT/${localCryptDir##*/}
 	cp -avR $localCryptDir/* $WORK_DIR_DEFAULT/${localCryptDir##*/}
+fi
+
+# CDAF 1.9.5 common encypted files
+if [ -d "$cryptDir" ]; then
+	printf "$scriptName :   Local encrypted files : "	
+	mkdir -v $WORK_DIR_DEFAULT/${cryptDir##*/}
+	cp -avR $cryptDir/* $WORK_DIR_DEFAULT/${cryptDir##*/}
 fi
 
 # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote

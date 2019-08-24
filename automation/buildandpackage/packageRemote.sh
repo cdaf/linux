@@ -12,6 +12,7 @@ AUTOMATIONROOT=$6
 solutionCustomDir="./$SOLUTIONROOT/custom"
 remoteCustomDir="./$SOLUTIONROOT/customRemote"
 remoteCryptDir="./$SOLUTIONROOT/cryptRemote"
+cryptDir="./$SOLUTIONROOT/crypt"
 remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
 
 echo; echo "$scriptName : --- PACKAGE remotely executed scripts and artifacts ---"
@@ -45,6 +46,13 @@ else
 	echo "none ($remoteCryptDir)"
 fi
 
+printf "$scriptName :   common encrypted files      : "
+if [ -d  "$cryptDir" ]; then
+	echo "found ($cryptDir)"
+else
+	echo "none ($cryptDir)"
+fi
+
 echo; echo "$scriptName : Create working directory and seed with solution files"
 mkdir -v $WORK_DIR_DEFAULT
 mv -v manifest.txt $WORK_DIR_DEFAULT
@@ -69,6 +77,13 @@ if [ -d  "$remoteCryptDir" ]; then
 	echo
 	echo "$scriptName :   Remote encrypted files in $remoteCryptDir: "	
 	cp -avR $remoteCryptDir/* $WORK_DIR_DEFAULT
+fi
+
+# CDAF 1.9.5 common encrypted files
+if [ -d  "$cryptDir" ]; then
+	echo
+	echo "$scriptName :   Remote encrypted files in $cryptDir: "	
+	cp -avR $cryptDir/* $WORK_DIR_DEFAULT
 fi
 
 # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote

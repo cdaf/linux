@@ -37,10 +37,11 @@ To alleviate the burden of argument passing, exception handling and logging, the
 | ASSIGN  | set a variable                    | ASSIGN $test="Hello World"      |
 | CMPRSS  | Compress directory to file        | CMPRSS packageName dirName      |
 | DCMPRS  | Decompress package file           | DCMPRS packageName              |
-| DECRYP  | decrypt matching target file      | DECRYP cryptLocal               |
-|         | decrypt specific file             | DECRYP cryptLocal encrypt.dat   |
-| DETOKN  | Detokenise file with target prop  | DETOKN tokenised.file           |
-|         | Detokenise with specific file     | DETOKN tokenised.file prop.file |
+| DECRYP  | decrypt using private_key.pem     | DECRYP crypt/encrypt.dat        |
+|         | decrypt using AES key             | DECRYP crypt/encrypt.dat $key   |
+| DETOKN  | Detokenise file with target prop  | DETOKN token.yml                |
+|         | Detokenise with specific file     | DETOKN token.yml PROP_FILE      |
+|         | Detokenise with encrypted file    | DETOKN token.yml crypt/FIL $key |
 | EXCREM  | Execute command                   | EXCREM hostname                 |
 |         | Execute script                    | EXCREM ./capabilities.sh        |
 | EXITIF  | Exit normally if argument set     | EXITIF $ACTION                  |

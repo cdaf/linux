@@ -1,0 +1,29 @@
+echo "Passphrase should be supplied by CD tooling"
+passphrase=8b778ff3fd80def90161e40b9c54527e
+
+echo "DO NOT decrypt the file without capturing the result"
+DECRYP ./crypt/LINUX $passphrase
+
+echo "Decrypt to a variable"
+result=$(DECRYP ./crypt/LINUX $passphrase)
+
+echo "DO NOT log the result"
+echo $result
+
+echo "Decrypt to a file"
+DECRYP ./crypt/LINUX $passphrase > decrypted.txt
+
+echo "DO NOT list the decrypted file contents"
+cat decrypted.txt
+
+echo "By supplying an AES key, a tokenised file can be detokenised without the secrets being written to disk"
+cat crypt-test.yml
+
+echo "Detokenise plain text"
+DETOKN crypt-test.yml
+
+echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"
+DETOKN crypt-test.yml ./crypt/LINUX $passphrase
+
+echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"
+cat crypt-test.yml

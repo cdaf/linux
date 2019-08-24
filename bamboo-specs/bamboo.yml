@@ -32,7 +32,7 @@ deployment:
   source-plan: CDAF-CDAFL
 
 release-naming:
-  next-version-name: 1.9.2.${bamboo.buildNumber}
+  next-version-name: 2.0.0.${bamboo.buildNumber}
 
 environments:
   - NO_PROP

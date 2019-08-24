@@ -1,0 +1,27 @@
+image: centos
+
+pipelines:
+  default:
+    - step:
+        name: Build and test
+        script:
+          - ./automation/processor/buildPackage.sh $BITBUCKET_BUILD_NUMBER
+        artifacts: # defining the artifacts to be passed to each future step.
+          - "TasksLocal/**"
+          - "*.gz"
+    - step:
+        name: Deploy to test
+        deployment: Test
+        script:
+          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+    - step:
+        name: Deploy to staging
+        deployment: Staging
+        script:
+          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+    - step:
+        name: Deploy to production
+        deployment: Production
+        trigger: manual
+        script:
+          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT

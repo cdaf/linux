@@ -127,6 +127,14 @@ if [ -n "$containerBuild" ]; then
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
 		dockerRun="${ADDR[0]}"
 		echo "$scriptName :   Docker          : $dockerRun"
+		# Test Docker is running
+		echo "[$scriptName] List all current images"
+		echo "docker images"
+		docker images
+		if [ "$?" != "0" ]; then
+			echo "$scriptName : Docker not running, will attempt to execute natively"
+			unset containerBuild
+		fi
 	fi
 else
 	echo "$scriptName :   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
@@ -235,7 +243,7 @@ if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinse
 	imageBuild=$($AUTOMATION_ROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
 	if [ -n "$containerBuild" ]; then
 		echo
-		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot\CDAF.solution"
+		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot/CDAF.solution"
 		executeExpression "$imageBuild"
 	else
 		echo "$scriptName :   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"

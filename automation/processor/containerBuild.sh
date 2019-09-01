@@ -79,10 +79,6 @@ echo "[$scriptName] pwd           : $(pwd)"
 echo "[$scriptName] hostname      : $(hostname)"
 echo "[$scriptName] whoami        : $(whoami)"
 
-# Test Docker is running
-echo "[$scriptName] List all current images"
-executeExpression "docker images"
-
 buildCommand='docker build'
 if [ "$rebuild" == 'yes' ]; then
 	buildCommand+=" --no-cache=true"

@@ -90,7 +90,7 @@ echo $buildNumber > ${HOME}/buildnumber.counter
 if [ -n "${CDAF_BRANCH_NAME}" ]; then
 	revision=${CDAF_BRANCH_NAME}
 else
-	revision="dev"
+	revision="release"
 fi
 echo "$scriptName :   buildNumber         : $buildNumber"
 echo "$scriptName :   revision            : $revision"

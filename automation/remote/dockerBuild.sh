@@ -70,6 +70,11 @@ else
 fi
 
 buildCommand='docker build'
+
+if [ -n "$tag" ]; then
+	buildCommand+=" --build-arg BUILD_TAG=${tag}"
+fi
+
 if [ "$rebuild" == 'yes' ]; then
 	buildCommand+=" --no-cache=true"
 fi

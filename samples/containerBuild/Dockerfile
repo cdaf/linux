@@ -21,14 +21,12 @@ COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
 RUN automation-solution/bootstrapAgent.sh
 
 # Prepare for non-root build
-RUN chmod 777 -R /solution
 ARG userName
 ARG userID
 RUN adduser $userName --uid $userID --disabled-password --gecos ""
 # RUN adduser $userName --uid $userID # CentOS
+RUN chown $userName:$userName -R /solution
 USER $userName
-
-# < Apply any user specific tasks here >
 
 # Move to subdirectory for build, i.e. /solution/workspace
 WORKDIR workspace

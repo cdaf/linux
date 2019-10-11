@@ -117,90 +117,74 @@ else
 	test=$(echo $test | grep 'Python 3.')
 fi
 
-if [ -n "$test" ]; then
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] Python version $test already installed, install PIP only."
-
-	if [ "$version" == "2" ]; then
-		test="`pip --version 2>&1`"
-		test=$(echo $test | grep 'python ')
-	else
-		test="`python3 --version 2>&1`"
-		test=$(echo $test | grep 'python3.')
+if [ -z "$fedora" ]; then
+	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
+	echo
+	echo "[$scriptName] Check that APT is available"
+	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+	if [ -n "${dailyUpdate}" ]; then
+		echo
+		echo "[$scriptName] ${dailyUpdate}"
+		IFS=' ' read -ra ADDR <<< $dailyUpdate
+		echo
+		executeExpression "$elevate kill -9 ${ADDR[1]}"
+		executeExpression "sleep 5"
+	fi	
+	
+	echo "[$scriptName] $elevate apt-get update"
+	echo
+	timeout=3
+	count=0
+	while [ ${count} -lt ${timeout} ]; do
+		$elevate apt-get update
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+	   	    ((count++))
+			echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
+		else
+			count=${timeout}
+		fi
+	done
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
+		echo "[$scriptName] Exiting with error code ${exitCode}"
+		exit $exitCode
 	fi
+
+	executeExpression "$elevate apt-get update -y"
+	if [ "$version" == "2" ]; then
+		executeExpression "$elevate apt-get install -y python-pip"
+	else # Python != v2
+		executeExpression "$elevate apt-get install -y python${version}-pip"
+	fi
+
+else
 	if [ -n "$test" ]; then
 		IFS=' ' read -ra ADDR <<< $test
 		test=${ADDR[1]}
-		echo "[$scriptName] PIP version $test already installed."
-	else
-		installPiP $version
-	fi
-else	
-
-	if [ -z "$fedora" ]; then
-		echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
-		echo
-		echo "[$scriptName] Check that APT is available"
-		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-		if [ -n "${dailyUpdate}" ]; then
-			echo
-			echo "[$scriptName] ${dailyUpdate}"
-			IFS=' ' read -ra ADDR <<< $dailyUpdate
-			echo
-			executeExpression "$elevate kill -9 ${ADDR[1]}"
-			executeExpression "sleep 5"
-		fi	
-		
-		echo "[$scriptName] $elevate apt-get update"
-		echo
-		timeout=3
-		count=0
-		while [ ${count} -lt ${timeout} ]; do
-			$elevate apt-get update
-			exitCode=$?
-			if [ "$exitCode" != "0" ]; then
-		   	    ((count++))
-				echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
-			else
-				count=${timeout}
-			fi
-		done
-		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
-			echo "[$scriptName] Exiting with error code ${exitCode}"
-			exit $exitCode
-		fi
-
+		echo "[$scriptName] Python version $test already installed, install PIP only."
+	
 		if [ "$version" == "2" ]; then
-
-			release=$(lsb_release -r | grep 14.04)
-			if [[ "$release" == *"14.04"* ]]; then
-			
-				# 14.04
-				executeExpression "$elevate add-apt-repository -y ppa:fkrull/deadsnakes"
-				executeExpression "$elevate apt-get update"
-				executeExpression "$elevate apt-get install -y python2.7"
-				executeExpression "$elevate ln -s \$(which python2.7) /usr/bin/python"
-				installPiP ${version}
-			else
-				# 16.04 and above
-				executeExpression "$elevate apt-get install -y python-minimal"
-				installPiP ${version}
-			fi
-
-		else # Python != v2
-			executeExpression "$elevate apt-get update -y"
-			executeExpression "$elevate apt-get install -y python${version}*"
+			test="`pip --version 2>&1`"
+			test=$(echo $test | grep 'python ')
+		else
+			test="`python3 --version 2>&1`"
+			test=$(echo $test | grep 'python3.')
 		fi
-
-	else
+		if [ -n "$test" ]; then
+			IFS=' ' read -ra ADDR <<< $test
+			test=${ADDR[1]}
+			echo "[$scriptName] PIP version $test already installed."
+		else
+			installPiP $version
+		fi
+	else	
 		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 		centos='yes'
 		executeYumCheck "$elevate yum check-update"
 	
 		echo
-
+	
 		if [ "$systemWide" == 'yes' ]; then
 			if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 				echo "[$scriptName] Red Hat Enterprise Linux"
@@ -208,31 +192,23 @@ else
 			else
 				executeExpression "$elevate yum install -y epel-release"
 			fi
-			executeExpression "$elevate yum install -y ansible"
 		fi
-
-		executeExpression "$elevate yum install -y python${version}*"
-		installPiP ${version}
-		executeExpression "$elevate pip install virtualenv"
-	fi
-	
-	echo "[$scriptName] List version details..."
-
-	if [ "$version" == "2" ]; then
-		executeExpression "python --version"
-		executeExpression "pip --version"
-	else
-		executeExpression "python3 --version"
-		executeExpression "pip3 --version"
+		if [ "$version" == "2" ]; then
+			executeExpression "$elevate yum install -y python-pip"
+		else
+			executeExpression "$elevate yum install -y python${version}-pip"
+		fi
 	fi
 fi
 
-if [ ! -z "$install" ]; then
-	if [ "$version" == "2" ]; then
-		executeExpression "pip install $install"
-	else
-		executeExpression "pip${version} install $install"
-	fi
+echo "[$scriptName] List version details..."
+
+if [ "$version" == "2" ]; then
+	executeExpression "python --version"
+	executeExpression "pip --version"
+else
+	executeExpression "python3 --version"
+	executeExpression "pip3 --version"
 fi
  
 echo "[$scriptName] --- end ---"

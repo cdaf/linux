@@ -61,15 +61,6 @@ function executeIgnore {
 	return $exitCode
 }
 
-function installPiP {
-	executeExpression "curl -s -O https://bootstrap.pypa.io/get-pip.py"
-	if [ "$1" == "2" ]; then
-		executeExpression "$elevate python get-pip.py"
-	else
-		executeExpression "$elevate python${1} get-pip.py"
-	fi
-}
-
 scriptName='installPython.sh'
 
 echo "[$scriptName] --- start ---"
@@ -79,6 +70,10 @@ if [ -z "$1" ]; then
 else
 	version=$1
 	echo "[$scriptName]   version : $version (choices 2 or 3)"
+fi
+
+if [ "$version" != "2" ]; then
+	pyVer=$version
 fi
 
 install=$2
@@ -108,14 +103,6 @@ else
 	fi
 fi
 echo
-
-if [ "$version" == "2" ]; then
-	test="`python --version 2>&1`"
-	test=$(echo $test | grep 'Python 2.')
-else
-	test="`python3 --version 2>&1`"
-	test=$(echo $test | grep 'Python 3.')
-fi
 
 if [ -z "$fedora" ]; then
 	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
@@ -152,63 +139,33 @@ if [ -z "$fedora" ]; then
 	fi
 
 	executeExpression "$elevate apt-get update -y"
-	if [ "$version" == "2" ]; then
-		executeExpression "$elevate apt-get install -y python-pip"
-	else # Python != v2
-		executeExpression "$elevate apt-get install -y python${version}-pip"
-	fi
+	executeExpression "$elevate apt-get install -y python${pyVer}-pip"
 
 else
-	if [ -n "$test" ]; then
-		IFS=' ' read -ra ADDR <<< $test
-		test=${ADDR[1]}
-		echo "[$scriptName] Python version $test already installed, install PIP only."
-	
-		if [ "$version" == "2" ]; then
-			test="`pip --version 2>&1`"
-			test=$(echo $test | grep 'python ')
+
+	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+	centos='yes'
+	executeYumCheck "$elevate yum check-update"
+
+	echo
+	if [ "$systemWide" == 'yes' ]; then
+		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+			echo "[$scriptName] Red Hat Enterprise Linux"
+		    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 		else
-			test="`python3 --version 2>&1`"
-			test=$(echo $test | grep 'python3.')
-		fi
-		if [ -n "$test" ]; then
-			IFS=' ' read -ra ADDR <<< $test
-			test=${ADDR[1]}
-			echo "[$scriptName] PIP version $test already installed."
-		else
-			installPiP $version
-		fi
-	else	
-		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-		centos='yes'
-		executeYumCheck "$elevate yum check-update"
-	
-		echo
-	
-		if [ "$systemWide" == 'yes' ]; then
-			if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-				echo "[$scriptName] Red Hat Enterprise Linux"
-			    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-			else
-				executeExpression "$elevate yum install -y epel-release"
-			fi
-		fi
-		if [ "$version" == "2" ]; then
-			executeExpression "$elevate yum install -y python-pip"
-		else
-			executeExpression "$elevate yum install -y python${version}-pip"
+			executeExpression "$elevate yum install -y epel-release"
 		fi
 	fi
+	executeExpression "$elevate yum install -y python${pyVer}-pip"
 fi
 
 echo "[$scriptName] List version details..."
 
-if [ "$version" == "2" ]; then
-	executeExpression "python --version"
-	executeExpression "pip --version"
-else
-	executeExpression "python3 --version"
-	executeExpression "pip3 --version"
+executeExpression "python${pyVer} --version"
+executeExpression "pip${pyVer} --version"
+
+if [ -n "$install" ]; then
+	executeExpression "$elevate pip${pyVer} install $install"
 fi
- 
+
 echo "[$scriptName] --- end ---"

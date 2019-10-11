@@ -156,6 +156,7 @@ else
 			executeExpression "$elevate yum install -y epel-release"
 		fi
 	fi
+	executeYumCheck "$elevate yum check-update"
 	executeExpression "$elevate yum install -y python${pyVer}-pip"
 fi
 

@@ -42,7 +42,7 @@ fi
 OPT_ARG="$3"
 echo "$scriptName :   OPT_ARG          : $OPT_ARG"
 
-LOCAL_WORK_DIR="$4"
+WORK_DIR_DEFAULT="$4"
 if [ -z "$WORK_DIR_DEFAULT" ]; then
 	WORK_DIR_DEFAULT='TasksLocal'
 fi 

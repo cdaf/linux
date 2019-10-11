@@ -1,0 +1,4 @@
+context  target       deployTaskOverride
+local    VAGRANT      terraform.tsk     
+local    LINUX        terraform.tsk     
+local    DEPLOY_PROD  terraform.tsk     

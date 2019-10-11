@@ -11,10 +11,9 @@ ENV http_proxy=$proxy
 # Copy solution, provision and then build
 WORKDIR solution
 
-# CDAF
-COPY automation automation
-
-# Provision and restore dependancies
+# Only copy the scripts required
+COPY automation/provisioning/base.sh automation/provisioning/base.sh
+COPY automation/provisioning/installPython.sh automation/provisioning/installPython.sh
 COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
 
 # Provision Build Dependancies

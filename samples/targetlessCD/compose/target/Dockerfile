@@ -11,11 +11,8 @@ ENV http_proxy=$proxy
 # Copy solution, provision and then build
 WORKDIR solution
 
-# Provision and restore dependancies
-COPY automation/provisioning/base.sh automation/provisioning/base.sh
-COPY automation/remote/capabilities.sh automation/remote/capabilities.sh
-
-# Same provisioning used in Vagrantfile
+# Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
+COPY automation automation
 COPY bootstrapTarget.sh .
 RUN ./bootstrapTarget.sh
 

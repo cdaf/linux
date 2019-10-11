@@ -13,13 +13,13 @@ WORKDIR solution
 
 # Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
 COPY automation automation
-COPY bootstrapTest.sh .
-RUN ./bootstrapTest.sh
+COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
 
-# Place entry script
-COPY executeTest.sh .
+# Provision Build Dependancies
+RUN automation-solution/bootstrapAgent.sh
 
-# Move to subdirectory for mount, i.e. /solution/workspace
+# Move to subdirectory for build, i.e. /solution/workspace, requires empty directory for volume mount
 WORKDIR workspace
 
-CMD ["../executeTest.sh", "TARGETLESS"]
+CMD ["./delivery.sh", "$DEPLOY_TARGET", "release", "deploy", "."]
+

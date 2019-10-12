@@ -148,13 +148,11 @@ else
 	executeYumCheck "$elevate yum check-update"
 
 	echo
-	if [ "$systemWide" == 'yes' ]; then
-		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-			echo "[$scriptName] Red Hat Enterprise Linux"
-		    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-		else
-			executeExpression "$elevate yum install -y epel-release"
-		fi
+	if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+		echo "[$scriptName] Red Hat Enterprise Linux"
+	    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+	else
+		executeExpression "$elevate yum install -y epel-release"
 	fi
 	executeYumCheck "$elevate yum check-update"
 	executeExpression "$elevate yum install -y python${pyVer}-pip"

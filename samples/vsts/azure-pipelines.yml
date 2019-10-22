@@ -26,10 +26,22 @@ variables:
 
 steps:
 - script: |
-    ./automation/processor/entry.sh $(Build.BuildId) $(Build.SourceBranchName)
+    ./automation/processor/entry.sh $(Build.BuildNumber) $(Build.SourceBranchName) staging@$(Build.ArtifactStagingDirectory)
     exitCode=$?
     if [ "$exitCode" != "0" ]; then exit $exitCode; fi
     cp -r TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
     cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
+
+#- task: PublishTestResults@2
+#  inputs:
+    #testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    #testResultsFiles: '**/TEST-*.xml' 
+    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    #mergeTestResults: true # Optional
+    #failTaskOnFailedTests: true # Optional
+    #testRunTitle: # Optional
+    #buildPlatform: # Optional
+    #buildConfiguration: # Optional
+    #publishRunAttachments: true # Optional
     
 - task: PublishBuildArtifacts@1

@@ -150,7 +150,7 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly
     echo 'For Jenkins ...'
     echo "  Command : $ciProcess \$BUILD_NUMBER \$JOB_NAME"
     echo
-	echo 'For Team Foundation Server (TFS)/Visual Studio Team Services (VSTS)'
+	echo 'Azure DevOps (formerly TFS/VSTS)'
 	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
     echo '  Use the visual studio template and delete the nuget and VS tasks.'
     echo '  Instructions are based on default VS layout, i.e. repo, solution, projects, with the solution in the repo root.'
@@ -203,7 +203,7 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
     echo '  Name    : TasksLocal'
 	echo '  Pattern : TasksLocal/**'
 	echo
-    echo 'For Team Foundation Server (TFS)/Visual Studio Team Services (VSTS)'
+    echo 'For Azure DevOps (formerly TFS/VSTS)'
     echo '  Use the combination of Copy files and Retain Artefacts from Visual Studio Solution Template'
     echo "  Source Folder   : \$(Agent.BuildDirectory)/s/"
     echo '  Copy files task : TasksLocal/**'
@@ -253,12 +253,12 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '    Command : eval $(./TasksLocal/transform.sh ./TasksLocal/manifest.txt)'
 	echo '    Command : ./TasksLocal/delivery.sh $JOB_NAME $BUILDNUMBER'
 	echo
-	echo 'For Team Foundation Server (TFS)/Visual Studio Team Services (VSTS)'
+	echo 'For Azure DevOps (formerly TFS/VSTS)'
 	echo '  Verify the queue for each Environment definition, and ensure Environment names do not contain spaces.'
 	echo '  Create an "Empty" Release definition, and use the "Command Line" utility task (note, requires double quote when more than one argument).'
-	echo '    Tool           : bash'
-	echo '    Arguments      : -c "chmod +x *.sh && ls -al"'
-	echo "    Working folder : \$(System.DefaultWorkingDirectory)/$solutionName/drop/TasksLocal"
+	echo '    Tool           : Run'
+	echo '    Script         : chmod +x **/*.sh && ./TasksLocal/delivery.sh $RELEASE_ENVIRONMENTNAME $RELEASE_RELEASENAME'
+	echo "    Working folder : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
 	echo '  then add "Shell Script" utility task to execute the delivery process'
 	echo "    Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"

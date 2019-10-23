@@ -73,10 +73,11 @@ while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 	fi
 
 	if [ $retryCount -ge $retryMax ]; then
-		echo "[$scriptName] Maximum wait time ($waitTime) reached after $retryMax retries, exiting with code 334"
-		exitCode=335
+		echo "[$scriptName] Maximum wait time ($waitTime) reached after $retryMax retries, exiting with code $waitTime (waitTime)"
+		exitCode=$waitTime
 	fi
 	let "retryCount=retryCount+1"
 done
 
 echo; echo "[$scriptName] --- end ---"
+exit $exitCode

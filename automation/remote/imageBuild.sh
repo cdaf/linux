@@ -36,8 +36,8 @@ else
 fi
 
 echo "Create the image file system locally"
-if [ ! -d "/tmp/buildImage" ]; then
-	executeExpression "mkdir -p /tmp/buildImage"
+if [ ! -d "/tmp/buildImage/${id}" ]; then
+	executeExpression "mkdir -p /tmp/buildImage/${id}"
 fi
 
 for image in $(find . -mindepth 1 -maxdepth 1 -type d); do
@@ -45,11 +45,11 @@ for image in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	echo; echo "------------------------"
 	echo "   ${image##*/}"
 	echo "------------------------"; echo
-	executeExpression "rm -rf /tmp/buildImage/**"
-	executeExpression "cp ../dockerBuild.sh /tmp/buildImage"
-	executeExpression "cp -r ../automation /tmp/buildImage"
-	executeExpression "cp -r ${image}/** /tmp/buildImage"
-	executeExpression "cd /tmp/buildImage"
+	executeExpression "rm -rf /tmp/buildImage/${id}/**"
+	executeExpression "cp ../dockerBuild.sh /tmp/buildImage/${id}"
+	executeExpression "cp -r ../automation /tmp/buildImage/${id}"
+	executeExpression "cp -r ${image}/** /tmp/buildImage/${id}"
+	executeExpression "cd /tmp/buildImage/${id}"
 	executeExpression "cat Dockerfile"
 	executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER"
 	executeExpression "cd $workspace"

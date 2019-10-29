@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function executeExpression {
-	echo "[$scriptName] $1"
+	echo "$1"
 	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
@@ -65,6 +65,12 @@ echo "[$scriptName]   version        : $version"
 
 media="vsts-agent-linux-x64-${version}.tar.gz"
 
+if [ -d './vso' ]; then
+	executeExpression "$elevate rm -rf '/vso'"
+fi
+if [ -d '/opt/vso' ]; then
+	executeExpression "$elevate rm -rf '/opt/vso'"
+fi
 executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/${version}/${media}"
 executeExpression "mkdir vso"
 executeExpression "tar zxf ${media} -C ./vso"
@@ -77,16 +83,18 @@ executeExpression "$elevate ./bin/installdependencies.sh"
 # Cannot indent or EOF is not detected
 if [ $(whoami) != 'root' ];then
 sudo su $srvAccount << EOF
-	echo "[$scriptName] /opt/vso"
+	echo "[$scriptName] Switched from root to service account $srvAccount"
+	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token \$pat --pool $pool --agent $agentName --replace"
+	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool $pool --agent $agentName --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 else
 su $srvAccount << EOF
-	echo "[$scriptName] /opt/vso"
+	echo "[$scriptName] Switched to service account $srvAccount"
+	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "[$scriptName] ./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool $pool --agent $agentName --replace"
+	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool $pool --agent $agentName --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 fi

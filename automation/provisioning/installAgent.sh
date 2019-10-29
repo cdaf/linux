@@ -66,7 +66,7 @@ echo "[$scriptName]   version        : $version"
 media="vsts-agent-linux-x64-${version}.tar.gz"
 
 if [ -d './vso' ]; then
-	executeExpression "$elevate rm -rf '/vso'"
+	executeExpression "$elevate rm -rf './vso'"
 fi
 if [ -d '/opt/vso' ]; then
 	executeExpression "$elevate rm -rf '/opt/vso'"

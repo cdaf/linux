@@ -64,15 +64,15 @@ else
 fi
 
 # If not set as an environment variablem, delivery properties Lookup values
-if [ -z "${environmentDelivery}" ]; then
+if [ -z "${CDAF_DELIVERY}" ]; then
 	if [ -f "$solutionRoot/deliveryEnv.sh" ]; then
-		environmentDelivery=$($solutionRoot/deliveryEnv.sh)
-		echo "$scriptName :   environmentDelivery : $environmentDelivery (using override $solutionRoot/deliveryEnv.sh)"
+		CDAF_DELIVERY=$($solutionRoot/deliveryEnv.sh)
+		echo "$scriptName :   CDAF_DELIVERY : $CDAF_DELIVERY (using override $solutionRoot/deliveryEnv.sh)"
 	else
-		if [ ! $environmentDelivery ]; then
-			environmentDelivery="LINUX"
+		if [ ! $CDAF_DELIVERY ]; then
+			CDAF_DELIVERY="LINUX"
 		fi
-		echo "$scriptName :   environmentDelivery : $environmentDelivery (override $solutionRoot/deliveryEnv.sh not found)"
+		echo "$scriptName :   CDAF_DELIVERY : $CDAF_DELIVERY (override $solutionRoot/deliveryEnv.sh not found)"
 	fi
 fi
 
@@ -229,7 +229,7 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo
 	echo 'For TeamCity ...'
 	echo "  Command Executable : $workDirLocal/$cdInstruction"
-	echo "  Command parameters : $environmentDelivery"
+	echo "  Command parameters : $CDAF_DELIVERY"
 	echo
 	echo 'For Go ...'
 	echo '  requires explicit bash invoke'
@@ -279,10 +279,10 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo "$scriptName : -------------------------------------------------------"
 
 	if [ "$caseinsensitive" != "cionly" ]; then
-		$cdProcess "$environmentDelivery"
+		$cdProcess "$CDAF_DELIVERY"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "$scriptName : CD Failed! $cdProcess \"$environmentDelivery\". Halt with exit code = $exitCode."
+			echo "$scriptName : CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
 			exit $exitCode
 		fi
 	fi

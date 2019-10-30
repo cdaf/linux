@@ -101,7 +101,7 @@ Vagrant.configure(2) do |config|
       (1..MAX_SERVER_TARGETS).each do |s|
         override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} server-#{s}.sky.net"
       end
-      override.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'environmentDelivery VAGRANT'
+      override.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'CDAF_DELIVERY VAGRANT'
       override.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing
       override.vm.provision 'shell', path: './automation/provisioning/internalCA.sh'
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false

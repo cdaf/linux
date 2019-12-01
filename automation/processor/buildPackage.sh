@@ -132,8 +132,17 @@ if [ -n "$containerBuild" ]; then
 		echo "docker images"
 		docker images
 		if [ "$?" != "0" ]; then
-			echo "$scriptName : Docker not running, will attempt to execute natively"
-			unset containerBuild
+			if [ -z $CDAF_DOCKER_REQUIRED ]; then
+				echo "$scriptName : Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
+				unset containerBuild
+			else
+				echo "$scriptName : Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
+				if [ $(whoami) != 'root' ];then
+					elevate='sudo'
+				fi
+				executeExpression "$elevate service docker start"
+				executeExpression "$elevate service docker status"
+			fi
 		fi
 	fi
 else

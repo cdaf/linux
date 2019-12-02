@@ -5,7 +5,9 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		step=${1%% *}
+		filename=$(basename $step)
+		echo "[$scriptName][CDAF_DELIVERY_FAILURE.${filename%.*}] Execute FAILURE Returned $exitCode"
 		exit $exitCode
 	fi
 }

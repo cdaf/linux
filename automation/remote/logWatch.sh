@@ -63,11 +63,18 @@ while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 				fi	
 				let "lineCount=lineCount+1"
 			done < <(echo "$output")
-		
-			found=$(echo $output | grep "$stringMatch")
+
+			found=$(echo $output | grep "CDAF_DELIVERY_FAILURE.")
 		    if [ ! -z "$found" ]; then
-				echo "[$scriptName] stringMatch ($stringMatch) found."
-			    exitCode=0
+				echo "[$scriptName] CDAF_DELIVERY_FAILURE. detected, exiting with code 8336. Wait time was ${waitTime}."
+			    exitCode=8336
+			    retryCount=$retryMax
+			else
+				found=$(echo $output | grep "$stringMatch")
+			    if [ ! -z "$found" ]; then
+					echo "[$scriptName] stringMatch ($stringMatch) found."
+				    exitCode=0
+				fi
 			fi
 		fi
 	fi

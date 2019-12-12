@@ -13,7 +13,7 @@ WORKDIR solution
 
 # Only copy the scripts required
 COPY automation/provisioning/base.sh automation/provisioning/base.sh
-COPY automation/provisioning/installPython.sh automation/provisioning/installPython.sh
+COPY automation/provisioning/installApacheMaven.sh automation/provisioning/installApacheMaven.sh
 COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
 
 # Provision Build Dependancies

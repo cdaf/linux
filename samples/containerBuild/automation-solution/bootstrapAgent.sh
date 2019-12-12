@@ -73,7 +73,7 @@ else
 fi	
 
 echo
-executeExpression "$elevate $atomicPath/provisioning/installOracleJava.sh jdk"
+executeExpression "$elevate $atomicPath/provisioning/base.sh openjdk-11-jdk"
 executeExpression "$elevate $atomicPath/provisioning/installApacheMaven.sh"
 executeExpression "$atomicPath/remote/capabilities.sh"
 

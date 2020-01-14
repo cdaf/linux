@@ -50,12 +50,12 @@ echo "$scriptName :   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
 echo "$scriptName :   ACTION                   : $ACTION"
 
 # Look for automation root definition, if not found, default
-AUTOMATION_ROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
-echo "$scriptName :   AUTOMATION_ROOT          : $AUTOMATION_ROOT"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+echo "$scriptName :   AUTOMATIONROOT           : $AUTOMATIONROOT"
 
 # Process all entry values
-automationHelper="$AUTOMATION_ROOT/remote"
-SOLUTIONROOT="$AUTOMATION_ROOT/solution"
+automationHelper="$AUTOMATIONROOT/remote"
+SOLUTIONROOT="$AUTOMATIONROOT/solution"
 for i in $(ls -d */); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
@@ -108,7 +108,7 @@ echo "$scriptName :   pwd                      : $(pwd)"
 echo "$scriptName :   hostname                 : $(hostname)"
 echo "$scriptName :   whoami                   : $(whoami)"
 
-cdafVersion=$($AUTOMATION_ROOT/remote/getProperty.sh "$AUTOMATION_ROOT/CDAF.linux" "productVersion")
+cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
 echo "$scriptName :   CDAF Version             : $cdafVersion"
 
 echo; echo "$scriptName : Clean root workspace ($(pwd))"; echo
@@ -134,7 +134,7 @@ else
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then
 		echo; echo "Process Pre-Package Tasks ..."; echo
-		echo "AUTOMATION_ROOT=$AUTOMATION_ROOT" > ./solution.properties
+		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./solution.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
 		exitCode=$?
@@ -159,7 +159,7 @@ else
 	while read line; do echo "  $line"; done < manifest.txt
 	
 	echo; echo "$scriptName : Always create local artefacts, even if all tasks are remote"; echo
-	$AUTOMATION_ROOT/buildandpackage/packageLocal.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATION_ROOT"
+	$AUTOMATIONROOT/buildandpackage/packageLocal.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		echo "$scriptName : ./packageLocal.sh failed! Exit code = $exitCode."
@@ -169,7 +169,7 @@ else
 	# 1.7.8 Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
 	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
-		$AUTOMATION_ROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATION_ROOT"
+		$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
 			echo "$scriptName : ./packageRemote.sh failed! Exit code = $exitCode."

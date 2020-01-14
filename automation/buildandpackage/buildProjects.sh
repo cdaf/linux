@@ -49,13 +49,13 @@ else
 fi
 
 # Look for automation root definition, if not found, default
-AUTOMATION_ROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
-echo "$scriptName :   AUTOMATION_ROOT   : $AUTOMATION_ROOT (derived from action)"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+echo "$scriptName :   AUTOMATIONROOT    : $AUTOMATIONROOT (derived from action)"
 
-AUTOMATIONHELPER="$AUTOMATION_ROOT/remote"
+AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-SOLUTIONROOT="$AUTOMATION_ROOT/solution"
+SOLUTIONROOT="$AUTOMATIONROOT/solution"
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
@@ -77,7 +77,7 @@ if [ -f "build.sh" ]; then
 	# Additional properties that are not passed as arguments, but loaded by execute automatically
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
-	echo "AUTOMATION_ROOT=$AUTOMATION_ROOT" >> ./solution.properties
+	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
 	./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 	exitCode=$?
@@ -93,7 +93,7 @@ if [ -f "build.tsk" ]; then
 	# Additional properties that are not passed as arguments, explicit load is required
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
-	echo "AUTOMATION_ROOT=$AUTOMATION_ROOT" >> ./solution.properties
+	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
 	$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 	exitCode=$?
@@ -138,7 +138,7 @@ else
 
 		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
 		echo "PROJECT=${projectName}" > ../build.properties
-		echo "AUTOMATION_ROOT=$AUTOMATION_ROOT" >> ../build.properties
+		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
 		if [ -f "build.sh" ]; then

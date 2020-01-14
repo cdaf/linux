@@ -58,7 +58,7 @@ mkdir -v $WORK_DIR_DEFAULT
 mv -v manifest.txt $WORK_DIR_DEFAULT
 cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
 echo
-cp -avR ./$AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT
+cp -avR $AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT
 
 # Merge Remote tasks with general tasks, remote first
 if [ -f  "./$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
@@ -100,11 +100,11 @@ if [ -d  "$remoteCustomDir" ]; then
 fi
 
 # Process Specific remote artifacts
-./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $remoteArtifactListFile $WORK_DIR_DEFAULT
+$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $remoteArtifactListFile $WORK_DIR_DEFAULT
 
 # Process generic artifacts, i.e. applies to both local and remote
 if [ -f "${SOLUTIONROOT}/storeFor" ]; then
-	./$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT
+	$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT
 fi
 
 cd $WORK_DIR_DEFAULT

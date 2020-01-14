@@ -91,28 +91,29 @@ echo "$scriptName :   TMPDIR      : $TMPDIR"
 
 # If this is a CI process, load temporary file as variables (implicit parameter passing) 
 # this is not required in the PowerShell version as variables are global
-AUTOMATIONHELPER=.
 if [ -f "../build.properties" ] ;then
 	echo; echo "$scriptName : Load ../build.properties"; echo
 	eval $(cat ../build.properties)
-	AUTOMATIONHELPER="../$AUTOMATIONROOT/remote"
+	AUTOMATIONHELPER="$( cd "$(dirname "$0")" ; pwd -P )"
 	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
 	printf "$propertiesList"
 	eval $propertiesList
-	rm ../build.properties
 	echo
+	rm ../build.properties
 else
 	# If not build, is it a package process?
 	if [ -f "./solution.properties" ] ;then
 		echo; echo "$scriptName : Load ./solution.properties"; echo
 		eval $(cat ./solution.properties)
-		AUTOMATIONHELPER="./$AUTOMATIONROOT/remote"
+		AUTOMATIONHELPER="$( cd "$(dirname "$0")" ; pwd -P )"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh ./solution.properties)
 		printf "$propertiesList"
 		eval $propertiesList
+		echo
 		rm ./solution.properties
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote
+		AUTOMATIONHELPER=.
 		if [ -f "predeploy.properties" ]; then
 			echo; echo "Load predeploy.properties ... "
 			propertiesList=$($AUTOMATIONHELPER/transform.sh "predeploy.properties")

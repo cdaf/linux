@@ -28,28 +28,18 @@ fi
 echo; echo "$scriptName : --------------------"
 echo "$scriptName : Initialise Emulation"
 echo "$scriptName : --------------------"
-echo "$scriptName :   ACTION              : $ACTION"
+echo "$scriptName :   ACTION         : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
 workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
 
 # Framework structure
-# Look for automation root definition, if not found, default
-for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
-	directoryName=${i%%/}
-	if [ -f "$directoryName/CDAF.linux" ]; then
-		automationRoot="$directoryName"
-		echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux found)"
-	fi
-done
-if [ -z "$automationRoot" ]; then
-	automationRoot="./automation"
-	echo "$scriptName :   automationRoot      : $automationRoot (CDAF.linux not found)"
-fi
+automationRoot="$( cd "$(dirname "$0")" ; pwd -P )"
+echo "$scriptName :   automationRoot : $automationRoot"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "$scriptName :   solutionRoot        : "
+printf "$scriptName :   solutionRoot   : "
 for i in $(ls -d */); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
@@ -67,12 +57,12 @@ fi
 if [ -z "${CDAF_DELIVERY}" ]; then
 	if [ -f "$solutionRoot/deliveryEnv.sh" ]; then
 		CDAF_DELIVERY=$($solutionRoot/deliveryEnv.sh)
-		echo "$scriptName :   CDAF_DELIVERY : $CDAF_DELIVERY (using override $solutionRoot/deliveryEnv.sh)"
+		echo "$scriptName :   CDAF_DELIVERY  : $CDAF_DELIVERY (using override $solutionRoot/deliveryEnv.sh)"
 	else
 		if [ ! $CDAF_DELIVERY ]; then
 			CDAF_DELIVERY="LINUX"
 		fi
-		echo "$scriptName :   CDAF_DELIVERY : $CDAF_DELIVERY (override $solutionRoot/deliveryEnv.sh not found)"
+		echo "$scriptName :   CDAF_DELIVERY  : $CDAF_DELIVERY (override $solutionRoot/deliveryEnv.sh not found)"
 	fi
 fi
 
@@ -92,11 +82,11 @@ if [ -n "${CDAF_BRANCH_NAME}" ]; then
 else
 	revision="release"
 fi
-echo "$scriptName :   buildNumber         : $buildNumber"
-echo "$scriptName :   revision            : $revision"
+echo "$scriptName :   buildNumber    : $buildNumber"
+echo "$scriptName :   revision       : $revision"
 
 # Check for customised CI process
-printf "$scriptName :   ciProcess           : "
+printf "$scriptName :   ciProcess      : "
 if [ -f "$solutionRoot/buildPackage.sh" ]; then
 	cdProcess="$solutionRoot/buildPackage.sh"
 	echo "$ciProcess (override)"
@@ -106,7 +96,7 @@ else
 fi
 
 # Check for customised Delivery process
-printf "$scriptName :   cdProcess           : "
+printf "$scriptName :   cdProcess      : "
 if [ -f "$solutionRoot/delivery.sh" ]; then
 	cdProcess="$solutionRoot/delivery.sh"
 	echo "$cdProcess (override)"

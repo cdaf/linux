@@ -26,17 +26,10 @@ echo "$scriptName :   whoami          : $(whoami)"
 # Processed out of order as needed for solution determination
 AUTOMATION_ROOT="$5"
 if [ -z $AUTOMATION_ROOT ]; then
-	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
-		directoryName=${i%%/}
-		if [ -f "$directoryName/CDAF.linux" ]; then
-			AUTOMATION_ROOT="$directoryName"
-			rootLogging="$AUTOMATION_ROOT (CDAF.linux found)"
-		fi
-	done
-	if [ -z "$AUTOMATION_ROOT" ]; then
-		AUTOMATION_ROOT="automation"
-		rootLogging="$AUTOMATION_ROOT (CDAF.linux not found)"
-	fi
+	AUTOMATION_ROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+	rootLogging="$AUTOMATION_ROOT (derived from script path)"
+else
+	rootLogging="$AUTOMATION_ROOT (passed)"
 fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root

@@ -88,7 +88,7 @@ else
 	echo "none ($remotePropertiesDir)"
 fi
 
-remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
+remoteArtifactListFile="$SOLUTIONROOT/storeForRemote"
 printf "$scriptName :   remote artifact list     : "
 if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
@@ -96,7 +96,7 @@ else
 	echo "none ($remoteArtifactListFile)"
 fi
 
-genericArtifactListFile="./$SOLUTIONROOT/storeFor"
+genericArtifactListFile="$SOLUTIONROOT/storeFor"
 printf "$scriptName :   generic artifact list    : "
 if [ -f  "$genericArtifactListFile" ]; then
 	echo "found ($genericArtifactListFile)"

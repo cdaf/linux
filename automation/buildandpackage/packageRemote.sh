@@ -9,11 +9,11 @@ WORK_DIR_DEFAULT=$4
 SOLUTIONROOT=$5
 AUTOMATIONROOT=$6
 
-solutionCustomDir="./$SOLUTIONROOT/custom"
-remoteCustomDir="./$SOLUTIONROOT/customRemote"
-remoteCryptDir="./$SOLUTIONROOT/cryptRemote"
-cryptDir="./$SOLUTIONROOT/crypt"
-remoteArtifactListFile="./$SOLUTIONROOT/storeForRemote"
+solutionCustomDir="$SOLUTIONROOT/custom"
+remoteCustomDir="$SOLUTIONROOT/customRemote"
+remoteCryptDir="$SOLUTIONROOT/cryptRemote"
+cryptDir="$SOLUTIONROOT/crypt"
+remoteArtifactListFile="$SOLUTIONROOT/storeForRemote"
 
 echo; echo "$scriptName : --- PACKAGE remotely executed scripts and artifacts ---"
 echo "$scriptName :   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
@@ -61,10 +61,10 @@ echo
 cp -avR $AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT
 
 # Merge Remote tasks with general tasks, remote first
-if [ -f  "./$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
+if [ -f  "$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
 	echo
 	printf "Tasks to execute on remote host : "	
-	cp -av ./$SOLUTIONROOT/tasksRunRemote.tsk $WORK_DIR_DEFAULT
+	cp -av $SOLUTIONROOT/tasksRunRemote.tsk $WORK_DIR_DEFAULT
 fi
 
 # 1.7.8 Merge generic tasks into explicit tasks

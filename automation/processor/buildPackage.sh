@@ -76,7 +76,7 @@ if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z $SOLUTION ]; then
-	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "solutionName")
+	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "$scriptName : Read of SOLUTION from $solutionRoot/CDAF.solution failed! Returned $exitCode"
@@ -109,7 +109,7 @@ fi
 echo "$scriptName :   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
 # If a container build command is specified, use this instead of CI process
-containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "containerBuild")
+containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerBuild")
 if [ -n "$containerBuild" ]; then
 	test=$(docker --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
@@ -143,7 +143,7 @@ else
 fi
 
 # Support for image as an environment variable, do not overwrite if already set
-containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "containerImage")
+containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerImage")
 if [ -z "$containerImage" ]; then
 	echo "$scriptName :   containerImage  : (not defined in $solutionRoot/CDAF.solution)"
 else
@@ -242,7 +242,7 @@ if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinse
 	echo "$scriptName Execute Container build, this performs cionly, options clean and packageonly are ignored."
 	executeExpression "$containerBuild"
 
-	imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "./$solutionRoot/CDAF.solution" "imageBuild")
+	imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "imageBuild")
 	if [ -n "$containerBuild" ]; then
 		echo
 		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot/CDAF.solution"

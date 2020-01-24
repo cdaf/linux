@@ -31,6 +31,7 @@ if [ -z $AUTOMATIONROOT ]; then
 else
 	rootLogging="$AUTOMATIONROOT (passed)"
 fi
+export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do

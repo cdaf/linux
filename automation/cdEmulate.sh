@@ -37,6 +37,7 @@ workDirRemote="TasksRemote"
 # Framework structure
 automationRoot="$( cd "$(dirname "$0")" ; pwd -P )"
 echo "$scriptName :   automationRoot : $automationRoot"
+export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "$scriptName :   solutionRoot   : "

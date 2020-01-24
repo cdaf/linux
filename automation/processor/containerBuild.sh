@@ -66,7 +66,7 @@ fi
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$CDAF_AUTOMATION_ROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT : ${env:CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
 		executeExpression "rm -rf ./automation"
 		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
@@ -75,7 +75,7 @@ if [ -d "$absolute" ]; then
 	fi
 else
 	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT : ${env:CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
 		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else

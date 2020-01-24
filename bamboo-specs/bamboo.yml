@@ -56,7 +56,7 @@ NO_PROP:
         destination: ${bamboo.working.directory}
     - script:
         - '#!/bin/bash'
-        - "./TasksLocal/entry.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
 
 LINUX:
   triggers:

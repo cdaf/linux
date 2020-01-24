@@ -65,13 +65,13 @@ fi
 
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
-	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
+	if [[ "$CDAF_AUTOMATION_ROOT" != "$absolute" ]]; then
 		echo "[$scriptName]   AUTOMATIONROOT : ${env:CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
 		executeExpression "rm -rf ./automation"
 		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT : ${env:CDAF_AUTOMATION_ROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT}"
 	fi
 else
 	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
@@ -79,7 +79,7 @@ else
 		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT : ${env:CDAF_AUTOMATION_ROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT}"
 	fi
 fi
 
@@ -163,7 +163,7 @@ if [ -n "$imageName" ]; then
 	executeExpression 'docker ps --filter "status=exited" -a'
 	executeExpression 'docker rm $(docker ps --filter "status=exited" -aq)'
 
-	if [ -n $cleanupCDAF ]; then
+	if [[ "$cleanupCDAF" == 'yes' ]]; then
 		executeExpression "rm -rf $absolute"
 	fi
 fi

@@ -1,0 +1,73 @@
+---
+version: 2
+
+plan:
+  project-key: PRJ
+  key: PLANK
+  name: Name that appears on Bamboo UI
+
+stages:
+  - Build Stage:
+    - Build Job
+
+Build Job:
+  tasks:
+    - script:
+        - '#!/bin/bash'
+        - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+
+  artifacts:
+    - name: Package
+      pattern: '*.gz'
+      shared: true
+    - name: TasksLocal
+      pattern: 'TasksLocal/**'
+      shared: true
+
+---
+version: 2
+
+deployment:
+  name: Release Name on Bamboo UI
+  source-plan: PRJ-PLANK
+
+release-naming:
+  next-version-name: ${bamboo.buildNumber}
+
+environments:
+  - NO_PROP
+  - LINUX
+  - CDAF
+
+NO_PROP:
+  triggers:
+    - build-success
+  tasks:
+    - clean
+    - artifact-download:
+        destination: ${bamboo.working.directory}
+    - script:
+        - '#!/bin/bash'
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+
+LINUX:
+  triggers:
+    - environment-success: NO_PROP
+  tasks:
+    - clean
+    - artifact-download:
+        destination: ${bamboo.working.directory}
+    - script:
+        - '#!/bin/bash'
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+
+CDAF:
+  triggers:
+    - environment-success: LINUX
+  tasks:
+    - clean
+    - artifact-download:
+        destination: ${bamboo.working.directory}
+    - script:
+        - '#!/bin/bash'
+        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"

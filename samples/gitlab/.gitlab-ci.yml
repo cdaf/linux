@@ -18,10 +18,8 @@ cd:
   stage: targetlessCD
   tags:
     - bash
-  variables:
-    ENV: "CD"
-  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
-  environment: cd
+  script: "TasksLocal/delivery.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}"
+  environment: "${CI_JOB_STAGE}"
   dependencies:
   - cdaf-ci
 
@@ -29,10 +27,8 @@ test:
   stage: staging
   tags:
     - bash
-  variables:
-    ENV: "TEST"
-  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
-  environment: test
+  script: "TasksLocal/delivery.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}"
+  environment: "${CI_JOB_STAGE}"
   dependencies:
   - cdaf-ci
   only:
@@ -42,11 +38,9 @@ production:
   stage: live
   tags:
     - bash
-  variables:
-    ENV: "PROD"
-  script: "TasksLocal/delivery.sh ${ENV} ${CI_PIPELINE_ID}"
+  script: "TasksLocal/delivery.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}"
   when: manual
-  environment: production
+  environment: "${CI_JOB_STAGE}"
   dependencies:
   - cdaf-ci
   only:

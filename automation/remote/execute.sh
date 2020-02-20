@@ -59,13 +59,34 @@ function DETOKN {
 	fi
 	./transform.sh "$propertyFile" "$1" "$3"
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! ./transform.sh $1 $2 $3 returned $exitCode"
+		echo "[$scriptName] Exception! ./transform.sh \"$propertyFile\" \"$1\" \"$3\" returned $exitCode"
 		exit $exitCode
 	fi
 }
-echo
-echo "~~~~~~ Starting Execution Engine ~~~~~~~"
-echo
+
+function REPLAC {
+	# Replace in file
+	#  required : file, relative to current workspace
+	#  required : token, the token to be replaced
+	#  required : value, the replacement value
+	fileName="$1"
+	token="$2"
+	value="$3"
+	# Mac OSX sed 
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		executeFunction="sed -i '' -- \"s^${token}^${value}^g\" ${fileName}"
+	else
+		executeFunction="sed -i -- \"s^${token}^${value}^g\" ${fileName}"
+	fi
+	echo "$executeFunction"
+	eval "$executeFunction"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}
+
+echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "$scriptName :   SOLUTION    : $SOLUTION"
 echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER"
 echo "$scriptName :   TARGET      : $TARGET"
@@ -232,24 +253,6 @@ while read LINE; do
     	    EXECUTABLESCRIPT+=" $deployHost $deployUser $scriptLine"
 		    ;;
 		esac
-	fi
-
-	# Replace in file
-	#  required : file, relative to current workspace
-	#  required : name, the token to be replaced
-	#  required : value, the replacement value
-	if [ "$feature" == "REPLAC" ]; then
-		printf "$LINE ==> "
-		declare -a "array=($LINE)"
-		fileName=${array[1]}
-		name=${array[2]}
-		value=${array[3]}
-		# Mac OSX sed 
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			EXECUTABLESCRIPT="sed -i '' -- \"s^${name}^${value}^g\" ${fileName}"
-		else
-			EXECUTABLESCRIPT="sed -i -- \"s^${name}^${value}^g\" ${fileName}"
-		fi
 	fi
 
 	# Compress to file

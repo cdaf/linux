@@ -86,6 +86,19 @@ function REPLAC {
 	fi
 }
 
+function MAKDIR {
+	# Create Directory, if exists do nothing, else create
+	#  required : directory name
+	dirName="$1"
+	executeFunction="mkdir -pv $dirName"
+	echo "$executeFunction"
+	eval "$executeFunction"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "$scriptName :   SOLUTION    : $SOLUTION"
 echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER"
@@ -197,12 +210,6 @@ while read LINE; do
 	if [ "$feature" == "ASSIGN" ]; then
 		printf "$LINE ==> "
 		EXECUTABLESCRIPT="${LINE:8}"
-	fi
-
-	# Create Directory (verbose)
-	if [ "$feature" == "MAKDIR" ]; then
-		printf "$LINE ==> "
-		EXECUTABLESCRIPT="mkdir -pv ${LINE:7}"
 	fi
 
 	# Delete (verbose)

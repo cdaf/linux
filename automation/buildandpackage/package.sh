@@ -55,14 +55,20 @@ echo "$scriptName :   AUTOMATIONROOT           : $AUTOMATIONROOT"
 
 # Process all entry values
 automationHelper="$AUTOMATIONROOT/remote"
-SOLUTIONROOT="$AUTOMATIONROOT/solution"
-for i in $(ls -d */); do
-	directoryName=${i%%/}
+
+# Check for user defined solution folder, i.e. outside of automation root, if found override solution root
+printf "$scriptName :   SOLUTIONROOT   : "
+for directoryName in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		SOLUTIONROOT="$directoryName"
 	fi
 done
-echo "$scriptName :   SOLUTIONROOT             : $SOLUTIONROOT"
+if [ -z "$SOLUTIONROOT" ]; then
+	SOLUTIONROOT="$automationRoot/solution"
+	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
+else
+	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
+fi
 
 printf "$scriptName :   Pre-package Tasks        : "
 prepackageTasks="$SOLUTIONROOT/package.tsk"

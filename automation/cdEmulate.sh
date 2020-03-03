@@ -41,9 +41,8 @@ export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "$scriptName :   solutionRoot   : "
-for i in $(ls -d */); do
-	directoryName=${i%%/}
-	if [ -f "$directoryName/CDAF.solution" ]; then
+for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
+	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		solutionRoot="$directoryName"
 	fi
 done

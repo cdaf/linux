@@ -10,7 +10,7 @@ if [ -z "$SOLUTION" ]; then
 	echo "$scriptName : Solution not passed!"
 	exit 1
 else
-	echo "$scriptName :   SOLUTION        : $SOLUTION"
+	echo "$scriptName :   SOLUTION       : $SOLUTION"
 fi
 
 BUILDNUMBER="$2"
@@ -18,39 +18,39 @@ if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName : Build Number not passed!"
 	exit 2
 else
-	echo "$scriptName :   BUILDNUMBER     : $BUILDNUMBER"
+	echo "$scriptName :   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 REVISION="$3"
 if [ -z "$REVISION" ]; then
 	REVISION="Revision"
-	echo "$scriptName :   REVISION        : $REVISION (default)"
+	echo "$scriptName :   REVISION       : $REVISION (default)"
 else
-	echo "$scriptName :   REVISION        : $REVISION"
+	echo "$scriptName :   REVISION       : $REVISION"
 fi
 
 ACTION="$4"
 if [ -z "$ACTION" ]; then
-	echo "$scriptName :   ACTION          : $ACTION"
+	echo "$scriptName :   ACTION         : $ACTION"
 	BUILDENV='BUILDER'
-	echo "$scriptName :   BUILDENV        : $BUILDENV (default because ACTION not supplied)"
+	echo "$scriptName :   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
 else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
-		echo "$scriptName :   ACTION          : $ACTION (Build Environment will be set to default)"
+		echo "$scriptName :   ACTION         : $ACTION (Build Environment will be set to default)"
 		BUILDENV='BUILDER'
-		echo "$scriptName :   BUILDENV        : $BUILDENV (default)"
+		echo "$scriptName :   BUILDENV       : $BUILDENV (default)"
 	else
 		BUILDENV="$ACTION"
-		echo "$scriptName :   ACTION          : $ACTION"
-		echo "$scriptName :   BUILDENV        : $BUILDENV (derived from action)"
+		echo "$scriptName :   ACTION         : $ACTION"
+		echo "$scriptName :   BUILDENV       : $BUILDENV (derived from action)"
 	fi
 fi
 
-# Look for automation root definition, if not found, default
+# Look for automation root definition
 AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
-echo "$scriptName :   AUTOMATIONROOT  : $AUTOMATIONROOT (derived from action)"
+echo "$scriptName :   AUTOMATIONROOT : $AUTOMATIONROOT"
 
 AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
@@ -61,8 +61,9 @@ for directoryName in $(find . -mindepth 1 -maxdepth 1 -type d); do
 		SOLUTIONROOT="$directoryName"
 	fi
 done
-if [ -z "$SOLUTIONROOT" ]; then
-	SOLUTIONROOT="$automationRoot/solution"
+
+if [ -z ${SOLUTIONROOT+x} ]; then
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
 	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
 	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"

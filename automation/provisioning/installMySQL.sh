@@ -31,18 +31,29 @@ else
 	echo "[$scriptName]   version  : $version ($install)"
 fi
 
+if [ $(whoami) != 'root' ];then
+	elevate='sudo'
+	echo "[$scriptName]   whoami         : $(whoami)"
+else
+	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+fi
+
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution"
 uname -a
 centos=$(uname -a | grep el)
 if [ -z "$centos" ]; then
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
-	echo "[$scriptName] sudo apt-get update"
+	echo "[$scriptName] $elevate apt-get update"
 	echo
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do
-		sudo apt-get update
+		if [ -n $elevate ]; then
+			sudo apt-get update
+		else
+			apt-get update
+		fi
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 	   	    ((count++))
@@ -57,13 +68,19 @@ if [ -z "$centos" ]; then
 		exit $exitCode
 	fi
 	# debconf-utils allows the passing of answer values
-	executeExpression 'sudo apt-get install -y debconf-utils'
+	executeExpression '$elevate apt-get install -y debconf-utils'
 	echo "[$scriptName] Load installer responses"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install mysql-server/root_password password \$password\""
-	sudo debconf-set-selections <<< "$install mysql-server/root_password password $password"
-	echo "[$scriptName]   sudo debconf-set-selections <<< \"$install  mysql-server/root_password_again password \$password\""
-	sudo debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
-	sudo apt-get install -y $install
+	echo "[$scriptName]   $elevate debconf-set-selections <<< \"$install mysql-server/root_password password \$password\""
+	echo "[$scriptName]   $elevate debconf-set-selections <<< \"$install  mysql-server/root_password_again password \$password\""
+	if [ -n $elevate ]; then
+		sudo debconf-set-selections <<< "$install mysql-server/root_password password $password"
+		sudo debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
+		sudo apt-get install -y $install
+	else
+		debconf-set-selections <<< "$install mysql-server/root_password password $password"
+		debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
+		apt-get install -y $install
+	fi
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
@@ -73,13 +90,17 @@ if [ -z "$centos" ]; then
 	
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	echo "[$scriptName] sudo yum check-update"
+	echo "[$scriptName] $elevate yum check-update"
 	echo
 	timeout=3
 	count=0
 	while [ $count -lt $timeout ]; do
 		# A "normal" exit code is 100, so cannot use executeExpression
-		sudo yum check-update
+		if [ -n $elevate ]; then
+			sudo yum check-update
+		else
+			yum check-update
+		fi
 		exitCode=$?
 		if [ "$exitCode" != "100" ]; then
 	   	    ((count++))
@@ -95,11 +116,11 @@ else
 	fi
 	echo
 	
-	executeExpression "sudo yum install -y mariadb-server mariadb"
-	executeExpression "sudo iptables -I INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT"
-	executeExpression "sudo iptables -I OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT"
-	executeExpression "sudo systemctl enable mariadb.service"
-	executeExpression "sudo systemctl start mariadb.service"
+	executeExpression "$elevate yum install -y mariadb-server mariadb"
+	executeExpression "$elevate iptables -I INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT"
+	executeExpression "$elevate iptables -I OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT"
+	executeExpression "$elevate systemctl enable mariadb.service"
+	executeExpression "$elevate systemctl start mariadb.service"
 
 fi
 

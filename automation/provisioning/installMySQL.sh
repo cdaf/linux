@@ -33,9 +33,9 @@ fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami         : $(whoami)"
+	echo "[$scriptName]   whoami   : $(whoami)"
 else
-	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
 fi
 
 # Install from global repositories only supporting CentOS and Ubuntu
@@ -49,7 +49,7 @@ if [ -z "$centos" ]; then
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do
-		if [ -n $elevate ]; then
+		if [ $elevate == 'sudo' ]; then
 			sudo apt-get update
 		else
 			apt-get update
@@ -72,7 +72,7 @@ if [ -z "$centos" ]; then
 	echo "[$scriptName] Load installer responses"
 	echo "[$scriptName]   $elevate debconf-set-selections <<< \"$install mysql-server/root_password password \$password\""
 	echo "[$scriptName]   $elevate debconf-set-selections <<< \"$install  mysql-server/root_password_again password \$password\""
-	if [ -n $elevate ]; then
+	if [ $elevate == 'sudo' ]; then
 		sudo debconf-set-selections <<< "$install mysql-server/root_password password $password"
 		sudo debconf-set-selections <<< "$install mysql-server/root_password_again password $password"
 		sudo apt-get install -y $install
@@ -96,7 +96,7 @@ else
 	count=0
 	while [ $count -lt $timeout ]; do
 		# A "normal" exit code is 100, so cannot use executeExpression
-		if [ -n $elevate ]; then
+		if [ $elevate == 'sudo' ]; then
 			sudo yum check-update
 		else
 			yum check-update

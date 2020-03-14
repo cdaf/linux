@@ -157,6 +157,8 @@ else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		echo;writeLog "Install prerequisites"
 		if [ "$ubuntu" ]; then
+			# as per https://askubuntu.com/questions/1035030/virtualbox-guest-additions-installation-problem
+			executeExpression "sudo apt-get install -y build-essential gcc make perl dkms"
 			executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
 		else # CentOS or RHEL
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"

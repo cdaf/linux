@@ -142,7 +142,7 @@ fi
 
 if [ ! -z "$password" ]; then
 	echo "[$scriptName] Test connection"
-	executeExpression 'mysql -u vagrant -p$password -e "show databases"'
+	executeExpression 'mysql -u root -p$password -e "show databases"'
 fi
 
 echo "[$scriptName] --- end ---"

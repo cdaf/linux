@@ -20,7 +20,7 @@ if [ -z "$password" ]; then
 	IFS=' ' read -ra ADDR <<< $notRandom
 	password=${ADDR[0]}
 	export MY_SQL_PASSWORD=$password
-	echo "[$scriptName]   password : (not supplied, generated password in\$MY_SQL_PASSWORD)"
+	echo "[$scriptName]   password : (not supplied, generated password in \$MY_SQL_PASSWORD)"
 else
 	echo "[$scriptName]   password : ****************"
 fi

@@ -16,7 +16,11 @@ scriptName='installMySQL.sh'
 echo "[$scriptName] --- start ---"
 password="$1"
 if [ -z "$password" ]; then
-	echo "[$scriptName]   password : (none)"
+	notRandom=$(date | md5sum)
+	IFS=' ' read -ra ADDR <<< $notRandom
+	password=${ADDR[0]}
+	export MY_SQL_PASSWORD=$password
+	echo "[$scriptName]   password : (not supplied, generated password in\$MY_SQL_PASSWORD)"
 else
 	echo "[$scriptName]   password : ****************"
 fi

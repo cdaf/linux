@@ -16,7 +16,10 @@ scriptName='installMySQL.sh'
 echo "[$scriptName] --- start ---"
 password="$1"
 if [ -z "$password" ]; then
-	echo "[$scriptName]   password : (none)"
+	notRandom=$(date | md5sum)
+	IFS=' ' read -ra ADDR <<< $notRandom
+	password=${ADDR[0]}
+	echo "[$scriptName]   password : $password (not supplied so generated)"
 else
 	echo "[$scriptName]   password : ****************"
 fi
@@ -142,7 +145,7 @@ fi
 
 if [ ! -z "$password" ]; then
 	echo "[$scriptName] Test connection"
-	executeExpression 'mysql -u vagrant -p$password -e "show databases"'
+	executeExpression 'mysql -u root -p$password -e "show databases"'
 fi
 
 echo "[$scriptName] --- end ---"

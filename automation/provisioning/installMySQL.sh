@@ -14,8 +14,8 @@ function executeExpression {
 scriptName='installMySQL.sh'
 
 echo "[$scriptName] --- start ---"
-prefix="$1"
-if [ -z "$prefix" ]; then
+password="$1"
+if [ -z "$password" ]; then
 	echo "[$scriptName]   password : (none)"
 else
 	echo "[$scriptName]   password : ****************"
@@ -37,6 +37,14 @@ if [ $(whoami) != 'root' ];then
 else
 	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
 fi
+
+test=$(mysql -V 2>&1)
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] MySQL      : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	echo "[$scriptName] MySQL      : ${ADDR[4]//,}"
+fi	
 
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution"
@@ -122,6 +130,19 @@ else
 	executeExpression "$elevate systemctl enable mariadb.service"
 	executeExpression "$elevate systemctl start mariadb.service"
 
+fi
+
+test=$(mysql -V 2>&1)
+if [[ "$test" == *"not found"* ]]; then
+	echo "[$scriptName] MySQL      : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	echo "[$scriptName] MySQL      : ${ADDR[4]//,}"
+fi	
+
+if [ ! -z "$password" ]; then
+	echo "[$scriptName] Test connection"
+	executeExpression 'mysql -u vagrant -p$password -e "show databases"'
 fi
 
 echo "[$scriptName] --- end ---"

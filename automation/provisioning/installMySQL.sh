@@ -16,10 +16,7 @@ scriptName='installMySQL.sh'
 echo "[$scriptName] --- start ---"
 password="$1"
 if [ -z "$password" ]; then
-	notRandom=$(date | md5sum)
-	IFS=' ' read -ra ADDR <<< $notRandom
-	password=${ADDR[0]}
-	echo "[$scriptName]   password : $password (not supplied so generated)"
+	echo "[$scriptName]   password : (not supplied so generated)"
 else
 	echo "[$scriptName]   password : ****************"
 fi
@@ -43,17 +40,16 @@ fi
 
 test=$(mysql -V 2>&1)
 if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] MySQL      : (not installed)"
+	echo "[$scriptName]   MySQL    : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	echo "[$scriptName] MySQL      : ${ADDR[4]//,}"
+	echo "[$scriptName]   MySQL    : ${ADDR[4]//,}"
 fi	
 
 # Install from global repositories only supporting CentOS and Ubuntu
 echo "[$scriptName] Determine distribution"
-uname -a
-centos=$(uname -a | grep el)
-if [ -z "$centos" ]; then
+test="`yum --version 2>&1`"
+if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
 	echo "[$scriptName] $elevate apt-get update"
 	echo

@@ -14,7 +14,14 @@ function executeExpression {
 scriptName='mySQLAddDB.sh'
 
 echo "[$scriptName] --- start ---"
-dbName="$1"
+dbPassword="$1"
+if [ -z "$dbPassword" ]; then
+	echo "[$scriptName] Error, dbPassword not supplied!"; exit 6112
+else
+	echo "[$scriptName]   dbPassword : ****************"
+fi
+
+dbName="$2"
 if [ -z "$dbName" ]; then
 	dbName='mydb'
 	echo "[$scriptName]   dbName     : $dbName (default)"
@@ -22,7 +29,7 @@ else
 	echo "[$scriptName]   dbName     : $dbName"
 fi
 
-dbUser="$2"
+dbUser="$3"
 if [ -z "$dbUser" ]; then
 	dbUser='mydatabaseuser'
 	echo "[$scriptName]   dbUser     : $dbUser (default)"
@@ -30,28 +37,35 @@ else
 	echo "[$scriptName]   dbUser     : $dbUser"
 fi
 
-dbPassword="$3"
-if [ -z "$dbPassword" ]; then
-	echo "[$scriptName]   dbPassword : (none)"
+adminPass="$4"
+if [ -z "$adminPass" ]; then
+	echo "[$scriptName]   adminPass  : (none)"
 else
-	echo "[$scriptName]   dbPassword : ****************"
+	echo "[$scriptName]   adminPass  : ****************"
+	admin="-p${adminPass}"
 fi
 
-if [ -z "$dbPassword" ]; then
-	echo "[$scriptName] Create database, ignore error if exists"
-	mysql -u root -e "create database ${dbName};"
-	echo
-	echo "[$scriptName] Set database owners, these can be rerun"
-	mysql -u root -e "grant usage on *.* to ${dbUser}@localhost identified by '${dbPassword}';"
-	mysql -u root -e "grant all privileges on ${dbName}.* to ${dbUser}@localhost;"
+if [ -z "$adminPass" ]; then
+	userExists=$(mysql -u root --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 else
-	echo "[$scriptName] Create database, ignore error if exists"
-	mysql -u root --password=${dbPassword} -e "create database ${dbName};"
-	echo
-	echo "[$scriptName] Set database owners, these can be rerun"
-	mysql -u root --password=${dbPassword} -e "grant usage on *.* to ${dbUser}@localhost identified by '${dbPassword}';"
-	mysql -u root --password=${dbPassword} -e "grant all privileges on ${dbName}.* to ${dbUser}@localhost;"
+	userExists=$(mysql -u root -p$adminPass --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 fi
+	
+if [[ $userExists == '1' ]]; then
+	echo "[$scriptName] User $dbUser exists"
+else
+	executeExpression "mysql -u root ${admin} -e \"CREATE USER '$dbUser'@'localhost';\""
+fi
+
+echo "[$scriptName] Create database, ignore error if exists"
+executeExpression "mysql -u root ${admin} -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
+
+echo; echo "[$scriptName] Set database owners, these can be rerun"
+executeExpression "mysql -u root ${admin} -e \"GRANT USAGE ON *.* TO ${dbUser}@localhost IDENTIFIED BY '\${dbPassword}';\""
+executeExpression "mysql -u root ${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO ${dbUser}@localhost;\""
+
+echo; echo "[$scriptName] Verify"
+executeExpression "mysql -u ${dbUser} -p\${dbPassword} -e 'SHOW DATABASES'"
 
 echo "[$scriptName] --- end ---"
 

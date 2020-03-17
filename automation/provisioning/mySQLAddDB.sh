@@ -45,27 +45,38 @@ else
 	admin="-p${adminPass}"
 fi
 
+originHost="$5"
+if [ -z "$originHost" ]; then
+	originHost='localhost'
+	echo "[$scriptName]   originHost : (not supplied, set to default)"
+else
+	echo "[$scriptName]   originHost : $originHost"
+fi
+
 if [ -z "$adminPass" ]; then
 	userExists=$(mysql -u root --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 else
 	userExists=$(mysql -u root -p$adminPass --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 fi
-	
+
 if [[ $userExists == '1' ]]; then
 	echo "[$scriptName] User $dbUser exists"
 else
-	executeExpression "mysql -u root ${admin} -e \"CREATE USER '$dbUser'@'localhost';\""
+	executeExpression "mysql -u root ${admin} -e \"CREATE USER '${dbUser}'@'${originHost}';\""
 fi
 
 echo "[$scriptName] Create database, ignore error if exists"
 executeExpression "mysql -u root ${admin} -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
 
 echo; echo "[$scriptName] Set database owners, these can be rerun"
-executeExpression "mysql -u root ${admin} -e \"GRANT USAGE ON *.* TO ${dbUser}@localhost IDENTIFIED BY '\${dbPassword}';\""
-executeExpression "mysql -u root ${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO ${dbUser}@localhost;\""
+executeExpression "mysql -u root ${admin} -e \"GRANT USAGE ON *.* TO '${dbUser}'@'${originHost}' IDENTIFIED BY '\${dbPassword}';\""
+executeExpression "mysql -u root ${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO '${dbUser}'@'${originHost}';\""
 
-echo; echo "[$scriptName] Verify"
-executeExpression "mysql -u ${dbUser} -p\${dbPassword} -e 'SHOW DATABASES'"
+if [[ $originHost == 'localhost' ]]; then
+	echo; echo "[$scriptName] Verify"
+	executeExpression "mysql -u ${dbUser} -p\${dbPassword} -e 'SHOW DATABASES'"
+else
+	echo; echo "[$scriptName] Verification not attempted because originHost [${originHost}] is not localhost."
+fi
 
 echo "[$scriptName] --- end ---"
-

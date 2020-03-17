@@ -31,6 +31,13 @@ else
 	echo "[$scriptName]   version  : $version ($install)"
 fi
 
+bind="$3"
+if [ -z "$bind" ]; then
+	echo "[$scriptName]   bind     : (not supplied, will bind to all)"
+else
+	echo "[$scriptName]   bind     : $bind"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami   : $(whoami)"
@@ -137,7 +144,28 @@ if [[ "$test" == *"not found"* ]]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "[$scriptName] MySQL      : ${ADDR[4]//,}"
+fi
+
+executeExpression "cp /etc/mysql/mysql.conf.d/mysqld.cnf ."
+if [ -f "mysqld.cnf.bak" ]; then
+	executeExpression "rm mysqld.cnf.bak"
+fi
+
+executeExpression "sed -i.bak '/bind-address/d' mysqld.cnf"
+if [ ! -z "$bind" ]; then
+	echo "[$scriptName] Add bind /etc/mysql/mysql.conf.d/mysqld.cnf "; echo
+	echo "bind-address = $bind" > /etc/mysql/mysql.conf.d/mysqld.cnf
 fi	
+echo; echo "[$scriptName] List any differences ..."; echo
+diff --suppress-common-lines --side-by-side mysqld.cnf mysqld.cnf.bak
+
+if [ $? -ne 0 ]; then
+	echo "[$scriptName] Configuration has changed, restart MqSQL"; echo
+	executeExpression "$elevate cp -f mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf"
+	executeExpression "$elevate service mysql restart"
+else
+	echo "[$scriptName] Configuration has not changed, restart not required"; echo
+fi
 
 if [ ! -z "$password" ]; then
 	echo "[$scriptName] Test connection"
@@ -145,4 +173,3 @@ if [ ! -z "$password" ]; then
 fi
 
 echo "[$scriptName] --- end ---"
-

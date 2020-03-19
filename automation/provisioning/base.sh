@@ -35,6 +35,41 @@ function executeYumCheck {
 	done
 }
 
+function executeAptCheck {
+	if [[ "$elevate" == 'sudo' ]]; then
+		sudo killall apt apt-get
+	else
+		killall apt apt-get
+	fi
+	counter=1
+	max=5
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		dailyUpdate=$(ps -ef | grep apt | grep -v grep)
+		if [ -n "${dailyUpdate}" ]; then
+			token='APT::Periodic::Update-Package-Lists \"1\";'
+			value='APT::Periodic::Update-Package-Lists \"0\";'
+			executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
+			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			echo
+			echo "[$scriptName] ${dailyUpdate}"
+			IFS=' ' read -ra ADDR <<< $dailyUpdate
+			echo
+			executeExpression "$elevate kill -9 ${ADDR[1]}"
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Wait 5 seconds and retry (${counter} of ${max} ..."
+				executeExpression "sleep 5"
+			else
+				echo "[$scriptName] Failed to stop automatic update! Max retries (${max}) reached."
+				exit 5003
+			fi					 
+		else
+			success='yes'
+		fi
+	done
+}
+
 scriptName='base.sh'
 
 echo "[$scriptName] --- start ---"
@@ -56,21 +91,12 @@ fi
 
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
-	echo
+	apt='yes'
+	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"; echo
 	echo "[$scriptName] Check that APT is available"
-	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-	if [ -n "${dailyUpdate}" ]; then
-		echo
-		echo "[$scriptName] ${dailyUpdate}"
-		IFS=' ' read -ra ADDR <<< $dailyUpdate
-		echo
-		executeExpression "$elevate kill -9 ${ADDR[1]}"
-		executeExpression "sleep 5"
-	fi	
-	
-	echo "[$scriptName] $elevate apt-get update"
-	echo
+	executeAptCheck
+
+	echo "[$scriptName] $elevate apt-get update"; echo
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do

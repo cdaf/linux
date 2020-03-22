@@ -47,10 +47,12 @@ function executeAptCheck {
 	while [ "$success" != 'yes' ]; do
 		dailyUpdate=$(ps -ef | grep apt | grep -v grep)
 		if [ -n "${dailyUpdate}" ]; then
-			token='APT::Periodic::Update-Package-Lists \"1\";'
-			value='APT::Periodic::Update-Package-Lists \"0\";'
-			executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
-			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
+				token='APT::Periodic::Update-Package-Lists \"1\";'
+				value='APT::Periodic::Update-Package-Lists \"0\";'
+				executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
+				executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			fi
 			echo
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate

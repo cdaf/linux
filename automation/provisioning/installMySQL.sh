@@ -16,7 +16,7 @@ scriptName='installMySQL.sh'
 echo "[$scriptName] --- start ---"
 password="$1"
 if [ -z "$password" ]; then
-	echo "[$scriptName]   password : (not supplied so generated)"
+	echo "[$scriptName]   password : (not supplied will not be set)"
 else
 	echo "[$scriptName]   password : ****************"
 fi

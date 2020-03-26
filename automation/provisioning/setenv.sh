@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	echo "[$scriptName] $1"
+	echo "$1"
 	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
@@ -23,12 +23,25 @@ else
 	echo "[$scriptName]   variable : $variable"
 fi
 
+secret="$4"
+if [ -z "$secret" ]; then
+	secret='no'
+else
+	if [ "$secret" != 'yes' ] && [ "$secret" != 'no' ]; then
+		echo "[$scriptName] secret ($secret) must be yes or no, exiting with code 4"; exit 4
+	fi
+fi
+
 if [ -z "$2" ]; then
 	echo "Value not passed, HALT!"
 	exit 1
 else
 	value="$2"
-	echo "[$scriptName]   value    : $value"
+	if [[ "$secret" == 'yes' ]]; then
+		echo "[$scriptName]   value    : **************"
+	else
+		echo "[$scriptName]   value    : $value"
+	fi
 fi
 
 level="$3"
@@ -39,15 +52,17 @@ else
 	if [ "$level" == 'machine' ] || [ "$level" == 'user' ]; then
 		echo "[$scriptName]   level    : $level"
 	else
-		echo "[$scriptName] level must be machine or user, exiting with code 3"; exit 3
+		echo "[$scriptName] level ($level) must be machine or user, exiting with code 3"; exit 3
 	fi
 fi
 
+echo "[$scriptName]   secret   : $secret"
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami  : $(whoami)"
+	echo "[$scriptName]   whoami   : $(whoami)"
 else
-	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
+	echo "[$scriptName]   whoami   : $(whoami) (elevation not required)"
 fi
 
 if [ "$level" == 'user' ]; then
@@ -61,9 +76,11 @@ else
 	executeExpression "chmod +x $startScript"
 	executeExpression "$elevate cp -rv $startScript $systemLocation"
 	executeExpression "rm $startScript"
-	executeExpression "source $systemLocation/$startScript"
+	executeExpression "source ${systemLocation}${startScript}"
 fi
 
-executeExpression "echo \$$variable"
+if [[ "$secret" == 'no' ]]; then
+	executeExpression "echo \$$variable"
+fi
 
 echo "[$scriptName] --- end ---"

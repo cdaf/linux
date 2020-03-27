@@ -66,13 +66,21 @@ else
 fi
 
 if [ "$level" == 'user' ]; then
-	executeExpression "echo 'export $variable=\"$value\"' >> $HOME/.bashrc"
+	if [[ "$secret" == 'no' ]]; then
+		executeExpression "echo 'export $variable=\"$value\"' >> $HOME/.bashrc"
+	else
+		echo "export $variable=\"$value\"" >> $HOME/.bashrc
+	fi
 	executeExpression "source $HOME/.bashrc"
 else
 	systemLocation='/etc/profile.d/'
 	startScript="$variable"
 	startScript+='.sh'
-	executeExpression "echo 'export $variable=\"$value\"' > $startScript"
+	if [[ "$secret" == 'no' ]]; then
+		executeExpression "echo 'export $variable=\"$value\"' > $startScript"
+	else
+		echo "export $variable=\"$value\"" > $startScript
+	fi
 	executeExpression "chmod +x $startScript"
 	executeExpression "$elevate cp -rv $startScript $systemLocation"
 	executeExpression "rm $startScript"

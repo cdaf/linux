@@ -124,7 +124,7 @@ if [[ "$test" == *"not found"* ]]; then
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-		executeExpression "$elevate apt-get install -y $install"
+		executeExpression "$elevate apt-get install -y --fix-missing $install"
 	fi
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"

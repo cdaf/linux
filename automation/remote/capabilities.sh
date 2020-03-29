@@ -4,6 +4,7 @@ scriptName='capabilities.sh'
 
 echo
 echo "[$scriptName] --- start ---"
+
 capability=$1
 if [ -z "$capability" ]; then
 	echo "[$scriptName] capability not supplied, provide listing only"
@@ -19,6 +20,13 @@ fi
 
 echo
 echo "[$scriptName] System features"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+if [ -f "$AUTOMATIONROOT/CDAF.linux" ]; then
+	productVersion=$(cat ~/git/linux/automation/CDAF.linux | grep productVersion)
+	IFS='=' read -ra ADDR <<< $productVersion
+	echo "[$scriptName]   CDAF     : ${ADDR[1]}"
+fi
+
 test="`hostname -f 2>&1`"
 if [ $? -ne 0 ]; then
 	echo "[$scriptName]   hostname : $(hostname)"

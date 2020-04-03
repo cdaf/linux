@@ -1,45 +1,34 @@
 #!/usr/bin/env bash
 set -e
-scriptName='loadAzureKeyVaultEnvVars.sh'
+scriptName='loadAzureKeyVaultProperties.sh'
 
 echo "[$scriptName] --- Start ---"
-TARGET=$1
-if [ -z "$TARGET" ]; then
-	echo "[$scriptName] TARGET not passed. HALT!"
+secretsFile=$1
+if [ ! -f "${secretsFile}" ]; then
+	echo "[$scriptName][ERROR] Secrets file (${secretsFile}) not found!"
 	echo "exit 1101"; exit 1101
 else
-	echo "[$scriptName]   TARGET    : $TARGET"
+	echo "[$scriptName]   secretsFile : $secretsFile"
 fi
 
-SECRETS="SECRET_${TARGET}"
-if [ ! -f "${SECRETS}" ]; then
-	echo "[$scriptName][WANR] TARGET File (${SECRETS}) not found."
+vaultName=$2
+if [ -z "$vaultName" ]; then
+	echo "[$scriptName] vaultName not passed. HALT!"
+	echo "exit 1102"; exit 1102
 else
-	vaultName=$2
-	if [ -z "$vaultName" ]; then
-		echo "[$scriptName] vaultName not passed. HALT!"
-		echo "exit 1102"; exit 1102
-	else
-		echo "[$scriptName]   vaultName : $vaultName"
-	fi
+	echo "[$scriptName]   vaultName   : $vaultName"
 fi
 
-PROPERTIES="SETTING_${TARGET}"
-if [ ! -f "${PROPERTIES}" ]; then
-	echo "[$scriptName][WARN] TARGET File (${PROPERTIES}) not found."
+outFile=$3
+if [ -z "$outFile" ]; then
+	echo "[$scriptName] outFile not passed. HALT!"
+	echo "exit 1103"; exit 1103
 else
-	#deleting lines starting with # ,blank lines ,lines with only spaces
-	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
-	
-	while read -r LINE; do
-		IFS="\="
-		read -ra array <<< "$LINE"
-		./setenv.sh "${array[0]}" "${array[1]}"
-	
-	done < <(echo "$fileWithoutComments")
+	echo "[$scriptName]   outFile     : $outFile"
 fi
 
-if [ -f "${SECRETS}" ]; then
+echo "# Generated from $vaultName using $secretsFile" > $outFile
+if [ -f "${secretsFile}" ]; then
 	# GET authentication token for secret retrieval from metadata url
 	token=$(curl -s -H "Metadata: true" "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net" | jq --raw-output '.access_token')
 	if [ $token == 'null' ]; then
@@ -48,7 +37,7 @@ if [ -f "${SECRETS}" ]; then
 	fi
 
 	#deleting lines starting with # ,blank lines ,lines with only spaces
-	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $SECRETS)
+	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $secretsFile)
 	
 	while read -r LINE; do
 		IFS="\="
@@ -58,7 +47,7 @@ if [ -f "${SECRETS}" ]; then
 			echo "[$scriptName] Secret retrieval returned SecretNotFound for ${array[1]}!"
 			echo "exit 1107"; exit 1104
 		fi	
-		./setenv.sh "${array[0]}" "${secret}" "machine" "yes"
+		echo "${array[0]}=${secret}" >> $outFile
 	
 	done < <(echo "$fileWithoutComments")
 fi

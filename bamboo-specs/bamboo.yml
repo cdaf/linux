@@ -15,13 +15,17 @@ Build Job:
     - script:
         - '#!/bin/bash'
         - 'echo "automation" > automation/solution/storeForLocal'
+        - 'echo "cat automation/solution/storeForLocal"'
         - 'cat automation/solution/storeForLocal'
         - 'echo "REMOVE ~/.cdaf" > automation/solution/custom/cdaf-deploy.tsk'
         - 'echo "VECOPY automation ~/.cdaf" >> automation/solution/custom/cdaf-deploy.tsk'
+        - 'echo "cat automation/solution/custom/cdaf-deploy.tsk"'
         - 'cat automation/solution/custom/cdaf-deploy.tsk'
         - 'echo "context  target     deployTaskOverride" > automation/solution/cdaf.cm'
         - 'echo "local    CDAF       cdaf-deploy.tsk" >>automation/solution/cdaf.cm'
+        - 'echo "cat automation/solution/cdaf.cm"'
         - 'cat automation/solution/cdaf.cm'
+        - 'ls -al automation/solution'
         - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
 
   artifacts:
@@ -40,7 +44,7 @@ deployment:
   source-plan: CDAF-CDAFL
 
 release-naming:
-  next-version-name: 2.0.0.${bamboo.buildNumber}
+  next-version-name: ${bamboo.buildNumber}
 
 environments:
   - NO_PROP

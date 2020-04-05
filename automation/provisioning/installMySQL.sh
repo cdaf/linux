@@ -57,6 +57,7 @@ fi
 echo "[$scriptName] Determine distribution"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
+	ubuntu='yes'
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
 	echo "[$scriptName] $elevate apt-get update"
 	echo
@@ -146,30 +147,44 @@ else
 	echo "[$scriptName] MySQL      : ${ADDR[4]//,}"
 fi
 
-executeExpression "cp /etc/mysql/mysql.conf.d/mysqld.cnf ."
-if [ -f "mysqld.cnf.bak" ]; then
-	executeExpression "rm mysqld.cnf.bak"
-fi
-
-executeExpression "sed -i.bak '/bind-address/d' mysqld.cnf"
 if [ ! -z "$bind" ]; then
-	echo "[$scriptName] Add bind /etc/mysql/mysql.conf.d/mysqld.cnf "; echo
-	echo "bind-address = $bind" > /etc/mysql/mysql.conf.d/mysqld.cnf
-fi	
-echo; echo "[$scriptName] List any differences ..."; echo
-diff --suppress-common-lines --side-by-side mysqld.cnf mysqld.cnf.bak
+	if [[ "$ubuntu" == 'yes' ]]; then
+		confFile='/etc/mysql/mysql.conf.d/mysqld.cnf'
+	else
+		confFile='/etc/my.cnf'
+	fi
 
-if [ $? -ne 0 ]; then
-	echo "[$scriptName] Configuration has changed, restart MqSQL"; echo
-	executeExpression "$elevate cp -f mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf"
-	executeExpression "$elevate service mysql restart"
+	# remove previous backup if exists, the following sed will create a new back-up
+	executeExpression "cp ${confFile} ."
+	if [ -f "mysqld.cnf.bak" ]; then
+		executeExpression "rm mysqld.cnf.bak"
+	fi
+	
+	executeExpression "sed -i.bak '/bind-address/d' mysqld.cnf"
+	echo "[$scriptName] Add bind ${confFile} "; echo
+	if [[ "$ubuntu" == 'yes' ]]; then
+		echo "bind-address = $bind" > ${confFile}
+	else
+		token='[mysqld]'
+		value="[mysqld]\nbind-address = $bind"
+		sed -i -- "s^$token^$value^g" ${confFile}
+	fi
+	
+	echo; echo "[$scriptName] List any differences ..."; echo
+	diff --suppress-common-lines --side-by-side mysqld.cnf mysqld.cnf.bak
+	
+	if [ $? -ne 0 ]; then
+		echo "[$scriptName] Configuration has changed, restart MqSQL"; echo
+		executeExpression "$elevate cp -f mysqld.cnf ${confFile}"
+		executeExpression "$elevate service mysql restart"
+	else
+		echo "[$scriptName] Configuration has not changed, restart not required"; echo
+	fi
 else
-	echo "[$scriptName] Configuration has not changed, restart not required"; echo
-fi
-
-if [ ! -z "$password" ]; then
-	echo "[$scriptName] Test connection"
-	executeExpression 'mysql -u root -p$password -e "show databases"'
-fi
+	if [ ! -z "$password" ]; then
+		echo "[$scriptName] Test connection"
+		executeExpression 'mysql -u root -p$password -e "show databases"'
+	fi
+fi	
 
 echo "[$scriptName] --- end ---"

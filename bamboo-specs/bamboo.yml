@@ -25,7 +25,6 @@ Build Job:
         - 'echo "local    CDAF       cdaf-deploy.tsk" >>automation/solution/cdaf.cm'
         - 'echo "cat automation/solution/cdaf.cm"'
         - 'cat automation/solution/cdaf.cm'
-        - 'ls -al automation/solution'
         - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
 
   artifacts:

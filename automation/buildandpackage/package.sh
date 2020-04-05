@@ -64,7 +64,7 @@ for directoryName in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
-	SOLUTIONROOT="$automationRoot/solution"
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
 	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
 	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"

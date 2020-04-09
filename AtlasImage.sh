@@ -157,8 +157,6 @@ else
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		echo;writeLog "Install prerequisites"
 		if [ "$ubuntu" ]; then
-			# as per https://askubuntu.com/questions/1035030/virtualbox-guest-additions-installation-problem
-			executeExpression "sudo apt-get install -y build-essential gcc make perl dkms"
 			executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
 		else # CentOS or RHEL
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
@@ -196,8 +194,8 @@ if [ "$ubuntu" ]; then
 	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
-	executeExpression "sudo mount -o remount,ro /dev/sda2" # 18.04 changed from sda1 to sda2
-	executeExpression "sudo zerofree -v /dev/sda2"
+	executeExpression "sudo mount -o remount,ro /dev/sda1"
+	executeExpression "sudo zerofree -v /dev/sda1"	
 else # CentOS or RHEL
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"

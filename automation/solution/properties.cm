@@ -1,5 +1,5 @@
-context  target   deployHost        deployUser  deployLand
-remote   VAGRANT  server-1.sky.net  deployer    /opt/packages/$DEPLOY_TARGET
+context  target   deployHost  deployUser  deployLand
+remote   VAGRANT  target-1    deployer    /opt/packages/$DEPLOY_TARGET
 local    LINUX    localhost
 local    dev      localhost
 local    test     localhost

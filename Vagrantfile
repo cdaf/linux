@@ -54,12 +54,11 @@ Vagrant.configure(2) do |config|
         end
       end
 
-      # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up server-1 --provider hyperv
+      # vagrant up server-1 --provider hyperv
       server.vm.provider 'hyperv' do |hyperv, override|
         hyperv.memory = "#{vRAM}"
         hyperv.cpus = "#{vCPU}"
         override.vm.hostname  = "target-#{i}"
-        hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
         if ENV['VAGRANT_SMB_USER']
           override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
         end
@@ -93,12 +92,11 @@ Vagrant.configure(2) do |config|
       end
     end
 
-    # Microsoft Hyper-V does not support NAT or setting hostname. vagrant up build --provider hyperv
+    # vagrant up build --provider hyperv
     build.vm.provider 'hyperv' do |hyperv, override|
       hyperv.vmname = "linux-build"
       hyperv.memory = "#{vRAM}"
       hyperv.cpus = "#{vCPU}"
-      hyperv.ip_address_timeout = 300 # 5 minutes, default is 2 minutes (120 seconds)
       if ENV['VAGRANT_SMB_USER']
         override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
       end

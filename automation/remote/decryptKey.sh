@@ -26,7 +26,7 @@ if [ -z "$2" ]; then
 		exit $exitCode
 	fi
 else
-	test="`yum --version 2>&1`"
+	test="`gpg --version 2>&1`"
 	if [[ "$test" == *"not found"* ]]; then
 		gpg2 --decrypt  --batch --passphrase ${passphrase} ${encryptedFile}
 	else

@@ -15,6 +15,13 @@ end
 vRAM = BASE_MEMORY * SCALE_FACTOR
 vCPU = SCALE_FACTOR
 
+if rand(0..1) == 0
+  box = 'cdaf/CentOSLVM'
+else
+  box = 'cdaf/UbuntuLVM'
+end
+puts "Random Box is #{box}" 
+
 # This is provided to make scaling easier
 if ENV['MAX_SERVER_TARGETS']
   puts "Deploy targets (MAX_SERVER_TARGETS) = #{ENV['MAX_SERVER_TARGETS']}" 
@@ -28,7 +35,7 @@ Vagrant.configure(2) do |config|
   # Build Server connects to this host to perform deployment
   (1..MAX_SERVER_TARGETS).each do |i|
     config.vm.define "server-#{i}" do |server|
-      server.vm.box = 'cdaf/CentOSLVM'
+      server.vm.box = "#{box}"
 
       server.vm.provision 'shell', path: './automation/remote/capabilities.sh'
 
@@ -62,7 +69,7 @@ Vagrant.configure(2) do |config|
 
   # Build Server, fills the role of the build agent and delivers to the host above
   config.vm.define 'build' do |build|  
-    build.vm.box = 'cdaf/CentOSLVM'
+    build.vm.box = "#{box}"
     build.vm.provision 'shell', path: './automation/remote/capabilities.sh'
     build.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'CDAF_DELIVERY VAGRANT'
     build.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing

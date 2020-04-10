@@ -50,7 +50,7 @@ Vagrant.configure(2) do |config|
         virtualbox.cpus = "#{vCPU}"
         override.vm.network 'private_network', ip: "172.16.17.10#{i}"
         if ENV['SYNCED_FOLDER']
-          override.vm.synced_folder "#{SYNCED_FOLDER}", "/.provision"
+          override.vm.synced_folder "#{ENV['SYNCED_FOLDER']}", "/.provision"
         end
       end
 
@@ -86,7 +86,7 @@ Vagrant.configure(2) do |config|
       virtualbox.cpus = "#{vCPU}"
       override.vm.network 'private_network', ip: '172.16.17.100'
       if ENV['SYNCED_FOLDER']
-        override.vm.synced_folder "#{SYNCED_FOLDER}", "/.provision"
+        override.vm.synced_folder "#{ENV['SYNCED_FOLDER']}", "/.provision"
       end
       (1..MAX_SERVER_TARGETS).each do |s|
         override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} server-#{s}"

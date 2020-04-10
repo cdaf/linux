@@ -33,10 +33,73 @@ else
 	TASKLIST=$4
 fi
 
+function MAKDIR {
+	# Create Directory, if exists do nothing, else create
+	#  required : directory name
+	dirName="$1"
+	executeFunction="mkdir -pv $dirName"
+	echo "$executeFunction"
+	eval "$executeFunction"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}
+
+# Delete (verbose)
+function REMOVE {
+	executeFunction="rm -rfv $1"
+	echo "$executeFunction"
+	eval "$executeFunction"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
+# Delete (verbose)
+function VECOPY {
+	executeFunction="cp -vR $1 $2"
+	echo "$executeFunction"
+	eval "$executeFunction"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
+# Refresh Directory Contents
+# If single argument clear directory, if two arguments, copy source to clean destination
+function REFRSH {
+	if [ -z $2 ]; then
+		destination=$1
+	else
+		destination=$2
+		source=$1
+	fi
+	MAKDIR "$destination"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+	REMOVE "$destination/*"
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+	if [ ! -z $source ]; then
+		VECOPY "$source" "$destination"
+	fi
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
+# Decrypt a file
+#  required : file to descrypt
+#  optional : AES key, if not supplied will try SSH decrypt using $HOME/.ssl/private_key.pem
 function DECRYP {
-	# Decrypt a file
-	#  required : file to descrypt
-	#  optional : AES key, if not supplied will try SSH decrypt using $HOME/.ssl/private_key.pem
 	./decryptKey.sh "$1" "$2"
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode"
@@ -44,11 +107,11 @@ function DECRYP {
 	fi
 }  
 
+# Detokenise a file
+#  required : file to be detokenised
+#  optional : properties file, by default the TARGET is used
+#  optional : AES key
 function DETOKN {
-	# Detokenise a file
-	#  required : file to be detokenised
-	#  optional : properties file, by default the TARGET is used
-	#  optional : AES key
 	if [ -z "$1" ]; then
 		echo "Token file not supplied!"; exit 3523
 	fi
@@ -64,11 +127,11 @@ function DETOKN {
 	fi
 }
 
+# Replace in file
+#  required : file, relative to current workspace
+#  required : token, the token to be replaced
+#  required : value, the replacement value
 function REPLAC {
-	# Replace in file
-	#  required : file, relative to current workspace
-	#  required : token, the token to be replaced
-	#  required : value, the replacement value
 	fileName="$1"
 	token="$2"
 	value="$3"
@@ -78,19 +141,6 @@ function REPLAC {
 	else
 		executeFunction="sed -i -- \"s^${token}^${value}^g\" ${fileName}"
 	fi
-	echo "$executeFunction"
-	eval "$executeFunction"
-	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
-	fi
-}
-
-function MAKDIR {
-	# Create Directory, if exists do nothing, else create
-	#  required : directory name
-	dirName="$1"
-	executeFunction="mkdir -pv $dirName"
 	echo "$executeFunction"
 	eval "$executeFunction"
 	if [ "$exitCode" != "0" ]; then
@@ -210,18 +260,6 @@ while read LINE; do
 	if [ "$feature" == "ASSIGN" ]; then
 		printf "$LINE ==> "
 		EXECUTABLESCRIPT="${LINE:8}"
-	fi
-
-	# Delete (verbose)
-	if [ "$feature" == "REMOVE" ]; then
-		printf "$LINE ==> "
-		EXECUTABLESCRIPT="rm -rfv ${LINE:7}"
-	fi
-
-	# Copy (verbose)
-	if [ "$feature" == "VECOPY" ]; then
-		printf "$LINE ==> "
-		EXECUTABLESCRIPT="cp -vR ${LINE:7}"
 	fi
 
 	# Invoke a custom script

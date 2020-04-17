@@ -88,11 +88,23 @@ function REFRSH {
 		exit $exitCode
 	fi
 	if [ ! -z $source ]; then
-		VECOPY "$source" "$destination"
+		if [ -d $source ]; then
+			VECOPY "$source/*" "$destination"
+		else
+			VECOPY "$source" "$destination"
+		fi
 	fi
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
+	fi
+	if [ ! -z $source ]; then
+		for script in $(find "$destination" -name "*.sh"); do 
+			if [ ! -x "$file" ]; then
+				echo " +x -> '$script'"
+				chmod +x $script
+			fi
+		done
 	fi
 }  
 

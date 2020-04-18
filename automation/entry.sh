@@ -18,7 +18,7 @@ echo
 echo "$scriptName : ===================="
 echo "$scriptName : Targetless Branch CD"
 echo "$scriptName : ===================="
-automationRoot="$( cd "$(dirname "$0")" ; pwd -P )"
+AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
 echo "$scriptName :   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 

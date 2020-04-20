@@ -59,13 +59,13 @@ else
 fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-atomicPath='./automation/provisioning'
-if [ -f "$atomicPath" ]; then
+if [ -f './automation/provisioning/base.sh' ]; then
+	atomicPath='./automation'
 	echo "[$scriptName] Provisioning directory ($atomicPath) found"
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then
-		atomicPath='/vagrant/automation/provisioning'
+		atomicPath='/vagrant/automation'
 		echo "[$scriptName] Provisioning directory found in default vagrant mount ($atomicPath)"
 	else
 		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
@@ -77,7 +77,7 @@ else
 			fi
 			executeExpression "curl -s -L https://github.com/cdaf/linux/tarball/master --output linux-master.tar.gz"
 			executeExpression "tar -xzf linux-master.tar.gz -C ./linux-master --strip 1"
-			atomicPath='./linux-master/automation/provisioning'
+			atomicPath='./linux-master/automation'
 		else
 			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from cdaf.io"
 			if [ -d "linux-published" ]; then
@@ -87,7 +87,7 @@ else
 			fi
 			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
 			executeExpression "tar -xzf LU-CDAF.tar.gz -C ./linux-published"
-			atomicPath='./linux-published/automation/provisioning'
+			atomicPath='./linux-published/automation'
 		fi
 	fi
 fi
@@ -95,9 +95,9 @@ fi
 echo "[$scriptName] \$atomicPath = $atomicPath"
 
 echo; echo "[$scriptName] Create agent user and register"
-executeExpression "$elevate ${atomicPath}/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
-executeExpression "$elevate ${atomicPath}/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
+executeExpression "$elevate ${atomicPath}/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
+executeExpression "$elevate ${atomicPath}/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
 
-executeExpression "$elevate ${atomicPath}/installAgent.sh $url \$pat $pool $agentName"
+executeExpression "$elevate ${atomicPath}/provisioning/installAgent.sh $url \$pat $pool $agentName"
 
 echo "[$scriptName] --- end ---"

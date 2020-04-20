@@ -30,7 +30,7 @@ function executeYumCheck {
 			else
 				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
-			fi					 
+			fi
 		fi
 	done
 }

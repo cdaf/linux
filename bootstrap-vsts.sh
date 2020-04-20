@@ -92,6 +92,8 @@ else
 	fi
 fi
 
+echo "[$scriptName] \$atomicPath = $atomicPath"
+
 echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ${atomicPath}/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 executeExpression "$elevate ${atomicPath}/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked

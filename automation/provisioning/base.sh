@@ -16,7 +16,7 @@ function executeYumCheck {
 	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[executeYumCheck][$counter] $1"
+		echo "[$scriptName][executeYumCheck][$counter] $1"
 		eval "$1"
 		exitCode=$?
 		# Exit 0 and 100 are both success
@@ -43,10 +43,10 @@ function executeAptCheck {
 		executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 	fi
 	if [[ "$elevate" == 'sudo' ]]; then
-		echo "[executeAptCheck] sudo killall apt apt-get"
+		echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
 		sudo killall apt apt-get
 	else
-		echo "[executeAptCheck] killall apt apt-get"
+		echo "[$scriptName][executeAptCheck] killall apt apt-get"
 		killall apt apt-get
 	fi
 	counter=1
@@ -56,13 +56,19 @@ function executeAptCheck {
 		dailyUpdate=$(ps -ef | grep apt | grep -v grep)
 		if [ -n "${dailyUpdate}" ]; then
 			echo
-			echo "[executeAptCheck] ${dailyUpdate}"
+			echo "[$scriptName][executeAptCheck] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeExpression "$elevate kill -9 ${ADDR[1]}"
+			if [[ "$elevate" == 'sudo' ]]; then
+				echo "[$scriptName][executeAptCheck] sudo kill -9 ${ADDR[1]}"
+				sudo kill -9 ${ADDR[1]}
+			else
+				echo "[$scriptName][executeAptCheck] kill -9 ${ADDR[1]}"
+				kill -9 ${ADDR[1]}
+			fi
 			counter=$((counter + 1))
 			if [ "$counter" -gt "$max" ]; then
-				echo "[executeAptCheck] Failed to stop automatic update! Max retries (${max}) reached."
+				echo "[$scriptName][executeAptCheck] Failed to stop automatic update! Max retries (${max}) reached."
 				exit 5003
 			fi					 
 		else

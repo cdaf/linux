@@ -31,6 +31,8 @@ steps:
     if [ "$exitCode" != "0" ]; then exit $exitCode; fi
     cp -r TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
     cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
+#  env:
+#    MAVEN_ARTIFACT_TOKEN: $(MAVEN_ARTIFACT_TOKEN)
 
 #- task: PublishTestResults@2
 #  inputs:

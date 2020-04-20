@@ -59,12 +59,14 @@ else
 fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-if [ -f './automation/CDAF.linux' ]; then
-	atomicPath='./automation/provisioning'
+atomicPath='./automation/provisioning'
+if [ -f "$atomicPath" ]; then
+	echo "[$scriptName] Provisioning directory ($atomicPath) found"
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation/provisioning'
+		echo "[$scriptName] Provisioning directory found in default vagrant mount ($atomicPath)"
 	else
 		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
 			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"

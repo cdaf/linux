@@ -71,20 +71,24 @@ else
 		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
 			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
 			if [ -d "linux-master" ]; then
-				executeExpression "rm -rf linux-master"
+				executeExpression "rm -rf linux-master/*"
+			else
+				executeExpression "mkdir -pv linux-master"
 			fi
-			executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-			executeExpression "unzip linux-master.zip"
+			curl -L https://github.com/cdaf/linux/tarball/master | tar xz
+			executeExpression "curl -s -L https://github.com/cdaf/linux/tarball/master --output linux-master.tar.gz"
+			executeExpression "tar -xzf linux-master.tar.gz -C ./linux-master --strip 1"
 			atomicPath='./linux-master/automation/provisioning'
 		else
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-			if [ -d 'linux-master' ]; then
-				executeExpression "rm -rf linux-master"
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from cdaf.io"
+			if [ -d "linux-published" ]; then
+				executeExpression "rm -rf linux-published/*"
+			else
+				executeExpression "mkdir -pv linux-published"
 			fi
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
 			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-			executeExpression "tar -xzf LU-CDAF.tar.gz"
-			atomicPath='./automation/provisioning'
+			executeExpression "tar -xzf LU-CDAF.tar.gz -C ./linux-published"
+			atomicPath='./linux-published/automation/provisioning'
 		fi
 	fi
 fi

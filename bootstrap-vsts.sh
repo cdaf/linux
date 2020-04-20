@@ -45,7 +45,7 @@ fi
 
 stable="$5"
 if [ -z "$stable" ]; then
-	stable='no' # I change this to no when there is a required pending change in installAgent.sh
+	stable='no' # I change this to no when there is a required pending change in addUser.s, base.sh or installAgent.sh
 	echo "[$scriptName]   stable         : $stable (not supplied, set to default)"
 else
 	echo "[$scriptName]   stable         : $stable"
@@ -66,32 +66,31 @@ else
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation/provisioning'
 	else
-		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-		if [ -d 'linux-master' ]; then
-			executeExpression "rm -rf linux-master"
+		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			executeExpression "$elevate ${atomicPath}/base.sh unzip"
+			if [ -d "linux-master" ]; then
+				executeExpression "rm -rf linux-master"
+			fi
+			executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
+			executeExpression "unzip linux-master.zip"
+			atomicPath='./linux-master/automation/provisioning'
+		else
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			if [ -d 'linux-master' ]; then
+				executeExpression "rm -rf linux-master"
+			fi
+			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+			executeExpression "tar -xzf LU-CDAF.tar.gz"
+			atomicPath='./automation/provisioning'
 		fi
-		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-		executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-		executeExpression "tar -xzf LU-CDAF.tar.gz"
-		atomicPath='./automation/provisioning'
 	fi
 fi
 
 echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ${atomicPath}/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 executeExpression "$elevate ${atomicPath}/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
-
-if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
-	executeExpression "$elevate ${atomicPath}/base.sh unzip"
-	if [ -d "cdaf_edge" ]; then
-		executeExpression "rm -rf cdaf_edge"
-	fi
-	executeExpression "mkdir cdaf_edge"
-	executeExpression "cd cdaf_edge"
-	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-	executeExpression "unzip linux-master.zip"
-	atomicPath='./linux-master/automation/provisioning'
-fi
 
 executeExpression "$elevate ${atomicPath}/installAgent.sh $url \$pat $pool $agentName"
 

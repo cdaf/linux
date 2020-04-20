@@ -75,7 +75,6 @@ else
 			else
 				executeExpression "mkdir -pv linux-master"
 			fi
-			curl -L https://github.com/cdaf/linux/tarball/master | tar xz
 			executeExpression "curl -s -L https://github.com/cdaf/linux/tarball/master --output linux-master.tar.gz"
 			executeExpression "tar -xzf linux-master.tar.gz -C ./linux-master --strip 1"
 			atomicPath='./linux-master/automation/provisioning'

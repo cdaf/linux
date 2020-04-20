@@ -59,17 +59,17 @@ else
 fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-if [ -f './automation/provisioning/base.sh' ]; then
+if [ -f './automation/provisioning/CDAF.linux' ]; then
 	atomicPath='./automation'
-	echo "[$scriptName] Provisioning directory ($atomicPath) found"
+	echo "[$scriptName] Provisioning directory found in workspace"
 else
-	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
+	echo "[$scriptName] Provisioning directory not found in workspace, looking for alternative ..."
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation'
-		echo "[$scriptName] Provisioning directory found in default vagrant mount ($atomicPath)"
+		echo "[$scriptName] Provisioning directory found in default Vagrant mount ($atomicPath)"
 	else
 		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
+			echo "[$scriptName] Provisioning directory not found default Vagrant mount, download latest from GitHub (\$stable = $stable)"
 			if [ -d "linux-master" ]; then
 				executeExpression "rm -rf linux-master/*"
 			else
@@ -79,7 +79,7 @@ else
 			executeExpression "tar -xzf linux-master.tar.gz -C ./linux-master --strip 1"
 			atomicPath='./linux-master/automation'
 		else
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from cdaf.io"
+			echo "[$scriptName] Provisioning directory not found default Vagrant mount, download latest from cdaf.io (\$stable = $stable)"
 			if [ -d "linux-published" ]; then
 				executeExpression "rm -rf linux-published/*"
 			else

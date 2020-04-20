@@ -55,7 +55,7 @@ function executeAptCheck {
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][executeAptCheck] PID  = $$"
 		echo "[$scriptName][executeAptCheck] PPID = $PPID"
-		dailyUpdate=$(ps -ef | grep apt | grep -v grep | grep -v /bin/sh)
+		dailyUpdate=$(ps -ef | grep apt | grep -v grep | grep -v ".sh")
 		if [ -n "${dailyUpdate}" ]; then
 			echo
 			echo "[$scriptName][executeAptCheck] ${dailyUpdate}"

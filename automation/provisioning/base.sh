@@ -53,6 +53,7 @@ function executeAptCheck {
 	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][executeAptCheck] PID = $$"
 		dailyUpdate=$(ps -ef | grep apt | grep -v grep | grep -v $$)
 		if [ -n "${dailyUpdate}" ]; then
 			echo

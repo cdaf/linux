@@ -70,7 +70,6 @@ else
 	else
 		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
 			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-			executeExpression "$elevate ${atomicPath}/base.sh unzip"
 			if [ -d "linux-master" ]; then
 				executeExpression "rm -rf linux-master"
 			fi

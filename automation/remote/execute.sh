@@ -99,10 +99,10 @@ function REFRSH {
 		exit $exitCode
 	fi
 	if [ ! -z $source ]; then
-		for script in $(find "$destination" -name "*.sh"); do 
-			if [ ! -x "$file" ]; then
-				echo " +x -> '$script'"
-				chmod +x $script
+		for fileName in $(find "$destination" -name "*.sh"); do 
+			if [ ! -x "$fileName" ]; then
+				echo " +x -> '$fileName'"
+				chmod +x $fileName
 			fi
 		done
 	fi

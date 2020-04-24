@@ -9,9 +9,9 @@ Vagrant.configure(2) do |config|
   config.ssh.insert_key = false
   # Hyper-V Mount option for Ubuntu https://stackoverflow.com/questions/47000633/ubuntu-17-10-mounting-smb-share-keeps-failing
   #hyper-v: if ENV['VAGRANT_SMB_USER']
-  #hyper-v:   config.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", mount_options:["sec=ntlm","vers=1.0"]
+  #hyper-v:   config.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", mount_options: ["vers=2.1"]
   #hyper-v: else
-  #hyper-v:   config.vm.synced_folder ".", "/vagrant", type: "smb", mount_options:["sec=ntlm","vers=1.0"]
+  #hyper-v:   config.vm.synced_folder ".", "/vagrant", type: "smb", mount_options: ["vers=2.1"]
   #hyper-v: end
   #hyper-v: config.vm.provider 'hyperv' do |hyperv, override|
   #hyper-v:   hyperv.auto_start_action = 'Start'

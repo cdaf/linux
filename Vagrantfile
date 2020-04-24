@@ -60,7 +60,7 @@ Vagrant.configure(2) do |config|
         hyperv.cpus = "#{vCPU}"
         override.vm.hostname  = "target-#{i}"
         if ENV['VAGRANT_SMB_USER']
-          override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+          override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
         end
       end
     end
@@ -98,7 +98,7 @@ Vagrant.configure(2) do |config|
       hyperv.memory = "#{vRAM}"
       hyperv.cpus = "#{vCPU}"
       if ENV['VAGRANT_SMB_USER']
-        override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+        override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
       end
     end
   end

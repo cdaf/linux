@@ -194,8 +194,10 @@ if [ "$ubuntu" ]; then
 	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
-	executeExpression "sudo mount -o remount,ro /dev/sda1"
-	executeExpression "sudo zerofree -v /dev/sda1"	
+	for mountPath in $(find /dev/sda*); do
+		executeExpression "sudo mount -o remount,ro ${mountPath}"
+		executeExpression "sudo zerofree -v ${mountPath}"	
+	done
 else # CentOS or RHEL
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"

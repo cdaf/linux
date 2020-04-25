@@ -73,11 +73,6 @@ Vagrant.configure(2) do |config|
     build.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'CDAF_DELIVERY VAGRANT'
     build.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing
     build.vm.provision 'shell', path: './automation/provisioning/internalCA.sh'
-    build.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
-    build.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false
-    build.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. packageonly', privileged: false
-    build.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cionly', privileged: false
-    build.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cdonly', privileged: false
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     build.vm.provider 'virtualbox' do |virtualbox, override|
@@ -90,6 +85,11 @@ Vagrant.configure(2) do |config|
       (1..MAX_SERVER_TARGETS).each do |s|
         override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} target-#{s}"
       end
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. packageonly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cionly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cdonly', privileged: false
     end
 
     # vagrant up build --provider hyperv
@@ -100,6 +100,11 @@ Vagrant.configure(2) do |config|
       if ENV['VAGRANT_SMB_USER']
         override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
       end
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. packageonly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cionly', privileged: false
+      override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. cdonly', privileged: false
     end
   end
 

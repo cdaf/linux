@@ -15,12 +15,17 @@ end
 vRAM = BASE_MEMORY * SCALE_FACTOR
 vCPU = SCALE_FACTOR
 
-if rand(0..1) == 0
-  box = 'cdaf/CentOSLVM'
+if ENV['OVERRIDE_IMAGE']
+  OVERRIDE_IMAGE = ENV['OVERRIDE_IMAGE']
+  puts "OVERRIDE_IMAGE specified, using box #{OVERRIDE_IMAGE}" 
 else
-  box = 'cdaf/UbuntuLVM'
+  if rand(0..1) == 0
+    OVERRIDE_IMAGE = 'cdaf/CentOSLVM'
+  else
+    OVERRIDE_IMAGE = 'cdaf/UbuntuLVM'
+  end
+  puts "OVERRIDE_IMAGE not specified, random box is #{OVERRIDE_IMAGE}" 
 end
-puts "Random Box is #{box}" 
 
 # This is provided to make scaling easier
 if ENV['MAX_SERVER_TARGETS']
@@ -35,7 +40,7 @@ Vagrant.configure(2) do |config|
   # Build Server connects to this host to perform deployment
   (1..MAX_SERVER_TARGETS).each do |i|
     config.vm.define "server-#{i}" do |server|
-      server.vm.box = "#{box}"
+      server.vm.box = "#{OVERRIDE_IMAGE}"
 
       server.vm.provision 'shell', path: './automation/remote/capabilities.sh'
 
@@ -68,7 +73,7 @@ Vagrant.configure(2) do |config|
 
   # Build Server, fills the role of the build agent and delivers to the host above
   config.vm.define 'build' do |build|  
-    build.vm.box = "#{box}"
+    build.vm.box = "#{OVERRIDE_IMAGE}"
     build.vm.provision 'shell', path: './automation/remote/capabilities.sh'
     build.vm.provision 'shell', path: './automation/provisioning/setenv.sh', args: 'CDAF_DELIVERY VAGRANT'
     build.vm.provision 'shell', path: './automation/provisioning/deployer.sh', args: 'server' # Install Insecure preshared key for desktop testing

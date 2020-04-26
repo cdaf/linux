@@ -28,6 +28,23 @@ function executeIgnore {
 	fi
 }  
 
+function installVBox {
+	curlOpt="$1"
+	vbadd="$2"
+	echo;writeLog "Download and install VirtualBox Guest Additions version $vbadd"; echo
+	executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+	executeExpression "sudo mkdir /media/VBoxGuestAdditions"
+	executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
+
+	echo;writeLog "This is normal for server install ..."
+	writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
+	executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
+	executeExpression "sudo umount /media/VBoxGuestAdditions"
+	executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+	echo;writeLog "Clean-up prerequisites"
+}
+
 echo; writeLog "--- start ---"
 hypervisor=$1
 if [ -n "$hypervisor" ]; then
@@ -42,7 +59,7 @@ else
 fi
 
 if [[ $(whoami) != 'vagrant' ]];then
-	writeLog "  HALT! Do Not Run as Root or any user other than vagrant, this will apply incorrect permission"; exit 773
+	writeLog "  HALT! Do Not Run as Root or any user other than vagrant, this will apply incorrect permision"; exit 773
 else
 	writeLog "  whoami       : $(whoami)"
 fi
@@ -84,28 +101,44 @@ else
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 
-test="`yum --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	ubuntu=$(uname -a | grep ubuntu)
-	if [ "$ubuntu" ]; then
-		writeLog "  Debian based : $(uname -mrs)"
-	else
-		writeLog "  $(uname -a), Unknown distributation, exiting!"; exit 883
-	fi
+if [ -f '/etc/centos-release' ]; then
+	distro=$(cat /etc/centos-release)
+	echo "[$scriptName]   distro   : $distro"
+	fedora='yes'
 else
-	centos=$(cat /etc/redhat-release | grep CentOS)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux"
-		rhel='yes'
+	if [ -f '/etc/redhat-release' ]; then
+		distro=$(cat /etc/redhat-release)
+		echo "[$scriptName]   distro   : $distro"
+		fedora='yes'
 	else
-		echo "[$scriptName] CentOS Linux : $centos"
+		debian='yes'
+		test="`lsb_release --all 2>&1`"
+		if [[ "$test" == *"not found"* ]]; then
+			if [ -f /etc/issue ]; then
+				distro=$(cat /etc/issue)
+				echo "[$scriptName]   distro   : $distro"
+			else
+				distro=$(uname -a)
+				echo "[$scriptName]   distro   : $distro"
+			fi
+		else
+			while IFS= read -r line; do
+				if [[ "$line" == *"Description"* ]]; then
+					IFS=' ' read -ra ADDR <<< $line
+					distro=$(${ADDR[1]} ${ADDR[2]})
+					echo "[$scriptName]   distro   : $distro"
+				fi
+			done <<< "$test"
+			if [ -z $distro ]; then
+				writeLog "  HALT! Unable to determine distribution!"; exit 774
+			fi
+		fi	
 	fi
 fi
 
+
 echo;writeLog "Perform provider independent steps"
-if [ "$ubuntu" ]; then
-	executeExpression "sudo apt-get upgrade -y"
-else # CentOS or RHEL
+if [ "$fedora" ]; then
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	echo;writeLog "Remove additional packages"
 	executeIgnore "sudo systemctl stop postfix"
@@ -130,11 +163,18 @@ else # CentOS or RHEL
 	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
 	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
+else
+	executeExpression "sudo apt-get update"
+	executeExpression "sudo apt-get upgrade -y"
 fi
 
 echo;writeLog "Perform provider specific steps"
 if [ "$hypervisor" == 'hyperv' ]; then
-	if [ "$ubuntu" ]; then
+	if [ "$fedora" ]; then
+	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
+		executeExpression "sudo systemctl daemon-reload"
+		executeExpression "sudo systemctl enable hypervkvpd"
+	else
 		echo;writeLog "Based on https://oitibs.com/hyper-v-lis-on-ubuntu-18-04/"
 		writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
@@ -148,17 +188,11 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		echo
 		executeExpression "sudo apt-get install -y --install-recommends linux-virtual linux-cloud-tools-virtual linux-tools-virtual"
 		executeExpression "sudo update-initramfs -u"
-else # CentOS & RHEL
-	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
-		executeExpression "sudo systemctl daemon-reload"
-		executeExpression "sudo systemctl enable hypervkvpd"
 	fi
 else
 	if [ "$hypervisor" == 'virtualbox' ]; then
-		echo;writeLog "Install prerequisites"
-		if [ "$ubuntu" ]; then
-			executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
-		else # CentOS or RHEL
+		echo;writeLog "Install VirtualBox Guest Additions"
+		if [ "$fedora" ]; then
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
@@ -166,23 +200,23 @@ else
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
-			echo;writeLog "Download and install VirtualBox extensions version $vbadd"; echo
-			executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
-			executeExpression "sudo mkdir /media/VBoxGuestAdditions"
-			executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
-	
-			echo;writeLog "This is normal for server install ..."
-			writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-			executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
-			executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
-			executeExpression "sudo umount /media/VBoxGuestAdditions"
-			executeExpression "sudo rmdir /media/VBoxGuestAdditions"
-			echo;writeLog "Clean-up prerequisites"
+
+			installVBox "$curlOpt" "$vbadd"
 
 			executeExpression "sudo yum remove -y kernel-headers"
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum groupremove -y 'Development Tools'"
+		else
+			if [[ "$distro" == *"16.04"* ]]; then
+				echo "[$scriptName]   distro is ${distro}, install canonical VirtualBox Guest Additions"; echo
+				executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
+			else
+				# Canonical does not work, using https://www.tecmint.com/install-virtualbox-guest-additions-in-ubuntu/ as guide
+				echo "[$scriptName]   distro is ${distro}, install latest VirtualBox Guest Additions"; echo
+				executeExpression "sudo apt install -y build-essential dkms linux-headers-$(uname -r)"
+				installVBox "$curlOpt" "$vbadd"
+			fi
 		fi
 	fi
 fi

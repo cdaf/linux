@@ -217,11 +217,11 @@ else
 			executeExpression "sudo yum groupremove -y 'Development Tools'"
 		else # Ubuntu
 			if [[ "$distro" == *"16.04"* ]]; then
-				echo "[$scriptName]   distro is ${distro}, install canonical VirtualBox Guest Additions"; echo
+				writeLog "Distro is ${distro}, install canonical VirtualBox Guest Additions"
 				executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
 			else
 				# Canonical does not work, using https://www.tecmint.com/install-virtualbox-guest-additions-in-ubuntu/ as guide
-				echo "[$scriptName]   distro is ${distro}, install latest VirtualBox Guest Additions"; echo
+				writeLog "Distro is ${distro}, install latest VirtualBox Guest Additions"
 				executeExpression "sudo apt install -y build-essential dkms linux-headers-$(uname -r)"
 				installVBox "$curlOpt" "$vbadd" 2 # ignore exit code 2 when installing additions
 			fi
@@ -254,8 +254,14 @@ else # Ubuntu
 	executeExpression "sudo telinit 1"
 	for mountPath in $(find /dev/sda*); do
 		if [ "$mountPath" != "/dev/sda" ]; then
-			executeExpression "sudo mount -o remount,ro ${mountPath}"
-			executeExpression "sudo zerofree -v ${mountPath}"
+			writeLog "sudo mount -o remount,ro ${mountPath}"
+			sudo mount -o remount,ro ${mountPath}
+			exitCode=$?
+			if [ "$exitCode" != "0" ]; then
+				writeLog "Unable to remount (exit code ${exitCode}), continuing ..."
+			else
+				executeExpression "sudo zerofree -v ${mountPath}"
+			fi
 		fi
 	done
 fi

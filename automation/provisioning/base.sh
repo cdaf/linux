@@ -42,12 +42,15 @@ function executeAptCheck {
 		executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
 		executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 	fi
-	if [[ "$elevate" == 'sudo' ]]; then
-		echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
-		sudo killall apt apt-get
-	else
-		echo "[$scriptName][executeAptCheck] killall apt apt-get"
-		killall apt apt-get
+	test="`killall --version 2>&1`"
+	if [[ "$test" != *"not found"* ]]; then
+		if [[ "$elevate" == 'sudo' ]]; then
+			echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
+			sudo killall apt apt-get
+		else
+			echo "[$scriptName][executeAptCheck] killall apt apt-get"
+			killall apt apt-get
+		fi
 	fi
 	counter=1
 	max=5

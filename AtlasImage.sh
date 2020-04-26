@@ -252,16 +252,11 @@ else # Ubuntu
 	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
-	for mountPath in $(find /dev/sda*); do
-		if [ "$mountPath" != "/dev/sda" ]; then
-			writeLog "sudo mount -o remount,ro ${mountPath}"
-			sudo mount -o remount,ro ${mountPath}
-			exitCode=$?
-			if [ "$exitCode" != "0" ]; then
-				writeLog "Unable to remount (exit code ${exitCode}), continuing ..."
-			else
-				executeExpression "sudo zerofree -v ${mountPath}"
-			fi
+	linuxParts=$(sudo sfdisk -l | grep sda | grep Linux)
+	for mountPath in $linuxParts; do
+		if [[ "$mountPath" == *"/dev/sda"* ]]; then
+			executeExpression "sudo mount -o remount,ro ${mountPath}"
+			executeExpression "sudo zerofree -v ${mountPath}"
 		fi
 	done
 fi

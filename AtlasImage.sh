@@ -171,7 +171,7 @@ if [ "$fedora" ]; then
 	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
 	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
-else
+else # Ubuntu
 	executeExpression "sudo apt-get update"
 	executeExpression "sudo apt-get upgrade -y"
 fi
@@ -182,7 +182,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
 		executeExpression "sudo systemctl enable hypervkvpd"
-	else
+	else # VitualBox
 		echo;writeLog "Based on https://oitibs.com/hyper-v-lis-on-ubuntu-18-04/"
 		writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
@@ -215,7 +215,7 @@ else
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
 			executeExpression "sudo yum groupremove -y 'Development Tools'"
-		else
+		else # Ubuntu
 			if [[ "$distro" == *"16.04"* ]]; then
 				echo "[$scriptName]   distro is ${distro}, install canonical VirtualBox Guest Additions"; echo
 				executeExpression "sudo apt-get install -y virtualbox-guest-dkms"
@@ -230,17 +230,7 @@ else
 fi
 
 writeLog "Cleanup"
-if [ "$ubuntu" ]; then
-	executeExpression "sudo apt-get autoremove" 
-	executeExpression "sudo apt-get clean" 
-	executeExpression "sudo apt-get autoclean" 
-	executeExpression "sudo rm -r /var/log/*"
-	executeExpression "sudo telinit 1"
-	for mountPath in $(find /dev/sda*); do
-		executeExpression "sudo mount -o remount,ro ${mountPath}"
-		executeExpression "sudo zerofree -v ${mountPath}"	
-	done
-else # CentOS or RHEL
+if [ "$fedora" ]; then
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"
 	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
@@ -256,6 +246,16 @@ else # CentOS or RHEL
 	executeExpression "sudo sync"
 	executeExpression "cat /dev/null > ~/.bash_history"
 	executeExpression "history -c"
+else # Ubuntu
+	executeExpression "sudo apt-get autoremove" 
+	executeExpression "sudo apt-get clean" 
+	executeExpression "sudo apt-get autoclean" 
+	executeExpression "sudo rm -r /var/log/*"
+	executeExpression "sudo telinit 1"
+	for mountPath in $(find /dev/sda*); do
+		executeExpression "sudo mount -o remount,ro ${mountPath}"
+		executeExpression "sudo zerofree -v ${mountPath}"	
+	done
 fi
 
 writeLog "Image complete, shutdown VM"

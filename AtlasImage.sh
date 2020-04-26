@@ -71,6 +71,41 @@ else
 	writeLog "  HTTP_PROXY   : (not set)"
 fi
 
+if [ -f '/etc/centos-release' ]; then
+	distro=$(cat /etc/centos-release)
+	echo "[$scriptName]   distro   : $distro"
+	fedora='yes'
+else
+	if [ -f '/etc/redhat-release' ]; then
+		distro=$(cat /etc/redhat-release)
+		echo "[$scriptName]   distro   : $distro"
+		fedora='yes'
+	else
+		debian='yes'
+		test=$(lsb_release --all 2>&1)
+		if [[ "$test" == *"not found"* ]]; then
+			if [ -f "/etc/issue" ]; then
+				distro=$(cat "/etc/issue")
+				echo "[$scriptName]   distro   : $distro"
+			else
+				distro=$(uname -a)
+				echo "[$scriptName]   distro   : $distro"
+			fi
+		else
+			while IFS= read -r line; do
+				if [[ "$line" == *"Description"* ]]; then
+					IFS=' ' read -ra ADDR <<< $line
+					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
+					echo "[$scriptName]   distro   : $distro"
+				fi
+			done <<< "$test"
+			if [ -z "$distro" ]; then
+				writeLog "  HALT! Unable to determine distribution!"; exit 774
+			fi
+		fi	
+	fi
+fi
+
 writeLog "As Vagrant user, trust the public key"
 if [ -d "$HOME/.ssh" ]; then
 	writeLog "Directory $HOME/.ssh already exists"
@@ -100,42 +135,6 @@ else
 	sudo sh -c 'echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
-
-if [ -f '/etc/centos-release' ]; then
-	distro=$(cat /etc/centos-release)
-	echo "[$scriptName]   distro   : $distro"
-	fedora='yes'
-else
-	if [ -f '/etc/redhat-release' ]; then
-		distro=$(cat /etc/redhat-release)
-		echo "[$scriptName]   distro   : $distro"
-		fedora='yes'
-	else
-		debian='yes'
-		test=$(lsb_release --all 2>&1)
-		if [[ "$test" == *"not found"* ]]; then
-			if [ -f "/etc/issue" ]; then
-				distro=$(cat "/etc/issue")
-				echo "[$scriptName]   distro   : $distro"
-			else
-				distro=$(uname -a)
-				echo "[$scriptName]   distro   : $distro"
-			fi
-		else
-			while IFS= read -r line; do
-				if [[ "$line" == *"Description"* ]]; then
-					IFS=' ' read -ra ADDR <<< $line
-					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
-					echo "[$scriptName]   distro   : $distro"
-				fi
-			done <<< "$test"
-			if [ -z $distro ]; then
-				writeLog "  HALT! Unable to determine distribution!"; exit 774
-			fi
-		fi	
-	fi
-fi
-
 
 echo;writeLog "Perform provider independent steps"
 if [ "$fedora" ]; then

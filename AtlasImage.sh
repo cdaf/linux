@@ -24,7 +24,16 @@ function executeIgnore {
 	exitCode=$?
 	# Check execution normal, warn if exception but do not fail
 	if [ "$exitCode" != "0" ]; then
-		writeLog "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+		if [ -z $2 ]; then
+			writeLog "$0 : Warning! $EXECUTABLESCRIPT returned $exitCode"
+		else
+			if [ "$exitCode" == "$2" ]; then
+				writeLog "$0 : Warning! $EXECUTABLESCRIPT returned non-zero exit code ${exitCode} but is ignored due to $2 passed as ignored exit code"
+			else
+				writeLog "$0 : ERROR! $EXECUTABLESCRIPT returned non-zero exit code ${exitCode} and is exiting becuase ignored exist code is $2"
+				exit $exitCode
+			fi
+		fi
 	fi
 }  
 
@@ -38,7 +47,7 @@ function installVBox {
 
 	echo;writeLog "This is normal for server install ..."
 	writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-	executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	executeIgnore "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run" $3
 	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 	executeExpression "sudo umount /media/VBoxGuestAdditions"
 	executeExpression "sudo rmdir /media/VBoxGuestAdditions"
@@ -214,7 +223,7 @@ else
 				# Canonical does not work, using https://www.tecmint.com/install-virtualbox-guest-additions-in-ubuntu/ as guide
 				echo "[$scriptName]   distro is ${distro}, install latest VirtualBox Guest Additions"; echo
 				executeExpression "sudo apt install -y build-essential dkms linux-headers-$(uname -r)"
-				installVBox "$curlOpt" "$vbadd"
+				installVBox "$curlOpt" "$vbadd" 2 # ignore exit code 2 when installing additions
 			fi
 		fi
 	fi

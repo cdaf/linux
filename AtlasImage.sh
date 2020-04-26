@@ -252,13 +252,13 @@ else # Ubuntu
 	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
-	linuxParts=$(sudo sfdisk -l | grep sda | grep Linux)
-	for mountPath in $linuxParts; do
-		if [[ "$mountPath" == *"/dev/sda"* ]]; then
-			executeExpression "sudo mount -o remount,ro ${mountPath}"
-			executeExpression "sudo zerofree -v ${mountPath}"
-		fi
-	done
+	if [[ "$distro" == *"16.04"* ]]; then
+		executeExpression "sudo mount -o remount,ro /dev/sda1"
+		executeExpression "sudo zerofree -v /dev/sda1"
+	else # use the same method as fedora, based on https://unix.stackexchange.com/questions/499631/how-to-use-zerofree-on-a-whole-disk
+		executeIgnore "sudo dd if=/dev/zero of=/EMPTY bs=1M"
+		executeExpression "sudo rm -f /EMPTY"
+	fi
 fi
 
 writeLog "Image complete, shutdown VM"

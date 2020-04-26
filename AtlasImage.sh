@@ -112,10 +112,10 @@ else
 		fedora='yes'
 	else
 		debian='yes'
-		test="`lsb_release --all 2>&1`"
+		test=$(lsb_release --all 2>&1)
 		if [[ "$test" == *"not found"* ]]; then
-			if [ -f /etc/issue ]; then
-				distro=$(cat /etc/issue)
+			if [ -f "/etc/issue" ]; then
+				distro=$(cat "/etc/issue")
 				echo "[$scriptName]   distro   : $distro"
 			else
 				distro=$(uname -a)
@@ -125,7 +125,7 @@ else
 			while IFS= read -r line; do
 				if [[ "$line" == *"Description"* ]]; then
 					IFS=' ' read -ra ADDR <<< $line
-					distro=$(${ADDR[1]} ${ADDR[2]})
+					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
 					echo "[$scriptName]   distro   : $distro"
 				fi
 			done <<< "$test"

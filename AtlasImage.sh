@@ -253,7 +253,7 @@ else # Ubuntu
 	executeExpression "sudo rm -r /var/log/*"
 	executeExpression "sudo telinit 1"
 	for mountPath in $(find /dev/sda*); do
-		if [ "$mountPath" != "/dev/sda" ]
+		if [ "$mountPath" != "/dev/sda" ]; then
 			executeExpression "sudo mount -o remount,ro ${mountPath}"
 			executeExpression "sudo zerofree -v ${mountPath}"
 		fi

@@ -41,6 +41,7 @@ if [ -f  "$DRIVER" ]; then
 				fi
 				x=$((x + 1))
 			done
+
 			# In CDAF for Windows (PowerShell), recursive processing is explicitly  
 	 		# coded, in bash it is a native function, for consistency -recurse is looked for
 	 		# but no action performed, in the future I may support -recurse & -flat to allow a

@@ -1,5 +1,15 @@
+function executeExpression {
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][ERROR][$exitCode] $1"
+		exit $exitCode
+	fi
+}  
+
 #!/usr/bin/env bash
-scriptName=${0##*/}
+scriptName='packageRemote.sh'
 
 # Arguments are not validated in sub-scripts, only at entry point
 SOLUTION=$1
@@ -100,11 +110,11 @@ if [ -d  "$remoteCustomDir" ]; then
 fi
 
 # Process Specific remote artifacts
-$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $remoteArtifactListFile $WORK_DIR_DEFAULT
+executeExpression "$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $remoteArtifactListFile $WORK_DIR_DEFAULT"
 
 # Process generic artifacts, i.e. applies to both local and remote
 if [ -f "${SOLUTIONROOT}/storeFor" ]; then
-	$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT
+	executeExpression "$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT"
 fi
 
 cd $WORK_DIR_DEFAULT

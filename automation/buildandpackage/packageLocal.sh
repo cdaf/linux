@@ -1,5 +1,15 @@
+function executeExpression {
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][ERROR][$exitCode] $1"
+		exit $exitCode
+	fi
+}  
+
 #!/usr/bin/env bash
-scriptName=${0##*/}
+scriptName='packageLocal.sh'
 
 # Arguments are not validated in sub-scripts, only at entry point
 SOLUTION=$1
@@ -204,11 +214,11 @@ if [ $exitCode -ne 0 ]; then
 fi
 
 # Process Specific Local artifacts
-$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $localArtifactListFile $WORK_DIR_DEFAULT $AUTOMATIONROOT
+executeExpression "$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh $localArtifactListFile $WORK_DIR_DEFAULT $AUTOMATIONROOT"
 
 # 1.7.8 Process generic artifacts, i.e. applies to both local and remote
 if [ -f "${SOLUTIONROOT}/storeFor" ]; then
-	$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT $AUTOMATIONROOT
+	executeExpression "$AUTOMATIONROOT/buildandpackage/packageCopyArtefacts.sh "${SOLUTIONROOT}/storeFor" $WORK_DIR_DEFAULT $AUTOMATIONROOT"
 fi
 
 # If zipLocal property set in CDAF.solution of any build property, then a package will be created from the local tasks

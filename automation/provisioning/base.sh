@@ -87,6 +87,7 @@ function executeAptCheck {
 				if [ "$exitCode" != "0" ]; then
 					if [ "$exitCode" == "100" ]; then
 						counter=$((counter + 1))
+						lsof /var/lib/dpkg/lock-frontend
 						kill -9 $(lsof /var/lib/dpkg/lock-frontend)
 						if [ "$counter" -gt "$max" ]; then
 							echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."

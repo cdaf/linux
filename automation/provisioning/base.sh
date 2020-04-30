@@ -77,7 +77,28 @@ function executeAptCheck {
 				exit 5003
 			fi					 
 		else
-			success='yes'
+			if [ -z "$1" ]; then
+				success='yes'
+			else
+				echo "[$(echo date)] $1"
+				eval "$1"
+				exitCode=$?
+				# Check execution normal, anything other than 0 is an exception
+				if [ "$exitCode" != "0" ]; then
+					if [ "$exitCode" == "100" ]; then
+						counter=$((counter + 1))
+						if [ "$counter" -gt "$max" ]; then
+							echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."
+							exit 5005
+						fi					 
+					else
+						echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+						exit $exitCode
+					fi
+				else
+					success='yes'
+				fi
+			fi
 		fi
 	done
 }
@@ -134,7 +155,7 @@ if [[ "$test" == *"not found"* ]]; then
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo
 	else
-		executeExpression "$elevate apt-get install -y --fix-missing $install"
+		executeAptCheck "$elevate apt-get install -y --fix-missing $install"
 	fi
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"

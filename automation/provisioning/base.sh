@@ -75,7 +75,7 @@ function executeAptCheck {
 			if [ "$counter" -gt "$max" ]; then
 				echo "[$scriptName][executeAptCheck] Failed to stop automatic update! Max retries (${max}) reached."
 				exit 5003
-			fi					 
+			fi
 		else
 			if [ -z "$1" ]; then
 				success='yes'
@@ -87,6 +87,7 @@ function executeAptCheck {
 				if [ "$exitCode" != "0" ]; then
 					if [ "$exitCode" == "100" ]; then
 						counter=$((counter + 1))
+						kill -9 $(lsof /var/lib/dpkg/lock-frontend)
 						if [ "$counter" -gt "$max" ]; then
 							echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."
 							exit 5005

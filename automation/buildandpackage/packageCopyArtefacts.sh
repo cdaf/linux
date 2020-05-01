@@ -13,6 +13,18 @@ WORK_DIR_DEFAULT=$2
 AUTOMATIONROOT=$3
 
 if [ -f  "$DRIVER" ]; then
+pwd
+ls -al
+	echo; echo "[$scriptName] Load variables from manifest"; echo
+	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' manifest.txt)
+	while read -r LINE; do
+		IFS="\="
+		read -ra array <<< "$LINE"
+		propertiesList="${array[0]}=\"${array[1]}\""
+		echo "  ${propertiesList}"
+		eval "$propertiesList"
+	done < <(echo "$fileWithoutComments")
+
 	grep -q $'\r' $DRIVER && exitIfCR $DRIVER
 	echo; echo "[$scriptName] Copy artifacts defined in $DRIVER"; echo
 	config=$(cat ${DRIVER}) # cat will read all lines, native READ will miss lines that done have line-feed

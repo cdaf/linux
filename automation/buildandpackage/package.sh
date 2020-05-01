@@ -137,6 +137,11 @@ if [ "$testForClean" == "CLEAN" ]; then
 	echo; echo "$scriptName : Solution Workspace Clean Only"
 else
 
+	echo "# Manifest for revision $SOLUTION" > manifest.txt
+	echo "SOLUTION=$SOLUTION" >> manifest.txt
+	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
+	echo "REVISION=$REVISION" >> manifest.txt
+
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then
 		echo; echo "Process Pre-Package Tasks ..."; echo
@@ -150,10 +155,6 @@ else
 		fi
 	fi
 	
-	echo "# Manifest for revision $SOLUTION" > manifest.txt
-	echo "SOLUTION=$SOLUTION" >> manifest.txt
-	echo "BUILDNUMBER=$BUILDNUMBER" >> manifest.txt
-	echo "REVISION=$REVISION" >> manifest.txt
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 		echo; echo "$scriptName : CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"

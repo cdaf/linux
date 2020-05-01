@@ -65,7 +65,7 @@ fi
 
 echo; echo "$scriptName : Create working directory and seed with solution files"
 mkdir -v $WORK_DIR_DEFAULT
-mv -v manifest.txt $WORK_DIR_DEFAULT
+cp -v manifest.txt $WORK_DIR_DEFAULT
 cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
 echo
 cp -avR $AUTOMATIONROOT/remote/* $WORK_DIR_DEFAULT

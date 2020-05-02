@@ -81,7 +81,7 @@ function executeAptCheck {
 			if [ -z "$1" ]; then
 				success='yes'
 			else
-				echo "[$(echo date)] $1"
+				echo "[$(date)] $1"
 				eval "$1"
 				exitCode=$?
 				# Check execution normal, anything other than 0 is an exception
@@ -90,8 +90,9 @@ function executeAptCheck {
 					if [ "$counter" -gt "$max" ]; then
 						echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."
 						exit 5005
-					fi					 
+					fi
 					while read -r line ; do
+						echo "$line"
 						IFS='' read -ra arr <<< $line
 						if [ "${arr[1]}" != 'PID' ]; then
 							executeExpression "kill -f ${arr[1]}"

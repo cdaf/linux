@@ -56,12 +56,9 @@ function executeAptCheck {
 	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName][executeAptCheck] PID  = $$"
-		echo "[$scriptName][executeAptCheck] PPID = $PPID"
 		dailyUpdate=$(ps -ef | grep apt | grep -v grep | grep -v .sh)
 		if [ -n "${dailyUpdate}" ]; then
-			echo
-			echo "[$scriptName][executeAptCheck] ${dailyUpdate}"
+			echo; echo "[$scriptName][executeAptCheck] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
 			if [[ "$elevate" == 'sudo' ]]; then
@@ -136,27 +133,7 @@ if [[ "$test" == *"not found"* ]]; then
 	executeAptCheck
 
 	echo "[$scriptName] $elevate apt-get update"; echo
-	timeout=3
-	count=0
-	while [ ${count} -lt ${timeout} ]; do
-		$elevate apt-get update
-		exitCode=$?
-		if [ "$exitCode" != "0" ]; then
-	   	    ((count++))
-			echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
-		else
-			count=${timeout}
-		fi
-	done
-	if [ "$exitCode" != "0" ]; then
-		if [ "$install" == 'update' ]; then
-			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
-			echo "[$scriptName] Exiting with error code ${exitCode}"
-			exit $exitCode
-		else
-			echo "[$scriptName] apt-get sources failed to update after ${timeout} tries, will try with existing cache ..."
-		fi
-	fi
+		executeAptCheck "$elevate apt-get update"
 	echo
 	if [ "$install" == 'update' ]; then
 		echo "[$scriptName] Update only, not further action required."; echo

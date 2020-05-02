@@ -37,8 +37,10 @@ function executeYumCheck {
 
 function executeAptCheck {
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
+		executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 		token='APT::Periodic::Update-Package-Lists \"1\";'
 		value='APT::Periodic::Update-Package-Lists \"0\";'
+		executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
 		token='APT::Periodic::Unattended-Upgrade \"1\";'
 		value='APT::Periodic::Unattended-Upgrade \"0\";'
 		executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"

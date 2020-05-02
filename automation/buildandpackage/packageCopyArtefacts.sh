@@ -13,8 +13,6 @@ WORK_DIR_DEFAULT=$2
 AUTOMATIONROOT=$3
 
 if [ -f  "$DRIVER" ]; then
-pwd
-ls -al
 	echo; echo "[$scriptName] Load variables from manifest"; echo
 	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' manifest.txt)
 	while read -r LINE; do
@@ -24,6 +22,7 @@ ls -al
 		echo "  ${propertiesList}"
 		eval "$propertiesList"
 	done < <(echo "$fileWithoutComments")
+	unset IFS
 
 	grep -q $'\r' $DRIVER && exitIfCR $DRIVER
 	echo; echo "[$scriptName] Copy artifacts defined in $DRIVER"; echo

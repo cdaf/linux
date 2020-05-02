@@ -48,16 +48,6 @@ function executeAptCheck {
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 		fi
 	fi
-	test="`killall --version 2>&1`"
-	if [[ "$test" != *"not found"* ]]; then
-		if [[ "$elevate" == 'sudo' ]]; then
-			echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
-			sudo killall apt apt-get
-		else
-			echo "[$scriptName][executeAptCheck] killall apt apt-get"
-			killall apt apt-get
-		fi
-	fi
 	counter=1
 	max=5
 	success='no'
@@ -93,6 +83,18 @@ function executeAptCheck {
 						echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."
 						exit 5005
 					fi
+
+					test="`killall --version 2>&1`"
+					if [[ "$test" != *"not found"* ]]; then
+						if [[ "$elevate" == 'sudo' ]]; then
+							echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
+							sudo killall apt apt-get
+						else
+							echo "[$scriptName][executeAptCheck] killall apt apt-get"
+							killall apt apt-get
+						fi
+					fi
+
 					while read -r line ; do
 						echo "$line"
 						IFS='' read -ra arr <<< $line

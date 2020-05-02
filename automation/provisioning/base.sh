@@ -35,6 +35,38 @@ function executeYumCheck {
 	done
 }
 
+function aptLockRelease {
+	test="`killall --version 2>&1`"
+	if [[ "$test" != *"not found"* ]]; then
+		if [[ "$elevate" == 'sudo' ]]; then
+			echo "[$scriptName][aptLockRelease] sudo killall apt apt-get"
+			sudo killall apt apt-get
+		else
+			echo "[$scriptName][aptLockRelease] killall apt apt-get"
+			killall apt apt-get
+		fi
+	fi
+
+	unset IFS
+	while read -r line ; do
+		echo "[$scriptName][aptLockRelease] ${line}"
+		read -ra arr <<< $line
+		executeExpression "$elevate kill -9 ${arr[1]}"
+	done < <(lsof /var/lib/dpkg/lock-frontend | grep -v COMMAND)
+
+	while read -r line ; do
+		echo "[$scriptName][aptLockRelease] ${line}"
+		read -ra arr <<< $line
+		if [[ "$elevate" == 'sudo' ]]; then
+			echo "[$scriptName][aptLockRelease] sudo kill -9 ${arr[1]}"
+			sudo kill -9 ${arr[1]}
+		else
+			echo "[$scriptName][aptLockRelease] kill -9 ${arr[1]}"
+			kill -9 ${arr[1]}
+		fi
+	done < <(ps -ef | grep apt | grep -v grep | grep -v .sh)
+}
+
 function executeAptCheck {
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
 		if [ -n "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
@@ -46,65 +78,29 @@ function executeAptCheck {
 			value='APT::Periodic::Unattended-Upgrade \"0\";'
 			executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			aptLockRelease
 		fi
 	fi
 	counter=1
 	max=5
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		dailyUpdate=$(ps -ef | grep apt | grep -v grep | grep -v .sh)
-		if [ -n "${dailyUpdate}" ]; then
-			echo; echo "[$scriptName][executeAptCheck] ${dailyUpdate}"
-			IFS=' ' read -ra ADDR <<< $dailyUpdate
-			echo
-			if [[ "$elevate" == 'sudo' ]]; then
-				echo "[$scriptName][executeAptCheck] sudo kill -9 ${ADDR[1]}"
-				sudo kill -9 ${ADDR[1]}
-			else
-				echo "[$scriptName][executeAptCheck] kill -9 ${ADDR[1]}"
-				kill -9 ${ADDR[1]}
-			fi
-			counter=$((counter + 1))
-			if [ "$counter" -gt "$max" ]; then
-				echo "[$scriptName][executeAptCheck] Failed to stop automatic update! Max retries (${max}) reached."
-				exit 5003
-			fi
+		if [ -z "$1" ]; then
+			success='yes'
 		else
-			if [ -z "$1" ]; then
-				success='yes'
-			else
-				echo "[$(date)] $1"
-				eval "$1"
-				exitCode=$?
-				# Check execution normal, anything other than 0 is an exception
-				if [ "$exitCode" != "0" ]; then
-					counter=$((counter + 1))
-					if [ "$counter" -gt "$max" ]; then
-						echo "[$scriptName] $1 Failed with exit code $exitCode stop automatic update! Max retries (${max}) reached."
-						exit 5005
-					fi
-
-					test="`killall --version 2>&1`"
-					if [[ "$test" != *"not found"* ]]; then
-						if [[ "$elevate" == 'sudo' ]]; then
-							echo "[$scriptName][executeAptCheck] sudo killall apt apt-get"
-							sudo killall apt apt-get
-						else
-							echo "[$scriptName][executeAptCheck] killall apt apt-get"
-							killall apt apt-get
-						fi
-					fi
-
-					while read -r line ; do
-						echo "$line"
-						IFS='' read -ra arr <<< $line
-						if [ "${arr[1]}" != 'PID' ]; then
-							executeExpression "kill -f ${arr[1]}"
-						fi
-					done < <(lsof /var/lib/dpkg/lock-frontend)
-				else
-					success='yes'
+			echo "[$(date)] $1"
+			eval "$1"
+			exitCode=$?
+			# Check execution normal, anything other than 0 is an exception
+			if [ "$exitCode" != "0" ]; then
+				counter=$((counter + 1))
+				if [ "$counter" -gt "$max" ]; then
+					echo "[$scriptName] $1 Failed with exit code ${exitCode}! Max retries (${max}) reached."
+					exit 5005
 				fi
+				aptLockRelease
+			else
+				success='yes'
 			fi
 		fi
 	done

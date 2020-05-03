@@ -25,8 +25,8 @@ Vagrant.configure(2) do |config|
   # Atlas Box construction test definition
   config.vm.define 'test' do |test|  
     test.vm.box = "#{vagrantBox}"
-    test.vm.provision 'shell', inline: 'echo ; echo "List IP addresses for verification"; echo'
-    test.vm.provision 'shell', inline: 'ip a'
+    test.vm.provision 'shell', inline: 'echo ; echo "List disk free and IP addresses for verification"; echo'
+    test.vm.provision 'shell', inline: 'df; ip a'
     test.vm.provision 'shell', inline: 'echo ; echo "Test Complete"; echo'
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing

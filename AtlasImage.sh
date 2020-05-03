@@ -184,6 +184,7 @@ else # Ubuntu, disable auto updates introduced in 18.04
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 			aptLockRelease
 		fi
+		executeExpression "sudo apt remove -y unattended-upgrades"
 	fi
 	executeExpression "sudo apt-get update"
 	executeExpression "sudo apt-get upgrade -y"

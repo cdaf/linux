@@ -171,7 +171,20 @@ if [ "$fedora" ]; then
 	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
 	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
-else # Ubuntu
+else # Ubuntu, disable auto updates introduced in 18.04
+	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
+		if [ -n "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
+			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			token='APT::Periodic::Update-Package-Lists \"1\";'
+			value='APT::Periodic::Update-Package-Lists \"0\";'
+			executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
+			token='APT::Periodic::Unattended-Upgrade \"1\";'
+			value='APT::Periodic::Unattended-Upgrade \"0\";'
+			executeExpression "$elevate sed -i -- \"s^$token^$value^g\" /etc/apt/apt.conf.d/20auto-upgrades"
+			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
+			aptLockRelease
+		fi
+	fi
 	executeExpression "sudo apt-get update"
 	executeExpression "sudo apt-get upgrade -y"
 fi
@@ -182,7 +195,7 @@ if [ "$hypervisor" == 'hyperv' ]; then
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
 		executeExpression "sudo systemctl enable hypervkvpd"
-	else # VitualBox
+	else # Ubuntu
 		echo;writeLog "Based on https://oitibs.com/hyper-v-lis-on-ubuntu-18-04/"
 		writeLog "Ubuntu extensions are included (from 12.04), but require activation, list before and after"
 		executeExpression "sudo cat /etc/initramfs-tools/modules"
@@ -194,10 +207,10 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		echo
 		executeExpression "sudo cat /etc/initramfs-tools/modules"			
 		echo
-		executeExpression "sudo apt-get install -y --install-recommends linux-virtual linux-cloud-tools-virtual linux-tools-virtual"
+		executeExpression "sudo apt-get install -y --install-recommends linux-virtual linux-cloud-tools-virtual linux-tools-virtual cifs-utils"
 		executeExpression "sudo update-initramfs -u"
 	fi
-else
+else # VitualBox
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		echo;writeLog "Install VirtualBox Guest Additions"
 		if [ "$fedora" ]; then

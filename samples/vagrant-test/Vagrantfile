@@ -32,6 +32,7 @@ Vagrant.configure(2) do |config|
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     test.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.77'
+      override.vm.provision 'shell', inline: 'ls -al /vagrant'
     end
 
     # Microsoft Hyper-V does not support NAT or setting hostname
@@ -39,6 +40,7 @@ Vagrant.configure(2) do |config|
       hyperv.vmname = "linux-test"
       if ENV['VAGRANT_SMB_USER']
         override.vm.synced_folder ".", "/vagrant", type: "smb", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}"
+        override.vm.provision 'shell', inline: 'ls -al /vagrant'
       end
     end
   end

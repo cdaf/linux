@@ -92,7 +92,7 @@ function executeAptCheck {
 			eval "$1"
 			exitCode=$?
 			# Check execution normal, anything other than 0 is an exception
-			if [ "$exitCode" != "0" ]; then
+			if [ $exitCode -ne 0 ]; then
 				counter=$((counter + 1))
 				if [ "$counter" -gt "$max" ]; then
 					echo "[$scriptName] $1 Failed with exit code ${exitCode}! Max retries (${max}) reached."

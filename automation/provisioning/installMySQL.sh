@@ -5,7 +5,7 @@ function executeExpression {
 	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
+	if [ $exitCode -ne 0 ]; then
 		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
@@ -59,8 +59,7 @@ test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	ubuntu='yes'
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
-	echo "[$scriptName] $elevate apt-get update"
-	echo
+	echo "[$scriptName] $elevate apt-get update"; echo
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do
@@ -70,14 +69,14 @@ if [[ "$test" == *"not found"* ]]; then
 			apt-get update
 		fi
 		exitCode=$?
-		if [ "$exitCode" != "0" ]; then
+		if [ $exitCode -ne 0 ]; then
 	   	    ((count++))
 			echo "[$scriptName] apt-get sources update failed with exit code $exitCode, retry ${count}/${timeout} "
 		else
 			count=${timeout}
 		fi
 	done
-	if [ "$exitCode" != "0" ]; then
+	if [ $exitCode -ne 0 ]; then
 		echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
 		echo "[$scriptName] Exiting with error code ${exitCode}"
 		exit $exitCode
@@ -98,7 +97,7 @@ if [[ "$test" == *"not found"* ]]; then
 	fi
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
+	if [ $exitCode -ne 0 ]; then
 		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
@@ -117,15 +116,17 @@ else
 			yum check-update
 		fi
 		exitCode=$?
-		if [ "$exitCode" != "100" ]; then
+		if [ $exitCode -eq 0 ] || [ $exitCode -eq 100 ]; then
+			echo "[$scriptName] Exit 0 and 100 are both success, setting exitCode (${exitCode}) to 0 "
+			exitCode=0
+			count=${timeout}
+		else
 	   	    ((count++))
 			echo "[$scriptName] yum sources update failed with exit code $exitCode, retry ${count}/${timeout} "
-		else
-			count=${timeout}
 		fi
 	done
-	if [ "$exitCode" != "100" ]; then
-		echo "[$scriptName] yum sources failed to update after ${timeout} tries."
+	if [ $exitCode -ne 0 ]; then
+		echo "[$scriptName] apt-get sources failed to update after ${timeout} tries."
 		echo "[$scriptName] Exiting with error code ${exitCode}"
 		exit $exitCode
 	fi

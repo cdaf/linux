@@ -48,11 +48,14 @@ function aptLockRelease {
 	fi
 
 	unset IFS
-	while read -r line ; do
-		echo "[$scriptName][aptLockRelease] ${line}"
-		read -ra arr <<< $line
-		executeExpression "$elevate kill -9 ${arr[1]}"
-	done < <(lsof /var/lib/dpkg/lock-frontend | grep -v COMMAND)
+	test="`lsof -v 2>&1`"
+	if [[ "$test" != *"not found"* ]]; then
+		while read -r line ; do
+			echo "[$scriptName][aptLockRelease] ${line}"
+			read -ra arr <<< $line
+			executeExpression "$elevate kill -9 ${arr[1]}"
+		done < <(lsof /var/lib/dpkg/lock-frontend | grep -v COMMAND)
+	fi
 
 	while read -r line ; do
 		echo "[$scriptName][aptLockRelease] ${line}"
@@ -92,7 +95,7 @@ function executeAptCheck {
 			eval "$1"
 			exitCode=$?
 			# Check execution normal, anything other than 0 is an exception
-			if [ $exitCode -ne 0 ]; then
+			if [ "$exitCode" != "0" ]; then
 				counter=$((counter + 1))
 				if [ "$counter" -gt "$max" ]; then
 					echo "[$scriptName] $1 Failed with exit code ${exitCode}! Max retries (${max}) reached."

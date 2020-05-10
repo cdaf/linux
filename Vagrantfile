@@ -63,7 +63,7 @@ Vagrant.configure(2) do |config|
       server.vm.provider 'hyperv' do |hyperv, override|
         hyperv.memory = "#{vRAM}"
         hyperv.cpus = "#{vCPU}"
-        override.vm.hostname  = "target-#{i}"
+        override.vm.hostname  = "server-#{i}"
         if ENV['VAGRANT_SMB_USER']
           override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
         end
@@ -88,7 +88,7 @@ Vagrant.configure(2) do |config|
         override.vm.synced_folder "#{ENV['SYNCED_FOLDER']}", "/.provision"
       end
       (1..MAX_SERVER_TARGETS).each do |s|
-        override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} target-#{s}"
+        override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} server-#{s}"
       end
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false

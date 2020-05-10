@@ -158,6 +158,10 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly
     echo 'For BlueMix ...'
     echo '  Similar to TFS/Azure DevOps, BlueMix supports a single "staging" directory for artefact retention'
     echo '  Build script : ./automation/processor/buildPackage.sh $BUILD_NUMBER $GIT_BRANCH staging@staging'
+	echo
+    echo 'For GitHub Actions ...'
+    echo '  Copy the sample coded pipeline file from GitHub'
+    echo '  https://github.com/cdaf/linux/tree/master/samples/github-actions'
     echo
 	echo "$scriptName : -------------------------------------------------------"
 fi

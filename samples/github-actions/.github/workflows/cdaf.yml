@@ -16,7 +16,9 @@ jobs:
           git fetch --prune --unshallow
 
       - name: Feature Branch Targetless CD
-        run: ./automation/entry.sh ${env:GITHUB_RUN_NUMBER} ${env:GITHUB_REF}
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
 
       - name: Artifact Retention
         uses: actions/upload-artifact@v1

@@ -40,6 +40,7 @@ function MAKDIR {
 	executeFunction="mkdir -pv $dirName"
 	echo "$executeFunction"
 	eval "$executeFunction"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
@@ -51,6 +52,7 @@ function REMOVE {
 	executeFunction="rm -rfv $1"
 	echo "$executeFunction"
 	eval "$executeFunction"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
@@ -62,6 +64,7 @@ function VECOPY {
 	executeFunction="cp -vR $1 $2"
 	echo "$executeFunction"
 	eval "$executeFunction"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
@@ -78,11 +81,13 @@ function REFRSH {
 		source=$1
 	fi
 	MAKDIR "$destination"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
 	fi
 	REMOVE "$destination/*"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
@@ -94,6 +99,7 @@ function REFRSH {
 			VECOPY "$source" "$destination"
 		fi
 	fi
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode
@@ -113,6 +119,7 @@ function REFRSH {
 #  optional : AES key, if not supplied will try SSH decrypt using $HOME/.ssl/private_key.pem
 function DECRYP {
 	./decryptKey.sh "$1" "$2"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode"
 		exit $exitCode
@@ -133,6 +140,7 @@ function DETOKN {
 		propertyFile=$2
 	fi
 	./transform.sh "$propertyFile" "$1" "$3"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ./transform.sh \"$propertyFile\" \"$1\" \"$3\" returned $exitCode"
 		exit $exitCode
@@ -155,6 +163,7 @@ function REPLAC {
 	fi
 	echo "$executeFunction"
 	eval "$executeFunction"
+	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
 		exit $exitCode

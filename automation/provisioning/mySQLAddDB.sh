@@ -62,15 +62,15 @@ fi
 if [[ $userExists == '1' ]]; then
 	echo "[$scriptName] User $dbUser exists"
 else
-	executeExpression "mysql -u root ${admin} -e \"CREATE USER '${dbUser}'@'${originHost}';\""
+	executeExpression "mysql -u root \${admin} -e \"CREATE USER '${dbUser}'@'${originHost}';\""
 fi
 
 echo "[$scriptName] Create database, ignore error if exists"
-executeExpression "mysql -u root ${admin} -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
+executeExpression "mysql -u root \${admin} -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
 
 echo; echo "[$scriptName] Set database owners, these can be rerun"
-executeExpression "mysql -u root ${admin} -e \"GRANT USAGE ON *.* TO '${dbUser}'@'${originHost}' IDENTIFIED BY '\${dbPassword}';\""
-executeExpression "mysql -u root ${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO '${dbUser}'@'${originHost}';\""
+executeExpression "mysql -u root \${admin} -e \"GRANT USAGE ON *.* TO '${dbUser}'@'${originHost}' IDENTIFIED BY '\${dbPassword}';\""
+executeExpression "mysql -u root \${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO '${dbUser}'@'${originHost}';\""
 
 if [[ $originHost == 'localhost' ]]; then
 	echo; echo "[$scriptName] Verify"

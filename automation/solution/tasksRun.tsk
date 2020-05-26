@@ -1,3 +1,7 @@
+echo "Some basic functions"
+REFRSH . $TMPDIR/workspacecopy
+REMOVE TMPDIR/workspacecopy
+
 echo "Passphrase should be supplied by CD tooling"
 passphrase=8b778ff3fd80def90161e40b9c54527e
 

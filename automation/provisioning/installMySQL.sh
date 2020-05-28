@@ -33,7 +33,7 @@ fi
 
 bind="$3"
 if [ -z "$bind" ]; then
-	echo "[$scriptName]   bind     : (not supplied, will bind to all)"
+	echo "[$scriptName]   bind     : (not supplied, default bind is localhost)"
 else
 	echo "[$scriptName]   bind     : $bind"
 fi
@@ -155,21 +155,20 @@ if [ ! -z "$bind" ]; then
 		confFile='/etc/my.cnf'
 	fi
 
+	# Perform processing in workspace
 	# remove previous backup if exists, the following sed will create a new back-up
 	executeExpression "cp ${confFile} ."
 	if [ -f "mysqld.cnf.bak" ]; then
 		executeExpression "rm mysqld.cnf.bak"
 	fi
 	
+	echo; echo "[$scriptName] Remove any existing bind "
 	executeExpression "sed -i.bak '/bind-address/d' mysqld.cnf"
-	echo "[$scriptName] Add bind ${confFile} "; echo
-	if [[ "$ubuntu" == 'yes' ]]; then
-		echo "bind-address = $bind" > ${confFile}
-	else
-		token='[mysqld]'
-		value="[mysqld]\nbind-address = $bind"
-		sed -i -- "s^$token^$value^g" ${confFile}
-	fi
+	echo; echo "[$scriptName] Add bind $bind after [mysqld] section"
+	token='\[mysqld\]'
+	value="\[mysqld\]\nbind-address = $bind"
+	dq='"'
+	executeExpression "sed -i -- ${dq}s^${token}^${value}^g${dq} mysqld.cnf"
 	
 	echo; echo "[$scriptName] List any differences ..."; echo
 	diff --suppress-common-lines --side-by-side mysqld.cnf mysqld.cnf.bak

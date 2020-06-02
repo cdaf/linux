@@ -42,7 +42,6 @@ if [ -z "$adminPass" ]; then
 	echo "[$scriptName]   adminPass  : (none)"
 else
 	echo "[$scriptName]   adminPass  : ****************"
-	admin="-p${adminPass}"
 fi
 
 originHost="$5"
@@ -56,27 +55,31 @@ fi
 if [ -z "$adminPass" ]; then
 	userExists=$(mysql -u root --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 else
-	userExists=$(mysql -u root -p$adminPass --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
+	userExists=$(mysql -u root --password=${adminPass} --silent --skip-column-names  -e "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$dbUser')" 2>1 | grep -v Warning)
 fi
 
 if [[ $userExists == '1' ]]; then
 	echo "[$scriptName] User $dbUser exists"
 else
-	executeExpression "mysql -u root \${admin} -e \"CREATE USER '${dbUser}'@'${originHost}';\""
+	executeExpression "mysql -u root --password=\"\${adminPass}\" -e \"CREATE USER '${dbUser}'@'${originHost}';\""
 fi
 
 echo "[$scriptName] Create database, ignore error if exists"
-executeExpression "mysql -u root \${admin} -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
+executeExpression "mysql -u root --password=\"\${adminPass}\" -e 'CREATE DATABASE IF NOT EXISTS ${dbName};'"
 
 echo; echo "[$scriptName] Set database owners, these can be rerun"
-executeExpression "mysql -u root \${admin} -e \"GRANT USAGE ON *.* TO '${dbUser}'@'${originHost}' IDENTIFIED BY '\${dbPassword}';\""
-executeExpression "mysql -u root \${admin} -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO '${dbUser}'@'${originHost}';\""
+executeExpression "mysql -u root --password=\"\${adminPass}\" -e \"GRANT USAGE ON *.* TO '${dbUser}'@'${originHost}' IDENTIFIED BY '\${dbPassword}';\""
+executeExpression "mysql -u root --password=\"\${adminPass}\" -e \"GRANT ALL PRIVILEGES ON ${dbName}.* TO '${dbUser}'@'${originHost}';\""
 
 if [[ $originHost == 'localhost' ]]; then
-	echo; echo "[$scriptName] Verify"
-	executeExpression "mysql -u ${dbUser} -p\${dbPassword} -e 'SHOW DATABASES'"
+	echo; echo "[$scriptName] Verify as database user ${dbUser}:"
+	executeExpression "mysql -u ${dbUser} --password=\"\${dbPassword}\" -e 'SHOW DATABASES' --table"
 else
-	echo; echo "[$scriptName] Verification not attempted because originHost [${originHost}] is not localhost."
+	echo; echo "[$scriptName] Verify using root as [${originHost}] is not localhost:"
+	executeExpression "mysql -u root --password=\"\${adminPass}\" -e 'SHOW DATABASES' --table"
 fi
+
+echo; echo "[$scriptName] List users:"
+executeExpression "mysql -u root --password=\"\${adminPass}\" -e \"SELECT host FROM mysql.user WHERE User = '${dbUser}';\" --table"
 
 echo "[$scriptName] --- end ---"

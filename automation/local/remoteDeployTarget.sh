@@ -65,9 +65,9 @@ fi
 
 deployLand=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET" "deployLand")
 exitCode=$?
-if [ "$exitCode" != "0" ]; then
-	echo "[$scriptName] Read of deployLand from ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/$DEPLOY_TARGET failed! Returned $exitCode"
-	exit $exitCode
+if [ -z "$deployLand" ]; then
+	deployLand='/opt/packages/$DEPLOY_TARGET'
+	echo "[$scriptName]   deployLand : $deployLand (default)"
 else
 	echo "[$scriptName]   deployLand : $deployLand"
 fi

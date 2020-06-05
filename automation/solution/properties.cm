@@ -1,5 +1,5 @@
-context  target   deployHost  deployUser  deployLand
-remote   VAGRANT  linux-1     deployer    /opt/packages/$DEPLOY_TARGET
+context  target   deployHost  deployUser
+remote   VAGRANT  linux-1     deployer
 local    LINUX    localhost
 local    dev      localhost
 local    test     localhost

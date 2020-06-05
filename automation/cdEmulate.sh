@@ -181,9 +181,13 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo
 	echo 'Configure artefact retention patterns to retain package and local tasks'
 	echo
+	echo 'For TeamCity ...'
+    echo "  Artifact paths : TasksLocal => TasksLocal"
+	echo "                 : *.gz"
+	echo
 	echo 'For Jenkins ...'
     echo '  Use Post-build Action Archive the Artefacts'
-	echo "  Files to archive : TasksLocal/**, *.gz, *.zip"
+	echo "  Files to archive : TasksLocal/**, *.gz"
 	echo
     echo 'For Go ...'
     echo '  Source        | Destination | Type'
@@ -222,8 +226,12 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '  chmod +x ./*/*.sh'
 	echo
 	echo 'For TeamCity ...'
-	echo "  Command Executable : $workDirLocal/$cdInstruction"
-	echo "  Command parameters : $CDAF_DELIVERY"
+	echo '  Choose "Deployment" build'
+	echo '  "Use Finish Build" trigger (branch filter +:<default>)'
+	echo '  Configure artifact dependency using "Build from the same chain"'
+	echo '  Add a Configuration parameter from build.vcs.number to %env.BUILD_NUMBER%'
+	echo '  Add Command Line build step'
+	echo "  Command Executable : $workDirLocal/$cdInstruction \$TEAMCITY_BUILDCONF_NAME \$build.number"
 	echo
 	echo 'For Go ...'
 	echo '  requires explicit bash invoke'

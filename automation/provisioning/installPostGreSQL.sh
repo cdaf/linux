@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -87,30 +87,30 @@ if [[ "$test" == *"not found"* ]]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "$elevate kill -9 ${ADDR[1]}"
-		executeExpression "sleep 5"
+		executeRetry "$elevate kill -9 ${ADDR[1]}"
+		executeRetry "sleep 5"
 	fi
 
-	executeExpression "$elevate apt-get update"
-	executeExpression "$elevate apt-get install -y $install"
+	executeRetry "$elevate apt-get update"
+	executeRetry "$elevate apt-get install -y $install"
 	echo
-	executeExpression "$elevate service postgresql restart"
+	executeRetry "$elevate service postgresql restart"
 
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	executeYumCheck "$elevate yum check-update"
-	executeExpression "$elevate yum install -y postgresql-server postgresql-contrib"
-	executeExpression "$elevate sudo postgresql-setup initdb"
+	executeRetry "$elevate yum install -y postgresql-server postgresql-contrib"
+	executeRetry "$elevate sudo postgresql-setup initdb"
 	fileName='/var/lib/pgsql/data/pg_hba.conf'
 	name='ident'
 	value='md5'
-	executeExpression "$elevate sed -i 's^${name}^${value}^g' ${fileName}"
-	executeExpression "$elevate cat ${fileName}"
-	executeExpression "$elevate sudo systemctl start postgresql"
-	executeExpression "$elevate sudo systemctl enable postgresql"
+	executeRetry "$elevate sed -i 's^${name}^${value}^g' ${fileName}"
+	executeRetry "$elevate cat ${fileName}"
+	executeRetry "$elevate sudo systemctl start postgresql"
+	executeRetry "$elevate sudo systemctl enable postgresql"
 fi
 
-executeExpression "psql --version"
+executeRetry "psql --version"
 
 if [ -n "$password" ]; then
 	echo "[$scriptName] alter user postgres with password '********************';"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -42,14 +42,14 @@ fi
 
 if [ -z "$vitualEnv" ]; then
 
-	executeExpression "sudo pip install ${modules}"
+	executeRetry "sudo pip install ${modules}"
 
 else
 	
-	executeExpression "source /usr/local/bin/virtualenvwrapper.sh"
-	executeExpression "cd $vitualEnv"
-	executeExpression "workon $(workon)"
-	executeExpression "pip install ${modules}"
+	executeRetry "source /usr/local/bin/virtualenvwrapper.sh"
+	executeRetry "cd $vitualEnv"
+	executeRetry "workon $(workon)"
+	executeRetry "pip install ${modules}"
 
 fi
  

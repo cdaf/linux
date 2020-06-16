@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -31,6 +31,6 @@ echo
 echo "[$scriptName] sudo npm install -g nodemon"
 sudo sh -c 'for startScript in $(find /etc/profile.d -type f -name *.sh); do . $startScript ;echo $startScript; done; npm -version; npm install -g nodemon'
 
-executeExpression "nodemon --version"
+executeRetry "nodemon --version"
 
 echo "[$scriptName] --- end ---"

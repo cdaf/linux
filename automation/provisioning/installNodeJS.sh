@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -121,8 +121,8 @@ if [ -z "$fedora" ]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "$elevate kill -9 ${ADDR[1]}"
-		executeExpression "sleep 5"
+		executeRetry "$elevate kill -9 ${ADDR[1]}"
+		executeRetry "sleep 5"
 	fi	
 	
 	echo "[$scriptName] $elevate apt-get update"
@@ -144,12 +144,12 @@ if [ -z "$fedora" ]; then
 	fi
 	echo
 	if [ -z "$version" ]; then
-		executeExpression "$elevate apt-get install -y nodejs npm curl"
+		executeRetry "$elevate apt-get install -y nodejs npm curl"
 		
 		test="`node -v 2>&1`"
 		if [[ "$test" == *"not found"* ]]; then
 			echo "[$scriptName] Node not found, create symlink to NodeJS."
-			executeExpression "ln -s /usr/bin/nodejs /usr/bin/node"
+			executeRetry "ln -s /usr/bin/nodejs /usr/bin/node"
 			test="`node -v 2>&1`"
 			if [[ "$test" == *"not found"* ]]; then
 				echo "[$scriptName] Install Error! Node verification failed."
@@ -157,7 +157,7 @@ if [ -z "$fedora" ]; then
 			fi
 		fi
 	else
-		executeExpression "$elevate apt-get install -y curl"
+		executeRetry "$elevate apt-get install -y curl"
 	fi
 
 else
@@ -170,18 +170,18 @@ else
 			echo "[$scriptName] Red Hat Enterprise Linux"
 		    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 		else
-			executeExpression "$elevate yum install -y epel-release"
+			executeRetry "$elevate yum install -y epel-release"
 		fi
 	fi
 
 	echo
 	if [ -z "$version" ]; then
-		executeExpression "$elevate yum install -y curl sudo gcc-c++ make"
+		executeRetry "$elevate yum install -y curl sudo gcc-c++ make"
 		echo;echo "[$scriptName] Aligning to Ubuntu 16.04 canonical version, i.e. v4"
-		executeExpression "curl --silent --location https://rpm.nodesource.com/setup_4.x | $elevate bash -"
-		executeExpression "$elevate yum install -y nodejs"
+		executeRetry "curl --silent --location https://rpm.nodesource.com/setup_4.x | $elevate bash -"
+		executeRetry "$elevate yum install -y nodejs"
 	else
-		executeExpression "$elevate yum install -y curl"
+		executeRetry "$elevate yum install -y curl"
 	fi
 
 fi
@@ -200,19 +200,19 @@ if [ -n "$version" ]; then
 	if [ -z "$fedora" ]; then # Debian
 		echo
 		if [ -z $elevate ]; then
-			executeExpression "curl -sL https://deb.nodesource.com/setup_${version}.x | bash -"
+			executeRetry "curl -sL https://deb.nodesource.com/setup_${version}.x | bash -"
 		else
-			executeExpression "curl -sL https://deb.nodesource.com/setup_${version}.x | $elevate -E bash -"
+			executeRetry "curl -sL https://deb.nodesource.com/setup_${version}.x | $elevate -E bash -"
 		fi
-		executeExpression "$elevate apt-get install -y nodejs"
+		executeRetry "$elevate apt-get install -y nodejs"
 	else # Red Hat
-		executeExpression "$elevate yum install -y gcc-c++ make"
+		executeRetry "$elevate yum install -y gcc-c++ make"
 		if [ -z $elevate ]; then
-			executeExpression "curl -sL https://rpm.nodesource.com/setup_${version}.x | bash -"
+			executeRetry "curl -sL https://rpm.nodesource.com/setup_${version}.x | bash -"
 		else
-			executeExpression "curl -sL https://rpm.nodesource.com/setup_${version}.x | $elevate -E bash -"
+			executeRetry "curl -sL https://rpm.nodesource.com/setup_${version}.x | $elevate -E bash -"
 		fi
-		executeExpression "$elevate yum install -y nodejs"
+		executeRetry "$elevate yum install -y nodejs"
 		
 	fi
 		
@@ -235,7 +235,7 @@ if [ -n "$version" ]; then
 fi
 
 echo; echo "[$scriptName] Verify Node version"
-executeExpression "npm --version"
-executeExpression "node --version"
+executeRetry "npm --version"
+executeRetry "node --version"
 
 echo "[$scriptName] --- end ---"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -83,15 +83,15 @@ if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from 
 	if [ -n "$package" ]; then
 		# When running under vagranT, cannot extract from the replicated file share, so copy to 
 		# local file system, then extract
-		executeExpression "$elevate cp $install/docker-latest.tgz /tmp"
-		executeExpression 'cd /tmp'
-		executeExpression 'tar -xvzf docker-latest.tgz'
-		executeExpression '$elevate mv docker/* /usr/bin/'
+		executeRetry "$elevate cp $install/docker-latest.tgz /tmp"
+		executeRetry 'cd /tmp'
+		executeRetry 'tar -xvzf docker-latest.tgz'
+		executeRetry '$elevate mv docker/* /usr/bin/'
 		
 		# When running under vagrant have found issues with starting daemon in provisioning mode
 		# i.e. cannot connect to docker, even when user is a member of the docker group			
 		if [ "$startDaemon" == 'yes' ] ; then
-			executeExpression '$elevate docker daemon &'
+			executeRetry '$elevate docker daemon &'
 		else
 			check='no'
 		fi
@@ -123,10 +123,10 @@ if [ -z "$package" ]; then
 					echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
 					yum check-update
 				fi
-				executeExpression "$elevate yum install -y docker docker-compose"
-				executeExpression "$elevate systemctl enable docker.service"
-				executeExpression "$elevate systemctl start docker.service"
-				executeExpression "$elevate systemctl status docker.service"
+				executeRetry "$elevate yum install -y docker docker-compose"
+				executeRetry "$elevate systemctl enable docker.service"
+				executeRetry "$elevate systemctl start docker.service"
+				executeRetry "$elevate systemctl status docker.service"
 			else
 				echo "[$scriptName] Install CentOS 6 from Docker repository"
 				if [ "$elevate" ]; then
@@ -145,20 +145,20 @@ if [ -z "$package" ]; then
 					sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
 				fi
 				echo			
-				executeExpression "$elevate cat /etc/yum.repos.d/docker.repo"
+				executeRetry "$elevate cat /etc/yum.repos.d/docker.repo"
 				echo			
 				echo "[$scriptName] Install software from repo"
-				executeExpression "$elevate yum install -y docker-engine docker-compose"
-				executeExpression "$elevate service docker start"
-				executeExpression "$elevate service docker status"
+				executeRetry "$elevate yum install -y docker-engine docker-compose"
+				executeRetry "$elevate service docker start"
+				executeRetry "$elevate service docker status"
 			fi
 
 		else
-			executeExpression "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
-			executeExpression "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
-			executeExpression "$elevate yum install -y docker-ce"
-			executeExpression "$elevate service docker start"
-			executeExpression "$elevate service docker status"
+			executeRetry "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
+			executeRetry "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+			executeRetry "$elevate yum install -y docker-ce"
+			executeRetry "$elevate service docker start"
+			executeRetry "$elevate service docker status"
 		fi
 		
 	else # Debian
@@ -171,15 +171,15 @@ if [ -z "$package" ]; then
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeExpression "$elevate kill -9 ${ADDR[1]}"
-			executeExpression "sleep 5"
+			executeRetry "$elevate kill -9 ${ADDR[1]}"
+			executeRetry "sleep 5"
 		fi
 
 		if [ "$install" == 'canon' ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
-			executeExpression "$elevate apt-get update"
-			executeExpression "$elevate apt-get install -y docker.io docker-compose"
+			executeRetry "$elevate apt-get update"
+			executeRetry "$elevate apt-get install -y docker.io docker-compose"
 
 		else # latest
 
@@ -187,18 +187,18 @@ if [ -z "$package" ]; then
 			executeIgnore "$elevate apt-get -y remove docker*"
 			executeIgnore "$elevate apt-get purge -y docker-engine docker docker.io docker-ce"
 			executeIgnore "$elevate apt-get autoremove -y --purge docker-engine docker docker.io docker-ce"
-			executeExpression "$elevate apt-get update"
-			executeExpression "$elevate apt-get install -y apt-transport-https ca-certificates curl software-properties-common"
-			executeExpression "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
-			executeExpression "$elevate apt-key fingerprint 0EBFCD88"
-			executeExpression "$elevate add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'"
-			executeExpression "$elevate apt-get update"
-			executeExpression "$elevate apt-get install -y docker-ce"
-			executeExpression "docker --version"
+			executeRetry "$elevate apt-get update"
+			executeRetry "$elevate apt-get install -y apt-transport-https ca-certificates curl software-properties-common"
+			executeRetry "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
+			executeRetry "$elevate apt-key fingerprint 0EBFCD88"
+			executeRetry "$elevate add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'"
+			executeRetry "$elevate apt-get update"
+			executeRetry "$elevate apt-get install -y docker-ce"
+			executeRetry "docker --version"
  
-			executeExpression "sudo curl -sL 'https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
-			executeExpression "$elevate chmod +x /usr/local/bin/docker-compose"
-			executeExpression "docker-compose --version"			
+			executeRetry "sudo curl -sL 'https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+			executeRetry "$elevate chmod +x /usr/local/bin/docker-compose"
+			executeRetry "docker-compose --version"			
 		fi
 		
 	fi

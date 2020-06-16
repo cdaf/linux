@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=3
 	success='no'
@@ -65,12 +65,12 @@ else
 fi
 
 echo; echo "[$scriptName] Install PM2"; echo
-executeExpression "$elevate npm install pm2@latest -g"
+executeRetry "$elevate npm install pm2@latest -g"
 
 if [ ! -f "/usr/bin/node" ]; then
-	executeExpression "$elevate ln -s /usr/bin/nodejs /usr/bin/node"
+	executeRetry "$elevate ln -s /usr/bin/nodejs /usr/bin/node"
 fi
-executeExpression "$elevate pm2 startup $SYSTEMINITDAEMON"
+executeRetry "$elevate pm2 startup $SYSTEMINITDAEMON"
 
 echo; echo "[$scriptName] --- end ---"; echo
 exit 0

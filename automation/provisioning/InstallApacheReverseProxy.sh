@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -64,10 +64,10 @@ if [ "$centos" ]; then
 
 	echo
 	echo "[$scriptName] Install Apache HTTP daemon and modules"
-	executeExpression "sudo yum -y install httpd mod_ssl mod_proxy"
+	executeRetry "sudo yum -y install httpd mod_ssl mod_proxy"
 	echo
 	echo "[$scriptName] Allow persistent (-P) loopback access"
-	executeExpression "sudo /usr/sbin/setsebool -P httpd_can_network_connect 1"
+	executeRetry "sudo /usr/sbin/setsebool -P httpd_can_network_connect 1"
 
 	# Only create rules if supplied
 	if [ -n "$context" ]; then
@@ -86,18 +86,18 @@ if [ "$centos" ]; then
 	if [ -f "$mediaPath/localhost.crt" ]; then
 		echo
 		echo "[$scriptName] Public Certificate found in mediaPath, replacing ..."
-		executeExpression "sudo mv /etc/pki/tls/certs/localhost.crt /etc/pki/tls/certs/localhost.crt.default"
-		executeExpression "sudo cp $mediaPath/localhost.crt /etc/pki/tls/certs/localhost.crt"
+		executeRetry "sudo mv /etc/pki/tls/certs/localhost.crt /etc/pki/tls/certs/localhost.crt.default"
+		executeRetry "sudo cp $mediaPath/localhost.crt /etc/pki/tls/certs/localhost.crt"
 	fi				
 	if [ -f "$mediaPath/localhost.key" ]; then
 		echo
 		echo "[$scriptName] Private key found in mediaPath, replacing ..."
-		executeExpression "sudo mv /etc/pki/tls/private/localhost.key /etc/pki/tls/private/localhost.key.default"
-		executeExpression "sudo cp $mediaPath/localhost.key /etc/pki/tls/private/localhost.key"
+		executeRetry "sudo mv /etc/pki/tls/private/localhost.key /etc/pki/tls/private/localhost.key.default"
+		executeRetry "sudo cp $mediaPath/localhost.key /etc/pki/tls/private/localhost.key"
 	fi				
 	echo
 	echo "[$scriptName] Start the server"
-	executeExpression "sudo systemctl start httpd"
+	executeRetry "sudo systemctl start httpd"
 
 else
 	echo "[$scriptName] TODO: Debian not supported"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=3
 	success='no'
@@ -101,12 +101,12 @@ if [ -z "$runas" ]; then
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeExpression "$elevate kill -9 ${ADDR[1]}"
-			executeExpression "sleep 5"
+			executeRetry "$elevate kill -9 ${ADDR[1]}"
+			executeRetry "sleep 5"
 		fi
 		
-		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | $elevate bash"
-		executeExpression "$elevate apt-get install -y gitlab-runner"
+		executeRetry "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | $elevate bash"
+		executeRetry "$elevate apt-get install -y gitlab-runner"
 	
 	else
 		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
@@ -134,30 +134,30 @@ if [ -z "$runas" ]; then
 			echo "[$scriptName] Exiting with error code ${exitCode}"
 			exit $exitCode
 		fi
-		executeExpression "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | $elevate bash"
-		executeExpression "$elevate yum install -y gitlab-runner"
+		executeRetry "curl -s -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | $elevate bash"
+		executeRetry "$elevate yum install -y gitlab-runner"
 	fi
 else
 	if [ -z "$version" ]; then
 		echo; echo "[$scriptName] runas user supplied, will install latest to allow customisation"
-		executeExpression "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+		executeRetry "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
 	else
 		echo; echo "[$scriptName] runas user and version supplied, will install version $version to allow customisation"
-		executeExpression "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/v${version}/binaries/gitlab-runner-linux-amd64"
+		executeRetry "$elevate wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/v${version}/binaries/gitlab-runner-linux-amd64"
 	fi
-	executeExpression "$elevate chmod +x /usr/local/bin/gitlab-runner"
+	executeRetry "$elevate chmod +x /usr/local/bin/gitlab-runner"
 	uid="`id -u ${runas} 2>&1`"
 	if [ "$exitCode" != "0" ]; then
-		executeExpression "$elevate useradd --comment 'GitLab Runner' --create-home ${runas} --shell /bin/bash"
+		executeRetry "$elevate useradd --comment 'GitLab Runner' --create-home ${runas} --shell /bin/bash"
 	else
 		echo "[$scriptName] ${runas} exists with UID ${uid}"
 		if [ ! -d "/home/${runas}" ];then
-			executeExpression "$elevate mkdir /home/${runas}"
-			executeExpression "$elevate chown -R ${runas}:${runas} /home/${runas}"
+			executeRetry "$elevate mkdir /home/${runas}"
+			executeRetry "$elevate chown -R ${runas}:${runas} /home/${runas}"
 		fi
 	fi
-	executeExpression "$elevate /usr/local/bin/gitlab-runner install --user=${runas} --working-directory=/home/${runas}"
-	executeExpression "$elevate /usr/local/bin/gitlab-runner start"
+	executeRetry "$elevate /usr/local/bin/gitlab-runner install --user=${runas} --working-directory=/home/${runas}"
+	executeRetry "$elevate /usr/local/bin/gitlab-runner start"
 fi
 
 if [ -z "$url" ] || [ -z "$pat" ]; then
@@ -170,7 +170,7 @@ else
 	else
 		runnerBin='/usr/local/bin/gitlab-runner'
 	fi
-	executeExpression "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --tag-list '$tags'"
+	executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --tag-list '$tags'"
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

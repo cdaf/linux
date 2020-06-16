@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -114,8 +114,8 @@ if [ -z "$fedora" ]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "$elevate kill -9 ${ADDR[1]}"
-		executeExpression "sleep 5"
+		executeRetry "$elevate kill -9 ${ADDR[1]}"
+		executeRetry "sleep 5"
 	fi	
 	
 	echo "[$scriptName] $elevate apt-get update"
@@ -138,8 +138,8 @@ if [ -z "$fedora" ]; then
 		exit $exitCode
 	fi
 
-	executeExpression "$elevate apt-get update -y"
-	executeExpression "$elevate apt-get install -y python${pyVer}-pip"
+	executeRetry "$elevate apt-get update -y"
+	executeRetry "$elevate apt-get install -y python${pyVer}-pip"
 
 else
 
@@ -152,19 +152,19 @@ else
 		echo "[$scriptName] Red Hat Enterprise Linux"
 	    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 	else
-		executeExpression "$elevate yum install -y epel-release"
+		executeRetry "$elevate yum install -y epel-release"
 	fi
 	executeYumCheck "$elevate yum check-update"
-	executeExpression "$elevate yum install -y python${pyVer}-pip"
+	executeRetry "$elevate yum install -y python${pyVer}-pip"
 fi
 
 echo "[$scriptName] List version details..."
 
-executeExpression "python${pyVer} --version"
-executeExpression "pip${pyVer} --version"
+executeRetry "python${pyVer} --version"
+executeRetry "pip${pyVer} --version"
 
 if [ -n "$install" ]; then
-	executeExpression "$elevate pip${pyVer} install $install"
+	executeRetry "$elevate pip${pyVer} install $install"
 fi
 
 echo "[$scriptName] --- end ---"

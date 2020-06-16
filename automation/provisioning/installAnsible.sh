@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function executeExpression {
+function executeRetry {
 	counter=1
 	max=5
 	success='no'
@@ -114,8 +114,8 @@ if [ -z "$fedora" ]; then
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
 		echo
-		executeExpression "$elevate kill -9 ${ADDR[1]}"
-		executeExpression "sleep 5"
+		executeRetry "$elevate kill -9 ${ADDR[1]}"
+		executeRetry "sleep 5"
 	fi	
 	
 	echo "[$scriptName] $elevate apt-get update"
@@ -141,28 +141,28 @@ if [ -z "$fedora" ]; then
 	echo
 	if [ "$systemWide" == 'yes' ]; then
 
-		executeExpression "$elevate apt-get install -y software-properties-common"
-		executeExpression "$elevate apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"
-		executeExpression "$elevate apt-get update"
-		executeExpression "$elevate apt-get install -y ansible"
+		executeRetry "$elevate apt-get install -y software-properties-common"
+		executeRetry "$elevate apt-add-repository ppa:ansible/ansible${ansibleVersion} -y"
+		executeRetry "$elevate apt-get update"
+		executeRetry "$elevate apt-get install -y ansible"
 			
 	else
-		executeExpression "$elevate apt-get update"
-		executeExpression "$elevate apt-get install -y build-essential libssl-dev libffi-dev python-dev"
+		executeRetry "$elevate apt-get update"
+		executeRetry "$elevate apt-get install -y build-essential libssl-dev libffi-dev python-dev"
 	fi
 	
 else
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	executeYumCheck "$elevate yum check-update"
-	executeExpression "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
+	executeRetry "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
 	if [ "$systemWide" == 'yes' ]; then
 		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 			echo "[$scriptName] Red Hat Enterprise Linux"
 		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm" # Ignore if already installed
 		else
-			executeExpression "$elevate yum install -y epel-release"
+			executeRetry "$elevate yum install -y epel-release"
 		fi
-		executeExpression "$elevate yum install -y ansible"
+		executeRetry "$elevate yum install -y ansible"
 	fi
 fi
 
@@ -171,20 +171,20 @@ if [ "$systemWide" == 'no' ]; then
 	echo "[$scriptName] Install to current users ($(whoami)) home directory ($HOME)."
 	echo
 	# Distribution specific dependencies installed above, this process is generic for all distributions 
-	executeExpression "$elevate pip install virtualenv virtualenvwrapper"
-	executeExpression "source `which virtualenvwrapper.sh`"
+	executeRetry "$elevate pip install virtualenv virtualenvwrapper"
+	executeRetry "source `which virtualenvwrapper.sh`"
 	if [ ! -d ~/ansible${ansibleVersion} ]; then
-		executeExpression "mkdir ~/ansible${ansibleVersion}"
-		executeExpression "cd ~/ansible${ansibleVersion}"
-		executeExpression "mkvirtualenv ansible${ansibleVersion}"
+		executeRetry "mkdir ~/ansible${ansibleVersion}"
+		executeRetry "cd ~/ansible${ansibleVersion}"
+		executeRetry "mkvirtualenv ansible${ansibleVersion}"
 	else
-		executeExpression "cd ~/ansible${ansibleVersion}"
+		executeRetry "cd ~/ansible${ansibleVersion}"
 	fi
-	executeExpression "workon ansible${ansibleVersion}"
+	executeRetry "workon ansible${ansibleVersion}"
 	if [ -z "$version" ]; then
-		executeExpression "pip install ansible"
+		executeRetry "pip install ansible"
 	else
-		executeExpression "pip install ansible==${version}"
+		executeRetry "pip install ansible==${version}"
 	fi
 fi
 

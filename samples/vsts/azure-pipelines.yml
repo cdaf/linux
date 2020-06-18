@@ -47,3 +47,5 @@ steps:
     #publishRunAttachments: true # Optional
     
 - task: PublishBuildArtifacts@1
+    #ArtifactName: 'drop'
+    #publishLocation: 'Container'

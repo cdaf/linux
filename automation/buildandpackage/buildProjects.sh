@@ -56,7 +56,7 @@ AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "$scriptName :   SOLUTIONROOT   : "
-for directoryName in $(find . -mindepth 1 -maxdepth 1 -type d); do
+for directoryName in $(find $(pwd) -mindepth 1 -maxdepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		SOLUTIONROOT="$directoryName"
 	fi

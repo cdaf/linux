@@ -18,7 +18,7 @@ else
 	fi
 fi
 
-if [ -n "$2" ]; then
+if [ ! -z "$2" ]; then
 	TOKENISED=$2
 	if [ ! -f "$TOKENISED" ]; then
 		echo "$scriptName Tokenised File ($TOKENISED) not found. HALT!"
@@ -26,7 +26,7 @@ if [ -n "$2" ]; then
 	fi
 fi
 
-if [ -n "$3" ]; then
+if [ ! -z "$3" ]; then
 	decryptedFileInMemory=$(gpg --decrypt --batch --passphrase $3 ${PROPERTIES})
 	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $decryptedFileInMemory)
 else

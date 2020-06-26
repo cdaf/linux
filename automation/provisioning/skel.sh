@@ -92,7 +92,7 @@ then
         sudo mkdir --verbose --parents "$dirpath"
     fi
     
-    if [ -n "$data" ]
+    if [ ! -z "$data" ]
     then        
         echo "[$scriptName] Creating file from supplied data at: $filepath"
         echo "$data" | base64 --decode > "$filepath"

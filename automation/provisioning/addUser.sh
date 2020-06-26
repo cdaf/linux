@@ -85,7 +85,7 @@ if [ "$username" != "$groupname" ]; then
 	executeExpression "$elevate gpasswd -a $username $groupname"
 fi
 
-if [ -n "$password" ]
+if [ ! -z "$password" ]
 then
     # We cannot use the executeExpression function here because this will print out the password to stdout, which we
     # want to avoid. So we have to replicate its functionality.
@@ -105,7 +105,7 @@ then
     fi
 fi
 
-if [ -n "$sudoer" ]; then
+if [ ! -z "$sudoer" ]; then
 	executeExpression '$elevate sh -c "echo \"$username ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"'
 	executeExpression "$elevate cat /etc/sudoers"
 fi

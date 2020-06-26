@@ -56,7 +56,7 @@ function installVBox {
 
 echo; writeLog "--- start ---"
 hypervisor=$1
-if [ -n "$hypervisor" ]; then
+if [ ! -z "$hypervisor" ]; then
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		vbadd='5.2.30'
 		writeLog "  hypervisor   : $hypervisor (installing extension version ${vbadd})"
@@ -73,7 +73,7 @@ else
 	writeLog "  whoami       : $(whoami)"
 fi
 
-if [ -n "$HTTP_PROXY" ]; then
+if [ ! -z "$HTTP_PROXY" ]; then
 	writeLog "  HTTP_PROXY   : $HTTP_PROXY"
 	curlOpt="-x $HTTP_PROXY"
 else
@@ -173,7 +173,7 @@ if [ "$fedora" ]; then
 	executeExpression "sudo cat /etc/sudoers"
 else # Ubuntu, disable auto updates introduced in 18.04
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
-		if [ -n "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
+		if [ ! -z "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 			token='APT::Periodic::Update-Package-Lists \"1\";'
 			value='APT::Periodic::Update-Package-Lists \"0\";'

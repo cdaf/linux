@@ -29,32 +29,32 @@ else
 	echo "$scriptName deployCommand : $deployCommand"
 fi
 
-if [ -n "$4" ]; then
+if [ ! -z "$4" ]; then
 	arg1=$4
 	echo "$scriptName arg1          : $arg1"
 fi
 
-if [ -n "$5" ]; then
+if [ ! -z "$5" ]; then
 	arg2=$5
 	echo "$scriptName arg2          : $arg2"
 fi
 
-if [ -n "$6" ]; then
+if [ ! -z "$6" ]; then
 	arg3=$6
 	echo "$scriptName arg3          : $arg3"
 fi
 
-if [ -n "$7" ]; then
+if [ ! -z "$7" ]; then
 	arg4=$7
 	echo "$scriptName arg4          : $arg4"
 fi
 
-if [ -n "$8" ]; then
+if [ ! -z "$8" ]; then
 	arg5=$8
 	echo "$scriptName arg5          : $arg5"
 fi
 
-if [ -n "$9" ]; then
+if [ ! -z "$9" ]; then
 	arg6=$9
 	echo "$scriptName arg6          : $arg6"
 fi

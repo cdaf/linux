@@ -112,7 +112,7 @@ fi
 
 if [ -d "$localPropertiesDir" ]; then
 	filesInDir=$(ls $localPropertiesDir)
-	if [ -n "$filesInDir" ]; then
+	if [ ! -z "$filesInDir" ]; then
 
 		echo; echo "$scriptName :   Properties for local tasks ($localPropertiesDir) : "; echo
 		# Copy files to driver directory and to the root directory
@@ -183,7 +183,7 @@ fi
 # Do not attempt to create the directory and copy files unless the source directory exists AND contains files
 if [ -d "$remotePropertiesDir" ]; then
 	filesInDir=$(ls $remotePropertiesDir)
-	if [ -n "$filesInDir" ]; then
+	if [ ! -z "$filesInDir" ]; then
 		echo; echo "$scriptName :   Properties for remote tasks ($remotePropertiesDir) : "; echo
 		mkdir -v $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}
 		cp -avR $remotePropertiesDir/* $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}; echo

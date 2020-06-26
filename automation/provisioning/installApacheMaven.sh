@@ -35,7 +35,7 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-if [ -n "$http_proxy" ]; then
+if [ ! -z "$http_proxy" ]; then
 	echo "[$scriptName]   http_proxy : $http_proxy"
 	optArg="--proxy $http_proxy"
 else

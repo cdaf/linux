@@ -54,7 +54,7 @@ if [ "$dbUser" != 'postgres' ]; then
 fi
 
 echo "[$scriptName] Set the DB password if supplied"
-if [ -n "$dbPassword" ]; then
+if [ ! -z "$dbPassword" ]; then
 	executeExpression "echo \"alter user $dbUser password '\$dbPassword';\" > $sqlScriptFile"
 	executeExpression "$elevate su - postgres -c \"psql -d $dbName -f $sqlScriptFile\""
 fi

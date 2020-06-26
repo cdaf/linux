@@ -62,7 +62,7 @@ echo "[$scriptName]   pwd          : $(pwd)"
 if [ -d "./propertiesForLocalTasks" ]; then
 
 	taskList=$(find ./propertiesForLocalTasks -name "$ENVIRONMENT*" | sort)
-	if [ -n "$taskList" ]; then
+	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
 		for LOCAL_TASK_TARGET in $taskList; do
 			echo "  ${LOCAL_TASK_TARGET##*/}"

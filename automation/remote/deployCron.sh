@@ -29,7 +29,7 @@ else
 	# Only deploy if the configuration is different
 	NOMARKER=$(cat crontab.txt | grep "$MARKER")
 	DELTA=$(diff -y --suppress-common-lines ./config/crontab.txt crontab.txt | grep -v "$MARKER")
-	if [ -n "$DELTA" ] || [ -z "$NOMARKER" ]; then
+	if [ ! -z "$DELTA" ] || [ -z "$NOMARKER" ]; then
 
 		echo
 		STAMP=$(date "+%Y-%m-%d_%T")

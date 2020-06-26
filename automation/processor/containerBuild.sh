@@ -18,7 +18,7 @@ scriptName=${0##*/}
 
 echo "[$scriptName] --- start ---"
 imageName=$1
-if [ -n "$imageName" ]; then
+if [ ! -z "$imageName" ]; then
 	echo "[$scriptName]   imageName      : $imageName"
 
 	BUILDNUMBER=$2
@@ -83,7 +83,7 @@ else
 	fi
 fi
 
-if [ -n "$imageName" ]; then
+if [ ! -z "$imageName" ]; then
 	SOLUTIONROOT="$AUTOMATIONROOT/solution"
 	for i in $(ls -d */); do
 		directoryName=${i%%/}
@@ -104,7 +104,7 @@ if [ -n "$imageName" ]; then
 		buildCommand+=" --no-cache=true"
 	fi
 	
-	if [ -n "$tag" ]; then
+	if [ ! -z "$tag" ]; then
 		buildCommand+=" --tag ${buildImage}:${tag}"
 	else
 		buildCommand+=" --tag ${buildImage}"

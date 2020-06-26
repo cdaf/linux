@@ -78,7 +78,7 @@ echo "Verify href returned from configured context http://localhost:${publishedP
 
 verify=$(curl -s http://localhost:${publishedPort}/spring/profile | grep href)
 
-if [ -n "$verify" ]; then
+if [ ! -z "$verify" ]; then
 	echo "href confirmed"
 else
 	echo "href not found!"

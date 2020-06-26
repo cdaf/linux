@@ -82,7 +82,7 @@ if [[ "$test" == *"not found"* ]]; then
 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-	if [ -n "${dailyUpdate}" ]; then
+	if [ ! -z "${dailyUpdate}" ]; then
 		echo
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
@@ -112,7 +112,7 @@ fi
 
 executeRetry "psql --version"
 
-if [ -n "$password" ]; then
+if [ ! -z "$password" ]; then
 	echo "[$scriptName] alter user postgres with password '********************';"
 	if [ -z "$elevate" ]; then
 su postgres << EOF

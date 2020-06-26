@@ -33,7 +33,7 @@ fi
 
 version=$3
 if [ -z "$version" ]; then
-	if [ -n "$tag" ]; then
+	if [ ! -z "$tag" ]; then
 		version=$tag
 	    echo "[$scriptName] version   : $version (not supplied, defaulted to tag)"
 	else
@@ -71,7 +71,7 @@ fi
 
 buildCommand='docker build'
 
-if [ -n "$tag" ]; then
+if [ ! -z "$tag" ]; then
 	buildCommand+=" --build-arg BUILD_TAG=${tag}"
 fi
 
@@ -79,31 +79,31 @@ if [ "$rebuild" == 'yes' ]; then
 	buildCommand+=" --no-cache=true"
 fi
 
-if [ -n "$userName" ]; then
+if [ ! -z "$userName" ]; then
 	buildCommand+=" --build-arg userName=$userName"
 fi
 
-if [ -n "$userID" ]; then
+if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
 fi
 
-if [ -n "$tag" ]; then
+if [ ! -z "$tag" ]; then
 	buildCommand+=" --tag ${imageName}:${tag}"
 else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-if [ -n "$http_proxy" ]; then
+if [ ! -z "$http_proxy" ]; then
 	echo; echo "[$scriptName] \$http_proxy is set (${http_proxy}), pass as \$proxy to build"
 	buildCommand+=" --build-arg proxy=${http_proxy}"
 else
-	if [ -n "$HTTP_PROXY" ]; then
+	if [ ! -z "$HTTP_PROXY" ]; then
 		echo; echo "[$scriptName] \$HTTP_PROXY is set (${HTTP_PROXY}), pass as \$proxy to build"
 		buildCommand+=" --build-arg proxy=${HTTP_PROXY}"
 	fi
 fi
 
-if [ -n "$CONTAINER_IMAGE" ]; then
+if [ ! -z "$CONTAINER_IMAGE" ]; then
 	echo; echo "[$scriptName] \$CONTAINER_IMAGE is set (${CONTAINER_IMAGE}), pass as \$CONTAINER_IMAGE to build"
 	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
 fi

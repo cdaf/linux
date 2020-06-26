@@ -77,7 +77,7 @@ if [ "$caseinsensitive" != "cdonly" ]; then
 fi
 echo $buildNumber > ${HOME}/buildnumber.counter
 
-if [ -n "${CDAF_BRANCH_NAME}" ]; then
+if [ ! -z "${CDAF_BRANCH_NAME}" ]; then
 	revision=${CDAF_BRANCH_NAME}
 else
 	revision="release"

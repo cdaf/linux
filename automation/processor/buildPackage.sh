@@ -111,7 +111,7 @@ echo "$scriptName :   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh 
 
 # If a container build command is specified, use this instead of CI process
 containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerBuild")
-if [ -n "$containerBuild" ]; then
+if [ ! -z "$containerBuild" ]; then
 	test=$(docker --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
 		echo "$scriptName :   Docker          : container Build defined in $solutionRoot/CDAF.solution, but Docker not installed, will attempt to execute natively"
@@ -202,7 +202,7 @@ for propertiesDriver in $configManagementList; do
 		fi
 		for i in "${!columns[@]}"; do
 			if [ $i -gt 1 ]; then # do not create entries for context and target
-				if [ -n "${arr[$i]}" ]; then
+				if [ ! -z "${arr[$i]}" ]; then
 					echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
 				fi
 			fi
@@ -219,7 +219,7 @@ for propertiesDriver in $pivotList; do
 	for (( i=2; i<=${#rows[@]}; i++ )); do
 		read -ra arr <<<"${rows[$i]}"
 		for (( j=1; j<=${#arr[@]}; j++ )); do
-			if [ -n "${columns[$j]}" ] && [ -n "${arr[$j]}" ] ; then
+			if [ ! -z "${columns[$j]}" ] && [ ! -z "${arr[$j]}" ] ; then
 				if [[ "${paths[$j]}" == 'remote' ]]; then
 					cdafPath="./propertiesForRemoteTasks"
 				else
@@ -238,13 +238,13 @@ for propertiesDriver in $pivotList; do
 done
 
 # CDAF 1.7.0 Container Build process
-if [ -n "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
+if [ ! -z "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
 	echo
 	echo "$scriptName Execute Container build, this performs cionly, options clean and packageonly are ignored."
 	executeExpression "$containerBuild"
 
 	imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "imageBuild")
-	if [ -n "$containerBuild" ]; then
+	if [ ! -z "$containerBuild" ]; then
 		echo
 		echo "$scriptName Execute Image build, as defined for imageBuild in $solutionRoot/CDAF.solution"
 		executeExpression "$imageBuild"
@@ -277,7 +277,29 @@ else
 	fi
 fi
 
-if [[ "$ACTION" == "staging@"* ]]; then # Primarily for VSTS / Azure pipelines & IBM BlueMix
+artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+if [ ! -z $artifactPrefix ]; then
+	artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
+	echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
+	if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
+	    tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz
+	else
+	    tar -czf $artifactID.tar.gz TasksLocal/
+	fi
+
+	echo "[$scriptName]   Create single script artefact release.sh"
+	echo '#!/usr/bin/env bash' > release.sh
+  	echo "echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
+  	echo 'if [ -d "TasksLocal" ];then rm -rf TasksLocal fi' >> release.sh
+	echo 'rm ${SOLUTION}*.gzip' >> release.sh
+	echo 'base64 -d <<OEF_MARKER > deploy.tar.gz' >> release.sh
+	base64 $artifactID.tar.gz >> release.sh
+	echo 'tar -xcvf $artifactID.tar.gz' >> release.sh
+	executeExpression "chmod +x release.sh"
+
+fi
+
+if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix
 	IFS='@' read -ra arr <<< $ACTION
 	if [ ! -d "${arr[1]}" ]; then
 		executeExpression "mkdir -p '${arr[1]}'"

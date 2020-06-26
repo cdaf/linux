@@ -349,7 +349,7 @@ while read LINE; do
 
 	# Perform no further processing if Feature is Property Loader
 	if [ "$feature" != "PROPLD" ]; then
-		if [ -n "$EXECUTABLESCRIPT" ]; then
+		if [ ! -z "$EXECUTABLESCRIPT" ]; then
 			# Do not echo line if it is an echo itself or it is determining controlled exit
 			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
 # This leaks secrets, but I have left it should someone need to temporarilty use it for debugging					

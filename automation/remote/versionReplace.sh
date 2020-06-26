@@ -38,7 +38,7 @@ else
 	# Only deploy if the configuration is different, or if the existing file does not have version marker
 	NOMARKER=$(cat $ABS_PATH | grep "$MARKER")
 	DELTA=$(diff -y --suppress-common-lines .$ABS_PATH $ABS_PATH | grep -v "$MARKER")
-	if [ -n "$DELTA" ] || [ -z "$NOMARKER" ]; then
+	if [ ! -z "$DELTA" ] || [ -z "$NOMARKER" ]; then
 
 		echo
 		echo "Following changes apply to $ABS_PATH ..."

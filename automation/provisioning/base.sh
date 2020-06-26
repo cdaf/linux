@@ -72,7 +72,7 @@ function aptLockRelease {
 
 function executeAptCheck {
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
-		if [ -n "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
+		if [ ! -z "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
 			token='APT::Periodic::Update-Package-Lists \"1\";'
 			value='APT::Periodic::Update-Package-Lists \"0\";'
@@ -122,7 +122,7 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-if [ -n "$http_proxy" ]; then
+if [ ! -z "$http_proxy" ]; then
 	echo "[$scriptName]   http_proxy : $http_proxy"
 else
 	echo "[$scriptName]   http_proxy : (not set)"

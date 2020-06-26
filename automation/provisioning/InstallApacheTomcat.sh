@@ -77,7 +77,7 @@ else
 	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
 fi
 
-if [ -n "$(getent passwd $serviceAccount)" ]; then
+if [ ! -z "$(getent passwd $serviceAccount)" ]; then
 	echo "[$scriptName] Tomcat user ($serviceAccount) already exists, no action required."
 else
 	# Create and Configure Deployment user

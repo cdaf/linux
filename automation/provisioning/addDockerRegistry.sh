@@ -41,7 +41,7 @@ fi
 echo "Install registry (version 2) ..."
 executeIgnore "docker run -d -p $registryPort:5000 --restart=always --name registry registry:2"
 
-if [ -n "$initialImage" ]; then
+if [ ! -z "$initialImage" ]; then
 	echo "Pull initial image ($initialImage) ..."
 	executeExpression "docker pull $initialImage && docker tag $initialImage localhost/$initialImage"
 

@@ -80,7 +80,7 @@ check='yes'
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
 
 	package=$(ls -1 $install/docker*.tgz)
-	if [ -n "$package" ]; then
+	if [ ! -z "$package" ]; then
 		# When running under vagranT, cannot extract from the replicated file share, so copy to 
 		# local file system, then extract
 		executeRetry "$elevate cp $install/docker-latest.tgz /tmp"
@@ -166,7 +166,7 @@ if [ -z "$package" ]; then
 		echo
 		echo "[$scriptName] Check that APT is available"
 		dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-		if [ -n "${dailyUpdate}" ]; then
+		if [ ! -z "${dailyUpdate}" ]; then
 			echo
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate

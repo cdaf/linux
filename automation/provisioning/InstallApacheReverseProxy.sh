@@ -70,7 +70,7 @@ if [ "$centos" ]; then
 	executeRetry "sudo /usr/sbin/setsebool -P httpd_can_network_connect 1"
 
 	# Only create rules if supplied
-	if [ -n "$context" ]; then
+	if [ ! -z "$context" ]; then
 		echo
 		echo "[$scriptName] Enable mod_proxy and insert supplied proxy rule into /etc/httpd/conf.d/ssl.conf"
 		sudo sh -c "echo \"LoadModule proxy_module modules/mod_proxy.so\" >> /etc/httpd/conf.d/ssl.conf"

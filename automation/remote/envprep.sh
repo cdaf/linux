@@ -15,14 +15,14 @@ if [ -z "$1" ]; then
 fi
 
 # Change working directory if passed
-if [ -n "$2" ]; then
+if [ ! -z "$2" ]; then
 	cd $2
 fi
 
 # If the environment definition is not set, check from disk
 if [ -z "$ENVIR_DEF" ]; then
 	ENVIR_DEF=$(cat /etc/environment | grep ENVIR_DEF)
-	if [ -n "$ENVIR_DEF" ]; then
+	if [ ! -z "$ENVIR_DEF" ]; then
 		echo "$scriptName : export $ENVIR_DEF from disk"
 		eval "export $ENVIR_DEF"
 	fi

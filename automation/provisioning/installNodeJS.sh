@@ -116,7 +116,7 @@ if [ -z "$fedora" ]; then
 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
-	if [ -n "${dailyUpdate}" ]; then
+	if [ ! -z "${dailyUpdate}" ]; then
 		echo
 		echo "[$scriptName] ${dailyUpdate}"
 		IFS=' ' read -ra ADDR <<< $dailyUpdate
@@ -186,7 +186,7 @@ else
 
 fi
 
-if [ -n "$version" ]; then
+if [ ! -z "$version" ]; then
 
 	test="`curl --version 2>&1`"
 	if [[ "$test" == *"not found"* ]]; then

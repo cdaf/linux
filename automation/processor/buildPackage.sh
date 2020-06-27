@@ -305,10 +305,14 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	if [ ! -d "${arr[1]}" ]; then
 		executeExpression "mkdir -p '${arr[1]}'"
 	fi
-	executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
-	for packageFile in $(find . -maxdepth 1 -type f -name "*.gz"); do
-		executeExpression "cp -f '${packageFile}' '${arr[1]}'"
-	done
+	if [ -z $artifactPrefix ]; then
+		executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
+		for packageFile in $(find . -maxdepth 1 -type f -name "*.gz"); do
+			executeExpression "cp -f '${packageFile}' '${arr[1]}'"
+		done
+	else
+		executeExpression "cp -f 'release.sh' '${arr[1]}'"
+	fi
 fi
 
 echo; echo "$scriptName : Continuous Integration (CI) Finished"

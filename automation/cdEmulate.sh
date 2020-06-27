@@ -101,11 +101,15 @@ if [ -f "$solutionRoot/delivery.sh" ]; then
 	cdProcess="$solutionRoot/delivery.sh"
 	echo "$cdProcess (override)"
 else
-	cdProcess="$automationRoot/processor/delivery.sh"
-	echo "$cdProcess (default)"
+	artifactPrefix=$($automationRoot/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	if [ -z $artifactPrefix ]; then
+		cdProcess="$workDirLocal/delivery.sh"
+		echo "$cdProcess (default)"
+	else
+		cdProcess="./release.sh"
+		echo "$cdProcess (due to artifactPrefix being set in $solutionRoot/CDAF.solution)"
+	fi
 fi
-# Packaging will ensure either the override or default delivery process is in the workspace root
-cdInstruction="delivery.sh"
 
 # If a solution properties file exists, load the properties
 if [ -f "$solutionRoot/CDAF.solution" ]; then
@@ -231,16 +235,16 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '  Configure artifact dependency using "Build from the same chain"'
 	echo '  Add a Configuration parameter from build.vcs.number to %env.BUILD_NUMBER%'
 	echo '  Add Command Line build step'
-	echo "  Command Executable : $workDirLocal/$cdInstruction \$TEAMCITY_BUILDCONF_NAME \$build.number"
+	echo "  Command Executable : $cdProcess \$TEAMCITY_BUILDCONF_NAME \$build.number"
 	echo
 	echo 'For Go ...'
 	echo '  requires explicit bash invoke'
 	echo '  Command   : /bin/bash'
-	echo "  Arguments : -c '$workDirLocal/$cdInstruction \${GO_ENVIRONMENT_NAME}'"
+	echo "  Arguments : -c '$cdProcess \${GO_ENVIRONMENT_NAME}'"
 	echo
 	echo 'For Bamboo ...'
 	echo '  Warning! Ensure there are no spaces in the environment name or release (by default release Release-xx)'
-	echo "  Script file : $workDirLocal/$cdInstruction"
+	echo "  Script file : $cdProcess"
 	echo "  Argument    : \${bamboo.deploy.environment} \${bamboo.deploy.release}"
 	echo
 	echo 'For Jenkins ...'
@@ -248,7 +252,7 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '	chmod +x ./*/*.sh'
 	echo '  Promote plugin:'
 	echo '    For each environment, the environment name is a literal which needs to be defined each time'
-	echo "    Command : ./$workDirLocal/$cdInstruction <environment name> \$PROMOTED_NUMBER"
+	echo "    Command : ./$cdProcess <environment name> \$PROMOTED_NUMBER"
 	echo '  Delivery Pipeline plugin:'
 	echo '    Retrieve the upstream build number from the manifest. Can use the Job Name as Environment Name'
 	echo '    Command : ./TasksLocal/transform.sh ./TasksLocal/manifest.txt'
@@ -263,7 +267,7 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo "    Working folder : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
 	echo '  then add "Shell Script" utility task to execute the delivery process'
-	echo "    Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$workDirLocal/$cdInstruction"
+	echo "    Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$cdProcess"
 	echo '    Command arguments : $RELEASE_ENVIRONMENTNAME $RELEASE_RELEASENAME'
 	echo "    Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
 	echo
@@ -271,7 +275,7 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
     echo '  If using the sample .gitlab-ci.yml simply clone and change the Environment literal'
     echo '  variables:'
     echo '    ENV: "<environment>"'
-    echo "    script: \"$workDirLocal/$cdInstruction \${ENV} \${CI_PIPELINE_ID}\""
+    echo "    script: \"$cdProcess \${ENV} \${CI_PIPELINE_ID}\""
     echo '    environment: <environment>'
 	echo
 	echo 'For BlueMix ...'

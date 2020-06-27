@@ -6,16 +6,16 @@ echo "Passphrase should be supplied by CD tooling"
 passphrase=8b778ff3fd80def90161e40b9c54527e
 
 echo "DO NOT decrypt the file without capturing the result"
-DECRYP PGP_CRYPT $passphrase
+DECRYP ./crypt/PGP_CRYPT $passphrase
 
 echo "Decrypt to a variable"
-result=$(DECRYP PGP_CRYPT $passphrase)
+result=$(DECRYP ./crypt/PGP_CRYPT $passphrase)
 
 echo "DO NOT log the result"
 echo $result
 
 echo "Decrypt to a file"
-DECRYP PGP_CRYPT $passphrase > decrypted.txt
+DECRYP ./crypt/PGP_CRYPT $passphrase > decrypted.txt
 
 echo "DO NOT list the decrypted file contents"
 cat decrypted.txt
@@ -27,7 +27,7 @@ echo "Detokenise plain text"
 DETOKN crypt-test.yml
 
 echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"
-DETOKN crypt-test.yml PGP_CRYPT $passphrase
+DETOKN crypt-test.yml ./crypt/PGP_CRYPT $passphrase
 
 echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"
 cat crypt-test.yml

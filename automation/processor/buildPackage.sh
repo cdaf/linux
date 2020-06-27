@@ -289,13 +289,17 @@ if [ ! -z $artifactPrefix ]; then
 
 	echo "[$scriptName]   Create single script artefact release.sh"
 	echo '#!/usr/bin/env bash' > release.sh
+  	echo 'ENVIRONMENT="$1"' >> release.sh
+  	echo 'RELEASE="$2"' >> release.sh
+  	echo 'OPT_ARG="$3"' >> release.sh
+  	echo "SOLUTION=$SOLUTION" >> release.sh
   	echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
   	echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
-  	echo "for remotePackage in ${SOLUTION}-*.gz; do rm \$remotePackage; done" >> release.sh
+  	echo 'for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do rm $packageFile; done' >> release.sh
 	echo "base64 -d << EOF | tar -xzf -" >> release.sh
 	base64 $artifactID.tar.gz >> release.sh
 	echo 'EOF' >> release.sh
-	echo './TasksLocal/delivery.sh DEV' >> release.sh
+	echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
 	echo "[$scriptName]   Set resulting package file executable"
 	executeExpression "chmod +x release.sh"
 fi
@@ -307,13 +311,18 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	fi
 	if [ -z $artifactPrefix ]; then
 		executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
-		for packageFile in $(find . -maxdepth 1 -type f -name "*.gz"); do
+		for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
 			executeExpression "cp -f '${packageFile}' '${arr[1]}'"
 		done
 	else
 		executeExpression "cp -f 'release.sh' '${arr[1]}'"
 	fi
 fi
+
+executeExpression "rm -rf TasksRemote"
+executeExpression "rm manifest.txt"
+executeExpression "rm -rf propertiesForLocalTasks"
+executeExpression "rm -rf propertiesForRemoteTasks"
 
 echo; echo "$scriptName : Continuous Integration (CI) Finished"
 exit 0

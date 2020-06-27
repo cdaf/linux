@@ -319,9 +319,13 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	fi
 fi
 
-executeExpression "rm -rf TasksRemote"
 executeExpression "rm -rf propertiesForLocalTasks"
-executeExpression "rm -rf propertiesForRemoteTasks"
+if [ -d "TasksRemote" ]; then
+	executeExpression "rm -rf TasksRemote"
+fi
+if [ -d "propertiesForRemoteTasks" ]; then
+	executeExpression "rm -rf propertiesForRemoteTasks"
+fi
 
 echo; echo "$scriptName : Continuous Integration (CI) Finished"
 exit 0

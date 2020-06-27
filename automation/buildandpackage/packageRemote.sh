@@ -86,14 +86,16 @@ fi
 if [ -d  "$remoteCryptDir" ]; then
 	echo
 	echo "$scriptName :   Remote encrypted files in $remoteCryptDir: "	
-	cp -avR $remoteCryptDir/* $WORK_DIR_DEFAULT
+	mkdir -v $WORK_DIR_DEFAULT/${remoteCryptDir##*/}
+	cp -avR $remoteCryptDir/* $WORK_DIR_DEFAULT/${remoteCryptDir##*/}
 fi
 
 # CDAF 1.9.5 common encrypted files
 if [ -d  "$cryptDir" ]; then
 	echo
 	echo "$scriptName :   Remote encrypted files in $cryptDir: "	
-	cp -avR $cryptDir/* $WORK_DIR_DEFAULT
+	mkdir -v $WORK_DIR_DEFAULT/${cryptDir##*/}
+	cp -avR $cryptDir/* $WORK_DIR_DEFAULT/${cryptDir##*/}
 fi
 
 # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote

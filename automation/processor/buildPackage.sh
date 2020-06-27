@@ -280,7 +280,7 @@ fi
 artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
 if [ ! -z $artifactPrefix ]; then
 	artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
-	echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
+	echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
 	if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
 	    tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz
 	else
@@ -289,14 +289,15 @@ if [ ! -z $artifactPrefix ]; then
 
 	echo "[$scriptName]   Create single script artefact release.sh"
 	echo '#!/usr/bin/env bash' > release.sh
-  	echo "echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
-  	echo 'if [ -d "TasksLocal" ];then rm -rf TasksLocal fi' >> release.sh
-	echo 'rm ${SOLUTION}*.gzip' >> release.sh
-	echo 'base64 -d <<OEF_MARKER > deploy.tar.gz' >> release.sh
+  	echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
+  	echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
+  	echo "for remotePackage in ${SOLUTION}-*.gz; do rm \$remotePackage; done" >> release.sh
+	echo "base64 -d << EOF | tar -xzf -" >> release.sh
 	base64 $artifactID.tar.gz >> release.sh
-	echo 'tar -xcvf $artifactID.tar.gz' >> release.sh
+	echo 'EOF' >> release.sh
+	echo './TasksLocal/delivery.sh DEV' >> release.sh
+	echo "[$scriptName]   Set resulting package file executable"
 	executeExpression "chmod +x release.sh"
-
 fi
 
 if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix

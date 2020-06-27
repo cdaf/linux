@@ -320,7 +320,6 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 fi
 
 executeExpression "rm -rf TasksRemote"
-executeExpression "rm manifest.txt"
 executeExpression "rm -rf propertiesForLocalTasks"
 executeExpression "rm -rf propertiesForRemoteTasks"
 

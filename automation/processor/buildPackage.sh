@@ -302,6 +302,8 @@ if [ ! -z $artifactPrefix ]; then
 	echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
 	echo "[$scriptName]   Set resulting package file executable"
 	executeExpression "chmod +x release.sh"
+	executeExpression "rm -rf TasksLocal"
+	executeExpression "rm -rf propertiesForLocalTasks"
 fi
 
 if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix

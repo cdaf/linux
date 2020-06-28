@@ -304,6 +304,9 @@ if [ ! -z $artifactPrefix ]; then
 	executeExpression "chmod +x release.sh"
 	executeExpression "rm -rf TasksLocal"
 	executeExpression "rm -rf propertiesForLocalTasks"
+	for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
+		executeExpression "rm '${packageFile}'"
+	done
 fi
 
 if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix

@@ -50,7 +50,7 @@ fi
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH"
 
 echo
-if [ -f "./relase.sh"]; then
+if [ -f "./relase.sh" ]; then
 	echo "$scriptName : Continuous Integration (CI) Finished, use ./release.sh <env> to perform deployment."
 else
 	echo "$scriptName : Continuous Integration (CI) Finished, use ./TasksLocal/delivery.sh <env> to perform deployment."

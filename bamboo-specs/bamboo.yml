@@ -28,11 +28,8 @@ Build Job:
         - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
 
   artifacts:
-    - name: Package
-      pattern: '*.gz'
-      shared: true
-    - name: TasksLocal
-      pattern: 'TasksLocal/**'
+    - name: Self Extracting
+      pattern: 'release.sh'
       shared: true
 
 ---
@@ -59,7 +56,7 @@ NO_PROP:
         destination: ${bamboo.working.directory}
     - script:
         - '#!/bin/bash'
-        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+        - "./release.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
 
 LINUX:
   triggers:
@@ -70,7 +67,7 @@ LINUX:
         destination: ${bamboo.working.directory}
     - script:
         - '#!/bin/bash'
-        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+        - "./release.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
 
 CDAF:
   triggers:
@@ -81,4 +78,4 @@ CDAF:
         destination: ${bamboo.working.directory}
     - script:
         - '#!/bin/bash'
-        - "./TasksLocal/delivery.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"
+        - "./release.sh ${bamboo.deploy.environment} ${bamboo.deploy.release}"

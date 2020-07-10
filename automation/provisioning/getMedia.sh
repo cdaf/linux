@@ -9,7 +9,7 @@ function executeExpression {
 		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-}  
+}
 
 scriptName='getMedia.sh'
 echo; echo "[$scriptName] ----- Start ------"; echo
@@ -39,11 +39,14 @@ if [ ! -d "$mediaCache" ]; then
 fi
 
 if [ -f "$mediaCache/$filename" ]; then
-	echo
-	echo "[$scriptName] Filename ($mediaCache/$filename) exists in cache, no action attempted, exit normally."
+	echo; echo "[$scriptName] Filename ($mediaCache/$filename) exists in cache, no action attempted, exit normally."; echo
 else
-	echo
-	executeExpression "curl -s $url --output $mediaCache/$filename"
+	test=$(wget --version 2>/dev/null)
+	if [ -z "$test" ]; then
+		executeExpression "curl --silent $url --output $mediaCache/$filename"
+	else
+		executeExpression "wget $url --directory-prefix=${mediaCache}"
+	fi
 fi
 
 echo; echo "[$scriptName] ----- Stop ------"; echo

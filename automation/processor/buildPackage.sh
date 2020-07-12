@@ -277,36 +277,39 @@ else
 	fi
 fi
 
-artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
-if [ ! -z $artifactPrefix ]; then
-	artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
-	echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
-	if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
-	    tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz
-	else
-	    tar -czf $artifactID.tar.gz TasksLocal/
-	fi
+# CDAF 2.1.0 Self-extracting Script Artifact
+if [ ! -z "$containerBuild" ]; then
+	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	if [ ! -z $artifactPrefix ]; then
+		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
+		echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
+		if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
+			executeExpression "tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz"
+		else
+			executeExpression "tar -czf $artifactID.tar.gz TasksLocal/"
+		fi
 
-	echo "[$scriptName]   Create single script artefact release.sh"
-	echo '#!/usr/bin/env bash' > release.sh
-  	echo 'ENVIRONMENT="$1"' >> release.sh
-  	echo 'RELEASE="$2"' >> release.sh
-  	echo 'OPT_ARG="$3"' >> release.sh
-  	echo "SOLUTION=$SOLUTION" >> release.sh
-  	echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
-  	echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
-  	echo 'for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do rm $packageFile; done' >> release.sh
-	echo "base64 -d << EOF | tar -xzf -" >> release.sh
-	base64 $artifactID.tar.gz >> release.sh
-	echo 'EOF' >> release.sh
-	echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
-	echo "[$scriptName]   Set resulting package file executable"
-	executeExpression "chmod +x release.sh"
-	executeExpression "rm -rf TasksLocal"
-	executeExpression "rm -rf propertiesForLocalTasks"
-	for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
-		executeExpression "rm '${packageFile}'"
-	done
+		echo "[$scriptName]   Create single script artefact release.sh"
+		echo '#!/usr/bin/env bash' > release.sh
+		echo 'ENVIRONMENT="$1"' >> release.sh
+		echo 'RELEASE="$2"' >> release.sh
+		echo 'OPT_ARG="$3"' >> release.sh
+		echo "SOLUTION=$SOLUTION" >> release.sh
+		echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
+		echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
+		echo 'for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do rm $packageFile; done' >> release.sh
+		echo "base64 -d << EOF | tar -xzf -" >> release.sh
+		base64 $artifactID.tar.gz >> release.sh
+		echo 'EOF' >> release.sh
+		echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
+		echo "[$scriptName]   Set resulting package file executable"
+		executeExpression "chmod +x release.sh"
+		executeExpression "rm -rf TasksLocal"
+		executeExpression "rm -rf propertiesForLocalTasks"
+		for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
+			executeExpression "rm '${packageFile}'"
+		done
+	fi
 fi
 
 if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix

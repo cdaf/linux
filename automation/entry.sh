@@ -34,20 +34,23 @@ if [ -z $BUILDNUMBER ]; then
 		let "BUILDNUMBER=$BUILDNUMBER + 1"
 	fi
 	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
-	echo "$scriptName :   BUILDNUMBER    : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
+	echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
 else
-	echo "$scriptName :   BUILDNUMBER    : $BUILDNUMBER"
+	echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER"
 fi
 
 BRANCH="$2"
 if [ -z $BRANCH ]; then
 	BRANCH='targetlesscd'
-	echo "$scriptName :   BRANCH         : $BRANCH (not passed, set to default)"
+	echo "$scriptName :   BRANCH      : $BRANCH (not passed, set to default)"
 else
-	echo "$scriptName :   BRANCH         : $BRANCH"
+	echo "$scriptName :   BRANCH      : $BRANCH"
 fi
 
-executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH"
+ACTION="$3"
+echo "$scriptName :   ACTION      : $ACTION"
+
+executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH $ACTION"
 
 if [ $BRANCH != 'master' ]; then
 	executeExpression "./TasksLocal/delivery.sh DOCKER"

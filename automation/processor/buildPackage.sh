@@ -278,7 +278,7 @@ else
 fi
 
 # CDAF 2.1.0 Self-extracting Script Artifact
-if [ ! -z "$containerBuild" ]; then
+if [ -z "$containerBuild" ]; then
 	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
 	if [ ! -z $artifactPrefix ]; then
 		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
@@ -327,12 +327,28 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	fi
 fi
 
-executeExpression "rm -rf propertiesForLocalTasks"
-if [ -d "TasksRemote" ]; then
-	executeExpression "rm -rf TasksRemote"
-fi
-if [ -d "propertiesForRemoteTasks" ]; then
-	executeExpression "rm -rf propertiesForRemoteTasks"
+if [ -z "$containerBuild" ]; then
+	echo; echo "[$scriptName] Clean Workspace..."
+	executeExpression "rm -rf propertiesForLocalTasks"
+	if [ -d "TasksRemote" ]; then
+		executeExpression "rm -rf TasksRemote"
+	fi
+	if [ -d "propertiesForRemoteTasks" ]; then
+		executeExpression "rm -rf propertiesForRemoteTasks"
+	fi
+
+	if [ -f "manifest.txt" ]; then
+		executeExpression "rm -f manifest.txt"
+	fi
+	if [ -f "storeForLocal_manifest.txt" ]; then
+		executeExpression "rm -f storeForLocal_manifest.txt"
+	fi
+	if [ -f "storeForRemote_manifest.txt" ]; then
+		executeExpression "rm -f storeForRemote_manifest.txt"
+	fi
+	if [ -f "storeFor_manifest.txt" ]; then
+		executeExpression "rm -f storeFor_manifest.txt"
+	fi
 fi
 
 echo; echo "$scriptName : Continuous Integration (CI) Finished"

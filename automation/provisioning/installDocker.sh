@@ -22,7 +22,7 @@ function executeRetry {
 			success='yes'
 		fi
 	done
-}  
+}
 
 function executeIgnore {
 	echo "[$scriptName] $1"
@@ -62,6 +62,7 @@ else
 	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
 
+echo
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
@@ -74,7 +75,6 @@ else
 		echo "[$scriptName] CentOS Linux"
 	fi
 fi
-echo
 
 check='yes'
 if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from binary media
@@ -106,57 +106,46 @@ if [ -z "$package" ]; then
 
 	if [ "$fedora" ]; then
 
+		if [ -f '/etc/centos-release' ]; then
+			read -r -a array <<< $(cat /etc/centos-release)
+			echo "[$scriptName]   Version  : ${array[5]}"
+		else
+			if [ -f '/etc/redhat-release' ]; then
+				read -r -a array <<< $(cat /etc/redhat-release)
+				echo "[$scriptName]   Version  : ${array[5]}"
+			else
+				echo "[$scriptName] Unknown Fedora distribution! Exiting"
+				exit 4432
+			fi
+		fi
+		IFS='.' read -r -a array <<< "${array[5]}"
+		fVersion=$(echo "${array[0]}")
+
 		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 		    install='latest'
-			echo "[$scriptName] For RHEL, only $install supported"
-		    executeIgnore "$elevate subscription-manager repos --enable=rhel-7-server-extras-rpms" # Ignore if already installed
+			echo; echo "[$scriptName] For RHEL, only $install supported"
+		    executeIgnore "$elevate subscription-manager repos --enable=rhel-${fVersion}-server-extras-rpms" # Ignore if already installed
 		fi
 
 		if [ "$install" == 'canon' ]; then
 
-			if [ -f /etc/os-release ]; then 
-				echo "[$scriptName] Install CentOS 7 Canonical docker.io ($install)"
-				if [ "$elevate" ]; then
-					echo "[$scriptName] sudo yum check-update (note: a normal exit code is non zero)"
-					sudo yum check-update
-				else
-					echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
-					yum check-update
-				fi
-				executeRetry "$elevate yum install -y docker docker-compose"
-				executeRetry "$elevate systemctl enable docker.service"
-				executeRetry "$elevate systemctl start docker.service"
-				executeRetry "$elevate systemctl status docker.service"
+			echo "[$scriptName] Install Canonical docker.io ($install)"
+			if [ "$elevate" ]; then
+				echo "[$scriptName] sudo yum check-update (note: a normal exit code is non zero)"
+				sudo yum check-update
 			else
-				echo "[$scriptName] Install CentOS 6 from Docker repository"
-				if [ "$elevate" ]; then
-					sudo sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
-					sudo sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
-					sudo sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
-					sudo sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
-					sudo sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
-					sudo sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
-				else
-					sh -c "echo [dockerrepo] > /etc/yum.repos.d/docker.repo"
-					sh -c "echo name=Docker Repository >> /etc/yum.repos.d/docker.repo"
-					sh -c "echo baseurl=https://yum.dockerproject.org/repo/main/centos/6/ >> /etc/yum.repos.d/docker.repo"
-					sh -c "echo enabled=1 >> /etc/yum.repos.d/docker.repo"
-					sh -c "echo gpgcheck=1 >> /etc/yum.repos.d/docker.repo"
-					sh -c "echo gpgkey=https://yum.dockerproject.org/gpg >> /etc/yum.repos.d/docker.repo"
-				fi
-				echo			
-				executeRetry "$elevate cat /etc/yum.repos.d/docker.repo"
-				echo			
-				echo "[$scriptName] Install software from repo"
-				executeRetry "$elevate yum install -y docker-engine docker-compose"
-				executeRetry "$elevate service docker start"
-				executeRetry "$elevate service docker status"
+				echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
+				yum check-update
 			fi
+			executeRetry "$elevate yum install -y docker docker-compose"
+			executeRetry "$elevate systemctl enable docker.service"
+			executeRetry "$elevate systemctl start docker.service"
+			executeRetry "$elevate systemctl status docker.service"
 
 		else
 			executeRetry "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
 			executeRetry "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
-			executeRetry "$elevate yum install -y docker-ce"
+			executeRetry "$elevate yum install -y --nobest docker-ce"
 			executeRetry "$elevate service docker start"
 			executeRetry "$elevate service docker status"
 		fi

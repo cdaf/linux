@@ -55,6 +55,13 @@ else
 	echo "[$scriptName]   startDaemon  : $startDaemon (only applied to binary install)"
 fi
 
+if [ -z "$3" ]; then
+	compose='1.26.2'
+	echo "[$scriptName]   compose      : $compose (default)"
+else
+	echo "[$scriptName]   compose      : $compose"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami       : $(whoami)"
@@ -83,15 +90,15 @@ if [ "$install" != 'canon' ] && [ "$install" != 'latest' ]; then # Install from 
 	if [ ! -z "$package" ]; then
 		# When running under vagranT, cannot extract from the replicated file share, so copy to 
 		# local file system, then extract
-		executeRetry "$elevate cp $install/docker-latest.tgz /tmp"
+		executeRetry "${elevate} cp $install/docker-latest.tgz /tmp"
 		executeRetry 'cd /tmp'
 		executeRetry 'tar -xvzf docker-latest.tgz'
-		executeRetry '$elevate mv docker/* /usr/bin/'
+		executeRetry "${elevate} mv docker/* /usr/bin/"
 		
 		# When running under vagrant have found issues with starting daemon in provisioning mode
 		# i.e. cannot connect to docker, even when user is a member of the docker group			
 		if [ "$startDaemon" == 'yes' ] ; then
-			executeRetry '$elevate docker daemon &'
+			executeRetry "${elevate} docker daemon &"
 		else
 			check='no'
 		fi
@@ -124,30 +131,30 @@ if [ -z "$package" ]; then
 		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 		    install='latest'
 			echo; echo "[$scriptName] For RHEL, only $install supported"
-		    executeIgnore "$elevate subscription-manager repos --enable=rhel-${fVersion}-server-extras-rpms" # Ignore if already installed
+		    executeIgnore "${elevate} subscription-manager repos --enable=rhel-${fVersion}-server-extras-rpms" # Ignore if already installed
 		fi
 
 		if [ "$install" == 'canon' ]; then
 
 			echo "[$scriptName] Install Canonical docker.io ($install)"
-			if [ "$elevate" ]; then
-				echo "[$scriptName] sudo yum check-update (note: a normal exit code is non zero)"
+			if [ "${elevate}" ]; then
+				echo "[$scriptName] ${elevate} yum check-update (note: a normal exit code is non zero)"
 				sudo yum check-update
 			else
 				echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
 				yum check-update
 			fi
-			executeRetry "$elevate yum install -y docker docker-compose"
-			executeRetry "$elevate systemctl enable docker.service"
-			executeRetry "$elevate systemctl start docker.service"
-			executeRetry "$elevate systemctl status docker.service"
+			executeRetry "${elevate} yum install -y docker docker-compose"
+			executeRetry "${elevate} systemctl enable docker.service"
+			executeRetry "${elevate} systemctl start docker.service"
+			executeRetry "${elevate} systemctl status docker.service"
 
 		else
-			executeRetry "$elevate yum install -y yum-utils device-mapper-persistent-data lvm2"
-			executeRetry "$elevate yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
-			executeRetry "$elevate yum install -y --nobest docker-ce"
-			executeRetry "$elevate service docker start"
-			executeRetry "$elevate service docker status"
+			executeRetry "${elevate} yum install -y yum-utils device-mapper-persistent-data lvm2"
+			executeRetry "${elevate} yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+			executeRetry "${elevate} yum install -y --nobest docker-ce"
+			executeRetry "${elevate} service docker start"
+			executeRetry "systemctl --no-pager status docker"
 		fi
 		
 	else # Debian
@@ -160,41 +167,39 @@ if [ -z "$package" ]; then
 			echo "[$scriptName] ${dailyUpdate}"
 			IFS=' ' read -ra ADDR <<< $dailyUpdate
 			echo
-			executeRetry "$elevate kill -9 ${ADDR[1]}"
+			executeRetry "${elevate} kill -9 ${ADDR[1]}"
 			executeRetry "sleep 5"
 		fi
 
 		if [ "$install" == 'canon' ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
-			executeRetry "$elevate apt-get update"
-			executeRetry "$elevate apt-get install -y docker.io docker-compose"
+			executeRetry "${elevate} apt-get update"
+			executeRetry "${elevate} apt-get install -y docker.io docker-compose"
 
 		else # latest
 
 			echo "[$scriptName] Install Latest Community Edition for Ubuntu"
-			executeIgnore "$elevate apt-get -y remove docker*"
-			executeIgnore "$elevate apt-get purge -y docker-engine docker docker.io docker-ce"
-			executeIgnore "$elevate apt-get autoremove -y --purge docker-engine docker docker.io docker-ce"
-			executeRetry "$elevate apt-get update"
-			executeRetry "$elevate apt-get install -y apt-transport-https ca-certificates curl software-properties-common"
-			executeRetry "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
-			executeRetry "$elevate apt-key fingerprint 0EBFCD88"
-			executeRetry "$elevate add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'"
-			executeRetry "$elevate apt-get update"
-			executeRetry "$elevate apt-get install -y docker-ce"
+			executeIgnore "${elevate} apt-get -y remove docker*"
+			executeIgnore "${elevate} apt-get purge -y docker-engine docker docker.io docker-ce"
+			executeIgnore "${elevate} apt-get autoremove -y --purge docker-engine docker docker.io docker-ce"
+			executeRetry "${elevate} apt-get update"
+			executeRetry "${elevate} apt-get install -y apt-transport-https ca-certificates curl software-properties-common"
+			executeRetry "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | ${elevate} apt-key add -"
+			executeRetry "${elevate} apt-key fingerprint 0EBFCD88"
+			executeRetry "${elevate} add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'"
+			executeRetry "${elevate} apt-get update"
+			executeRetry "${elevate} apt-get install -y docker-ce"
 			executeRetry "docker --version"
- 
-			executeRetry "sudo curl -sL 'https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
-			executeRetry "$elevate chmod +x /usr/local/bin/docker-compose"
-			executeRetry "docker-compose --version"			
 		fi
-		
 	fi
 fi
 
+executeRetry "${elevate} curl -sL 'https://github.com/docker/compose/releases/download/${compose}/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+executeRetry "${elevate} chmod +x /usr/local/bin/docker-compose"
+
 if [ "$check" == 'yes' ] ; then
-	echo "[$scriptName] Pause for Docker to start, the list version details..."
+	echo; echo "[$scriptName] Pause for Docker to start, the list version details..."
 	sleep 5
 	echo
 	test=$(docker --version 2>&1)

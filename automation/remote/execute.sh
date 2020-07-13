@@ -170,6 +170,17 @@ function REPLAC {
 	fi
 }
 
+function IGNORE {
+	# Execute command with only warning message if exit code is not zero
+	#  required : command to execute
+	echo "$1"
+	eval "$1"
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][WARN] ${executeFunction} returned ${exitCode}, continuing ..."
+	fi
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"

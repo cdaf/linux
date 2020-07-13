@@ -330,11 +330,11 @@ while read LINE; do
 		fileName=${stringarray[1]}
 		sourceDir=${stringarray[2]}
 		if [ "$sourceDir" == '.' ]; then
-			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
+			EXECUTABLESCRIPT="tar -zcvf --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
 		else
 			sourcePath=$(dirname $(readlink -f ${sourceDir}))
 			sourceName=$(basename ${sourceDir})
-			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
+			EXECUTABLESCRIPT="tar -zcvf --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
 		fi
 	fi
 
@@ -344,7 +344,7 @@ while read LINE; do
 		printf "$LINE ==> "
 		stringarray=($LINE)
 		fileName=${stringarray[1]}
-		EXECUTABLESCRIPT="tar -xcvf ./${fileName}.tar.gz"
+		EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz"
 	fi
 
 	# Perform no further processing if Feature is Property Loader

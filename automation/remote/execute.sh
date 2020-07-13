@@ -344,7 +344,12 @@ while read LINE; do
 		printf "$LINE ==> "
 		stringarray=($LINE)
 		fileName=${stringarray[1]}
-		EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz"
+		targetDir=${stringarray[2]}
+		if [ -z "$targetDir" ]; then
+			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz"
+		else
+			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz --directory ${targetDir}"
+		fi
 	fi
 
 	# Perform no further processing if Feature is Property Loader

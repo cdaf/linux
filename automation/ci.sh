@@ -5,21 +5,21 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }
 
 # Entry point for branch based targetless CD
 
-scriptName=${0##*/}
+scriptName='ci.sh'
 
 echo
-echo "$scriptName : ======================"
-echo "$scriptName : Continuous Integration"
-echo "$scriptName : ======================"
+echo "[$scriptName] ======================"
+echo "[$scriptName] Continuous Integration"
+echo "[$scriptName] ======================"
 AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
-echo "$scriptName :   AUTOMATIONROOT : $AUTOMATIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 BUILDNUMBER="$1"
@@ -34,28 +34,28 @@ if [ -z $BUILDNUMBER ]; then
 		let "BUILDNUMBER=$BUILDNUMBER + 1"
 	fi
 	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
-	echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
 else
-	echo "$scriptName :   BUILDNUMBER : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 BRANCH="$2"
 if [ -z $BRANCH ]; then
 	BRANCH='targetlesscd'
-	echo "$scriptName :   BRANCH      : $BRANCH (not passed, set to default)"
+	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
-	echo "$scriptName :   BRANCH      : $BRANCH"
+	echo "[$scriptName]   BRANCH         : $BRANCH"
 fi
 
 ACTION="$3"
-echo "$scriptName :   ACTION      : $ACTION"
+echo "[$scriptName]   ACTION         : $ACTION"
 
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH $ACTION"
 
 echo
 if [ -f "./relase.sh" ]; then
-	echo "$scriptName : Continuous Integration (CI) Finished, use ./release.sh <env> to perform deployment."
+	echo "[$scriptName] Continuous Integration (CI) Finished, use ./release.sh <env> to perform deployment."
 else
-	echo "$scriptName : Continuous Integration (CI) Finished, use ./TasksLocal/delivery.sh <env> to perform deployment."
+	echo "[$scriptName] Continuous Integration (CI) Finished, use ./TasksLocal/delivery.sh <env> to perform deployment."
 fi
 exit 0

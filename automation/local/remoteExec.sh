@@ -61,11 +61,11 @@ fi
 
 if [[ $deployHost == *'$'* ]]; then
 	deployHost=$(eval echo $deployHost)
-	echo "$scriptName :   deployHost : $deployHost (evaluated)"
+	echo "[$scriptName]   deployHost : $deployHost (evaluated)"
 fi
 if [[ $deployUser == *'$'* ]]; then
 	deployUser=$(eval echo $deployUser)
-	echo "$scriptName :   deployUser : $deployUser (evaluated)"
+	echo "[$scriptName]   deployUser : $deployUser (evaluated)"
 fi
 
 # Process the deployHost, stripping out the port if passed, i.e. localhost:2222
@@ -85,22 +85,22 @@ echo
 # If a command is passed, then just execute, is command is a local script, execute that script on the remote target
 extension="${deployCommand##*.}"
 if [ "$extension" != 'sh' ]; then
-	echo "$scriptName : Executing command ..."
+	echo "[$scriptName] Executing command ..."
 	echo
 	# -n to stop ssh consuming standard in, i.e. when being executed from within execute.sh
 	ssh -n -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost "$deployCommand $arg1 $arg2 $arg3 $arg4 $arg5 $arg6"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : ssh $deployUser@$deployHost \"$deployCommand $arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" failed! Returned $exitCode"
+		echo "[$scriptName] ssh $deployUser@$deployHost \"$deployCommand $arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" failed! Returned $exitCode"
 		exit $exitCode
 	fi
 else
-	echo "$scriptName : Executing shell script ..."
+	echo "[$scriptName] Executing shell script ..."
 	echo
 	ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost 'cat | bash /dev/stdin ' "$arg1 $arg2 $arg3 $arg4 $arg5 $arg6" < $deployCommand 
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : ssh $deployUser@$deployHost \'cat | bash /dev/stdin \' \"$arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" < $deployCommand failed! Returned $exitCode"
+		echo "[$scriptName] ssh $deployUser@$deployHost \'cat | bash /dev/stdin \' \"$arg1 $arg2 $arg3 $arg4 $arg5 $arg6\" < $deployCommand failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi

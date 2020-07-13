@@ -6,7 +6,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
 		if [ -f "Dockerfile.source" ]; then
 			mv -f Dockerfile.source Dockerfile
 		fi
@@ -157,7 +157,7 @@ if [ ! -z "$imageName" ]; then
 	
 	# If a build number is not passed, use the CDAF emulator
 	executeExpression "export MSYS_NO_PATHCONV=1"
-	executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION $ACTION"
+	executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	
 	echo "[$scriptName] List and remove all stopped containers"
 	executeExpression 'docker ps --filter "status=exited" -a'

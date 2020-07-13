@@ -21,6 +21,6 @@ fi
 echo `cat $PROP_FILE | grep "$PROP_NAME" | cut -d'=' -f2`
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "$scriptName : Retrieval of $PROP_NAME from $PROP_FILE failed! Returned $exitCode"
+	echo "[$scriptName] Retrieval of $PROP_NAME from $PROP_FILE failed! Returned $exitCode"
 	exit $exitCode
 fi

@@ -2,55 +2,55 @@
 
 scriptName=${0##*/}
 
-echo; echo "$scriptName : +----------------------------+"
-echo "$scriptName : | Process BUILD all projects |"
-echo "$scriptName : +----------------------------+"; echo
+echo; echo "[$scriptName] +----------------------------+"
+echo "[$scriptName] | Process BUILD all projects |"
+echo "[$scriptName] +----------------------------+"; echo
 SOLUTION="$1"
 if [ -z "$SOLUTION" ]; then
-	echo "$scriptName : Solution not passed!"
+	echo "[$scriptName] Solution not passed!"
 	exit 1
 else
-	echo "$scriptName :   SOLUTION       : $SOLUTION"
+	echo "[$scriptName]   SOLUTION       : $SOLUTION"
 fi
 
 BUILDNUMBER="$2"
 if [ -z "$BUILDNUMBER" ]; then
-	echo "$scriptName : Build Number not passed!"
+	echo "[$scriptName] Build Number not passed!"
 	exit 2
 else
-	echo "$scriptName :   BUILDNUMBER    : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 REVISION="$3"
 if [ -z "$REVISION" ]; then
 	REVISION="Revision"
-	echo "$scriptName :   REVISION       : $REVISION (default)"
+	echo "[$scriptName]   REVISION       : $REVISION (default)"
 else
-	echo "$scriptName :   REVISION       : $REVISION"
+	echo "[$scriptName]   REVISION       : $REVISION"
 fi
 
 ACTION="$4"
 if [ -z "$ACTION" ]; then
-	echo "$scriptName :   ACTION         : $ACTION"
+	echo "[$scriptName]   ACTION         : $ACTION"
 	BUILDENV='BUILDER'
-	echo "$scriptName :   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
+	echo "[$scriptName]   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
 else
 	# case insensitive by forcing to uppercase
 	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
 	if [ "$testForClean" == "CLEAN" ]; then
-		echo "$scriptName :   ACTION         : $ACTION (Build Environment will be set to default)"
+		echo "[$scriptName]   ACTION         : $ACTION (Build Environment will be set to default)"
 		BUILDENV='BUILDER'
-		echo "$scriptName :   BUILDENV       : $BUILDENV (default)"
+		echo "[$scriptName]   BUILDENV       : $BUILDENV (default)"
 	else
 		BUILDENV="$ACTION"
-		echo "$scriptName :   ACTION         : $ACTION"
-		echo "$scriptName :   BUILDENV       : $BUILDENV (derived from action)"
+		echo "[$scriptName]   ACTION         : $ACTION"
+		echo "[$scriptName]   BUILDENV       : $BUILDENV (derived from action)"
 	fi
 fi
 
 # Look for automation root definition
 AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
-echo "$scriptName :   AUTOMATIONROOT : $AUTOMATIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 
 AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
 
@@ -74,11 +74,11 @@ if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 	echo; echo "$propertiesList"
 	eval $propertiesList
 else
-	echo; echo "$scriptName : CDAF.solution file not found!"; exit 8823
+	echo; echo "[$scriptName] CDAF.solution file not found!"; exit 8823
 fi
 
 if [ -f "build.sh" ]; then
-	echo; echo "$scriptName : build.sh found in solution root, executing in $(pwd)"; echo
+	echo; echo "[$scriptName] build.sh found in solution root, executing in $(pwd)"; echo
 	# Additional properties that are not passed as arguments, but loaded by execute automatically
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
@@ -87,14 +87,14 @@ if [ -f "build.sh" ]; then
 	./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : $PROJECT Build Failed, exit code = $exitCode."
+		echo "[$scriptName] $PROJECT Build Failed, exit code = $exitCode."
 		exit $exitCode
 	fi
 fi
 	
 if [ -f "build.tsk" ]; then
 
-	echo; echo "$scriptName : build.tsk found in solution root, executing in $(pwd)"; echo
+	echo; echo "[$scriptName] build.tsk found in solution root, executing in $(pwd)"; echo
 	# Additional properties that are not passed as arguments, explicit load is required
 	echo "PROJECT=$PROJECT" > ./solution.properties
 	echo "REVISION=$REVISION" >> ./solution.properties
@@ -103,7 +103,7 @@ if [ -f "build.tsk" ]; then
 	$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
+		echo "[$scriptName] Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi
@@ -124,20 +124,20 @@ for folder in $dirList; do
 done
 
 if [ -z "$projectsToBuild" ]; then
-	echo; echo "$scriptName : No projects found, no build action attempted."
+	echo; echo "[$scriptName] No projects found, no build action attempted."
 else
-	echo; echo "$scriptName :   Projects to process :"; echo
+	echo; echo "[$scriptName]   Projects to process :"; echo
 	for projectName in $projectsToBuild; do
 		echo "  ${projectName##*/}"
 	done
 
 	for projectName in $projectsToBuild; do
 		projectName=${projectName##*/}
-		echo; echo "$scriptName : --- BUILD ${projectName} ---"; echo
+		echo; echo "[$scriptName] --- BUILD ${projectName} ---"; echo
 		cd ${projectName}
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "$scriptName : cd ${projectName} failed! Exit code = $exitCode."
+			echo "[$scriptName] cd ${projectName} failed! Exit code = $exitCode."
 			exit $exitCode
 		fi
 
@@ -151,7 +151,7 @@ else
 			./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "$scriptName : $projectName Build Failed, exit code = $exitCode."
+				echo "[$scriptName] $projectName Build Failed, exit code = $exitCode."
 				exit $exitCode
 			fi
 			
@@ -161,7 +161,7 @@ else
 			$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "$scriptName : Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $projectName build.tsk) failed! Returned $exitCode"
+				echo "[$scriptName] Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $projectName build.tsk) failed! Returned $exitCode"
 				exit $exitCode
 			fi
 		fi
@@ -173,7 +173,7 @@ else
 	done
 	
 	if [ -z $lastProject ]; then
-		echo; echo "$scriptName : No projects found containing build.sh, no build action attempted."
+		echo; echo "[$scriptName] No projects found containing build.sh, no build action attempted."
 	fi
 
 fi

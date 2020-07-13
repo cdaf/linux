@@ -14,13 +14,13 @@ privateKey="$sslHome/private_key.pem"
 publicKey="$sslHome/public_key.pem"
 	
 if [ ! -d "$sslHome" ]; then
-	echo "$scriptName : Create $sslHome"
+	echo "[$scriptName] Create $sslHome"
 	mkdir $sslHome
 	chmod 700 $sslHome
 fi
 
 if [ ! -f "$privateKey" ]; then
-	echo "$scriptName : Create $privateKey"
+	echo "[$scriptName] Create $privateKey"
 	openssl genrsa -out $privateKey 2048
 	chmod 600 $privateKey
 	openssl rsa -in $privateKey -out $publicKey -outform PEM -pubout

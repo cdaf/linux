@@ -25,10 +25,10 @@ if [ -f "~/.bashrc" ]; then
 	source ~/.bashrc
 fi
 
-echo; echo "$scriptName : --------------------"
-echo "$scriptName : Initialise Emulation"
-echo "$scriptName : --------------------"
-echo "$scriptName :   ACTION         : $ACTION"
+echo; echo "[$scriptName] --------------------"
+echo "[$scriptName] Initialise Emulation"
+echo "[$scriptName] --------------------"
+echo "[$scriptName]   ACTION         : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
 workDirLocal="TasksLocal"
@@ -36,7 +36,7 @@ workDirRemote="TasksRemote"
 
 # Framework structure
 automationRoot="$( cd "$(dirname "$0")" ; pwd -P )"
-echo "$scriptName :   automationRoot : $automationRoot"
+echo "[$scriptName]   automationRoot : $automationRoot"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -57,12 +57,12 @@ fi
 if [ -z "${CDAF_DELIVERY}" ]; then
 	if [ -f "$solutionRoot/deliveryEnv.sh" ]; then
 		CDAF_DELIVERY=$($solutionRoot/deliveryEnv.sh)
-		echo "$scriptName :   CDAF_DELIVERY  : $CDAF_DELIVERY (using override $solutionRoot/deliveryEnv.sh)"
+		echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (using override $solutionRoot/deliveryEnv.sh)"
 	else
 		if [ ! $CDAF_DELIVERY ]; then
 			CDAF_DELIVERY="LINUX"
 		fi
-		echo "$scriptName :   CDAF_DELIVERY  : $CDAF_DELIVERY (override $solutionRoot/deliveryEnv.sh not found)"
+		echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (override $solutionRoot/deliveryEnv.sh not found)"
 	fi
 fi
 
@@ -82,8 +82,8 @@ if [ ! -z "${CDAF_BRANCH_NAME}" ]; then
 else
 	revision="release"
 fi
-echo "$scriptName :   buildNumber    : $buildNumber"
-echo "$scriptName :   revision       : $revision"
+echo "[$scriptName]   buildNumber    : $buildNumber"
+echo "[$scriptName]   revision       : $revision"
 
 # Check for customised CI process
 printf "$scriptName :   ciProcess      : "
@@ -114,7 +114,7 @@ fi
 # If a solution properties file exists, load the properties
 if [ -f "$solutionRoot/CDAF.solution" ]; then
 	echo
-	echo "$scriptName : Load Solution Properties $solutionRoot/CDAF.solution"
+	echo "[$scriptName] Load Solution Properties $solutionRoot/CDAF.solution"
 	propertiesList=$($automationRoot/remote/transform.sh "$solutionRoot/CDAF.solution")
 	echo "$propertiesList"
 	eval $propertiesList
@@ -122,12 +122,12 @@ fi
 
 # If the Solution is not defined in the CDAF.solution file, do not attempt to derive, instead, throw error.
 if [ -z "$solutionName" ]; then
-	echo; echo "$scriptName : solutionName not defined in $solutionRoot/CDAF.solution, exiting with code 3"; exit 3
+	echo; echo "[$scriptName] solutionName not defined in $solutionRoot/CDAF.solution, exiting with code 3"; exit 3
 fi
 
 if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
-	echo "$scriptName : ---------- CI Toolset Configuration Guide -------------"
+	echo "[$scriptName] ---------- CI Toolset Configuration Guide -------------"
 	echo
     echo 'For TeamCity ...'
     echo "  Command Executable : $ciProcess"
@@ -167,13 +167,13 @@ if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly
     echo '  Copy the sample coded pipeline file from GitHub'
     echo '  https://github.com/cdaf/linux/tree/master/samples/github-actions'
     echo
-	echo "$scriptName : -------------------------------------------------------"
+	echo "[$scriptName] -------------------------------------------------------"
 fi
 if [ "$caseinsensitive" != "cdonly" ]; then
 	$ciProcess "$buildNumber" "$revision" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "$scriptName : CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
+		echo "[$scriptName] CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
 		exit $exitCode
 	fi
 fi
@@ -181,7 +181,7 @@ fi
 # Do not process Remote and Local Tasks if the action is cionly or clean
 if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	echo
-	echo "$scriptName : ---------- Artefact Configuration Guide -------------"
+	echo "[$scriptName] ---------- Artefact Configuration Guide -------------"
 	echo
 	echo 'Configure artefact retention patterns to retain package and local tasks'
 	echo
@@ -221,9 +221,9 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '  Use the staging directory created based on staging@ argument'
 	echo '  Build archive directory : staging'
 	echo
-	echo "$scriptName : -------------------------------------------------------"
+	echo "[$scriptName] -------------------------------------------------------"
 	echo
-	echo "$scriptName : ---------- CD Toolset Configuration Guide -------------"
+	echo "[$scriptName] ---------- CD Toolset Configuration Guide -------------"
 	echo
 	echo 'Note: artifact retention typically does include file attribute for executable, so'
 	echo '  set the first step of deploy process to make all scripts executable'
@@ -282,20 +282,20 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 	echo '  Ensure staging@ directive has been used in build or the relative path will be incorrect'
 	echo '    ./TasksLocal/delivery.sh $IDS_STAGE_NAME $IDS_JOB_NAME'
    	echo
-	echo "$scriptName : -------------------------------------------------------"
+	echo "[$scriptName] -------------------------------------------------------"
 
 	if [ "$caseinsensitive" != "cionly" ]; then
 		$cdProcess "$CDAF_DELIVERY"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "$scriptName : CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
+			echo "[$scriptName] CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
 			exit $exitCode
 		fi
 	fi
 fi
 
 echo
-echo "$scriptName : ------------------"
-echo "$scriptName : Emulation Complete"
-echo "$scriptName : ------------------"
+echo "[$scriptName] ------------------"
+echo "[$scriptName] Emulation Complete"
+echo "[$scriptName] ------------------"
 echo

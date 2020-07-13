@@ -6,7 +6,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Failed with exit: $exitCode"; echo; exit $exitCode
+		echo "[$scriptName] Failed with exit: $exitCode"; echo; exit $exitCode
 	fi
 }  
 

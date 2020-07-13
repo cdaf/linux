@@ -3,22 +3,22 @@ set -e
 scriptName=${0##*/}
 
 if [ -z "$1" ]; then
-	echo "$scriptName : Version not supplied. HALT!"
+	echo "[$scriptName] Version not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$2" ]; then
-	echo "$scriptName : Environment Definition not supplied. HALT!"
+	echo "[$scriptName] Environment Definition not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$3" ]; then
-	echo "$scriptName : List of Configuration Files not supplied. HALT!"
+	echo "[$scriptName] List of Configuration Files not supplied. HALT!"
 	exit 1
 fi
 
 if [ -z "$4" ]; then
-	echo "$scriptName : Absolute Path of Configuration Files not supplied. HALT!"
+	echo "[$scriptName] Absolute Path of Configuration Files not supplied. HALT!"
 	exit 1
 fi
 

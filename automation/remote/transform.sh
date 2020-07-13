@@ -41,7 +41,7 @@ while read -r LINE; do
 		echo "  ${array[0]}=\"${array[1]}\""
 	else		
 		name="%${array[0]}%"
-#		echo "$scriptName : Replace $name with ${array[1]}"
+#		echo "[$scriptName] Replace $name with ${array[1]}"
 
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then

@@ -4,7 +4,7 @@ scriptName=${0##*/}
 
 # Check that Version has been passed
 if [ -z "$1" ]; then
-	echo "$scriptName : Version not supplied. HALT!"
+	echo "[$scriptName] Version not supplied. HALT!"
 	exit 1
 fi
 
@@ -22,8 +22,8 @@ if [ -z "$CRON" ]; then
 	fi
 
 	CRON=$(cat ./config/crontab.txt)
-	echo "$scriptName : No existing cron, install ..."
-	echo "$scriptName : $CRON"
+	echo "[$scriptName] No existing cron, install ..."
+	echo "[$scriptName] $CRON"
 	crontab ./config/crontab.txt
 else
 	# Only deploy if the configuration is different
@@ -35,12 +35,12 @@ else
 		STAMP=$(date "+%Y-%m-%d_%T")
 		mv crontab.txt crontab.txt-$STAMP
 		sed -i "s/"\%buildRevision\%"/$1/g" ./config/crontab.txt
-		echo "$scriptName : rename the existing config to crontab.txt-$STAMP"
+		echo "[$scriptName] rename the existing config to crontab.txt-$STAMP"
 		echo "                 ---- New Value ----                          |	              ---- Existing Value ----"
 		diff -y --suppress-common-lines ./config/crontab.txt crontab.txt-$STAMP
 		crontab ./config/crontab.txt
 	else
-		echo "$scriptName : No Update to cron required"
+		echo "[$scriptName] No Update to cron required"
 	fi
 fi
 

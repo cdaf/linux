@@ -7,19 +7,19 @@ scriptName=${0##*/}
 
 # Check that the definition file is supplied
 if [ -z "$1" ]; then
-	echo "$scriptName : Definition File not passed. HALT!"
+	echo "[$scriptName] Definition File not passed. HALT!"
 	exit 1
 fi
 
 # Check that the template file is supplied
 if [ -z "$2" ]; then
-	echo "$scriptName : Template File not passed. HALT!"
+	echo "[$scriptName] Template File not passed. HALT!"
 	exit 1
 fi
 
 # Check that the output file is supplied
 if [ -z "$3" ]; then
-	echo "$scriptName : Output File not passed. HALT!"
+	echo "[$scriptName] Output File not passed. HALT!"
 	exit 1
 fi
 
@@ -29,7 +29,7 @@ do
 	read -ra array <<< "$LINE"
 	name="${array[0]}"
 	value="%${array[1]}%"
-	echo "$scriptName : Replace $name with $value"
+	echo "[$scriptName] Replace $name with $value"
 	cat $2 | sed "s/$name/$value/g" > $3
 done < $1
 

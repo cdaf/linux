@@ -26,11 +26,9 @@ variables:
 
 steps:
 - script: |
-    ./automation/processor/entry.sh $(Build.BuildNumber) $(Build.SourceBranchName) staging@$(Build.ArtifactStagingDirectory)
+    ./automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranchName) staging@$(Build.ArtifactStagingDirectory)
     exitCode=$?
     if [ "$exitCode" != "0" ]; then exit $exitCode; fi
-    cp -r TasksLocal $BUILD_ARTIFACTSTAGINGDIRECTORY
-    cp *.gz $BUILD_ARTIFACTSTAGINGDIRECTORY
 #  env:
 #    MAVEN_ARTIFACT_TOKEN: $(MAVEN_ARTIFACT_TOKEN)
 

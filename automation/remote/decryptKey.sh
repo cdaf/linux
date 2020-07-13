@@ -22,7 +22,7 @@ if [ -z "$2" ]; then
 	openssl rsautl -decrypt -inkey $privateKey -in $encryptedFile
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Unable to decrypt $CRYPTFILE! Returned $exitCode"
+		echo "[$scriptName] Unable to decrypt $CRYPTFILE! Returned $exitCode"
 		exit $exitCode
 	fi
 else
@@ -34,7 +34,7 @@ else
 	fi
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$scriptName : Unable to decrypt $CRYPTFILE! Returned $exitCode"
+		echo "[$scriptName] Unable to decrypt $CRYPTFILE! Returned $exitCode"
 		exit $exitCode
 	fi
 fi

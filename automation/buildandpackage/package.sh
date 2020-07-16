@@ -57,7 +57,7 @@ echo "[$scriptName]   AUTOMATIONROOT           : $AUTOMATIONROOT"
 automationHelper="$AUTOMATIONROOT/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "$scriptName :   SOLUTIONROOT             : "
+printf "[$scriptName]   SOLUTIONROOT             : "
 for directoryName in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		SOLUTIONROOT="$directoryName"
@@ -70,7 +70,7 @@ else
 	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
 fi
 
-printf "$scriptName :   Pre-package Tasks        : "
+printf "[$scriptName]   Pre-package Tasks        : "
 prepackageTasks="$SOLUTIONROOT/package.tsk"
 if [ -f $prepackageTasks ]; then
 	echo "found ($prepackageTasks)"
@@ -78,7 +78,7 @@ else
 	echo "none ($prepackageTasks)"
 fi
 
-printf "$scriptName :   Post-package Tasks       : "
+printf "[$scriptName]   Post-package Tasks       : "
 postpackageTasks="$SOLUTIONROOT/wrap.tsk"
 if [ -f $postpackageTasks ]; then
 	echo "found ($postpackageTasks)"
@@ -87,7 +87,7 @@ else
 fi
 
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
-printf "$scriptName :   Remote Target Directory  : "
+printf "[$scriptName]   Remote Target Directory  : "
 if [ -d  "$remotePropertiesDir" ]; then
 	echo "found ($remotePropertiesDir)"
 else
@@ -95,7 +95,7 @@ else
 fi
 
 remoteArtifactListFile="$SOLUTIONROOT/storeForRemote"
-printf "$scriptName :   remote artifact list     : "
+printf "[$scriptName]   remote artifact list     : "
 if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
 else
@@ -103,7 +103,7 @@ else
 fi
 
 genericArtifactListFile="$SOLUTIONROOT/storeFor"
-printf "$scriptName :   generic artifact list    : "
+printf "[$scriptName]   generic artifact list    : "
 if [ -f  "$genericArtifactListFile" ]; then
 	echo "found ($genericArtifactListFile)"
 else

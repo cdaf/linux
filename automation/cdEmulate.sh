@@ -40,7 +40,7 @@ echo "[$scriptName]   automationRoot : $automationRoot"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "$scriptName :   solutionRoot   : "
+printf "[$scriptName]   solutionRoot   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		solutionRoot="$directoryName"
@@ -86,7 +86,7 @@ echo "[$scriptName]   buildNumber    : $buildNumber"
 echo "[$scriptName]   revision       : $revision"
 
 # Check for customised CI process
-printf "$scriptName :   ciProcess      : "
+printf "[$scriptName]   ciProcess      : "
 if [ -f "$solutionRoot/buildPackage.sh" ]; then
 	cdProcess="$solutionRoot/buildPackage.sh"
 	echo "$ciProcess (override)"
@@ -96,7 +96,7 @@ else
 fi
 
 # Check for customised Delivery process
-printf "$scriptName :   cdProcess      : "
+printf "[$scriptName]   cdProcess      : "
 if [ -f "$solutionRoot/delivery.sh" ]; then
 	cdProcess="$solutionRoot/delivery.sh"
 	echo "$cdProcess (override)"

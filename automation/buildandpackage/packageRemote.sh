@@ -28,35 +28,35 @@ remoteArtifactListFile="$SOLUTIONROOT/storeForRemote"
 echo; echo "[$scriptName] --- PACKAGE remotely executed scripts and artifacts ---"
 echo "[$scriptName]   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
 
-printf "$scriptName :   remote artifact list        : "
+printf "[$scriptName]   remote artifact list        : "
 if [ -f  "$remoteArtifactListFile" ]; then
 	echo "found ($remoteArtifactListFile)"
 else
 	echo "none ($remoteArtifactListFile)"
 fi
 
-printf "$scriptName :   custom scripts              : "
+printf "[$scriptName]   custom scripts              : "
 if [ -d  "$solutionCustomDir" ]; then
 	echo "found ($solutionCustomDir)"
 else
 	echo "none ($solutionCustomDir)"
 fi
 
-printf "$scriptName :   remote custom scripts       : "
+printf "[$scriptName]   remote custom scripts       : "
 if [ -d  "$remoteCustomDir" ]; then
 	echo "found ($remoteCustomDir)"
 else
 	echo "none ($remoteCustomDir)"
 fi
 
-printf "$scriptName :   remote encrypted files      : "
+printf "[$scriptName]   remote encrypted files      : "
 if [ -d  "$remoteCryptDir" ]; then
 	echo "found ($remoteCryptDir)"
 else
 	echo "none ($remoteCryptDir)"
 fi
 
-printf "$scriptName :   common encrypted files      : "
+printf "[$scriptName]   common encrypted files      : "
 if [ -d  "$cryptDir" ]; then
 	echo "found ($cryptDir)"
 else

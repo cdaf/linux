@@ -32,63 +32,63 @@ remoteGenPropDir="./propertiesForRemoteTasks"
 echo "[$scriptName] --- PACKAGE locally executed scripts and artefacts ---"; echo
 echo "[$scriptName]   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
 
-printf "$scriptName :   local artifact list         : "
+printf "[$scriptName]   local artifact list         : "
 if [ -f  "$localArtifactListFile" ]; then
 	echo "found ($localArtifactListFile)"
 else
 	echo "none ($localArtifactListFile)"
 fi
 
-printf "$scriptName :   Properties for local tasks  : "
+printf "[$scriptName]   Properties for local tasks  : "
 if [ -d  "$localPropertiesDir" ]; then
 	echo "found ($localPropertiesDir)"
 else
 	echo "none ($localPropertiesDir)"
 fi
 
-printf "$scriptName :   Generated local properties  : "
+printf "[$scriptName]   Generated local properties  : "
 if [ -d  "$localGenPropDir" ]; then
 	echo "found ($localGenPropDir)"
 else
 	echo "none ($localGenPropDir)"
 fi
 
-printf "$scriptName :   local encrypted files       : "
+printf "[$scriptName]   local encrypted files       : "
 if [ -d  "$localCryptDir" ]; then
 	echo "found ($localCryptDir)"
 else
 	echo "none ($localCryptDir)"
 fi
 
-printf "$scriptName :   common encrypted files      : "
+printf "[$scriptName]   common encrypted files      : "
 if [ -d  "$cryptDir" ]; then
 	echo "found ($cryptDir)"
 else
 	echo "none ($cryptDir)"
 fi
 
-printf "$scriptName :   custom scripts              : "
+printf "[$scriptName]   custom scripts              : "
 if [ -d  "$solutionCustomDir" ]; then
 	echo "found ($solutionCustomDir)"
 else
 	echo "none ($solutionCustomDir)"
 fi
 
-printf "$scriptName :   local custom scripts        : "
+printf "[$scriptName]   local custom scripts        : "
 if [ -d  "$localCustomDir" ]; then
 	echo "found ($localCustomDir)"
 else
 	echo "none ($localCustomDir)"
 fi
 
-printf "$scriptName :   Properties for remote tasks : "
+printf "[$scriptName]   Properties for remote tasks : "
 if [ -d  "$remotePropertiesDir" ]; then
 	echo "found ($remotePropertiesDir)"
 else
 	echo "none ($remotePropertiesDir)"
 fi
 
-printf "$scriptName :   Generated remote properties : "
+printf "[$scriptName]   Generated remote properties : "
 if [ -d  "$remoteGenPropDir" ]; then
 	echo "found ($remoteGenPropDir)"
 else
@@ -156,27 +156,27 @@ if [ -f "$SOLUTIONROOT/tasksRun.tsk" ]; then
 fi
 
 if [ -d "$localCryptDir" ]; then
-	printf "$scriptName :   Local encrypted files : "	
+	printf "[$scriptName]   Local encrypted files : "	
 	mkdir -v $WORK_DIR_DEFAULT/${localCryptDir##*/}
 	cp -avR $localCryptDir/* $WORK_DIR_DEFAULT/${localCryptDir##*/}
 fi
 
 # CDAF 1.9.5 common encypted files
 if [ -d "$cryptDir" ]; then
-	printf "$scriptName :   Local encrypted files : "	
+	printf "[$scriptName]   Local encrypted files : "	
 	mkdir -v $WORK_DIR_DEFAULT/${cryptDir##*/}
 	cp -avR $cryptDir/* $WORK_DIR_DEFAULT/${cryptDir##*/}
 fi
 
 # CDAF 1.7.3 Solution Custom scripts, included in Local and Remote
 if [ -d "$solutionCustomDir" ]; then
-	printf "$scriptName :   Custom scripts        : "	
+	printf "[$scriptName]   Custom scripts        : "	
 	cp -avR $solutionCustomDir/* $WORK_DIR_DEFAULT/
 fi
 
 # Copy custom scripts to root
 if [ -d "$localCustomDir" ]; then
-	printf "$scriptName :   Local custom scripts  : "	
+	printf "[$scriptName]   Local custom scripts  : "	
 	cp -avR $localCustomDir/* $WORK_DIR_DEFAULT/
 fi
 

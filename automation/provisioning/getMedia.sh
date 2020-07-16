@@ -43,7 +43,7 @@ if [ -f "$mediaCache/$filename" ]; then
 else
 	test=$(wget --version 2>/dev/null)
 	if [ -z "$test" ]; then
-		executeExpression "curl --silent $url --output $mediaCache/$filename"
+		executeExpression "curl -L --silent $url --output $mediaCache/$filename"
 	else
 		executeExpression "wget $url --directory-prefix=${mediaCache}"
 	fi

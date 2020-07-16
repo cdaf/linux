@@ -45,7 +45,7 @@ else
 	if [ -z "$test" ]; then
 		executeExpression "curl -L --silent $url --output $mediaCache/$filename"
 	else
-		executeExpression "wget $url --directory-prefix=${mediaCache}"
+		executeExpression "wget -q $url --directory-prefix=${mediaCache}"
 	fi
 fi
 

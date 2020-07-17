@@ -33,6 +33,11 @@ else
 	echo "[$scriptName]   group        : $group"
 fi
 
+id -u name
+if [ $? -ne 0 ]; then
+	echo "[$scriptName] $deployUser not found!"; exit 6654
+fi
+
 if [ "$deployerSide" == 'server' ] || [ "$deployerSide" == 'hop' ]; then
 
 	echo "[$scriptName] Prepare vagrant user keys"

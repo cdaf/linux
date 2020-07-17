@@ -12,7 +12,7 @@ function executeExpression {
 
 function executeRetry {
 	counter=1
-	max=2
+	max=3
 	success='no'
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][$counter] $1"

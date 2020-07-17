@@ -33,8 +33,8 @@ else
 	echo "[$scriptName]   group        : $group"
 fi
 
-id -u name
-if [ $? -ne 0 ]; then
+userExists=$(id -u $deployUser 2> /dev/null )
+if [ -z "$userExists" ]; then
 	echo "[$scriptName] $deployUser not found!"; exit 6654
 fi
 

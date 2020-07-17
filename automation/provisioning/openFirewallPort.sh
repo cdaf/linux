@@ -12,8 +12,7 @@ function executeExpression {
 }  
 
 scriptName='openFirewallPort.sh'
-echo
-echo "[$scriptName] : --- start ---"
+echo; echo "[$scriptName] --- start ---"
 centos=$(uname -mrs | grep .el)
 if [ "$centos" ]; then
 	echo "[$scriptName]   Fedora based : $(uname -mrs)"
@@ -79,5 +78,5 @@ else
 	fi
 fi
 
-echo "[$scriptName] : --- end ---"
+echo "[$scriptName] --- end ---"
 exit 0

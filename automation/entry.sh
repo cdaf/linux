@@ -53,7 +53,12 @@ echo "[$scriptName]   ACTION      : $ACTION"
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH $ACTION"
 
 if [ $BRANCH != 'master' ]; then
-	executeExpression "./TasksLocal/delivery.sh DOCKER"
+	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	if [ -z $artifactPrefix ]; then
+		executeExpression "./TasksLocal/delivery.sh DOCKER"
+	else
+		executeExpression "./release.sh DOCKER"
+	fi
 fi
 
 echo; echo "[$scriptName] Continuous Integration (CI) Finished"

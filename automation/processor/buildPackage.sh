@@ -376,5 +376,9 @@ if [[ "$ACTION" != 'container_build' ]]; then
 	fi
 fi
 
-echo; echo "[$scriptName] Continuous Integration (CI) Finished"
+if [ -z $artifactPrefix ]; then
+	echo "[$scriptName] Continuous Integration (CI) Finished, use ./TasksLocal/delivery.sh <env> to perform deployment."
+else
+	echo "[$scriptName] Continuous Integration (CI) Finished, use ./release.sh <env> to perform deployment."
+fi
 exit 0

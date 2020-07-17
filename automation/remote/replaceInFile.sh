@@ -26,9 +26,9 @@ fi
 # perform diff listing after
 diff=$4
 if [ -z "$diff" ]; then
-	echo "[$scriptName] difference listing not required"
+	echo "[$scriptName] difference listing not required (choices yes or common)"
 else
-	echo "[$scriptName] difference listing requested"
+	echo "[$scriptName] difference listing requested (choices yes or common)"
 	cp -f "${filename}" "/tmp/$(basename ${filename})"
 fi
 
@@ -52,5 +52,10 @@ else
 	fi
 fi
 
-diff --side-by-side "/tmp/$(basename ${filename})" "${filename}"
+if [ "$diff" == 'yes' ]; then
+	diff --side-by-side --suppress-common-lines "/tmp/$(basename ${filename})" "${filename}"
+else
+	diff --side-by-side "/tmp/$(basename ${filename})" "${filename}"
+fi
+
 exit 0

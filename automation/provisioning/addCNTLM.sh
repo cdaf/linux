@@ -5,7 +5,7 @@ echo; echo "[$scriptName] User following to mask password"
 echo "[$scriptName] read -s password"
 echo "[$scriptName] Example call"
 echo "[$scriptName] ./addCNTLM.sh username DOMAIN proxyserver.example.com:port $password"; echo
-echo "[$scriptName] : --- start ---"
+echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	echo "[$scriptName]   username not supplied, exiting with code 101!"
 	exit 101
@@ -65,4 +65,4 @@ sudo sh -c "echo \"Listen          3128\" >> /etc/cntlm.conf"
 
 cat /etc/cntlm.conf
 
-echo "[$scriptName] : --- end ---"
+echo "[$scriptName] --- end ---"

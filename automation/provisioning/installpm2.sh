@@ -53,7 +53,7 @@ if [[ "$INIT" == *"systemd"* ]]; then
   SYSTEMINITDAEMON=systemd
 fi
 if [ -z "$SYSTEMINITDAEMON" ]; then
-    echo "[$scriptName] :ERROR:Startup type untested: $SYSTEMINITDAEMON"
+    echo "[$scriptName]ERROR:Startup type untested: $SYSTEMINITDAEMON"
     exit 1938
 fi
 

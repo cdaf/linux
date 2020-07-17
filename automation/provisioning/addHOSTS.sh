@@ -13,7 +13,7 @@ function executeExpression {
 
 scriptName='addHOSTS.sh'
 
-echo "[$scriptName] : --- start ---"
+echo "[$scriptName] --- start ---"
 ip=$1
 if [ -z "$ip" ]; then
 	echo "[$scriptName]   ip not supplied!"; exit 110
@@ -73,4 +73,4 @@ if [[ ! $replaced == 'yes' ]]; then
    	fi
 fi
 	
-echo "[$scriptName] : --- end ---"
+echo "[$scriptName] --- end ---"

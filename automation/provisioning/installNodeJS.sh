@@ -100,6 +100,7 @@ fi
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
+	export DEBIAN_FRONTEND=noninteractive
 else
 	fedora='yes'
 	centos=$(cat /etc/redhat-release | grep CentOS)

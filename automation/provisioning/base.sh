@@ -131,6 +131,7 @@ fi
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	apt='yes'
+	export DEBIAN_FRONTEND=noninteractive
 	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"; echo
 	echo "[$scriptName] Check that APT is available"
 	executeAptCheck

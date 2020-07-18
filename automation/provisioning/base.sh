@@ -71,6 +71,17 @@ function aptLockRelease {
 }
 
 function executeAptCheck {
+	echo "[$scriptName] Check for daily update job"
+	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
+	if [ ! -z "${dailyUpdate}" ]; then
+		echo
+		echo "[$scriptName] ${dailyUpdate}"
+		IFS=' ' read -ra ADDR <<< $dailyUpdate
+		echo
+		executeRetry "$elevate kill -9 ${ADDR[1]}"
+		executeRetry "sleep 5"
+	fi	
+	echo "[$scriptName] Check for auto upgrade job"
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
 		if [ ! -z "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
@@ -145,6 +156,14 @@ if [[ "$test" == *"not found"* ]]; then
 		executeAptCheck "$elevate apt-get install -y --fix-missing $install"
 	fi
 else
+	fedora='yes'
+	centos=$(cat /etc/redhat-release | grep CentOS)
+	if [ -z "$centos" ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux"
+	else
+		echo "[$scriptName] CentOS Linux"
+	fi
+
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	executeYumCheck "$elevate yum check-update"
 

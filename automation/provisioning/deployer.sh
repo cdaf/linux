@@ -18,6 +18,11 @@ else
 	echo "[$scriptName]   deployUser   : $deployUser"
 fi
 
+userExists=$(id -u $deployUser 2> /dev/null )
+if [ -z "$userExists" ]; then
+	echo "[$scriptName] $deployUser not found!"; exit 6654
+fi
+
 deployLand="$3"
 if [ -z "$deployLand" ]; then
 	deployLand='/opt/packages/'
@@ -31,11 +36,6 @@ if [ -z "$group" ]; then
 	echo "[$scriptName]   group        : not supplied"
 else
 	echo "[$scriptName]   group        : $group"
-fi
-
-userExists=$(id -u $deployUser 2> /dev/null )
-if [ -z "$userExists" ]; then
-	echo "[$scriptName] $deployUser not found!"; exit 6654
 fi
 
 if [ "$deployerSide" == 'server' ] || [ "$deployerSide" == 'hop' ]; then

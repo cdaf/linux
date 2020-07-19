@@ -341,11 +341,11 @@ while read LINE; do
 		fileName=${stringarray[1]}
 		sourceDir=${stringarray[2]}
 		if [ "$sourceDir" == '.' ]; then
-			EXECUTABLESCRIPT="tar -zcvf --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
+			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
 		else
 			sourcePath=$(dirname $(readlink -f ${sourceDir}))
 			sourceName=$(basename ${sourceDir})
-			EXECUTABLESCRIPT="tar -zcvf --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
+			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
 		fi
 	fi
 

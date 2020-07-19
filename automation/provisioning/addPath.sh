@@ -23,7 +23,7 @@ fi
 
 pathID=$2
 if [ -z "$pathID" ]; then
-	pathID=$(echo "${absPath##*/}")
+	pathID=$(echo "${absPath//\/}")
 	echo "[$scriptName]   pathID   : $pathID (not supplied, defaulted to directory name)"
 else
 	echo "[$scriptName]   pathID   : $pathID"

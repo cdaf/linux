@@ -86,7 +86,7 @@ sudo su $srvAccount << EOF
 	echo "[$scriptName] Switched from root to service account $srvAccount"
 	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool $pool --agent $agentName --replace"
+	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool \"$pool\" --agent \"$agentName\" --replace"
 	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
 EOF
 else
@@ -94,8 +94,8 @@ su $srvAccount << EOF
 	echo "[$scriptName] Switched to service account $srvAccount"
 	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool $pool --agent $agentName --replace"
-	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
+	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool \"$pool\" --agent \"$agentName\" --replace"
+	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool "$pool" --agent "$agentName" --replace
 EOF
 fi
 

@@ -39,6 +39,7 @@ fi
 agentName="$4"
 if [ -z "$agentName" ]; then
 	agentName=$(hostname)
+	agentName=${agentName//-}
 	echo "[$scriptName]   agentName      : $agentName (default)"
 else
 	echo "[$scriptName]   agentName      : $agentName"

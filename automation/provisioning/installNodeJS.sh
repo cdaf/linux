@@ -219,7 +219,7 @@ fi
 if [ -z "$fedora" ]; then # Debian
 
 	if [ -z "$version" ]; then
-		executeRetry "$elevate apt-get install -y nodejs npm curl"
+		executeAptCheck "$elevate apt-get install -y --fix-missing curl nodejs npm"
 		
 		test="`node -v 2>&1`"
 		if [[ "$test" == *"not found"* ]]; then
@@ -232,7 +232,7 @@ if [ -z "$fedora" ]; then # Debian
 			fi
 		fi
 	else
-		executeRetry "$elevate apt-get install -y curl"
+		executeAptCheck "$elevate apt-get install -y --fix-missing curl"
 	fi
 
 else # Fedora
@@ -277,7 +277,7 @@ if [ ! -z "$version" ]; then
 		else
 			executeRetry "curl -sL https://deb.nodesource.com/setup_${version}.x | $elevate -E bash -"
 		fi
-		executeRetry "$elevate apt-get install -y nodejs"
+		executeAptCheck "$elevate apt-get install -y --fix-missing nodejs"
 	else # Red Hat
 		executeRetry "$elevate yum install -y gcc-c++ make"
 		if [ -z $elevate ]; then

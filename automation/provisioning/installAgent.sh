@@ -5,7 +5,7 @@ function executeExpression {
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "[$scriptName][ERROR] $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
 }  
@@ -31,9 +31,9 @@ fi
 pool="$3"
 if [ -z "$pool" ]; then
 	pool='Default'
-	echo "[$scriptName]   pool           : $pool (default)"
+	echo "[$scriptName]   pool           : $pool (default, use pool name with '@' for Project@Deployment Group)"
 else
-	echo "[$scriptName]   pool           : $pool"
+	echo "[$scriptName]   pool           : $pool (use pool name with '@' for Project@Deployment Group)"
 fi
 
 agentName="$4"
@@ -80,24 +80,54 @@ executeExpression "$elevate chown -R $srvAccount /opt/vso"
 executeExpression "cd /opt/vso"
 executeExpression "$elevate ./bin/installdependencies.sh"
 
+if [[ "$pool" == *"@"* ]]; then
+	IFS='@' read -ra arr <<< $pool
+	project=${arr[0]}
+	group=${arr[1]}
+	echo "[$scriptName]   project        : $project"
+	echo "[$scriptName]   group          : $group"
+	command="./config.sh --unattended --acceptTeeEula --url '$url' --auth pat --token $pat --deploymentgroup --deploymentgroupname '$group' --projectname '$project' --agent '$agentName' --replace"
+	listing="./config.sh --unattended --acceptTeeEula --url '$url' --auth pat --token ************** --deploymentgroup --deploymentgroupname '$group' --projectname '$project' --agent '$agentName' --replace"
+else
+	command="./config.sh --unattended --acceptTeeEula --url '$url' --auth pat --token $pat --pool '$pool' --agent '$agentName' --replace"
+	listing="./config.sh --unattended --acceptTeeEula --url '$url' --auth pat --token ************** --pool '$pool' --agent '$agentName' --replace"
+fi
+
+if [ -n $http_proxy ]; then
+	command+=" --proxyurl '$http_proxy'"
+	listing+=" --proxyurl '$http_proxy'"
+fi
+
 # Must execute as non elevated user as config will exit with error if elevated
-# Cannot indent or EOF is not detected
+# Cannot indent EOF or it will not be detected
 if [ $(whoami) != 'root' ];then
-sudo su $srvAccount << EOF
+	sudo su $srvAccount << EOF
 	echo "[$scriptName] Switched from root to service account $srvAccount"
 	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool \"$pool\" --agent \"$agentName\" --replace"
-	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool $pool --agent $agentName --replace
+	echo "$listing"
+	eval "$command"
+	exitCode=$?
+	if [ "\$exitCode" != "0" ]; then
+		echo "[$scriptName][ERROR] \$EXECUTABLESCRIPT returned \$exitCode"
+		exit \$exitCode
+	fi
 EOF
+
 else
-su $srvAccount << EOF
-	echo "[$scriptName] Switched to service account $srvAccount"
+	su $srvAccount << EOF
+	echo "[$scriptName] Switched from root to service account $srvAccount"
 	echo "cd /opt/vso"
 	cd /opt/vso
-	echo "./config.sh --unattended --acceptTeeEula --url $url --auth pat --token **************** --pool \"$pool\" --agent \"$agentName\" --replace"
-	./config.sh --unattended --acceptTeeEula --url $url --auth pat --token $pat --pool "$pool" --agent "$agentName" --replace
+	echo "$listing"
+	eval "$command"
+	exitCode=$?
+	if [ "\$exitCode" != "0" ]; then
+		echo "[$scriptName][ERROR] \$EXECUTABLESCRIPT returned \$exitCode"
+		exit \$exitCode
+	fi
 EOF
+
 fi
 
 executeExpression "$elevate ./svc.sh install $srvAccount"

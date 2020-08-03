@@ -17,7 +17,7 @@ echo; echo "[$scriptName] ===================="
 echo "[$scriptName] Targetless Branch CD"
 echo "[$scriptName] ===================="
 AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
-echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 BUILDNUMBER="$1"
@@ -32,24 +32,24 @@ if [ -z $BUILDNUMBER ]; then
 		let "BUILDNUMBER=$BUILDNUMBER + 1"
 	fi
 	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
-	echo "[$scriptName]   BUILDNUMBER  : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
 else
-	echo "[$scriptName]   BUILDNUMBER  : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 BRANCH="$2"
 if [ -z $BRANCH ]; then
 	BRANCH='targetlesscd'
-	echo "[$scriptName]   BRANCH       : $BRANCH (not passed, set to default)"
+	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
-	echo "[$scriptName]   BRANCH       : $BRANCH"
+	echo "[$scriptName]   BRANCH         : $BRANCH"
 fi
 
 ACTION="$3"
-echo "[$scriptName]   ACTION       : $ACTION"
+echo "[$scriptName]   ACTION         : $ACTION"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "[$scriptName]   solutionRoot : "
+printf "[$scriptName]   solutionRoot   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		solutionRoot="$directoryName"

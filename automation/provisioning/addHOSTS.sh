@@ -16,10 +16,16 @@ scriptName='addHOSTS.sh'
 echo "[$scriptName] --- start ---"
 ip=$1
 if [ -z "$ip" ]; then
-	echo "[$scriptName]   ip not supplied!"; exit 110
+	echo "[$scriptName]   ip not supplied! defaultIP supported."; exit 110
 else
-	echo "[$scriptName]   ip       : $ip"
+	if [ "$ip" == "defaultIP" ]; then
+		ip=$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f3)
+		echo "[$scriptName]   ip       : $ip (defaultIP)"
+	else
+		echo "[$scriptName]   ip       : $ip"
+	fi
 fi
+
 
 hostname=$2
 if [ -z "$hostname" ]; then

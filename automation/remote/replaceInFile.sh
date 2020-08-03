@@ -10,7 +10,7 @@ else
 	if [ ! -f $filename ]; then
 		echo "[$scriptName] No existing file, ${filename}"; exit 111
 	fi
-	echo "[$scriptName] logFile : $logFile"
+	echo "[$scriptName] filename : $filename"
 fi
 
 # the string to be replaced
@@ -18,7 +18,7 @@ name=$2
 if [ -z "$name" ]; then
 	echo "[$scriptName] existing string not supplied"; exit 120
 else
-	echo "[$scriptName] name    : $name"
+	echo "[$scriptName] name     : $name"
 fi
 
 # the new value
@@ -26,7 +26,7 @@ value=$3
 if [ -z "$value" ]; then
 	echo "[$scriptName] new string not supplied, existing lines will be deleted"
 else
-	echo "[$scriptName] value   : $value"
+	echo "[$scriptName] value    : $value"
 fi
 
 # perform diff listing after
@@ -34,7 +34,7 @@ diff=$4
 if [ -z "$diff" ]; then
 	echo "[$scriptName] difference listing not required (choices yes or common)"
 else
-	echo "[$scriptName] diff    : $diff (choices yes or common)"
+	echo "[$scriptName] diff     : $diff (choices yes or common)"
 	cp -f "${filename}" "/tmp/$(basename ${filename})"
 fi
 

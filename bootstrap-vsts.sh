@@ -98,6 +98,6 @@ echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ${atomicPath}/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 executeExpression "$elevate ${atomicPath}/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
 
-executeExpression "$elevate ${atomicPath}/provisioning/installAgent.sh $url \$pat $pool $agentName" | tee /vag/logs/vso-agent-install.log
+executeExpression "$elevate ${atomicPath}/provisioning/installAgent.sh $url \$pat $pool $agentName"
 
 echo "[$scriptName] --- end ---"

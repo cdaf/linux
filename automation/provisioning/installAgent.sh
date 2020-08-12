@@ -132,8 +132,7 @@ fi
 
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "[$scriptName][ERROR] $(whoami) failure. $exitCode"
-	exit $exitCode
+	echo "[$scriptName][WARNING] Installing as $(whoami) returned exit code ${exitCode}, proceeding ..."
 fi
 
 executeExpression "$elevate ./svc.sh install $srvAccount"

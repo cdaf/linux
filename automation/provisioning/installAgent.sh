@@ -109,25 +109,31 @@ if [ $(whoami) != 'root' ];then
 	eval "$command"
 	exitCode=$?
 	if [ "\$exitCode" != "0" ]; then
-		echo "[$scriptName][ERROR] \$EXECUTABLESCRIPT returned \$exitCode"
+		echo "[$scriptName][ERROR] \$listing returned \$exitCode"
 		exit \$exitCode
 	fi
 EOF
 
 else
 	su $srvAccount << EOF
-	echo "[$scriptName] Switched from root to service account $srvAccount"
+	echo "[$scriptName] Installing as service account $srvAccount"
 	echo "cd /opt/vso"
 	cd /opt/vso
 	echo "$listing"
 	eval "$command"
 	exitCode=$?
 	if [ "\$exitCode" != "0" ]; then
-		echo "[$scriptName][ERROR] \$EXECUTABLESCRIPT returned \$exitCode"
+		echo "[$scriptName][ERROR] \$listing returned \$exitCode"
 		exit \$exitCode
 	fi
 EOF
 
+fi
+
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	echo "[$scriptName][ERROR] $(whoami) failure. $exitCode"
+	exit $exitCode
 fi
 
 executeExpression "$elevate ./svc.sh install $srvAccount"

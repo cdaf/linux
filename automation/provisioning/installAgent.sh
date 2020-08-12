@@ -93,7 +93,7 @@ else
 	listing="./config.sh --unattended --acceptTeeEula --url '$url' --auth pat --token ************** --pool '$pool' --agent '$agentName' --replace"
 fi
 
-if [ -n $http_proxy ]; then
+if ! [ -z "$http_proxy" ]; then
 	command+=" --proxyurl '$http_proxy'"
 	listing+=" --proxyurl '$http_proxy'"
 fi

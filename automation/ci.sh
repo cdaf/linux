@@ -50,5 +50,5 @@ fi
 ACTION="$3"
 echo "[$scriptName]   ACTION         : $ACTION"
 
-executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH $ACTION"
+executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 exit 0

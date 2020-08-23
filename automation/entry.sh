@@ -11,7 +11,7 @@ function executeExpression {
 }
 
 # Entry point for branch based targetless CD
-scriptName=${0##*/}
+scriptName='entry.sh'
 
 echo; echo "[$scriptName] ===================="
 echo "[$scriptName] Targetless Branch CD"
@@ -62,7 +62,7 @@ else
 	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
 fi
 
-executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh $BUILDNUMBER $BRANCH $ACTION"
+executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 
 if [ $BRANCH != 'master' ]; then
 	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")

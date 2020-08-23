@@ -25,10 +25,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: |
-    ./automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranchName) staging@$(Build.ArtifactStagingDirectory)
-    exitCode=$?
-    if [ "$exitCode" != "0" ]; then exit $exitCode; fi
+- script: ./automation/entry.sh $BUILD_BUILDNUMBER $BUILD_SOURCEBRANCHNAME staging@$BUILD_ARTIFACTSTAGINGDIRECTORY
 #  env:
 #    MAVEN_ARTIFACT_TOKEN: $(MAVEN_ARTIFACT_TOKEN)
 

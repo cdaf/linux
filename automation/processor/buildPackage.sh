@@ -169,6 +169,14 @@ else
 	fi
 fi
 
+# 2.2.0 Image Build as incorperated function
+imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "imageBuild")
+if [ -z "$imageBuild" ]; then
+	echo "[$scriptName]   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
+else
+	echo "[$scriptName]   imageBuild      : $imageBuild"
+fi
+
 # Support for image as an environment variable, do not overwrite if already set
 containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerImage")
 if [ -z "$containerImage" ]; then
@@ -267,15 +275,6 @@ done
 if [ ! -z "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
 	echo; echo "[$scriptName] Execute Container build, this performs cionly, options clean and packageonly are ignored."
 	executeExpression "$containerBuild"
-
-	imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "imageBuild")
-	if [ ! -z "$containerBuild" ]; then
-		echo
-		echo "[$scriptName] Execute Image build, as defined for imageBuild in $solutionRoot/CDAF.solution"
-		executeExpression "$imageBuild"
-	else
-		echo "[$scriptName]   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
-	fi
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then
 		echo; echo "[$scriptName] action is ${ACTION}, do not perform build."
@@ -329,11 +328,6 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
 		echo "[$scriptName]   Set resulting package file executable"
 		executeExpression "chmod +x release.sh"
-		executeExpression "rm -rf TasksLocal"
-		executeExpression "rm -rf propertiesForLocalTasks"
-		for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
-			executeExpression "rm '${packageFile}'"
-		done
 	fi
 fi
 
@@ -352,7 +346,22 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	fi
 fi
 
+# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, build while all artefacts are in place
+if ! [ -z "$imageBuild" ]; then
+	echo "[$scriptName] Last step, execute build" ; echo
+	executeExpression "$imageBuild"
+fi
+
 if [[ "$ACTION" != 'container_build' ]]; then
+
+	if [ ! -z $artifactPrefix ]; then
+		executeExpression "rm -rf TasksLocal"
+		executeExpression "rm -rf propertiesForLocalTasks"
+		for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
+			executeExpression "rm '${packageFile}'"
+		done
+	fi
+
 	echo; echo "[$scriptName] Clean Workspace..."
 	executeExpression "rm -rf propertiesForLocalTasks"
 	if [ -d "TasksRemote" ]; then

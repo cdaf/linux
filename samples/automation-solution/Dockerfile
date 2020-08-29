@@ -26,4 +26,4 @@ USER $userName
 # Move to subdirectory for build, i.e. /solution/workspace
 WORKDIR workspace
 
-CMD echo 'Usage: docker run --tty --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $buildNumber'
+CMD echo 'Usage: docker run --tty --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/ci.sh $buildNumber'

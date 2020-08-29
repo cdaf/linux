@@ -5,7 +5,7 @@ pipelines:
     - step:
         name: Build and test
         script:
-          - ./automation/processor/buildPackage.sh $BITBUCKET_BUILD_NUMBER
+          - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER
         artifacts: # defining the artifacts to be passed to each future step.
           - "TasksLocal/**"
           - "*.gz"

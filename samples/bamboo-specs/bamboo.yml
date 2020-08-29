@@ -14,7 +14,7 @@ Build Job:
   tasks:
     - script:
         - '#!/bin/bash'
-        - "./automation/processor/buildPackage.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+        - "./automation/ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
 
   artifacts:
     - name: Package

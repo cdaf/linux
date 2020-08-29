@@ -24,7 +24,7 @@ pipeline {
       agent any 
       steps {
         sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
-        sh "automation/processor/buildPackage.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+        sh "automation/ci.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
       }
     }
 		stage('Packer Image') {

@@ -59,16 +59,16 @@ export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
-		solutionRoot="$directoryName"
+		SOLUTIONROOT="$directoryName"
 	fi
 done
-if [ -z "$solutionRoot" ]; then
-	solutionRoot="$AUTOMATIONROOT/solution"
-	solutionMessage="$solutionRoot (default, project directory containing CDAF.solution not found)"
+if [ -z "$SOLUTIONROOT" ]; then
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
+	solutionMessage="$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
-	solutionMessage="$solutionRoot ($solutionRoot/CDAF.solution found)"
+	solutionMessage="$SOLUTIONROOT ($SOLUTIONROOT/CDAF.solution found)"
 fi
-echo "[$scriptName]   solutionRoot    : $solutionMessage"
+echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
 
 BUILDNUMBER="$1"
 if [[ $BUILDNUMBER == *'$'* ]]; then
@@ -99,13 +99,13 @@ if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z $SOLUTION ]; then
-	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
+	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Read of SOLUTION from $solutionRoot/CDAF.solution failed! Returned $exitCode"
+		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
 		exit $exitCode
 	fi
-	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $solutionRoot/CDAF.solution)"
+	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 else
 	echo "[$scriptName]   SOLUTION        : $SOLUTION"
 fi 
@@ -135,11 +135,11 @@ echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh 
 if [[ "$ACTION" == 'container_build' ]]; then
 	echo; echo "[$scriptName] \$ACTION = $ACTION, container build detection skipped ..."; echo
 else
-	containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerBuild")
+	containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
 	if [ ! -z "$containerBuild" ]; then
 		test=$(docker --version 2>&1)
 		if [[ "$test" == *"not found"* ]]; then
-			echo "[$scriptName]   Docker          : container Build defined in $solutionRoot/CDAF.solution, but Docker not installed, will attempt to execute natively"
+			echo "[$scriptName]   Docker          : container Build defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
 			unset containerBuild
 		else
 			IFS=' ' read -ra ADDR <<< $test
@@ -165,22 +165,22 @@ else
 			fi
 		fi
 	else
-		echo "[$scriptName]   containerBuild  : (not defined in $solutionRoot/CDAF.solution)"
+		echo "[$scriptName]   containerBuild  : (not defined in $SOLUTIONROOT/CDAF.solution)"
 	fi
 fi
 
 # 2.2.0 Image Build as incorperated function
-imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "imageBuild")
+imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "imageBuild")
 if [ -z "$imageBuild" ]; then
-	echo "[$scriptName]   imageBuild      : (not defined in $solutionRoot/CDAF.solution)"
+	echo "[$scriptName]   imageBuild      : (not defined in $SOLUTIONROOT/CDAF.solution)"
 else
 	echo "[$scriptName]   imageBuild      : $imageBuild"
 fi
 
 # Support for image as an environment variable, do not overwrite if already set
-containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "containerImage")
+containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
 if [ -z "$containerImage" ]; then
-	echo "[$scriptName]   containerImage  : (not defined in $solutionRoot/CDAF.solution)"
+	echo "[$scriptName]   containerImage  : (not defined in $SOLUTIONROOT/CDAF.solution)"
 else
 	if [ -z $CONTAINER_IMAGE ]; then
 		export CONTAINER_IMAGE="$containerImage"
@@ -191,18 +191,18 @@ else
 	fi
 fi
 
-configManagementList=$(find $solutionRoot -mindepth 1 -maxdepth 1 -type f -name "*.cm")
+configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name "*.cm")
 if [ -z "$configManagementList" ]; then
-	echo "[$scriptName]   CM Driver       : none ($solutionRoot/*.cm)"
+	echo "[$scriptName]   CM Driver       : none ($SOLUTIONROOT/*.cm)"
 else
 	for propertiesDriver in $configManagementList; do
 		echo "[$scriptName]   CM Driver       : $propertiesDriver"
 	done
 fi
 
-pivotList=$(find $solutionRoot -mindepth 1 -maxdepth 1 -type f -name "*.pv")
+pivotList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name "*.pv")
 if [ -z "$pivotList" ]; then
-	echo "[$scriptName]   PV Driver       : none ($solutionRoot/*.pv)"
+	echo "[$scriptName]   PV Driver       : none ($SOLUTIONROOT/*.pv)"
 else
 	for propertiesDriver in $pivotList; do
 		echo "[$scriptName]   PV Driver       : $propertiesDriver"
@@ -303,7 +303,7 @@ fi
 
 # CDAF 2.1.0 Self-extracting Script Artifact
 if [[ "$ACTION" != 'container_build' ]]; then
-	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
 	if [ ! -z $artifactPrefix ]; then
 		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
 		echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
@@ -348,7 +348,21 @@ fi
 
 # 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, build while all artefacts are in place
 if ! [ -z "$imageBuild" ]; then
-	echo "[$scriptName] Last step, execute build" ; echo
+	echo
+	runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
+	if ! [ -z "$runtimeImage" ]; then
+		unset CONTAINER_IMAGE
+		echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
+	else
+		runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+		if ! [ -z "$runtimeImage" ]; then
+			unset CONTAINER_IMAGE
+			echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+		else
+			echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+		fi
+	fi
+	echo
 	executeExpression "$imageBuild"
 fi
 

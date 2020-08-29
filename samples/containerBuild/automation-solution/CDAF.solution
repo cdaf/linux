@@ -1,8 +1,6 @@
 # This file defines the automation root along with CD emulator value (solutionName)
-productVersion=0.0.1
+artifactPrefix=0.1
 productName=My Product Using Container Build
 solutionName=cb
 containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
-# imageBuild=./automation-solution/imageBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
-# processSequence=localTasks.sh remoteTasks.sh

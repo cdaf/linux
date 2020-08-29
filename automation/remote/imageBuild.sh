@@ -20,7 +20,16 @@ BUILDNUMBER=$2
 echo "[$scriptName]  BUILDNUMBER     : $BUILDNUMBER"
 
 containerImage=$3
-echo "[$scriptName]  containerImage  : $containerImage"
+if [ -z $CONTAINER_IMAGE ]; then
+	if [ -z "$containerImage" ]; then
+		echo "[$scriptName] Environment variable CONTAINER_IMAGE not found and containerImage argument not passed!"; exit 2715
+	else
+		export CONTAINER_IMAGE="$containerImage"
+		echo "[$scriptName]  CONTAINER_IMAGE : $CONTAINER_IMAGE (set to argument passed)"
+	fi
+else
+	echo "[$scriptName]  CONTAINER_IMAGE : $CONTAINER_IMAGE (not changed as already set)"
+fi
 
 constructor=$4
 if [ -z "$constructor" ]; then
@@ -36,8 +45,6 @@ if [ -z "$AUTOMATIONROOT" ]; then
 else
 	echo "[$scriptName]  AUTOMATIONROOT  : $AUTOMATIONROOT"
 fi
-
-echo "[$scriptName]  CONTAINER_IMAGE : $CONTAINER_IMAGE"
 
 workspace=$(pwd)
 echo "[$scriptName]  pwd             : $workspace"

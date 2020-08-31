@@ -44,6 +44,3 @@ docker ps
 echo "Tear down if not master"
 if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose down ; fi
 if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
-
-$WORK_SPACE/TasksLocal/dockerClean.sh ${id}_target ${BUILDNUMBER}
-$WORK_SPACE/TasksLocal/dockerClean.sh ${id}_test ${BUILDNUMBER}

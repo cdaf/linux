@@ -66,6 +66,7 @@ executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BR
 
 if [ $BRANCH != 'master' ]; then
 	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	unset CDAF_AUTOMATION_ROOT
 	if [ -z $artifactPrefix ]; then
 		executeExpression "./TasksLocal/delivery.sh DOCKER"
 	else

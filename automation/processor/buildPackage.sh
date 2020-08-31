@@ -346,27 +346,27 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 	fi
 fi
 
-# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, build while all artefacts are in place
-if ! [ -z "$imageBuild" ]; then
-	echo
-	runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
-	if ! [ -z "$runtimeImage" ]; then
-		unset CONTAINER_IMAGE
-		echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
-	else
-		runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+if [[ "$ACTION" != 'container_build' ]]; then
+
+	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
+	if ! [ -z "$imageBuild" ]; then
+		echo
+		runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
 		if ! [ -z "$runtimeImage" ]; then
 			unset CONTAINER_IMAGE
-			echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+			echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
 		else
-			echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+			if ! [ -z "$runtimeImage" ]; then
+				unset CONTAINER_IMAGE
+				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+			else
+				echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+			fi
 		fi
+		echo
+		executeExpression "$imageBuild"
 	fi
-	echo
-	executeExpression "$imageBuild"
-fi
-
-if [[ "$ACTION" != 'container_build' ]]; then
 
 	if [ ! -z $artifactPrefix ]; then
 		executeExpression "rm -rf TasksLocal"

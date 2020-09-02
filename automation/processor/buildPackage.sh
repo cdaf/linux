@@ -349,23 +349,40 @@ fi
 if [[ "$ACTION" != 'container_build' ]]; then
 
 	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
-	if ! [ -z "$imageBuild" ]; then
+	if [ ! -z "$imageBuild" ]; then
+
 		echo
-		runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
-		if ! [ -z "$runtimeImage" ]; then
-			unset CONTAINER_IMAGE
-			echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
+		test=$(docker --version 2>&1)
+		if [[ $? -ne 0 ]]; then
+			echo "[$scriptName] imageBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, skipping ..."
 		else
-			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
-			if ! [ -z "$runtimeImage" ]; then
+			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
+			if [ ! -z "$runtimeImage" ]; then
 				unset CONTAINER_IMAGE
-				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
 			else
-				echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+				runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+				if ! [ -z "$runtimeImage" ]; then
+					unset CONTAINER_IMAGE
+					echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+				else
+					echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+				fi
 			fi
+			echo
+
+			# If not using Git, or unconditional registry push is desired, configure CDAF.solution as
+			# imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal registry.example.org/${SOLUTION}:$BUILDNUMBER
+
+			# If using Git, and only pushing master, use separate registryTag property
+			# imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal
+			# registryTag=registry.example.org/${SOLUTION}:$BUILDNUMBER
+
+			if [ $REVISION == 'master' ]; then
+				registryTag=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "registryTag")
+			fi
+			executeExpression "$imageBuild $registryTag"
 		fi
-		echo
-		executeExpression "$imageBuild"
 	fi
 
 	if [ ! -z $artifactPrefix ]; then

@@ -12,6 +12,7 @@ function executeExpression {
 
 scriptName='imageBuild.sh'
 
+# example: imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal registry.example.org/${SOLUTION}:${BUILDNUMBER}
 echo; echo "[$scriptName] --- start ---"
 id=$1
 echo "[$scriptName]  id                    : $id"
@@ -36,6 +37,13 @@ if [ -z "$constructor" ]; then
 	echo "[$scriptName]  constructor           : (not supplied, supports space separated list)"
 else
 	echo "[$scriptName]  constructor           : $constructor (supports space separated list)"
+fi
+
+registryTag=$5
+if [ -z "$registryTag" ]; then
+	echo "[$scriptName]  registryTag           : (not supplied, push will not be attempted)"
+else
+	echo "[$scriptName]  registryTag           : $registryTag (only pushes last image built)"
 fi
 
 if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
@@ -83,5 +91,10 @@ for image in $constructor; do
 	executeExpression "cd $workspace"
 
 done
+
+if [ ! -z "$registryTag" ]; then
+	executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
+	executeExpression "docker push ${registryTag}"
+fi
 
 echo "[$scriptName] --- stop ---"

@@ -26,6 +26,7 @@ variables:
 
 steps:
 - script: ./automation/entry.sh $BUILD_BUILDNUMBER $BUILD_SOURCEBRANCHNAME staging@$BUILD_ARTIFACTSTAGINGDIRECTORY
+
 #  env:
 #    MAVEN_ARTIFACT_TOKEN: $(MAVEN_ARTIFACT_TOKEN)
 

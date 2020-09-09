@@ -74,5 +74,5 @@ if [ $BRANCH != 'master' ]; then
 	fi
 fi
 
-echo; echo "[$scriptName] Continuous Integration (CI) Finished"
+echo; echo "[$scriptName] Targetless Branch CD Finished"
 exit 0

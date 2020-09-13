@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
-scriptName=${0##*/}
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
 
+scriptName='transformDirectory.sh'
+echo
 if [ -z "$1" ]; then
 	echo "[$scriptName] Properties file not supplied. HALT!"
 	exit 1
@@ -22,28 +33,14 @@ else
 	MASK="$3"
 fi
 
-echo "[$scriptName] Processing directory $DIR_PATH/$MASK"
-ls -L -1 $DIR_PATH/$MASK | xargs -n 1 basename > FILE_LIST
-
-runTime="./transform.sh"
-if [ ! -f "$runTime" ]; then
-	for i in $(ls -d ./*/); do
-		directoryName=${i%%/}
-		if [ -f "$directoryName/CDAF.linux" ]; then
-			automationRoot="$directoryName"
-		fi
-	done
-	runTime="$automationRoot/remote/transform.sh"
+if [ -z $AUTOMATIONROT ]; then
+	AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
 fi
-echo "[$scriptName] Set runtime to $runTime"
+echo "[$scriptName] AUTOMATIONROOT = $AUTOMATIONROOT"
 
-while read LINE
-do
-	$runTime "$PROPERTIES" "$DIR_PATH/$LINE"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] ./transform.sh $PROPERTIES $DIR_PATH/$LINE  failed! Exit code = $exitCode."
-		exit $exitCode
-	fi
-           
-done < FILE_LIST
+echo "[$scriptName] Processing directory $DIR_PATH/$MASK"
+for file in $(find $DIR_PATH -name "$MASK" -type f); do
+	executeExpression "  $AUTOMATIONROOT/transform.sh '$PROPERTIES' '$file'"
+done
+
+echo

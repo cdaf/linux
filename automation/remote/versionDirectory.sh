@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-#set -e
-scriptName=${0##*/}
+function executeExpression {
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
+scriptName='versionDirectory.sh'
 
 if [ -z "$1" ]; then
 	echo "[$scriptName] Directory not supplied, pass as absolute path i.e. /etc/init.d/bonita. HALT!"
@@ -23,6 +32,11 @@ else
 	MASK=$3
 fi
 
+if [ -z $AUTOMATIONROT ]; then
+	AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
+fi
+echo "[$scriptName] AUTOMATIONROOT = $AUTOMATIONROOT"
+
 # Create target directory if missing
 if [ ! -d "$ABS_PATH" ]; then
 	mkdir -pv $DIR_PATH
@@ -30,9 +44,6 @@ if [ ! -d "$ABS_PATH" ]; then
 fi
 
 echo "[$scriptName] Processing directory $1 (only differences will be reported ...)"
-ls -L -1 .$ABS_PATH/$MASK | xargs -n 1 basename > FILE_LIST
-
-while read LINE
-do
-	./versionReplace.sh "$ABS_PATH/$LINE" "$BUILDNUMBER"           
-done < FILE_LIST
+for file in $(find .$ABS_PATH -name "$MASK" -type f); do
+	executeExpression "  $AUTOMATIONROOT/versionReplace.sh '${file:1}' '$BUILDNUMBER'"
+done

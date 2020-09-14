@@ -11,6 +11,8 @@ function executeExpression {
 }  
 
 scriptName='transformDirectory.sh'
+
+echo; echo "[$scriptName] --- start ---"
 echo
 if [ -z "$1" ]; then
 	echo "[$scriptName] Properties file not supplied. HALT!"
@@ -43,4 +45,4 @@ for file in $(find $DIR_PATH -name "$MASK" -type f); do
 	executeExpression "  $AUTOMATIONROOT/transform.sh '$PROPERTIES' '$file'"
 done
 
-echo
+echo; echo "[$scriptName] --- stop ---";echo

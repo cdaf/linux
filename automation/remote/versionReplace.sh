@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#set -e
-scriptName=${0##*/}
+
+scriptName='versionReplace.sh'
 
 # Deploy folder structure is expect the source and target paths to be the same.
 # Pass absolute path i.e. /etc/init.d/bonita

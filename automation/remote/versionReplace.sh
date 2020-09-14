@@ -19,7 +19,12 @@ else
 	BUILDNUMBER=$2
 fi
 
-MARKER="Build-Revision :"
+if [ -z "$3" ]; then
+	MARKER="Build-Revision :"
+else
+	MARKER="$3"	
+fi
+
 NOMARKER=$(cat .$ABS_PATH | grep "$MARKER")
 if [ -z "$NOMARKER" ]; then
 	echo "[$scriptName] Warning : Source file $ABS_PATH does not contain marker ($MARKER)."

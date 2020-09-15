@@ -94,7 +94,11 @@ function REFRSH {
 	fi
 	if [ ! -z $source ]; then
 		if [ -d $source ]; then
-			VECOPY "$source/*" "$destination"
+			cp -vR --no-target-directory "$source" "$destination"
+			if [ "$exitCode" != "0" ]; then
+				echo "[$scriptName] Exception! ${executeFunction} returned $exitCode copying directory"
+				exit $exitCode
+			fi
 		else
 			VECOPY "$source" "$destination"
 		fi

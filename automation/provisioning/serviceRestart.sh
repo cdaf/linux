@@ -26,7 +26,7 @@ else
 	if [ -f /etc/os-release ]; then 
 		echo "[$scriptName] CentOS 7, systemctl restart"
 		sudo systemctl restart ${service}.service
-		sudo systemctl status ${service}.service
+		sudo systemctl status ${service}.service --no-pager
 	else
 		echo "[$scriptName] CentOS 6, service restart"
 		sudo service ${service} restart

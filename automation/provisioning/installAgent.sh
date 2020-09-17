@@ -139,7 +139,7 @@ executeExpression "$elevate ./svc.sh install $srvAccount"
 
 serviceName=($(systemctl list-unit-files | grep 'vsts.'))
 executeExpression "sudo systemctl start $serviceName"
-executeExpression "sudo systemctl status $serviceName"
+executeExpression "sudo systemctl status $serviceName --no-pager"
 
 echo "[$scriptName] --- end ---"
 exit 0

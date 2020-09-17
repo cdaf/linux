@@ -147,7 +147,7 @@ if [ -z "$package" ]; then
 			executeRetry "${elevate} yum install -y docker docker-compose"
 			executeRetry "${elevate} systemctl enable docker.service"
 			executeRetry "${elevate} systemctl start docker.service"
-			executeRetry "${elevate} systemctl status docker.service"
+			executeRetry "${elevate} systemctl status docker.service --no-pager"
 
 		else
 			executeRetry "${elevate} yum install -y yum-utils device-mapper-persistent-data lvm2"

@@ -74,7 +74,7 @@ else
 		firewall-cmd --zone=public --list-all
 		
 		# View status
-		systemctl status firewalld
+		systemctl status firewalld  --no-pager
 	fi
 fi
 

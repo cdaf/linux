@@ -1,26 +1,37 @@
 #!/usr/bin/env bash
 
 function executeExpression {
-	echo "[$scriptName] $1"
+	echo "$1"
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "[$scriptName][ERROR] Exception! $1 returned $exitCode"
 		exit $exitCode
 	fi
 }  
 
-scriptName=${0##*/}
+function executeSuppress {
+	echo "$1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][WARN] $1 returned $exitCode"
+		exit $exitCode
+	fi
+}  
 
-echo; echo "[$scriptName] Build docker image, resulting image naming \${imageName}"
-echo
+scriptName='dockerBuild.sh'
+
+echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"; echo
 echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
 	echo "[$scriptName] imageName not supplied, exit with code 1."
 	exit 1
 else
+	imageName=$(echo "$imageName" | tr '[:upper:]' '[:lower:]')
 	echo "[$scriptName] imageName : $imageName"
 fi
 
@@ -69,6 +80,12 @@ else
 	echo "[$scriptName] userID    : $userID"
 fi
 
+echo; echo "[$scriptName] List existing images..."
+executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+
+echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
+executeSuppress "docker system prune -f"
+
 buildCommand='docker build'
 
 if [ ! -z "$tag" ]; then
@@ -115,8 +132,8 @@ fi
 
 echo
 executeExpression "$buildCommand ."
-echo
-echo "[$scriptName] List Resulting images..."
+
+echo; echo "[$scriptName] List Resulting images..."
 executeExpression "docker images -f label=cdaf.${imageName}.image.version"
-echo
-echo "[$scriptName] --- end ---"
+
+echo; echo "[$scriptName] --- end ---"

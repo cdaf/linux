@@ -41,10 +41,6 @@ echo "[$scriptName] ===================================="
 echo "[$scriptName] Continuous Integration (CI) Starting"
 echo "[$scriptName] ===================================="
 
-echo "[$scriptName]   pwd             : $(pwd)"
-echo "[$scriptName]   hostname        : $(hostname)"
-echo "[$scriptName]   whoami          : $(whoami)"
-
 # Processed out of order as needed for solution determination
 AUTOMATIONROOT="$5"
 if [ -z $AUTOMATIONROOT ]; then
@@ -128,6 +124,10 @@ if [ -z $REMOTE_WORK_DIR ]; then
 else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
+
+echo "[$scriptName]   pwd             : $(pwd)"
+echo "[$scriptName]   hostname        : $(hostname)"
+echo "[$scriptName]   whoami          : $(whoami)"
 
 echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
@@ -362,7 +362,7 @@ if [[ "$ACTION" != 'container_build' ]]; then
 				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
 			else
 				runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
-				if ! [ -z "$runtimeImage" ]; then
+				if [ ! -z "$runtimeImage" ]; then
 					unset CONTAINER_IMAGE
 					echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
 				else
@@ -385,6 +385,7 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		fi
 	fi
 
+	# CDAF 2.1.0 Self-extracting Script Artifact
 	if [ ! -z $artifactPrefix ]; then
 		executeExpression "rm -rf TasksLocal"
 		executeExpression "rm -rf propertiesForLocalTasks"

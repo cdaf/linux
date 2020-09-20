@@ -32,13 +32,15 @@ else
 	echo "[$scriptName]  CONTAINER_IMAGE       : $CONTAINER_IMAGE (not changed as already set)"
 fi
 
+# 2.2.0 extension to allow custom source directory
 constructor=$4
 if [ -z "$constructor" ]; then
-	echo "[$scriptName]  constructor           : (not supplied, supports space separated list)"
+	echo "[$scriptName]  constructor           : (not supplied, will process all directories, supports space separated list)"
 else
 	echo "[$scriptName]  constructor           : $constructor (supports space separated list)"
 fi
 
+# 2.2.0 extension for the support as integrated function
 registryTag=$5
 if [ -z "$registryTag" ]; then
 	echo "[$scriptName]  registryTag           : (not supplied, push will not be attempted)"
@@ -54,11 +56,14 @@ else
 fi
 
 workspace=$(pwd)
-echo "[$scriptName]  pwd                   : $workspace"
+echo "[$scriptName]  pwd                   : $workspace"; echo
 
-echo "Create the image file system locally"
-if [ ! -d "/tmp/buildImage/${id}" ]; then
-	executeExpression "mkdir -p /tmp/buildImage/${id}"
+transient="/tmp/buildImage/${id}"
+
+if [ -d "${transient}" ]; then
+	echo "Build directory ${transient} already exists"
+else
+	executeExpression "mkdir -p ${transient}"
 fi
 
 if [ -z "$constructor" ]; then
@@ -70,20 +75,20 @@ for image in $constructor; do
 	echo; echo "------------------------"
 	echo "   ${image##*/}"
 	echo "------------------------"; echo
-	executeExpression "rm -rf /tmp/buildImage/${id}/**"
+	executeExpression "rm -rf ${transient}/**"
 	if [ -f "../dockerBuild.sh" ]; then
-		executeExpression "cp ../dockerBuild.sh /tmp/buildImage/${id}"
+		executeExpression "cp ../dockerBuild.sh ${transient}"
 	else
-		executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerBuild.sh /tmp/buildImage/${id}"
+		executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerBuild.sh ${transient}"
 	fi
 	if [ -f "../dockerClean.sh" ]; then
-		executeExpression "cp ../dockerClean.sh /tmp/buildImage/${id}"
+		executeExpression "cp ../dockerClean.sh ${transient}"
 	else
-		executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerClean.sh /tmp/buildImage/${id}"
+		executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerClean.sh ${transient}"
 	fi
-	executeExpression "cp -r $CDAF_AUTOMATION_ROOT /tmp/buildImage/${id}"
-	executeExpression "cp -r ${image}/** /tmp/buildImage/${id}"
-	executeExpression "cd /tmp/buildImage/${id}"
+	executeExpression "cp -r $CDAF_AUTOMATION_ROOT ${transient}"
+	executeExpression "cp -r ${image}/** ${transient}"
+	executeExpression "cd ${transient}"
 	executeExpression "cat Dockerfile"
     image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
 	executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER $BUILDNUMBER no $(whoami) $(id -u)"
@@ -92,6 +97,7 @@ for image in $constructor; do
 
 done
 
+# 2.2.0 Integrated Registry push
 if [ ! -z "$registryTag" ]; then
 	executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
 	executeExpression "docker push ${registryTag}"

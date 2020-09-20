@@ -165,7 +165,7 @@ function REPLAC {
 	else
 		executeFunction="sed -i -- \"s^${token}^${value}^g\" ${fileName}"
 	fi
-	echo "$executeFunction"
+	echo "${executeFunction//${value}/*****}"
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then

@@ -94,13 +94,17 @@ for image in $constructor; do
 	executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER $BUILDNUMBER no $(whoami) $(id -u)"
 	executeExpression "./dockerClean.sh ${id}_${image##*/} $BUILDNUMBER"
 	executeExpression "cd $workspace"
-
 done
 
-# 2.2.0 Integrated Registry push
+# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
 if [ ! -z "$registryTag" ]; then
-	executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
-	executeExpression "docker push ${registryTag}"
+	if [ -z "$CI_JOB_TOKEN" ]; then
+		echo "\$registryTag set, but \$CI_JOB_TOKEN not provided so skipping registry push."
+	else
+		executeExpression "echo $CI_JOB_TOKEN | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
+		executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
+		executeExpression "docker push ${registryTag}"
+	fi
 fi
 
 echo "[$scriptName] --- stop ---"

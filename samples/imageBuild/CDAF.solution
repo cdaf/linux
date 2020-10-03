@@ -2,9 +2,9 @@
 artifactPrefix=0.0
 productName=Image Build
 solutionName=imagebuild
-containerBuild=./automation/processor/containerBuild.sh ${SOLUTION} ${BUILDNUMBER} ${REVISION} ${ACTION}
+containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh ${SOLUTION} ${BUILDNUMBER} ${REVISION} ${ACTION}
 containerImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
-imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage target
+imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage target
 runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
 CDAF_REGISTRY_URL=${CI_REGISTRY}
 CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER

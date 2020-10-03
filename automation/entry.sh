@@ -24,7 +24,7 @@ BUILDNUMBER="$1"
 if [ -z $BUILDNUMBER ]; then
 	# Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
 	if [ -f "${HOME}/buildnumber.counter" ]; then
-		let "BUILDNUMBER=$(cat ${HOME}/buildnumber.counter)"
+		let "BUILDNUMBER=$(cat ${HOME}/buildnumber.counter|tr -d '\r')" # in case the home directory is shared by Windows and Linux
 	else
 		let "BUILDNUMBER=0"
 	fi

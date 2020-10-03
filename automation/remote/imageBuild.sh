@@ -32,7 +32,7 @@ else
 	echo "[$scriptName]  CONTAINER_IMAGE       : $CONTAINER_IMAGE (not changed as already set)"
 fi
 
-# 2.2.0 extension to allow custom source directory
+# 2.2.0 extension for the support as integrated function
 constructor=$4
 if [ -z "$constructor" ]; then
 	echo "[$scriptName]  constructor           : (not supplied, will process all directories, supports space separated list)"
@@ -40,12 +40,28 @@ else
 	echo "[$scriptName]  constructor           : $constructor (supports space separated list)"
 fi
 
-# 2.2.0 extension for the support as integrated function
-registryTag=$5
-if [ -z "$registryTag" ]; then
-	echo "[$scriptName]  registryTag           : (not supplied, push will not be attempted)"
+if [ -z "$CDAF_REGISTRY_URL" ]; then
+	echo "[$scriptName]  CDAF_REGISTRY_URL     : (not supplied, push will not be attempted)"
 else
-	echo "[$scriptName]  registryTag           : $registryTag (only pushes last image built)"
+	echo "[$scriptName]  CDAF_REGISTRY_URL     : $CDAF_REGISTRY_URL (only pushes tagged image)"
+fi
+
+if [ -z "$CDAF_REGISTRY_TAG" ]; then
+	echo "[$scriptName]  CDAF_REGISTRY_TAG     : (not supplied)"
+else
+	echo "[$scriptName]  CDAF_REGISTRY_TAG     : $CDAF_REGISTRY_TAG"
+fi
+
+if [ -z "$CDAF_REGISTRY_USER" ]; then
+	echo "[$scriptName]  CDAF_REGISTRY_USER    : (not supplied)"
+else
+	echo "[$scriptName]  CDAF_REGISTRY_USER    : $CDAF_REGISTRY_USER"
+fi
+
+if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
+	echo "[$scriptName]  CDAF_REGISTRY_TOKEN   : (not supplied)"
+else
+	echo "[$scriptName]  CDAF_REGISTRY_TOKEN   : $CDAF_REGISTRY_TOKEN"
 fi
 
 if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
@@ -97,14 +113,13 @@ for image in $constructor; do
 done
 
 # 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
-if [ ! -z "$registryTag" ]; then
-	if [ -z "$CI_JOB_TOKEN" ]; then
-		echo "\$registryTag set, but \$CI_JOB_TOKEN not provided so skipping registry push."
-	else
-		executeExpression "echo $CI_JOB_TOKEN | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
-		executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
-		executeExpression "docker push ${registryTag}"
-	fi
+if [ -z "$CDAF_REGISTRY_USER" ]; then
+	echo "\$CDAF_REGISTRY_USER not set, to push to registry set CDAF_REGISTRY_URL, CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN"
+	echo "Do not set CDAF_REGISTRY_URL when pushing to dockerhub"
+else
+	executeExpression "echo $CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $CDAF_REGISTRY_URL"
+	executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${CDAF_REGISTRY_TAG}"
+	executeExpression "docker push ${CDAF_REGISTRY_TAG}"
 fi
 
 echo "[$scriptName] --- stop ---"

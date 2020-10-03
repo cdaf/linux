@@ -371,17 +371,14 @@ if [[ "$ACTION" != 'container_build' ]]; then
 			fi
 			echo
 
-			# If not using Git, or unconditional registry push is desired, configure CDAF.solution as
-			# imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal registry.example.org/${SOLUTION}:$BUILDNUMBER
-
-			# If using Git, and only pushing master, use separate registryTag property
-			# imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal
-			# registryTag=registry.example.org/${SOLUTION}:$BUILDNUMBER
-
+			# 2.2.0 Integrated Function using environment variables
 			if [ $REVISION == 'master' ]; then
-				registryTag=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "registryTag")
+				export CDAF_REGISTRY_URL=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_URL")")
+				export CDAF_REGISTRY_TAG=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_TAG")")
+				export CDAF_REGISTRY_USER=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_USER")")
+				export CDAF_REGISTRY_TOKEN=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_TOKEN")")
 			fi
-			executeExpression "$imageBuild $registryTag"
+			executeExpression "$imageBuild"
 		fi
 	fi
 

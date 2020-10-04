@@ -41,7 +41,7 @@ else
 fi
 
 if [ -z "$CDAF_REGISTRY_URL" ]; then
-	echo "[$scriptName]  CDAF_REGISTRY_URL     : (not supplied, push will not be attempted)"
+	echo "[$scriptName]  CDAF_REGISTRY_URL     : (not supplied)"
 else
 	echo "[$scriptName]  CDAF_REGISTRY_URL     : $CDAF_REGISTRY_URL (only pushes tagged image)"
 fi
@@ -53,7 +53,7 @@ else
 fi
 
 if [ -z "$CDAF_REGISTRY_USER" ]; then
-	echo "[$scriptName]  CDAF_REGISTRY_USER    : (not supplied)"
+	echo "[$scriptName]  CDAF_REGISTRY_USER    : (not supplied, push will not be attempted)"
 else
 	echo "[$scriptName]  CDAF_REGISTRY_USER    : $CDAF_REGISTRY_USER"
 fi

@@ -159,13 +159,19 @@ function REPLAC {
 	fileName="$1"
 	token="$2"
 	value="$3"
+	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s^${token}^${value}^g\" ${fileName}"
+		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s^${token}^${value}^g\" ${fileName}"
+		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
 	fi
-	echo "${executeFunction//${value}/*****}"
+	printable=$(echo "${executeFunction//•/â€¢}")
+	if [ -z "$4" ]; then
+		echo "${printable//${value}/*****}"
+	else
+		echo "${printable}"
+	fi
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then

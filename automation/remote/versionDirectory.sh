@@ -18,7 +18,7 @@ if [ -z "$1" ]; then
 else
 	ABS_PATH=$1
 fi
-echo "[$scriptName] ABS_PATH    : $ABS_PATH"
+echo "[$scriptName] ABS_PATH       : $ABS_PATH"
 
 if [ -z "$2" ]; then
 	echo "[$scriptName] Version not supplied. HALT!"
@@ -26,21 +26,21 @@ if [ -z "$2" ]; then
 else
 	BUILDNUMBER=$2
 fi
-echo "[$scriptName] BUILDNUMBER : $BUILDNUMBER"
+echo "[$scriptName] BUILDNUMBER    : $BUILDNUMBER"
 
 if [ -z "$3" ]; then
-	echo "[$scriptName] Mask not supplied, defaulting to *"
 	MASK="*"
+	echo "[$scriptName] MASK           : $MASK (default)"
 else
 	MASK=$3
+	echo "[$scriptName] MASK           : $MASK"
 fi
-echo "[$scriptName] MASK        : $MASK"
 
 if [ -z "$4" ]; then
-	echo "[$scriptName] Marker not supplied, versionReplace will use default"
+	echo "[$scriptName] MARKER         : (not supplied, versionReplace will use default)"
 else
 	MARKER=$4
-	echo "[$scriptName] MARKER      : $MARKER"
+	echo "[$scriptName] MARKER         : $MARKER"
 fi
 
 if [ -z $AUTOMATIONROT ]; then
@@ -48,13 +48,14 @@ if [ -z $AUTOMATIONROT ]; then
 fi
 echo "[$scriptName] AUTOMATIONROOT = $AUTOMATIONROOT"
 
-# Create target directory if missing
-if [ ! -d "$ABS_PATH" ]; then
-	mkdir -pv $DIR_PATH
-	echo
-fi
+# Create target directories if missing
+for dirName in $(find .$ABS_PATH -type d); do
+	if [ ! -d "${dirName:1}" ]; then
+		mkdir -pv ${dirName:1}
+	fi
+done
 
-echo "[$scriptName] Processing directory $1 (only differences will be reported ...)"
+echo; echo "[$scriptName] Processing directory $1 (only differences will be reported ...)"
 for file in $(find .$ABS_PATH -name "$MASK" -type f); do
 	executeExpression "  $AUTOMATIONROOT/versionReplace.sh '${file:1}' $BUILDNUMBER $MARKER"
 done

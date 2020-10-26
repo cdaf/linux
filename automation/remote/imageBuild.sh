@@ -142,6 +142,11 @@ else
 			echo "   ${image##*/}"
 			echo "------------------------"; echo
 			executeExpression "rm -rf ${transient}/**"
+			if [ -d "$CDAF_AUTOMATION_ROOT" ]; then
+				executeExpression "cp -r $CDAF_AUTOMATION_ROOT ${transient}"
+			else
+				echo "[WARN] CDAF not found in $CDAF_AUTOMATION_ROOT"
+			fi
 			if [ -f "../dockerBuild.sh" ]; then
 				executeExpression "cp ../dockerBuild.sh ${transient}"
 			else
@@ -152,7 +157,6 @@ else
 			else
 				executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerClean.sh ${transient}"
 			fi
-			executeExpression "cp -r $CDAF_AUTOMATION_ROOT ${transient}"
 			executeExpression "cp -r ${image}/** ${transient}"
 			executeExpression "cd ${transient}"
 			executeExpression "cat Dockerfile"

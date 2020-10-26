@@ -1,0 +1,4 @@
+MAKDIR automation/provisioning/
+MAKDIR automation/remote/
+VECOPY $AUTOMATIONROOT/provisioning/base.sh automation/provisioning/
+VECOPY $AUTOMATIONROOT/remote/capabilities.sh automation/remote/

@@ -119,8 +119,13 @@ else
 
 		dockerLogin
 		noTag=$(echo "${id%:*}")
-		executeExpression "docker tag $CDAF_REGISTRY_URL/${id} $CDAF_REGISTRY_URL/${noTag}:latest"
-		executeExpression "docker push $CDAF_REGISTRY_URL/${noTag}:latest"
+		if [ -z "$CDAF_REGISTRY_URL" ]; then
+			executeExpression "docker tag ${id} ${noTag}:latest"
+			executeExpression "docker push ${noTag}:latest"
+		else
+			executeExpression "docker tag $CDAF_REGISTRY_URL/${id} $CDAF_REGISTRY_URL/${noTag}:latest"
+			executeExpression "docker push $CDAF_REGISTRY_URL/${noTag}:latest"
+		fi
 
 	else
 

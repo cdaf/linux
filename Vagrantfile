@@ -103,7 +103,7 @@ Vagrant.configure(2) do |config|
     build.vm.provider 'hyperv' do |hyperv, override|
       hyperv.memory = "#{vRAM}"
       hyperv.cpus = "#{vCPU}"
-      override.vm.hostname  = "linux-#{i}"
+      override.vm.hostname  = 'build'
       override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false

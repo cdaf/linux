@@ -1,7 +1,6 @@
-context  target      deployHost        deployUser  deployLand
-remote   VAGRANT     server-1.sky.net  deployer    /opt/packages/$DEPLOY_TARGET
-remote   LINUX       localhost         deployer    /opt/packages/$DEPLOY_TARGET
-local    dev      
-local    test     
-local    prod     
-local    TARGETLESS
+context  target      deployTaskOverride
+local    VAGRANT     containerRun.tsk      
+local    LINUX       containerRun.tsk     
+local    SERVER      containerRun.tsk
+local    DOCKER      targetlessCD.tsk
+local    TARGETLESS  containerTest.tsk

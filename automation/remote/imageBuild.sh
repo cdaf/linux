@@ -53,6 +53,7 @@ if [ -z $id ]; then
 	echo "[$scriptName]  id                    : (not supplied, login to Docker Registry only)"
 	dockerLogin
 else
+	id=${id##*/}
 	echo "[$scriptName]  id                    : $id"
 	BUILDNUMBER=$2
 	if [ -z $BUILDNUMBER ]; then

@@ -10,24 +10,31 @@ function executeExpression {
 	fi
 }
 
-function executeRetry {
+function executeWarnRetry {
 	counter=1
 	max=3
 	success='no'
 	while [ "$success" != 'yes' ]; do
 		echo "[$scriptName][$counter] $1"
-		eval "$1"
+		output=$(eval "$1 2>&1")
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			counter=$((counter + 1))
-			if [ "$counter" -le "$max" ]; then
-				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
-			else
-				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
-				exit $exitCode
+			if [[ "$output" == *'file changed as we read it'* ]]; then
+				echo "[$scriptName][WARN] $output"
+				success='yes'
+			else			
+				echo "[$scriptName][ERROR] $output"
+				counter=$((counter + 1))
+				if [ "$counter" -le "$max" ]; then
+					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
+				else
+					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+					exit $exitCode
+				fi
 			fi					 
 		else
+			echo "[$scriptName][INFO] $output"
 			success='yes'
 		fi
 	done
@@ -308,9 +315,9 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
 		echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
 		if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
-			executeRetry "tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz"
+			executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz"
 		else
-			executeRetry "tar -czf $artifactID.tar.gz TasksLocal/"
+			executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/"
 		fi
 
 		echo "[$scriptName]   Create single script artefact release.sh"

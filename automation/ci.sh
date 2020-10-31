@@ -40,6 +40,11 @@ else
 fi
 
 BRANCH="$2"
+if [[ $BRANCH == *'$'* ]]; then
+	BRANCH=$(eval echo $BRANCH)
+fi
+BRANCH=${BRANCH##*/}
+BRANCH=${BRANCH//\#}
 if [ -z $BRANCH ]; then
 	BRANCH='targetlesscd'
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"

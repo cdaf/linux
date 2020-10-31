@@ -86,6 +86,8 @@ REVISION="$2"
 if [[ $REVISION == *'$'* ]]; then
 	REVISION=$(eval echo $REVISION)
 fi
+REVISION=${REVISION##*/}
+REVISION=${REVISION//\#}
 if [ -z $REVISION ]; then
 	REVISION='Revision'
 	echo "[$scriptName]   REVISION        : $REVISION (default)"
@@ -365,18 +367,20 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		else
 			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
 			if [ ! -z "$runtimeImage" ]; then
-				unset CONTAINER_IMAGE
 				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
 			else
 				runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
 				if [ ! -z "$runtimeImage" ]; then
-					unset CONTAINER_IMAGE
 					echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
 				else
-					echo "[$scriptName] WARNING neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution"
+					if [ -z "$CONTAINER_IMAGE" ]; then
+						echo "[$scriptName][WARN] neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution, assuming a hardcoded image will be used."
+					else
+						echo "[$scriptName][WARN] neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution, however Environment Variable CONTAINER_IMAGE set to $CONTAINER_IMAGE, overrides image passed to dockerBuild."
+						runtimeImage=$CONTAINER_IMAGE
+					fi
 				fi
 			fi
-			echo
 
 			# 2.2.0 Integrated Function using environment variables
 			if [ $REVISION == 'master' ]; then

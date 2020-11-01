@@ -13,9 +13,7 @@ function executeExpression {
 # Entry point for branch based targetless CD
 scriptName='entry.sh'
 
-echo; echo "[$scriptName] ===================="
-echo "[$scriptName] Targetless Branch CD"
-echo "[$scriptName] ===================="
+echo; echo "[$scriptName] ---------- start ----------"
 AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
@@ -79,5 +77,54 @@ if [ $BRANCH != 'master' ]; then
 	fi
 fi
 
-echo; echo "[$scriptName] Targetless Branch CD Finished"
+if [[ "$ACTION" == "remoteURL@"* ]]; then
+
+	defaultIFS=$IFS
+	IFS='@' read -ra arr <<< $ACTION
+	remoteURL="${arr[1]}"
+	echo "[$scriptName] ACTION ($ACTION) prefix is remoteURL@, attempt remote branch synchronisation using $remoteURL"
+
+	gitUserNameEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserNameEnvVar")
+	if [ -z $gitUserNameEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
+	userName=$(eval "echo $gitUserNameEnvVar")
+	if [ -z $userName ]; then echo "[$scriptName] $gitUserNameEnvVar contains no value!"; exit 6921; fi
+	userName=${userName//@/%40}
+
+	gitUserPassEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserPassEnvVar")	
+	if [ -z $gitUserPassEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
+	userPass=$(eval "echo $gitUserPassEnvVar")
+	if [ -z $userPass ]; then echo "[$scriptName] $gitUserPassEnvVar contains no value!"; exit 6921; fi
+
+	echo; echo "[$scriptName] Load Remote branches"; echo
+
+	remoteURL=$(echo "https://${userName}:${userPass}@${remoteURL//https:\/\/}")
+	executeExpression "git fetch --prune ${remoteURL}"
+
+	for remoteBranch in $(git ls-remote 2>/dev/null); do 
+		remoteBranch=$(echo "$remoteBranch" | grep 'refs/heads/')
+		if [ ! -z "${remoteBranch}" ]; then
+			remoteBranch=${remoteBranch//refs\/heads\/}
+			remoteArray+=( "$remoteBranch" )
+		fi
+	done
+	for remoteBranch in ${remoteArray[@]}; do # verify array contents
+		echo "      ${remoteBranch}"
+	done
+
+	echo; echo "[$scriptName] Process Local branches (git branch)"; echo
+
+	branchList=$(git branch)
+	branchList=${branchList//\*}
+	branchList=${branchList// }
+	for localBranch in $branchList; do
+		if [[ ! " ${remoteArray[@]} " =~ " ${localBranch} " ]]; then
+			executeExpression "git branch -D '${localBranch}'"
+		fi
+	done
+
+	echo; echo "[$scriptName] List local branches after clean-up (git branch)"; echo
+	git branch
+fi
+
+echo; echo "[$scriptName] ---------- stop ----------"
 exit 0

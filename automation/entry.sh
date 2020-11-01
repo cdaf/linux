@@ -81,25 +81,30 @@ if [[ "$ACTION" == "remoteURL@"* ]]; then
 
 	defaultIFS=$IFS
 	IFS='@' read -ra arr <<< $ACTION
-	remoteURL="${arr[1]}"
-	echo "[$scriptName] ACTION ($ACTION) prefix is remoteURL@, attempt remote branch synchronisation using $remoteURL"
+	if [ -z ${arr[1]} ]; then
+		echo "[$scriptName] Remote URL not provided, will attempt to use local cache"
+	else
+		remoteURL="${arr[1]}"
+		echo "[$scriptName] ACTION ($ACTION) prefix is remoteURL@, attempt remote branch synchronisation using $remoteURL"
 
-	gitUserNameEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserNameEnvVar")
-	if [ -z $gitUserNameEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
-	userName=$(eval "echo $gitUserNameEnvVar")
-	if [ -z $userName ]; then echo "[$scriptName] $gitUserNameEnvVar contains no value!"; exit 6921; fi
-	userName=${userName//@/%40}
+		gitUserNameEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserNameEnvVar")
+		if [ -z $gitUserNameEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
+		userName=$(eval "echo $gitUserNameEnvVar")
+		if [ -z $userName ]; then echo "[$scriptName] $gitUserNameEnvVar contains no value!"; exit 6921; fi
+		userName=${userName//@/%40}
 
-	gitUserPassEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserPassEnvVar")	
-	if [ -z $gitUserPassEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
-	userPass=$(eval "echo $gitUserPassEnvVar")
-	if [ -z $userPass ]; then echo "[$scriptName] $gitUserPassEnvVar contains no value!"; exit 6921; fi
+		gitUserPassEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserPassEnvVar")	
+		if [ -z $gitUserPassEnvVar ]; then echo "[$scriptName] gitUserNameEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
+		userPass=$(eval "echo $gitUserPassEnvVar")
+		if [ -z $userPass ]; then echo "[$scriptName] $gitUserPassEnvVar contains no value!"; exit 6921; fi
 
-	echo; echo "[$scriptName] Load Remote branches"; echo
+		echo; echo "[$scriptName] Refresh Remote branches"; echo
 
-	remoteURL=$(echo "https://${userName}:${userPass}@${remoteURL//https:\/\/}")
-	executeExpression "git fetch --prune ${remoteURL}"
+		remoteURL=$(echo "https://${userName}:${userPass}@${remoteURL//https:\/\/}")
+		executeExpression "git fetch --prune ${remoteURL}"
+	fi
 
+	echo; echo "[$scriptName] Load Remote branches from local cache"; echo
 	for remoteBranch in $(git ls-remote 2>/dev/null); do 
 		remoteBranch=$(echo "$remoteBranch" | grep 'refs/heads/')
 		if [ ! -z "${remoteBranch}" ]; then
@@ -112,7 +117,9 @@ if [[ "$ACTION" == "remoteURL@"* ]]; then
 	done
 
 	echo; echo "[$scriptName] Process Local branches (git branch)"; echo
+	git branch
 
+	echo
 	branchList=$(git branch)
 	branchList=${branchList//\*}
 	branchList=${branchList// }

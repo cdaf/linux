@@ -13,7 +13,7 @@ function executeExpression {
 
 scriptName='clean.sh'
 
-echo "[$scriptName] --- start ---"
+echo; echo "[$scriptName] --- start ---"
 for argument in "$@"; do
 	if [ -z "$i" ]; then
 		SOLUTION=${argument}

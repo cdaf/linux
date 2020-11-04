@@ -137,7 +137,6 @@ if [[ "$ACTION" == "remoteURL@"* ]]; then
 		echo; echo "$headAttached"; echo
 		if [ -z "$remoteURL" ]; then
 			echo "[$scriptName] Workspace is a Git repository but remoteURL not supplied, so relying on current workspace being up to date"; echo
-			executeExpression "git fetch --prune"
 		else
 			echo "[$scriptName] Refresh Remote branches"; echo
 			executeExpression "git fetch --prune ${remoteURL}"

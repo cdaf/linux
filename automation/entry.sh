@@ -179,19 +179,19 @@ else
 				executeExpression "  git branch -D '${localBranch}'"
 			fi
 		done
-	fi
 
-	echo
-	gitCustomCleanup=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitCustomCleanup")
-	if [ -z ${gitCustomCleanup} ]; then
-		echo "[$scriptName] gitCustomCleanup not defined in $solutionRoot/CDAF.solution, skipping ..."
-	else
-		solutionName=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
-		argList="'${solutionName}'"
-		for remoteBranch in "${remoteArray[@]}"; do
-			argList="${argList} '${remoteBranch}'"
-		done
-		executeExpression "$gitCustomCleanup ${argList}"
+		echo
+		gitCustomCleanup=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitCustomCleanup")
+		if [ -z ${gitCustomCleanup} ]; then
+			echo "[$scriptName] gitCustomCleanup not defined in $solutionRoot/CDAF.solution, skipping ..."
+		else
+			solutionName=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
+			argList="'${solutionName}'"
+			for remoteBranch in "${remoteArray[@]}"; do
+				argList="${argList} '${remoteBranch}'"
+			done
+			executeExpression "$gitCustomCleanup ${argList}"
+		fi
 	fi
 fi
 

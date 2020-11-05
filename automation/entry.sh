@@ -43,7 +43,13 @@ fi
 BRANCH=${BRANCH##*/}
 BRANCH=${BRANCH//\#}
 if [ -z "$BRANCH" ]; then
-	BRANCH='targetlesscd'
+	branchList=$(git branch | grep '*')
+	if [ -z "${branchList}" ]; then
+		BRANCH='targetlesscd'
+	else
+		branchList=${branchList//\*} # remove active branch marker
+		branchList=${branchList// }  # Remove any spaces
+	fi
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
 	echo "[$scriptName]   BRANCH         : $BRANCH"
@@ -71,7 +77,7 @@ fi
 
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 
-if [ $BRANCH != 'master' ]; then
+if [ "$BRANCH" != 'master' ]; then
 	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
 	unset CDAF_AUTOMATION_ROOT
 	if [ -z "$artifactPrefix" ]; then

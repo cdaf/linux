@@ -37,21 +37,21 @@ fi
 
 originBranch="$2"
 BRANCH="$2"
-if [[ $BRANCH == *'$'* ]]; then
-	BRANCH=$(eval echo $BRANCH)
-fi
-BRANCH=${BRANCH##*/}
-BRANCH=${BRANCH//\#}
 if [ -z "$BRANCH" ]; then
-	branchList=$(git branch | grep '*')
-	if [ -z "${branchList}" ]; then
+	BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	if [ -z "${BRANCH}" ]; then
 		BRANCH='targetlesscd'
 	else
-		branchList=${branchList//\*} # remove active branch marker
-		branchList=${branchList// }  # Remove any spaces
+		BRANCH=${BRANCH//\*} # remove active branch marker
+		BRANCH=${BRANCH// }  # Remove any spaces
 	fi
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
+	if [[ $BRANCH == *'$'* ]]; then
+		BRANCH=$(eval echo $BRANCH)
+	fi
+	BRANCH=${BRANCH##*/}
+	BRANCH=${BRANCH//\#}
 	echo "[$scriptName]   BRANCH         : $BRANCH"
 fi
 
@@ -173,10 +173,8 @@ else
 			echo "  ${remoteBranch}"
 		done
 
-		echo; echo "[$scriptName] Process Local branches (git branch)"; echo
-		branchList=$(git branch)
-		branchList=${branchList//\*} # remove active branch marker
-		branchList=${branchList// }  # Remove any spaces
+		echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
+		branchList=$(git branch --format='%(refname:short)')
 		for localBranch in $branchList; do
 			branchName=${localBranch##*/}  # retrieve basename for compare
 			if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then

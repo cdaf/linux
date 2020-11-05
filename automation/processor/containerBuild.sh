@@ -157,7 +157,11 @@ if [ ! -z "$imageName" ]; then
 	
 	# If a build number is not passed, use the CDAF emulator
 	executeExpression "export MSYS_NO_PATHCONV=1"
-	executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+	if [ -z "$HOME" ]; then
+		executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+	else
+		executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+	fi
 	
 	echo "[$scriptName] List and remove all stopped containers"
 	executeExpression 'docker ps --filter "status=exited" -a'

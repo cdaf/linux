@@ -35,7 +35,9 @@ for image in $dockerImages; do
 	if [[ "${imageSolution}" == "${SOLUTION}" ]]; then
 		imageBranch=${image#*_}
 		imageBranch=${imageBranch%_*}
-		if [[ ! " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then
+		if [[ " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then
+			echo "[$scriptName]   keep ${image%:*}"
+		else
 			echo "[$scriptName]   docker rmi ${image%:*}"
 			docker rmi ${image##*:}
 		fi

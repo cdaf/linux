@@ -35,23 +35,19 @@ else
 	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
-originBranch="$2"
 BRANCH="$2"
 if [ -z "$BRANCH" ]; then
-	BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	if [ -z "${BRANCH}" ]; then
 		BRANCH='targetlesscd'
-	else
-		BRANCH=${BRANCH//\*} # remove active branch marker
-		BRANCH=${BRANCH// }  # Remove any spaces
 	fi
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
 	if [[ $BRANCH == *'$'* ]]; then
 		BRANCH=$(eval echo $BRANCH)
 	fi
-	BRANCH=${BRANCH##*/}
-	BRANCH=${BRANCH//\#}
+	branchBase=${BRANCH##*/}    # Retrieve basename
+	BRANCH=${branchBase//\#}    # Remove hash character
 	echo "[$scriptName]   BRANCH         : $BRANCH"
 fi
 
@@ -131,19 +127,22 @@ else
 			echo "[$scriptName] Workspace is not a Git repository or has detached head, skip branch clean-up and perform custom clean-up tasks in $tempDir ..."; echo
 			executeExpression "mkdir -p $tempDir"
 			executeExpression "cd $tempDir"
-			echo "[$scriptName] git clone "${gitRemoteURL}" 2> /dev/null"
-			git clone "${gitRemoteURL}" 2> /dev/null # allow this to fail for existing repos, the fetch will determine if it's OK to proceed
 			repoName=${gitRemoteURL%/} # remove trailing /
 			repoName=${repoName##*/}   # retrieve basename
 			repoName=${repoName%.*}    # remove suffix
+			if [ ! -d "$repoName" ]; then
+				executeExpression "git clone '${gitRemoteURL}'"
+			fi
 			executeExpression "cd $repoName"
 			executeExpression "git fetch --prune '${gitRemoteURL}'"
 			usingCache=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
 			if [ $? -ne 0 ]; then echo "[$scriptName] Git cache update failed!"; exit 6924; fi
 			echo "$usingCache"
-			git branch "${originBranch}" 2> /dev/null
-			executeExpression "git checkout '${originBranch}'"
-			executeExpression "git pull origin '${originBranch}'"
+			echo "git branch "${branchBase}" 2> /dev/null"
+			git branch "${branchBase}" 2> /dev/null
+			git checkout -b '${branchBase}' 2> /dev/null # cater for ambiguous origin
+			executeExpression "git checkout '${branchBase}' 2> /dev/null"
+			executeExpression "git pull origin '${branchBase}'"
 		fi
 
 	else
@@ -159,7 +158,7 @@ else
 	fi
 
 	if [ -z "$skipRemoteBranchCheck" ]; then
-		echo; echo "[$scriptName] Load Remote branches from local cache"; echo
+		echo; echo "[$scriptName] Load Remote branches from local cache (git ls-remote 2>/dev/null)"; echo
 		for remoteBranch in $(git ls-remote 2>/dev/null); do 
 			remoteBranch=$(echo "$remoteBranch" | grep '/')
 			if [ ! -z "${remoteBranch}" ]; then
@@ -174,8 +173,7 @@ else
 		done
 
 		echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
-		branchList=$(git branch --format='%(refname:short)')
-		for localBranch in $branchList; do
+		for localBranch in $(git branch --format='%(refname:short)'); do
 			branchName=${localBranch##*/}  # retrieve basename for compare
 			if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
 				echo "  ${localBranch}"

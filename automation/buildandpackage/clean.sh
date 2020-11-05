@@ -28,19 +28,15 @@ for argument in "$@"; do
 	let "i=i+1"
 done
 
-echo "[$scriptName] Delete images for inactive branches"; echo
-dockerImages=$(docker images --format "{{.Repository}}:{{.ID}}" 2> /dev/null)
-for image in $dockerImages; do
-	imageSolution=${image%%_*}
-	if [[ "${imageSolution}" == "${SOLUTION}" ]]; then
-		imageBranch=${image#*_}
-		imageBranch=${imageBranch%_*}
-		if [[ " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then
-			echo "[$scriptName]   keep ${image%:*}"
-		else
-			echo "[$scriptName]   docker rmi ${image%:*}"
-			docker rmi ${image##*:}
-		fi
+echo "[$scriptName] Delete ${SOLUTION} images for inactive branches"; echo
+for image in $(docker images --filter label=cdaf.${SOLUTION}.image.version --format "{{.Repository}}:{{.ID}}" 2> /dev/null); do
+	imageBranch=${image#*_}       # trim off solution name
+	imageBranch=${imageBranch%_*} # trim of image suffix, e.g. containerbuild, test, etc.
+	if [[ " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then
+		echo "[$scriptName]   keep ${image%:*}"
+	else
+		echo "[$scriptName]   docker rmi ${image%:*}"
+		docker rmi ${image##*:}
 	fi
 done
 

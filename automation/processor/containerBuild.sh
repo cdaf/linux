@@ -92,7 +92,7 @@ if [ ! -z "$imageName" ]; then
 		fi
 	done
 	echo "[$scriptName] SOLUTIONROOT  : $SOLUTIONROOT"
-	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')"
+	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
 	echo "[$scriptName] buildImage    : $buildImage"
 	echo "[$scriptName] DOCKER_HOST   : $DOCKER_HOST"
 	echo "[$scriptName] pwd           : $(pwd)"

@@ -29,7 +29,7 @@ for argument in "$@"; do
 done
 
 echo "[$scriptName] Delete ${SOLUTION} images for inactive branches"; echo
-for image in $(docker images --filter label=cdaf.${SOLUTION}.image.version --format "{{.Repository}}:{{.ID}}" 2> /dev/null); do
+for image in $(docker images "${SOLUTION}*" --format "{{.Repository}}:{{.ID}}" 2> /dev/null); do
 	imageBranch=${image#*_}       # trim off solution name
 	imageBranch=${imageBranch%_*} # trim of image suffix, e.g. containerbuild, test, etc.
 	if [[ " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then

@@ -176,7 +176,7 @@ else
 		for localBranch in $(git branch --format='%(refname:short)'); do
 			branchName=${localBranch##*/}  # retrieve basename for compare
 			if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
-				echo "  ${localBranch}"
+				echo "  keep branch ${localBranch}"
 			else
 				executeExpression "  git branch -D '${localBranch}'"
 			fi

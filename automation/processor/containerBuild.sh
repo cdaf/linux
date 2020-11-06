@@ -162,7 +162,7 @@ if [ ! -z "$imageName" ]; then
 	else
 		executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	fi
-	
+
 	echo "[$scriptName] List and remove all stopped containers"
 	executeExpression 'docker ps --filter "status=exited" -a'
 	executeExpression 'docker rm $(docker ps --filter "status=exited" -aq)'

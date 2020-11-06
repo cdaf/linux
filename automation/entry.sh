@@ -138,9 +138,9 @@ else
 			usingCache=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
 			if [ $? -ne 0 ]; then echo "[$scriptName] Git cache update failed!"; exit 6924; fi
 			echo "$usingCache"
-			echo "git branch "${branchBase}" 2> /dev/null"
+			echo "git branch '${branchBase}' 2> /dev/null"
 			git branch "${branchBase}" 2> /dev/null
-			git checkout -b '${branchBase}' 2> /dev/null # cater for ambiguous origin
+			git checkout -b "${branchBase}" 2> /dev/null # cater for ambiguous origin
 			executeExpression "git checkout '${branchBase}' 2> /dev/null"
 			gitName=$(git config --list | grep user.name=)
 			if [ -z "$gitName" ]; then

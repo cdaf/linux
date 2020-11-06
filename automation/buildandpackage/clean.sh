@@ -35,7 +35,7 @@ for image in $(docker images "${SOLUTION}*" --format "{{.Repository}}:{{.ID}}" 2
 	if [[ " ${remoteArray[@]} " =~ " ${imageBranch} " ]]; then
 		echo "[$scriptName]   keep ${image%:*}"
 	else
-		echo "[$scriptName]   docker rmi ${image%:*}"
+		echo "[$scriptName]   docker rmi -f ${image%:*}"
 		docker rmi ${image##*:}
 	fi
 done

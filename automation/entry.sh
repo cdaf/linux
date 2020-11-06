@@ -142,6 +142,14 @@ else
 			git branch "${branchBase}" 2> /dev/null
 			git checkout -b '${branchBase}' 2> /dev/null # cater for ambiguous origin
 			executeExpression "git checkout '${branchBase}' 2> /dev/null"
+			gitName=$(git config --list | grep user.name=)
+			if [ -z "$gitName" ]; then
+				git config user.name "Your Name"
+			fi
+			gitEmail=$(git config --list | grep user.email=)
+			if [ -z "$gitEmail" ]; then
+				git config user.email "you@example.com"
+			fi
 			executeExpression "git pull origin '${branchBase}'"
 		fi
 

@@ -176,9 +176,9 @@ else
 		done
 		if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote provided no branches!"; exit 6925; fi
 
-		for remoteBranch in ${remoteArray[@]}; do # verify array contents
-			echo "  ${remoteBranch}"
-		done
+		# for remoteBranch in ${remoteArray[@]}; do # verify array contents
+		# 	echo "  ${remoteBranch}"
+		# done
 
 		echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
 		for localBranch in $(git branch --format='%(refname:short)'); do

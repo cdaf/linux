@@ -25,12 +25,12 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: ./automation/entry.sh $BUILD_BUILDNUMBER $BUILD_SOURCEBRANCHNAME staging@$BUILD_ARTIFACTSTAGINGDIRECTORY
+- script: ./automation/entry.sh "$BUILD_BUILDNUMBER" "$BUILD_SOURCEBRANCHNAME" "staging@$BUILD_ARTIFACTSTAGINGDIRECTORY"
 
 # Require explicit exit code if using a multi-line script
 # - script: |
 #     export READ_ONLY_PAT=$(READ_ONLY_PAT)
-#     ~/cdaf/entry.sh $(Build.BuildNumber) $(Build.SourceBranchName) staging@$(Build.ArtifactStagingDirectory)
+#     ~/cdaf/entry.sh "$(Build.BuildNumber)" "$(Build.SourceBranchName)" "staging@$(Build.ArtifactStagingDirectory)"
 #     exitCode=$?
 #     if [ "$exitCode" != "0" ]; then exit $exitCode; fi
 

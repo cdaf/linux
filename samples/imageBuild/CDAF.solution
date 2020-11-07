@@ -1,13 +1,8 @@
-# This file defines the automation root along with CD emulator value (solutionName)
-artifactPrefix=0.0
-productName=Image Build
-solutionName=imagebuild
-containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh ${SOLUTION} ${BUILDNUMBER} ${REVISION} ${ACTION}
-containerImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage target
+# Recommended to use wrap.tsk to copy all the files needed for imageBuild, in this example to directory called imagebuild-files
+imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage runtime
 runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
+
 CDAF_REGISTRY_URL=${CI_REGISTRY}
 CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER
 CDAF_REGISTRY_USER=${CI_REGISTRY_USER}
 CDAF_REGISTRY_TOKEN=${CI_JOB_TOKEN}
-# processSequence=localTasks.sh remoteTasks.sh

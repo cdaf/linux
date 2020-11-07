@@ -1,0 +1,4 @@
+REFRSH automation-solution/imageBuild runtime
+
+# Copy application files required
+# VECOPY sprint-zero/target/sprint-zero-*.zip automation-solution/imageBuild/sprint-zero.zip

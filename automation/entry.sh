@@ -166,19 +166,19 @@ else
 	fi
 
 	if [ -z "$skipRemoteBranchCheck" ]; then
-		echo; echo "[$scriptName] Load Remote branches from local cache (git ls-remote 2>/dev/null)"; echo
-		for remoteBranch in $(git ls-remote 2>/dev/null); do 
+		echo; echo "[$scriptName] Load Remote branches from local cache (git ls-remote --heads origin 2>/dev/null)"; echo
+		for remoteBranch in $(git ls-remote --heads origin 2>/dev/null); do 
 			remoteBranch=$(echo "$remoteBranch" | grep '/')
 			if [ ! -z "${remoteBranch}" ]; then
 				remoteBranch=${remoteBranch##*/} # trim to basename for compare
 				remoteArray+=( "$remoteBranch" )
 			fi
 		done
-		if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote provided no branches!"; exit 6925; fi
+		if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote --heads origin provided no branches!"; exit 6925; fi
 
-		# for remoteBranch in ${remoteArray[@]}; do # verify array contents
-		# 	echo "  ${remoteBranch}"
-		# done
+		for remoteBranch in ${remoteArray[@]}; do # verify array contents
+			echo "  ${remoteBranch}"
+		done
 
 		echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
 		for localBranch in $(git branch --format='%(refname:short)'); do

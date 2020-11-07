@@ -27,6 +27,7 @@ if [ -z "$imageName" ]; then
 	echo "[$scriptName] imageName not supplied! Exit with code 1."
 	exit 1
 else
+	imageName=$(echo "$imageName" | tr '[:upper:]' '[:lower:]')
 	echo "[$scriptName] imageName : ${imageName}"
 fi
 

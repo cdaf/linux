@@ -53,6 +53,8 @@ if [ -z $id ]; then
 	echo "[$scriptName]  id                    : (not supplied, login to Docker Registry only)"
 	dockerLogin
 else
+	ref=${id#*_}  # trim off solution name
+	ref=${ref%_*} # trim of image suffix, e.g. containerbuild, test, etc.
 	echo "[$scriptName]  id                    : $id"
 	BUILDNUMBER=$2
 	if [ -z $BUILDNUMBER ]; then
@@ -154,14 +156,19 @@ else
 			fi
 			if [ -f "../dockerBuild.sh" ]; then
 				executeExpression "cp ../dockerBuild.sh ${transient}"
+				executeExpression "cp ../dockerClean.sh ${transient}"
 			else
 				executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerBuild.sh ${transient}"
+				executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerClean.sh ${transient}"
 			fi
 			executeExpression "cp -r ${image}/** ${transient}"
 			executeExpression "cd ${transient}"
 			executeExpression "cat Dockerfile"
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
 			executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER $BUILDNUMBER no $(whoami) $(id -u)"
+			if [[ "$ref" != 'master' ]]; then # do not clean deployable branch
+				executeExpression "./dockerClean.sh ${id}_${image##*/} $BUILDNUMBER"
+			fi
 			executeExpression "cd $workspace"
 		done
 		# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these

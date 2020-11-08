@@ -20,8 +20,8 @@ for argument in "$@"; do
 		echo "[$scriptName]   SOLUTION : ${SOLUTION}"
 	else
 		echo "[$scriptName]   arg${i}     : ${argument}"
-		argument=${argument##*/}                                  # clean the branch name to
-		argument=${argument//\#}                                  # align with image build
+		argument=${argument##*/}                                  # reduce to branch basename
+		argument=$(sed 's/[^[:alnum:]]\+//g' <<< $argument)       # align with image build
 		argument=$(echo "$argument" | tr '[:upper:]' '[:lower:]') # imageBuild processes in branches as lowercase
 		remoteArray+=( "$argument" )
 	fi

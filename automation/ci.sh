@@ -43,8 +43,9 @@ BRANCH="$2"
 if [[ $BRANCH == *'$'* ]]; then
 	BRANCH=$(eval echo $BRANCH)
 fi
-BRANCH=${BRANCH##*/}
-BRANCH=${BRANCH//\#}
+BRANCH=${BRANCH##*/}                                    # strip to basename
+BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $BRANCH)         # remove non-alphanumeric characters
+BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]') # make case insensitive
 if [ -z $BRANCH ]; then
 	BRANCH='targetlesscd'
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"

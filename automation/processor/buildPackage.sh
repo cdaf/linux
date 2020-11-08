@@ -86,10 +86,11 @@ REVISION="$2"
 if [[ $REVISION == *'$'* ]]; then
 	REVISION=$(eval echo $REVISION)
 fi
-REVISION=${REVISION##*/}
-REVISION=${REVISION//\#}
+REVISION=${REVISION##*/}                                  # strip to basename
+REVISION=$(sed 's/[^[:alnum:]]\+//g' <<< $REVISION)       # remove non-alphnumeric
+REVISION=$(echo "$REVISION" | tr '[:upper:]' '[:lower:]') # make branch names case insentive
 if [ -z $REVISION ]; then
-	REVISION='Revision'
+	REVISION='feature'
 	echo "[$scriptName]   REVISION        : $REVISION (default)"
 else
 	echo "[$scriptName]   REVISION        : $REVISION"

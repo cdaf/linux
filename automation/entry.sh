@@ -46,9 +46,10 @@ else
 	if [[ $BRANCH == *'$'* ]]; then
 		BRANCH=$(eval echo $BRANCH)
 	fi
-	branchBase=${BRANCH##*/}    # Retrieve basename
-	BRANCH=${branchBase//\#}    # Remove hash character
 	echo "[$scriptName]   BRANCH         : $BRANCH"
+	branchBase=${BRANCH##*/}                                # Retrieve basename
+	BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $branchBase)     # remove non-alphanumeric characters
+	BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]') # make case insensitive
 fi
 
 ACTION="$3"

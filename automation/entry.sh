@@ -43,9 +43,7 @@ if [ -z "$BRANCH" ]; then
 	fi
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
-	if [[ $BRANCH == *'$'* ]]; then
-		BRANCH=$(eval echo $BRANCH)
-	fi
+	BRANCH=$(eval echo $BRANCH)
 	echo "[$scriptName]   BRANCH         : $BRANCH"
 	branchBase=${BRANCH##*/}                                # Retrieve basename
 	BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $branchBase)     # remove non-alphanumeric characters
@@ -85,7 +83,9 @@ if [ "$BRANCH" != 'master' ]; then
 fi
 
 echo
+SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
 gitRemoteURL=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitRemoteURL")
+gitRemoteURL=$(eval echo $gitRemoteURL)
 if [ -z "$gitRemoteURL" ]; then
 	echo "[$scriptName] gitRemoteURL not defined in $solutionRoot/CDAF.solution, skipping ..."
 else

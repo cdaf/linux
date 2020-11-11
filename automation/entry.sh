@@ -55,28 +55,40 @@ fi
 ACTION="$3"
 echo "[$scriptName]   ACTION         : $ACTION"
 
-workspace=$(pwd)
-echo "[$scriptName]   pwd            : $workspace"
-
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-printf "[$scriptName]   solutionRoot   : "
+printf "[$scriptName]   SOLUTIONROOT   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
-		solutionRoot="$directoryName"
+		SOLUTIONROOT="$directoryName"
 	fi
 done
-if [ -z "$solutionRoot" ]; then
-	solutionRoot="$automationRoot/solution"
-	echo "$solutionRoot (default, project directory containing CDAF.solution not found)"
+if [ -z "$SOLUTIONROOT" ]; then
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
+	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
-	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
+	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
 fi
+
+echo; echo "[$scriptName] Load Solution Properties $SOLUTIONROOT/CDAF.solution"
+propertiesList=$($AUTOMATIONROOT/remote/transform.sh "$SOLUTIONROOT/CDAF.solution")
+echo "$propertiesList"
+eval $propertiesList
+if [ -z ${solutionName} ]; then
+	echo; echo "[$scriptName]   solutionName not defined!"
+	exit 7762 
+else
+	SOLUTION=$solutionName
+	echo; echo "[$scriptName]   SOLUTION       = $SOLUTION"
+fi
+
+workspace=$(pwd)
+echo "[$scriptName]   pwd            = $workspace"
+echo "[$scriptName]   hostname       = $(hostname)"
+echo "[$scriptName]   whoami         = $(whoami)"; echo
 
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 
 if [ "$BRANCH" != 'master' ]; then
-	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
-	unset CDAF_AUTOMATION_ROOT
 	if [ -z "$artifactPrefix" ]; then
 		executeExpression "./TasksLocal/delivery.sh DOCKER"
 	else
@@ -85,16 +97,13 @@ if [ "$BRANCH" != 'master' ]; then
 fi
 
 echo
-gitRemoteURL=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitRemoteURL")
 if [[ $gitRemoteURL == *'$'* ]]; then
-	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
 	gitRemoteURL=$(eval echo $gitRemoteURL)
 fi
 if [ -z "$gitRemoteURL" ]; then
-	echo "[$scriptName] gitRemoteURL not defined in $solutionRoot/CDAF.solution, skipping ..."
+	echo "[$scriptName] gitRemoteURL not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
 else
 	echo "[$scriptName] gitRemoteURL = ${gitRemoteURL}, perform branch cleanup ..."
-	gitUserNameEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserNameEnvVar")
 	if [ -z "$gitUserNameEnvVar" ]; then
 		echo "[$scriptName] gitRemoteURL defined, but gitUserNameEnvVar not defined, relying on current workspace being up to date"
 	else
@@ -103,8 +112,10 @@ else
 			echo "[$scriptName] $gitUserNameEnvVar contains no value, relying on current workspace being up to date"
 		else
 			userName=${userName//@/%40}
-			gitUserPassEnvVar=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitUserPassEnvVar")	
-			if [ -z "$gitUserPassEnvVar" ]; then echo "[$scriptName] gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $solutionRoot/CDAF.solution!"; exit 6921; fi
+			if [ -z "$gitUserPassEnvVar" ]; then
+				echo "[$scriptName] gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!"
+				exit 6921
+			fi
 			userPass=$(eval "echo $gitUserPassEnvVar")
 			if [ -z "$userPass" ]; then
 				echo "[$scriptName] $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
@@ -196,11 +207,11 @@ else
 		done
 
 		echo
-		gitCustomCleanup=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "gitCustomCleanup")
+		gitCustomCleanup=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "gitCustomCleanup")
 		if [ -z ${gitCustomCleanup} ]; then
-			echo "[$scriptName] gitCustomCleanup not defined in $solutionRoot/CDAF.solution, skipping ..."
+			echo "[$scriptName] gitCustomCleanup not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
 		else
-			solutionName=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "solutionName")
+			solutionName=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 			argList="'${solutionName}'"
 			for remoteBranch in "${remoteArray[@]}"; do
 				argList="${argList} '${remoteBranch}'"

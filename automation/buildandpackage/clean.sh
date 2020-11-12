@@ -17,9 +17,9 @@ echo; echo "[$scriptName] --- start ---"
 for argument in "$@"; do
 	if [ -z "$i" ]; then
 		SOLUTION=${argument}
-		echo "[$scriptName]   SOLUTION : ${SOLUTION}"
+		echo "[$scriptName]   SOLUTION       : ${SOLUTION}"
 	else
-		echo "[$scriptName]   arg${i}     : ${argument}"
+		echo "[$scriptName]   remoteBranch${i} : ${argument}"
 		argument=${argument##*/}                                  # reduce to branch basename
 		argument=$(sed 's/[^[:alnum:]]\+//g' <<< $argument)       # align with image build
 		argument=$(echo "$argument" | tr '[:upper:]' '[:lower:]') # imageBuild processes in branches as lowercase
@@ -28,7 +28,7 @@ for argument in "$@"; do
 	let "i=i+1"
 done
 
-echo "[$scriptName] Delete ${SOLUTION} images for inactive branches"; echo
+echo "[$scriptName] docker images \"${SOLUTION}*\" --format \"{{.Repository}}:{{.ID}}\""; echo
 for image in $(docker images "${SOLUTION}*" --format "{{.Repository}}:{{.ID}}" 2> /dev/null); do
 	imageBranch=${image#*_}       # trim off solution name
 	imageBranch=${imageBranch%_*} # trim of image suffix, e.g. containerbuild, test, etc.

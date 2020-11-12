@@ -97,28 +97,29 @@ if [ "$BRANCH" != 'master' ]; then
 fi
 
 echo
-if [[ $gitRemoteURL == *'$'* ]]; then
-	gitRemoteURL=$(eval echo $gitRemoteURL)
-fi
 if [ -z "$gitRemoteURL" ]; then
 	echo "[$scriptName] gitRemoteURL not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
 else
+	if [[ $gitRemoteURL == *'$'* ]]; then
+		gitRemoteURL=$(eval echo $gitRemoteURL)
+	fi
+
 	echo "[$scriptName] gitRemoteURL = ${gitRemoteURL}, perform branch cleanup ..."
 	if [ -z "$gitUserNameEnvVar" ]; then
-		echo "[$scriptName] gitRemoteURL defined, but gitUserNameEnvVar not defined, relying on current workspace being up to date"
+		echo "[$scriptName]   gitRemoteURL defined, but gitUserNameEnvVar not defined, relying on current workspace being up to date"
 	else
 		userName=$(eval "echo $gitUserNameEnvVar")
 		if [ -z "$userName" ]; then
-			echo "[$scriptName] $gitUserNameEnvVar contains no value, relying on current workspace being up to date"
+			echo "[$scriptName]   $gitUserNameEnvVar contains no value, relying on current workspace being up to date"
 		else
 			userName=${userName//@/%40}
 			if [ -z "$gitUserPassEnvVar" ]; then
-				echo "[$scriptName] gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!"
+				echo "[$scriptName]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!"
 				exit 6921
 			fi
 			userPass=$(eval "echo $gitUserPassEnvVar")
 			if [ -z "$userPass" ]; then
-				echo "[$scriptName] $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
+				echo "[$scriptName]   $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
 			else
 				gitRemoteURL=$(echo "https://${userName}:${userPass}@${gitRemoteURL//https:\/\/}")
 			fi
@@ -136,16 +137,16 @@ else
 			skipRemoteBranchCheck='yes'
 		else
 			if [ -z "$HOME" ]; then
-				tempDir=$(echo "${TEMP}/.cdaf-cache")
+				tempDir="${TEMP}/.cdaf-cache"
 			else
-				tempDir=$(echo "${HOME}/.cdaf-cache")
+				tempDir="${HOME}/.cdaf-cache"
 			fi
 			echo "[$scriptName] Workspace is not a Git repository or has detached head, skip branch clean-up and perform custom clean-up tasks in $tempDir ..."; echo
 			executeExpression "mkdir -p $tempDir"
 			executeExpression "cd $tempDir"
 			repoName=${gitRemoteURL%/} # remove trailing /
 			repoName=${repoName##*/}   # retrieve basename
-			repoName=${repoName%.*}    # remove suffix
+			repoName=${repoName%.*}    # remove extension
 			if [ ! -d "$repoName" ]; then
 				executeExpression "git clone '${gitRemoteURL}'"
 			fi
@@ -191,7 +192,6 @@ else
 			fi
 		done
 		if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote --heads origin provided no branches!"; exit 6925; fi
-
 		for remoteBranch in ${remoteArray[@]}; do # verify array contents
 			echo "  ${remoteBranch}"
 		done
@@ -207,12 +207,10 @@ else
 		done
 
 		echo
-		gitCustomCleanup=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "gitCustomCleanup")
 		if [ -z ${gitCustomCleanup} ]; then
 			echo "[$scriptName] gitCustomCleanup not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
 		else
-			solutionName=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
-			argList="'${solutionName}'"
+			argList="'${SOLUTION}'"
 			for remoteBranch in "${remoteArray[@]}"; do
 				argList="${argList} '${remoteBranch}'"
 			done

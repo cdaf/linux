@@ -15,7 +15,7 @@ solutionName=myproduct
 # CDAF_REGISTRY_USER=${CI_REGISTRY_USER}
 # CDAF_REGISTRY_TOKEN=${CI_JOB_TOKEN}
 
-# gitRemoteURL=https://github.com/cdaf/linux.git
+# gitRemoteURL=https://github.com/cdaf/${SOLUTION}.git
 # gitUserNameEnvVar=${GIT_USER}
 # gitUserPassEnvVar=${GIT_PASS}
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh

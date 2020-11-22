@@ -38,7 +38,7 @@ while read -r LINE; do
 	IFS="\="
 	read -ra array <<< "$LINE"
 	if [ -z "$TOKENISED" ]; then
-		echo "  ${array[0]}=\"${array[1]}\""
+		echo "  ${array[0]}='${array[1]}'"
 	else		
 		name="%${array[0]}%"
 #		echo "[$scriptName] Replace $name with ${array[1]}"

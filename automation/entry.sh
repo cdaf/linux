@@ -168,6 +168,8 @@ else
 				git config user.email "you@example.com"
 			fi
 			executeExpression "git pull origin '${branchBase}'"
+			echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads origin)"; echo
+			lsRemote=$(git ls-remote --heads origin)
 		fi
 
 	else
@@ -176,15 +178,18 @@ else
 		echo "[$scriptName] Refresh Remote branches"; echo
 		if [ -z $userName ]; then
 			executeExpression "git fetch --prune"
+			echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin)"; echo
+			lsRemote=$(git ls-remote --heads origin)
 		else
 			executeExpression "git fetch --prune '${gitRemoteURL}'"
+			echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin ${gitRemoteURL})"; echo
+			lsRemote=$(git ls-remote --heads ${gitRemoteURL})
 		fi
 
 	fi
 
 	if [ -z "$skipRemoteBranchCheck" ]; then
-		echo; echo "[$scriptName] Load Remote branches from local cache (git ls-remote --heads origin 2>/dev/null)"; echo
-		for remoteBranch in $(git ls-remote --heads origin 2>/dev/null); do 
+		for remoteBranch in $lsRemote; do 
 			remoteBranch=$(echo "$remoteBranch" | grep '/')
 			if [ ! -z "${remoteBranch}" ]; then
 				remoteBranch=${remoteBranch##*/} # trim to basename for compare

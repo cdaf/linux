@@ -37,11 +37,16 @@ fi
 
 BRANCH="$2"
 if [ -z "$BRANCH" ]; then
-	BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
-	if [ -z "${BRANCH}" ]; then
-		BRANCH='targetlesscd'
+	if [ -z "$CDAF_BRANCH_NAME" ]; then
+		BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+		if [ -z "${BRANCH}" ]; then
+			BRANCH='targetlesscd'
+		fi
+		echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
+	else
+		BRANCH="$CDAF_BRANCH_NAME"
+		echo "[$scriptName]   BRANCH         : $BRANCH (not supplied, derived from \$CDAF_BRANCH_NAME)"
 	fi
-	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
 	if [[ $BRANCH == *'$'* ]]; then
 		BRANCH=$(eval echo $BRANCH)

@@ -217,15 +217,17 @@ else
 				executeExpression "cd $workspace"
 			fi
 
-			echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
-			for localBranch in $(git branch --format='%(refname:short)'); do
-				branchName=${localBranch##*/}  # retrieve basename for compare
-				if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
-					echo "  keep branch ${localBranch}"
-				else
-					executeExpression "  git branch -D '${localBranch}'"
-				fi
-			done
+			if [ ! -z "${headAttached}" ]; then
+				echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
+				for localBranch in $(git branch --format='%(refname:short)'); do
+					branchName=${localBranch##*/}  # retrieve basename for compare
+					if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
+						echo "  keep branch ${localBranch}"
+					else
+						executeExpression "  git branch -D '${localBranch}'"
+					fi
+				done
+			fi
 
 			echo
 			if [ -z ${gitCustomCleanup} ]; then

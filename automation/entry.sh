@@ -103,7 +103,7 @@ if [ "$BRANCH" != 'master' ]; then
 fi
 
 echo
-if [ ! -z "skipBranchCleanup" ]; then
+if [ ! -z "$skipBranchCleanup" ]; then
 	echo "[$scriptName] Branch not passed and using \$CDAF_BRANCH_NAME override, skipping clean-up ..."
 else
 	if [ -z "$gitRemoteURL" ]; then

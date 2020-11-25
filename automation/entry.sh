@@ -94,7 +94,10 @@ echo "[$scriptName]   whoami         = $(whoami)"; echo
 
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 
-if [ "$BRANCH" != 'master' ]; then
+echo
+if [ "$BRANCH" == 'master' ]; then
+	echo "[$scriptName] Skipping DOCKER test in $BRANCH"
+else
 	if [ -z "$artifactPrefix" ]; then
 		executeExpression "./TasksLocal/delivery.sh DOCKER"
 	else

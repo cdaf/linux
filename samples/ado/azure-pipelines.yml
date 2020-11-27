@@ -22,10 +22,17 @@ trigger:
 #pool: Default
   
 variables:
-  buildConfiguration: 'Release'
+  - group: Git-Reader-for-Branch-Clean-up
+  - name: gitUser
+   	value: $[variables.GIT_USER]
+  - name: gitPass
+   	value: $[variables.GIT_PASS]
 
 steps:
-- script: ./automation/entry.sh "$BUILD_BUILDNUMBER" "$BUILD_SOURCEBRANCHNAME" "staging@$BUILD_ARTIFACTSTAGINGDIRECTORY"
+  - script: ./automation/entry.sh "$BUILD_BUILDNUMBER" "$BUILD_SOURCEBRANCHNAME" "staging@$BUILD_ARTIFACTSTAGINGDIRECTORY"
+    env: 
+      GIT_USER: $(gitUser)
+      GIT_PASS: $(gitPass)
 
 # Require explicit exit code if using a multi-line script
 # - script: |

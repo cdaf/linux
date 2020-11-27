@@ -8,4 +8,4 @@
 /projectsToBuild.txt
 /propertiesForLocalTasks/
 /propertiesForRemoteTasks/
-/release.ps1
+/release.sh

@@ -21,6 +21,8 @@ echo "[$scriptName] ================================="
 echo "[$scriptName] Continuous Delivery (CD) Starting"
 echo "[$scriptName] ================================="
 
+unset CDAF_AUTOMATION_ROOT
+
 ENVIRONMENT="$1"
 if [[ $ENVIRONMENT == *'$'* ]]; then
 	ENVIRONMENT=$(eval echo $ENVIRONMENT)

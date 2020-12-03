@@ -10,6 +10,17 @@ function executeExpression {
 	fi
 }
 
+function executeSuppress {
+	echo "$1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][WARN] $1 returned $exitCode"
+		exit $exitCode
+	fi
+}  
+
 # Entry point for branch based targetless CD
 scriptName='entry.sh'
 
@@ -224,7 +235,7 @@ else
 					if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
 						echo "  keep branch ${localBranch}"
 					else
-						executeExpression "  git branch -D '${localBranch}'"
+						executeSuppress "  git branch -D '${localBranch}'"
 					fi
 				done
 			fi

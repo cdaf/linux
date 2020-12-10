@@ -13,10 +13,10 @@ trigger:
     include:
     - '*'
 
-# For a private pool, in this example, named Private requiring the capability of PowerShell
+# For a private pool, in this example, named Private requiring the capability of bash shell
 #pool: 
 #  name: Azure
-#  demands: PowerShell
+#  demands: sh
 
 # or pool with no demands
 #pool: Default
@@ -24,9 +24,9 @@ trigger:
 variables:
   - group: Git-Reader-for-Branch-Clean-up
   - name: gitUser
-   	value: $[variables.GIT_USER]
+    value: $[variables.GIT_USER]
   - name: gitPass
-   	value: $[variables.GIT_PASS]
+    value: $[variables.GIT_PASS]
 
 steps:
   - script: ./automation/entry.sh "$BUILD_BUILDNUMBER" "$BUILD_SOURCEBRANCHNAME" "staging@$BUILD_ARTIFACTSTAGINGDIRECTORY"

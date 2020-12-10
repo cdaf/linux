@@ -173,108 +173,108 @@ else
 					fi
 				fi
 			fi
-		fi
 
-		isGit=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
-		if [ $? -eq 0 ]; then
-			headAttached=$(echo "$isGit" | grep -e '->')
-		fi
-		if [ -z "${headAttached}" ]; then
+			isGit=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
+			if [ $? -eq 0 ]; then
+				headAttached=$(echo "$isGit" | grep -e '->')
+			fi
+			if [ -z "${headAttached}" ]; then
 
-			if [ -z "$userName" ]; then
-				echo "[$scriptName] Workspace is not a Git repository or has detached head, but git credentials not set, skipping ..."; echo
-				skipRemoteBranchCheck='yes'
-			else
-				if [ -z "$HOME" ]; then
-					tempDir="${TEMP}/.cdaf-cache"
+				if [ -z "$userName" ]; then
+					echo "[$scriptName] Workspace is not a Git repository or has detached head, but git credentials not set, skipping ..."; echo
+					skipRemoteBranchCheck='yes'
 				else
-					tempDir="${HOME}/.cdaf-cache"
-				fi
-				echo "[$scriptName] Workspace is not a Git repository or has detached head, skip branch clean-up and perform custom clean-up tasks in $tempDir ..."; echo
-				executeExpression "mkdir -p $tempDir"
-				executeExpression "cd $tempDir"
-				repoName=${gitRemoteURL%/} # remove trailing /
-				repoName=${repoName##*/}   # retrieve basename
-				repoName=${repoName%.*}    # remove extension
-				if [ ! -d "$repoName" ]; then
-					executeExpression "git clone '${gitRemoteURL}'"
-				fi
-				executeExpression "cd $repoName"
-				executeExpression "git fetch --prune '${gitRemoteURL}'"
-				usingCache=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
-				if [ $? -ne 0 ]; then echo "[$scriptName] Git cache update failed!"; exit 6924; fi
-				echo "$usingCache"
-				echo "git branch '${branchBase}' 2> /dev/null"
-				git branch "${branchBase}" 2> /dev/null
-				git checkout -b "${branchBase}" 2> /dev/null # cater for ambiguous origin
-				executeExpression "git checkout '${branchBase}' 2> /dev/null"
-				gitName=$(git config --list | grep user.name=)
-				if [ -z "$gitName" ]; then
-					git config user.name "Your Name"
-				fi
-				gitEmail=$(git config --list | grep user.email=)
-				if [ -z "$gitEmail" ]; then
-					git config user.email "you@example.com"
-				fi
-				executeExpression "git pull origin '${branchBase}'"
-				echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads origin)"; echo
-				lsRemote=$(git ls-remote --heads origin)
-			fi
-
-		else
-
-			echo; echo "$headAttached"; echo
-			echo "[$scriptName] Refresh Remote branches"; echo
-			if [ -z $userName ]; then
-				executeExpression "git fetch --prune"
-				echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin)"; echo
-				lsRemote=$(git ls-remote --heads origin)
-			else
-				executeExpression "git fetch --prune '${gitRemoteURL}'"
-				echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin ${gitRemoteURL})"; echo
-				lsRemote=$(git ls-remote --heads ${gitRemoteURL})
-			fi
-
-		fi
-
-		if [ -z "$skipRemoteBranchCheck" ]; then
-			for remoteBranch in $lsRemote; do 
-				remoteBranch=$(echo "$remoteBranch" | grep '/')
-				if [ ! -z "${remoteBranch}" ]; then
-					remoteBranch=${remoteBranch##*/} # trim to basename for compare
-					remoteArray+=( "$remoteBranch" )
-				fi
-			done
-			if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote --heads origin provided no branches!"; exit 6925; fi
-			for remoteBranch in ${remoteArray[@]}; do # verify array contents
-				echo "  ${remoteBranch}"
-			done
-
-			if [ ! -z "${usingCache}" ]; then
-				executeExpression "cd $workspace"
-			fi
-
-			if [ ! -z "${headAttached}" ]; then
-				echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
-				for localBranch in $(git branch --format='%(refname:short)'); do
-					branchName=${localBranch##*/}  # retrieve basename for compare
-					if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
-						echo "  keep branch ${localBranch}"
+					if [ -z "$HOME" ]; then
+						tempDir="${TEMP}/.cdaf-cache"
 					else
-						executeSuppress "  git branch -D '${localBranch}'"
+						tempDir="${HOME}/.cdaf-cache"
+					fi
+					echo "[$scriptName] Workspace is not a Git repository or has detached head, skip branch clean-up and perform custom clean-up tasks in $tempDir ..."; echo
+					executeExpression "mkdir -p $tempDir"
+					executeExpression "cd $tempDir"
+					repoName=${gitRemoteURL%/} # remove trailing /
+					repoName=${repoName##*/}   # retrieve basename
+					repoName=${repoName%.*}    # remove extension
+					if [ ! -d "$repoName" ]; then
+						executeExpression "git clone '${gitRemoteURL}'"
+					fi
+					executeExpression "cd $repoName"
+					executeExpression "git fetch --prune '${gitRemoteURL}'"
+					usingCache=$(git log -n 1 --pretty=%d HEAD 2> /dev/null)
+					if [ $? -ne 0 ]; then echo "[$scriptName] Git cache update failed!"; exit 6924; fi
+					echo "$usingCache"
+					echo "git branch '${branchBase}' 2> /dev/null"
+					git branch "${branchBase}" 2> /dev/null
+					git checkout -b "${branchBase}" 2> /dev/null # cater for ambiguous origin
+					executeExpression "git checkout '${branchBase}' 2> /dev/null"
+					gitName=$(git config --list | grep user.name=)
+					if [ -z "$gitName" ]; then
+						git config user.name "Your Name"
+					fi
+					gitEmail=$(git config --list | grep user.email=)
+					if [ -z "$gitEmail" ]; then
+						git config user.email "you@example.com"
+					fi
+					executeExpression "git pull origin '${branchBase}'"
+					echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads origin)"; echo
+					lsRemote=$(git ls-remote --heads origin)
+				fi
+
+			else
+
+				echo; echo "$headAttached"; echo
+				echo "[$scriptName] Refresh Remote branches"; echo
+				if [ -z $userName ]; then
+					executeExpression "git fetch --prune"
+					echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin)"; echo
+					lsRemote=$(git ls-remote --heads origin)
+				else
+					executeExpression "git fetch --prune '${gitRemoteURL}'"
+					echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin ${gitRemoteURL})"; echo
+					lsRemote=$(git ls-remote --heads ${gitRemoteURL})
+				fi
+
+			fi
+
+			if [ -z "$skipRemoteBranchCheck" ]; then
+				for remoteBranch in $lsRemote; do 
+					remoteBranch=$(echo "$remoteBranch" | grep '/')
+					if [ ! -z "${remoteBranch}" ]; then
+						remoteBranch=${remoteBranch##*/} # trim to basename for compare
+						remoteArray+=( "$remoteBranch" )
 					fi
 				done
-			fi
-
-			echo
-			if [ -z ${gitCustomCleanup} ]; then
-				echo "[$scriptName] gitCustomCleanup not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
-			else
-				argList="'${SOLUTION}'"
-				for remoteBranch in "${remoteArray[@]}"; do
-					argList="${argList} '${remoteBranch}'"
+				if [ -z "${remoteArray}" ]; then echo "[$scriptName] git ls-remote --heads origin provided no branches!"; exit 6925; fi
+				for remoteBranch in ${remoteArray[@]}; do # verify array contents
+					echo "  ${remoteBranch}"
 				done
-				executeExpression "$gitCustomCleanup ${argList}"
+
+				if [ ! -z "${usingCache}" ]; then
+					executeExpression "cd $workspace"
+				fi
+
+				if [ ! -z "${headAttached}" ]; then
+					echo; echo "[$scriptName] Process Local branches (git branch --format='%(refname:short)')"; echo
+					for localBranch in $(git branch --format='%(refname:short)'); do
+						branchName=${localBranch##*/}  # retrieve basename for compare
+						if [[ " ${remoteArray[@]} " =~ " ${branchName} " ]]; then
+							echo "  keep branch ${localBranch}"
+						else
+							executeSuppress "  git branch -D '${localBranch}'"
+						fi
+					done
+				fi
+
+				echo
+				if [ -z ${gitCustomCleanup} ]; then
+					echo "[$scriptName] gitCustomCleanup not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
+				else
+					argList="'${SOLUTION}'"
+					for remoteBranch in "${remoteArray[@]}"; do
+						argList="${argList} '${remoteBranch}'"
+					done
+					executeExpression "$gitCustomCleanup ${argList}"
+				fi
 			fi
 		fi
 	fi

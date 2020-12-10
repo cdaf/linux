@@ -90,29 +90,51 @@ echo; echo "[$scriptName] Load Solution Properties $SOLUTIONROOT/CDAF.solution"
 propertiesList=$($AUTOMATIONROOT/remote/transform.sh "$SOLUTIONROOT/CDAF.solution")
 echo "$propertiesList"
 eval $propertiesList
+
+if ! [ -z "$CDAF_DELIVERY" ]; then
+	environment="$CDAF_DELIVERY"
+fi
+if [ -z "$environment" ]; then
+	if [ -z "$defaultEnvironment" ]; then
+		environment='DOCKER'
+		echo; echo "[$scriptName]   environment    : $environment (not set, default applied)"
+	else
+		environment=$(eval "echo $defaultEnvironment")
+		echo; echo "[$scriptName]   environment    : $environment (loaded defaultEnvironment property)"
+	fi	
+else
+	echo "[$scriptName]   environment    : $environment (from CDAF_DELIVERY environment variable)"
+fi
+
 if [ -z ${solutionName} ]; then
-	echo; echo "[$scriptName]   solutionName not defined!"
+	echo "[$scriptName]   solutionName not defined!"
 	exit 7762 
 else
 	SOLUTION=$solutionName
-	echo; echo "[$scriptName]   SOLUTION       = $SOLUTION"
+	echo "[$scriptName]   SOLUTION       : $SOLUTION"
 fi
 
 workspace=$(pwd)
-echo "[$scriptName]   pwd            = $workspace"
-echo "[$scriptName]   hostname       = $(hostname)"
-echo "[$scriptName]   whoami         = $(whoami)"; echo
+echo "[$scriptName]   pwd            : $workspace"
+echo "[$scriptName]   hostname       : $(hostname)"
+echo "[$scriptName]   whoami         : $(whoami)"; echo
 
 executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
 
+if [ -z "$defaultBranch" ]; then
+	defaultBranch='master'
+else
+	defaultBranch=$(eval "echo $defaultBranch")
+fi	
+
 echo
-if [ "$BRANCH" == 'master' ]; then
-	echo "[$scriptName] Skipping DOCKER test in $BRANCH"
+if [ "$BRANCH" == "$defaultBranch" ]; then
+	echo "[$scriptName] Skipping $environment test in $BRANCH"
 else
 	if [ -z "$artifactPrefix" ]; then
-		executeExpression "./TasksLocal/delivery.sh DOCKER"
+		executeExpression "./TasksLocal/delivery.sh $environment"
 	else
-		executeExpression "./release.sh DOCKER"
+		executeExpression "./release.sh $environment"
 	fi
 fi
 

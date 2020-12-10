@@ -91,25 +91,14 @@ if [ ! -z "$imageName" ]; then
 			SOLUTIONROOT="$directoryName"
 		fi
 	done
-	echo "[$scriptName]   SOLUTIONROOT  : $SOLUTIONROOT"
+	echo "[$scriptName]   SOLUTIONROOT   : $SOLUTIONROOT"
 	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
-	echo "[$scriptName]   buildImage    : $buildImage"
-	echo "[$scriptName]   DOCKER_HOST   : $DOCKER_HOST"
-	echo "[$scriptName]   pwd           : $(pwd)"
-	echo "[$scriptName]   hostname      : $(hostname)"
-	echo "[$scriptName]   whoami        : $(whoami)"
-	
-	buildCommand='docker build'
-	if [ "$rebuild" == 'yes' ]; then
-		buildCommand+=" --no-cache=true"
-	fi
-	
-	if [ ! -z "$tag" ]; then
-		buildCommand+=" --tag ${buildImage}:${tag}"
-	else
-		buildCommand+=" --tag ${buildImage}"
-	fi
-	
+	echo "[$scriptName]   buildImage     : $buildImage"
+	echo "[$scriptName]   DOCKER_HOST    : $DOCKER_HOST"
+	echo "[$scriptName]   pwd            : $(pwd)"
+	echo "[$scriptName]   hostname       : $(hostname)"
+	echo "[$scriptName]   whoami         : $(whoami)"
+
 	imageTag=0
 	for tag in $(docker images --filter label=cdaf.${buildImage}.image.version --format "{{.Tag}}"); do
 		if [ "${tag}" != '<none>' ]; then
@@ -154,13 +143,17 @@ if [ ! -z "$imageName" ]; then
 		test=${ADDR[2]}
 		echo "[$scriptName] sestatus   : $test"
 	fi	
-	
+
+	for envVar in $(env | grep CDAF_CB_); do
+		buildCommand+=" --env ${envVar}"
+	done
+
 	# If a build number is not passed, use the CDAF emulator
 	executeExpression "export MSYS_NO_PATHCONV=1"
 	if [ -z "$HOME" ]; then
-		executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace ${buildCommand} ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	else
-		executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home --volume ${workspace}:/solution/workspace ${buildCommand} ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	fi
 
 	echo "[$scriptName] List and remove all stopped containers"

@@ -33,6 +33,7 @@ if [ -f  "$DRIVER" ]; then
 		ARTIFACT=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $line)
 
 		if [ ! -z "$ARTIFACT" ]; then
+			set -f # disable globbing, i.e. do not preprocess definitions containing wildcards
 			# There must be a more elegant way to do this, but the current implementation is to overcome variable expansion when containing / character(s)
 			declare -a artArray=${ARTIFACT};
 			x=0
@@ -40,13 +41,13 @@ if [ -f  "$DRIVER" ]; then
 			unset flat
 			unset recurse
 			unset copyParent
-			for i in ${artArray[@]}; do 
+			for element in ${artArray[@]}; do 
 				# First element in array is treated as the source
 				if [ $x -eq 0 ]; then
-					source=$(echo $i);
+					source=$(echo "$element");
 				else
 					# options are case insensitive
-					option=$(echo "$i" | tr '[a-z]' '[A-Z]')
+					option=$(echo "$element" | tr '[a-z]' '[A-Z]')
 					if [ "$option" == "-RECURSE" ]; then recurse="on"; fi
 					if [ "$option" == "-FLAT" ]; then flat="on"; fi
 				fi
@@ -85,6 +86,8 @@ if [ -f  "$DRIVER" ]; then
 				fi
 			fi
 			command="cp $copyParent -av $source $targetPath"
+			set +f # enable globbing for copy operation
+			echo "$command"
 			eval "cp $copyParent -av $source $targetPath"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then

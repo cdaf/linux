@@ -87,7 +87,6 @@ if [ -f  "$DRIVER" ]; then
 			fi
 			command="cp $copyParent -av $source $targetPath"
 			set +f # enable globbing for copy operation
-			echo "$command"
 			eval "cp $copyParent -av $source $targetPath"
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then

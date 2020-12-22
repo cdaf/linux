@@ -51,6 +51,7 @@ function MAKDIR {
 function REMOVE {
 	executeFunction="rm -rfv $1"
 	echo "$executeFunction"
+	set +f # enable globbing for remove operation
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
@@ -63,6 +64,7 @@ function REMOVE {
 function VECOPY {
 	executeFunction="cp -vR $1 $2"
 	echo "$executeFunction"
+	set +f # enable globbing for copy operation
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
@@ -94,6 +96,7 @@ function REFRSH {
 	fi
 	if [ ! -z $source ]; then
 		if [ -d $source ]; then
+			set +f # enable globbing for copy operation
 			cp -vR --no-target-directory "$source" "$destination"
 			if [ "$exitCode" != "0" ]; then
 				echo "[$scriptName] Exception! ${executeFunction} returned $exitCode copying directory"
@@ -162,11 +165,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -260,6 +263,7 @@ fi
 # Process Task Execution
 executionList=$(< $TASKLIST)
 while read LINE; do
+	set -f # disable globbing, i.e. do not preprocess definitions containing wildcards
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	

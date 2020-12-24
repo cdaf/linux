@@ -263,7 +263,9 @@ fi
 # Process Task Execution
 executionList=$(< $TASKLIST)
 while read LINE; do
-	set -f # disable globbing, i.e. do not preprocess definitions containing wildcards
+	if [[ $LINE == *"REMOVE"* ]] || [[ $LINE == *"REFRSH"* ]] || [[ $LINE == *"VECOPY"* ]]; then
+		set -f # disable globbing, i.e. do not preprocess definitions containing wildcards
+	fi
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	

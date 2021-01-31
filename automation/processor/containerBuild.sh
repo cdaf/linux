@@ -92,8 +92,18 @@ if [ ! -z "$imageName" ]; then
 		fi
 	done
 	echo "[$scriptName]   SOLUTIONROOT   : $SOLUTIONROOT"
+
+	SOLUTION=$($CDAF_AUTOMATION_ROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
+		exit $exitCode
+	fi
+	echo "[$scriptName]   SOLUTION       : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
+
 	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
 	echo "[$scriptName]   buildImage     : $buildImage"
+
 	echo "[$scriptName]   DOCKER_HOST    : $DOCKER_HOST"
 	echo "[$scriptName]   pwd            : $(pwd)"
 	echo "[$scriptName]   hostname       : $(hostname)"
@@ -145,6 +155,13 @@ if [ ! -z "$imageName" ]; then
 	fi	
 
 	for envVar in $(env | grep CDAF_CB_); do
+		buildCommand+=" --env ${envVar}"
+	done
+
+	prefix=$(echo "$SOLUTION" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
+	echo "prefix = CDAF_${prefix}_CB_"
+	env | grep "CDAF_${prefix}_CB_"
+	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
 		buildCommand+=" --env ${envVar}"
 	done
 

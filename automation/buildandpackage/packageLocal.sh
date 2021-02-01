@@ -28,71 +28,87 @@ localCryptDir="$SOLUTIONROOT/cryptLocal"
 cryptDir="$SOLUTIONROOT/crypt"
 remotePropertiesDir="$SOLUTIONROOT/propertiesForRemoteTasks"
 remoteGenPropDir="./propertiesForRemoteTasks"
+containerPropertiesDir="$SOLUTIONROOT/propertiesForContainerTasks"
+containerGenPropDir="./propertiesForContainerTasks"
 
 echo "[$scriptName] --- PACKAGE locally executed scripts and artefacts ---"; echo
-echo "[$scriptName]   WORK_DIR_DEFAULT            : $WORK_DIR_DEFAULT"
+echo "[$scriptName]   WORK_DIR_DEFAULT               : $WORK_DIR_DEFAULT"
 
-printf "[$scriptName]   local artifact list         : "
+printf "[$scriptName]   local artifact list            : "
 if [ -f  "$localArtifactListFile" ]; then
 	echo "found ($localArtifactListFile)"
 else
 	echo "none ($localArtifactListFile)"
 fi
 
-printf "[$scriptName]   Properties for local tasks  : "
+printf "[$scriptName]   Properties for local tasks     : "
 if [ -d  "$localPropertiesDir" ]; then
 	echo "found ($localPropertiesDir)"
 else
 	echo "none ($localPropertiesDir)"
 fi
 
-printf "[$scriptName]   Generated local properties  : "
+printf "[$scriptName]   Generated local properties     : "
 if [ -d  "$localGenPropDir" ]; then
 	echo "found ($localGenPropDir)"
 else
 	echo "none ($localGenPropDir)"
 fi
 
-printf "[$scriptName]   local encrypted files       : "
+printf "[$scriptName]   local encrypted files          : "
 if [ -d  "$localCryptDir" ]; then
 	echo "found ($localCryptDir)"
 else
 	echo "none ($localCryptDir)"
 fi
 
-printf "[$scriptName]   common encrypted files      : "
+printf "[$scriptName]   common encrypted files         : "
 if [ -d  "$cryptDir" ]; then
 	echo "found ($cryptDir)"
 else
 	echo "none ($cryptDir)"
 fi
 
-printf "[$scriptName]   custom scripts              : "
+printf "[$scriptName]   custom scripts                 : "
 if [ -d  "$solutionCustomDir" ]; then
 	echo "found ($solutionCustomDir)"
 else
 	echo "none ($solutionCustomDir)"
 fi
 
-printf "[$scriptName]   local custom scripts        : "
+printf "[$scriptName]   local custom scripts           : "
 if [ -d  "$localCustomDir" ]; then
 	echo "found ($localCustomDir)"
 else
 	echo "none ($localCustomDir)"
 fi
 
-printf "[$scriptName]   Properties for remote tasks : "
+printf "[$scriptName]   Properties for remote tasks    : "
 if [ -d  "$remotePropertiesDir" ]; then
 	echo "found ($remotePropertiesDir)"
 else
 	echo "none ($remotePropertiesDir)"
 fi
 
-printf "[$scriptName]   Generated remote properties : "
+printf "[$scriptName]   Generated remote properties    : "
 if [ -d  "$remoteGenPropDir" ]; then
 	echo "found ($remoteGenPropDir)"
 else
 	echo "none ($remoteGenPropDir)"
+fi
+
+printf "[$scriptName]   Properties for container tasks : "
+if [ -d  "$containerPropertiesDir" ]; then
+	echo "found ($containerPropertiesDir)"
+else
+	echo "none ($containerPropertiesDir)"
+fi
+
+printf "[$scriptName]   Generated container properties : "
+if [ -d  "$containerGenPropDir" ]; then
+	echo "found ($containerGenPropDir)"
+else
+	echo "none ($containerGenPropDir)"
 fi
 
 echo; echo "[$scriptName] Create working directory and seed with solution files"; echo
@@ -202,6 +218,19 @@ if [ -d "$remoteGenPropDir" ]; then
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> $WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}
+	done
+fi
+
+# 2.4.0 extend for container properties, processed locally, but using remote artefacts for execution
+if [ -d "$containerGenPropDir" ]; then
+	echo; echo "[$scriptName] Processing generated properties directory (${containerGenPropDir}):"; echo
+	if [ ! -d $WORK_DIR_DEFAULT/${containerPropertiesDir##*/} ]; then
+		mkdir -v $WORK_DIR_DEFAULT/${containerPropertiesDir##*/}
+	fi
+	for generatedPropertyPath in $(find ${containerGenPropDir}/ -type f); do
+		generatedPropertyFile=$(basename ${generatedPropertyPath})
+		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}'"
+		cat ${generatedPropertyPath} >> $WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}
 	done
 fi
 

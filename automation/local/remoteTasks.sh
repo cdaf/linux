@@ -8,45 +8,55 @@ echo
 echo "[$scriptName] +---------------------------------+"
 echo "[$scriptName] | Process Remotely Executed Tasks |"
 echo "[$scriptName] +---------------------------------+"
-
-if [ -z "$1" ]; then
-	echo "$scriptName Environment Argument not passed. HALT!"
-	exit 1
+ENVIRONMENT=$1
+if [ -z "$ENVIRONMENT" ]; then
+	echo "$scriptName ENVIRONMENT Argument not passed. HALT!"
+	exit 1331
 else
 	ENVIRONMENT=$1
-	echo "[$scriptName]   ENVIRONMENT       : $ENVIRONMENT"
+	echo "[$scriptName]   ENVIRONMENT      : $ENVIRONMENT"
 fi
 
-if [ -z "$2" ]; then
-	echo "$scriptName Build Argument not passed. HALT!"
-	exit 2
+RELEASE=$2
+if [ -z "$RELEASE" ]; then
+	echo "$scriptName RELEASE Argument not passed. HALT!"
+	exit 1332
 else
-	BUILD=$2
-	echo "[$scriptName]   BUILD             : $BUILD"
+	echo "[$scriptName]   RELEASE      : $RELEASE"
 fi
 
+BUILDNUMBER=$3
+if [ -z "$BUILDNUMBER" ]; then
+	echo "$scriptName Build Number not passed. HALT!"
+	exit 1333
+else
+	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER"
+fi
+
+SOLUTION=$4
 if [ -z "$3" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
-	exit 3
+	exit 1334
 else
-	SOLUTION=$3
-	echo "[$scriptName]   SOLUTION          : $SOLUTION"
+	echo "[$scriptName]   SOLUTION         : $SOLUTION"
 fi
 
-if [ -z "$4" ]; then
-	echo "[$scriptName] Default working directory not supplied. HALT!"
-	exit 4
+landingDir=$(pwd)
+WORK_DIR_DEFAULT=$5
+if [ "$WORK_DIR_DEFAULT" ]; then
+	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 else
-	LOCAL_DIR_DEFAULT=$4
-	echo "[$scriptName]   LOCAL_DIR_DEFAULT : $LOCAL_DIR_DEFAULT"
+	WORK_DIR_DEFAULT=$landingDir
+	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT (not passed, using landing directory)"
 fi
 
-if [ -z "$5" ]; then
-	echo "[$scriptName]   OPT_ARG           : (Optional task argument not supplied)"
+OPT_ARG=$6
+if [ -z "$OPT_ARG" ]; then
+	echo "[$scriptName]   OPT_ARG          : (Optional task argument not supplied)"
 else
-	OPT_ARG=$5
-	echo "[$scriptName]   OPT_ARG           : $OPT_ARG"
+	echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 fi
+
 echo "[$scriptName]   whoami            : $(whoami)"
 echo "[$scriptName]   hostname          : $(hostname)"
 echo "[$scriptName]   pwd               : $(pwd)"

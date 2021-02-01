@@ -15,49 +15,59 @@ function executeExpression {
 echo
 echo "[$scriptName] +--------------------------------+"
 echo "[$scriptName] | Process Locally Executed Tasks |"
-echo "[$scriptName] +--------------------------------+"; echo
-if [ -z "$1" ]; then
-	echo "$scriptName Environment Argument not passed. HALT!"
-	exit 1
+echo "[$scriptName] +--------------------------------+"
+ENVIRONMENT=$1
+if [ -z "$ENVIRONMENT" ]; then
+	echo "$scriptName ENVIRONMENT Argument not passed. HALT!"
+	exit 1331
 else
 	ENVIRONMENT=$1
-	echo "[$scriptName]   ENVIRONMENT  : $ENVIRONMENT"
+	echo "[$scriptName]   ENVIRONMENT      : $ENVIRONMENT"
 fi
 
-if [ -z "$2" ]; then
-	echo "$scriptName Build Number not passed. HALT!"
-	exit 2
+RELEASE=$2
+if [ -z "$RELEASE" ]; then
+	echo "$scriptName RELEASE Argument not passed. HALT!"
+	exit 1332
 else
-	BUILDNUMBER=$2
-	echo "[$scriptName]   BUILDNUMBER  : $BUILDNUMBER"
+	echo "[$scriptName]   RELEASE      : $RELEASE"
 fi
 
+BUILDNUMBER=$3
+if [ -z "$BUILDNUMBER" ]; then
+	echo "$scriptName Build Number not passed. HALT!"
+	exit 1333
+else
+	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER"
+fi
+
+SOLUTION=$4
 if [ -z "$3" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
-	exit 3
+	exit 1334
 else
-	SOLUTION=$3
-	echo "[$scriptName]   SOLUTION     : $SOLUTION"
+	echo "[$scriptName]   SOLUTION         : $SOLUTION"
 fi
 
-WORKDIR=$4
-# If passed, change to the working directory, if not passed, execute in current directory
-if [ "$WORKDIR" ]; then
-	cd $WORKDIR
-	echo "[$scriptName]   WORKDIR      : $WORKDIR"
+landingDir=$(pwd)
+WORK_DIR_DEFAULT=$5
+if [ "$WORK_DIR_DEFAULT" ]; then
+	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 else
-	echo "[$scriptName]   WORKDIR      : $(pwd) (not passed, using current dir)"
+	WORK_DIR_DEFAULT=$landingDir
+	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT (not passed, using landing directory)"
 fi
 
-if [ -z "$5" ]; then
-	echo "[$scriptName]   OPT_ARG      : (Optional task argument not supplied)"
+OPT_ARG=$6
+if [ -z "$OPT_ARG" ]; then
+	echo "[$scriptName]   OPT_ARG          : (Optional task argument not supplied)"
 else
-	OPT_ARG=$5
-	echo "[$scriptName]   OPT_ARG      : $OPT_ARG"
+	echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 fi
-echo "[$scriptName]   whoami       : $(whoami)"
-echo "[$scriptName]   hostname     : $(hostname)"
-echo "[$scriptName]   pwd          : $(pwd)"
+
+echo "[$scriptName]   whoami           : $(whoami)"
+echo "[$scriptName]   hostname         : $(hostname)"
+echo "[$scriptName]   pwd              : $(pwd)"
 
 if [ -d "./propertiesForLocalTasks" ]; then
 

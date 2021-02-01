@@ -149,7 +149,7 @@ else
 	if [ ! -z "$containerBuild" ]; then
 		test=$(docker --version 2>&1)
 		if [[ "$test" == *"not found"* ]]; then
-			echo "[$scriptName]   Docker          : container Build defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
+			echo "[$scriptName]   Docker          : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
 			unset containerBuild
 		else
 			IFS=' ' read -ra ADDR <<< $test
@@ -201,6 +201,15 @@ else
 	fi
 fi
 
+# Properties generator (added in release 1.7.8, extended to list in 1.8.11, moved from build to pre-process 1.8.14), added container tasks 2.4.0
+echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
+	if [ -d  "${packageDir}" ]; then
+		echo "  removed ${packageDir}"
+		rm -rf ${packageDir}
+	fi
+done
+
 configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name "*.cm")
 if [ -z "$configManagementList" ]; then
 	echo "[$scriptName]   CM Driver       : none ($SOLUTIONROOT/*.cm)"
@@ -219,15 +228,7 @@ else
 	done
 fi
 
-echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks"); do
-	if [ -d  "${packageDir}" ]; then
-		echo "  removed ${packageDir}"
-		rm -rf ${packageDir}
-	fi
-done
-
-# Properties generator (added in release 1.7.8, extended to list in 1.8.11)
+# Process table with properties as fields and environments as rows, 2.4.0 extend for propertiesForContainerTasks
 for propertiesDriver in $configManagementList; do
 	echo; echo "[$scriptName] Generating properties files from ${propertiesDriver}"
 	header=$(head -n 1 ${propertiesDriver})
@@ -238,7 +239,11 @@ for propertiesDriver in $configManagementList; do
 		if [[ "${arr[0]}" == 'remote' ]]; then
 			cdafPath="./propertiesForRemoteTasks"
 		else
-			cdafPath="./propertiesForLocalTasks"
+			if [[ "${arr[0]}" == 'local' ]]; then
+				cdafPath="./propertiesForLocalTasks"
+			else
+				cdafPath="./propertiesForContainerTasks"
+			fi
 		fi
 		echo "[$scriptName]   Generating ${cdafPath}/${arr[1]}"
 		if [ ! -d ${cdafPath} ]; then
@@ -254,7 +259,7 @@ for propertiesDriver in $configManagementList; do
 	done < <(echo "$config")
 done
 
-# 1.9.3 add pivoted CM table support
+# 1.9.3 add pivoted CM table support, with properties as rows and environments as fields, 2.4.0 extend for propertiesForContainerTasks
 for propertiesDriver in $pivotList; do
 	echo; echo "[$scriptName] Generating properties files from ${propertiesDriver}"
 	IFS=$'\r\n' GLOBIGNORE='*' command eval 'rows=($(cat $propertiesDriver))'
@@ -267,7 +272,11 @@ for propertiesDriver in $pivotList; do
 				if [[ "${paths[$j]}" == 'remote' ]]; then
 					cdafPath="./propertiesForRemoteTasks"
 				else
-					cdafPath="./propertiesForLocalTasks"
+					if [[ "${paths[$j]}" == 'local' ]]; then
+						cdafPath="./propertiesForLocalTasks"
+					else
+						cdafPath="./propertiesForContainerTasks"
+					fi
 				fi
 				if [ ! -d "${cdafPath}" ]; then
 					mkdir -p ${cdafPath}
@@ -410,6 +419,9 @@ if [[ "$ACTION" != 'container_build' ]]; then
 	fi
 	if [ -d "propertiesForRemoteTasks" ]; then
 		executeExpression "rm -rf propertiesForRemoteTasks"
+	fi
+	if [ -d "propertiesForContainerTasks" ]; then
+		executeExpression "rm -rf propertiesForContainerTasks"
 	fi
 
 	if [ -f "manifest.txt" ]; then

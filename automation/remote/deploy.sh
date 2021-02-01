@@ -12,7 +12,7 @@ else
 fi
 
 # Optional, i.e. normally only supplied by automated trigger
-WORKDIR=$2
+WORK_DIR_DEFAULT=$2
 
 # Optional, generic argument
 OPT_ARG=$3
@@ -20,11 +20,11 @@ OPT_ARG=$3
 echo
 echo "[$scriptName]   DEPLOY_TARGET        : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
-if [ "$WORKDIR" ]; then
-	cd $WORKDIR
-	echo "[$scriptName]   WORKDIR              : $WORKDIR"
+if [ "$WORK_DIR_DEFAULT" ]; then
+	cd $WORK_DIR_DEFAULT
+	echo "[$scriptName]   WORK_DIR_DEFAULT     : $WORK_DIR_DEFAULT"
 else
-	echo "[$scriptName]   WORKDIR              : $(pwd) (not passed, using current)"
+	echo "[$scriptName]   WORK_DIR_DEFAULT     : $(pwd) (not passed, using current)"
 fi
 
 # Load solution and build number from Manifest (created in package process)

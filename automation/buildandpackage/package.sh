@@ -102,6 +102,14 @@ else
 	echo "none ($remoteArtifactListFile)"
 fi
 
+containerPropertiesDir="$SOLUTIONROOT/propertiesForContainerTasks"
+printf "[$scriptName]   Remote Target Directory  : "
+if [ -d  "$containerPropertiesDir" ]; then
+	echo "found ($containerPropertiesDir)"
+else
+	echo "none ($containerPropertiesDir)"
+fi
+
 genericArtifactListFile="$SOLUTIONROOT/storeFor"
 printf "[$scriptName]   generic artifact list    : "
 if [ -f  "$genericArtifactListFile" ]; then
@@ -175,7 +183,8 @@ else
 
 	# 1.7.8 Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
-	if [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
+	# 2.4.0 create remote package for use in container deployment
+	if [ -d  "$containerPropertiesDir" ] || [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
 		$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then

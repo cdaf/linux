@@ -165,11 +165,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -252,7 +252,7 @@ else
 			echo "[$scriptName]   predeploy   : (predeploy.properties not found, skipping)"
 		fi
 		echo
-		echo "Load Target Properties ... "
+		echo "Load Target Properties ... $AUTOMATIONHELPER/transform.sh $TARGET"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh "$TARGET")
 		printf "$propertiesList"
 		eval $propertiesList

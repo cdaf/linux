@@ -92,12 +92,12 @@ echo "[$scriptName]   workingDir       : $workingDir"
 
 processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
 if [ -z "$processSequence" ]; then
-	processSequence='remoteTasks.sh localTasks.sh'
+	processSequence='remoteTasks.sh localTasks.sh containerTasks.sh'
 else
 	echo "[$scriptName]   processSequence  : $processSequence (override)"
 fi
 
 for step in $processSequence; do
 	echo
-	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
 done

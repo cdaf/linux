@@ -22,7 +22,7 @@ if [ -z "$RELEASE" ]; then
 	echo "$scriptName RELEASE Argument not passed. HALT!"
 	exit 1332
 else
-	echo "[$scriptName]   RELEASE      : $RELEASE"
+	echo "[$scriptName]   RELEASE          : $RELEASE"
 fi
 
 BUILDNUMBER=$3
@@ -57,9 +57,9 @@ else
 	echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 fi
 
-echo "[$scriptName]   whoami            : $(whoami)"
-echo "[$scriptName]   hostname          : $(hostname)"
-echo "[$scriptName]   pwd               : $(pwd)"
+echo "[$scriptName]   whoami           : $(whoami)"
+echo "[$scriptName]   hostname         : $(hostname)"
+echo "[$scriptName]   pwd              : $(pwd)"
 
 if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 

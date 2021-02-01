@@ -30,7 +30,7 @@ if [ -z "$RELEASE" ]; then
 	echo "$scriptName RELEASE Argument not passed. HALT!"
 	exit 1332
 else
-	echo "[$scriptName]   RELEASE      : $RELEASE"
+	echo "[$scriptName]   RELEASE          : $RELEASE"
 fi
 
 BUILDNUMBER=$3

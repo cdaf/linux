@@ -128,5 +128,5 @@ if [ -d "$WORK_DIR_DEFAULT/propertiesForContainerTasks" ]; then
 		echo "[$scriptName]   containerDeploy  : (not defined in $SOLUTIONROOT/CDAF.solution)"
 	fi
 else
-	echo; echo "[$scriptName]   Properties directory ($workingDir/propertiesForContainerTasks) not found, no action taken."
+	echo; echo "[$scriptName]   Properties directory ($WORK_DIR_DEFAULT/propertiesForContainerTasks) not found, no action taken."
 fi

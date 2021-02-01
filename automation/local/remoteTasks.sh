@@ -61,9 +61,9 @@ echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
 echo "[$scriptName]   pwd              : $(pwd)"
 
-if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
+if [ -d "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
-	taskList=$(find ./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" | sort)
+	taskList=$(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" | sort)
 	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
 		for DEPLOY_TARGET in $taskList; do
@@ -73,10 +73,10 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
 		for DEPLOY_TARGET in $taskList; do
 			DEPLOY_TARGET=${DEPLOY_TARGET##*/}		
-			./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $LOCAL_DIR_DEFAULT $OPT_ARG
+			./$WORK_DIR_DEFAULT/remoteDeployTarget.sh "$ENVIRONMENT" "$BUILDNUMBER" "$SOLUTION" "$DEPLOY_TARGET" "$WORK_DIR_DEFAULT" "$OPT_ARG"
 			exitCode=$?
 			if [ "$exitCode" != "0" ]; then
-				echo "[$scriptName] ./$LOCAL_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $BUILD $SOLUTION $DEPLOY_TARGET $OPT_ARG failed! Returned $exitCode"
+				echo "[$scriptName] ./$WORK_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $RELEASE $BUILDNUMBER $SOLUTION $DEPLOY_TARGET $WORK_DIR_DEFAULT $OPT_ARG failed! Returned $exitCode"
 				exit $exitCode
 			fi
 		
@@ -84,9 +84,9 @@ if [ -d "./$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 		
 		done				
 	else
-		echo; echo "[$scriptName]   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
+		echo; echo "[$scriptName]   Properties directory (./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 	fi
 	
 else
-	echo; echo "[$scriptName]   Properties directory ($workingDir/$LOCAL_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
+	echo; echo "[$scriptName]   Properties directory (./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/) not found, no action taken."
 fi

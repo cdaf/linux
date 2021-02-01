@@ -53,6 +53,7 @@ landingDir=$(pwd)
 WORK_DIR_DEFAULT=$5
 if [ "$WORK_DIR_DEFAULT" ]; then
 	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
+	cd $WORK_DIR_DEFAULT
 else
 	WORK_DIR_DEFAULT=$landingDir
 	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT (not passed, using landing directory)"
@@ -119,10 +120,10 @@ if [ -d "./propertiesForLocalTasks" ]; then
 	
 	else
 		echo
-		echo "[$scriptName]   Properties directory ($workingDir/propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
+		echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 		
 	fi
 else
 	echo
-	echo "[$scriptName]   Properties directory ($workingDir/propertiesForLocalTasks) not found, no action taken."
+	echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) not found, no action taken."
 fi

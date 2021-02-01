@@ -71,7 +71,7 @@ echo "[$scriptName]   pwd              : $landingDir"
 
 if [ -d "$WORK_DIR_DEFAULT/propertiesForContainerTasks" ]; then
 
-	taskList=$(find ./propertiesForContainerTasks -name "$ENVIRONMENT*" | sort)
+	taskList=$(find $WORK_DIR_DEFAULT/propertiesForContainerTasks -name "$ENVIRONMENT*" | sort)
 	if [ ! -z "$taskList" ]; then
 
 		# 2.4.0 The containerDeploy is an extension to remote tasks, which means recursive call to this script should not happen (unlike containerBuild)

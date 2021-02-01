@@ -71,61 +71,67 @@ echo "[$scriptName]   pwd              : $landingDir"
 
 if [ -d "$WORK_DIR_DEFAULT/propertiesForContainerTasks" ]; then
 
-	# 2.4.0 The containerDeploy is an extension to remote tasks, which means recursive call to this script should not happen (unlike containerBuild)
-	# containerDeploy example ${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
-	containerDeploy=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "containerDeploy")
-	REVISION=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "REVISION")
-	if [ ! -z "$containerDeploy" ]; then
-		test=$(docker --version 2>&1)
-		if [ $? -ne 0 ]; then
-			echo "[$scriptName]   Docker           : containerDeploy defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
-			unset containerDeploy
-		else
-			IFS=' ' read -ra ADDR <<< $test
-			IFS=',' read -ra ADDR <<< ${ADDR[2]}
-			dockerRun="${ADDR[0]}"
-			echo "[$scriptName]   Docker           : $dockerRun"
-			# Test Docker is running
-			echo "[$scriptName] List all current images"
-			echo "docker images"
-			docker images
-			if [ "$?" != "0" ]; then
-				if [ -z $CDAF_DOCKER_REQUIRED ]; then
-					echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
-					unset containerDeploy
-				else
-					echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
-					if [ $(whoami) != 'root' ];then
-						elevate='sudo'
-					fi
-					executeExpression "$elevate service docker start"
-					executeExpression "$elevate service docker status"
-				fi
-			fi
-		fi
-		echo
-		if [ -z "$containerDeploy" ]; then
-			if [ -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT*" ]; then
-				echo "[$scriptName]   Cannot use container properties for local execution as existing local definition exits"
+	taskList=$(find ./propertiesForContainerTasks -name "$ENVIRONMENT*" | sort)
+	if [ ! -z "$taskList" ]; then
+
+		# 2.4.0 The containerDeploy is an extension to remote tasks, which means recursive call to this script should not happen (unlike containerBuild)
+		# containerDeploy example ${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
+		containerDeploy=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "containerDeploy")
+		REVISION=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "REVISION")
+		if [ ! -z "$containerDeploy" ]; then
+			test=$(docker --version 2>&1)
+			if [ $? -ne 0 ]; then
+				echo "[$scriptName]   Docker           : containerDeploy defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
+				unset containerDeploy
 			else
-				if [ ! -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks" ]; then
-					executeExpression "mkdir -p $WORK_DIR_DEFAULT/propertiesForLocalTasks"
+				IFS=' ' read -ra ADDR <<< $test
+				IFS=',' read -ra ADDR <<< ${ADDR[2]}
+				dockerRun="${ADDR[0]}"
+				echo "[$scriptName]   Docker           : $dockerRun"
+				# Test Docker is running
+				echo "[$scriptName] List all current images"
+				echo "docker images"
+				docker images
+				if [ "$?" != "0" ]; then
+					if [ -z $CDAF_DOCKER_REQUIRED ]; then
+						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
+						unset containerDeploy
+					else
+						echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
+						if [ $(whoami) != 'root' ];then
+							elevate='sudo'
+						fi
+						executeExpression "$elevate service docker start"
+						executeExpression "$elevate service docker status"
+					fi
 				fi
-				executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT/propertiesForLocalTasks"
-				executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT"
+			fi
+			echo
+			if [ -z "$containerDeploy" ]; then
+				if [ -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT*" ]; then
+					echo "[$scriptName]   Cannot use container properties for local execution as existing local definition exits"
+				else
+					if [ ! -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks" ]; then
+						executeExpression "mkdir -p $WORK_DIR_DEFAULT/propertiesForLocalTasks"
+					fi
+					executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT/propertiesForLocalTasks"
+					executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT"
+					echo
+					executeExpression "$WORK_DIR_DEFAULT/localTasks.sh '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+				fi
+			else
+				export CONTAINER_IMAGE=$($WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "containerImage")
+				export CDAF_WORKSPACE="$(pwd)/${WORK_DIR_DEFAULT}"
+				executeExpression "cd '${CDAF_WORKSPACE}'"
 				echo
-				executeExpression "$WORK_DIR_DEFAULT/localTasks.sh '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+				executeExpression "$containerDeploy"
+				executeExpression "cd '$landingDir'"
 			fi
 		else
-			export CONTAINER_IMAGE=$($WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "containerImage")
-			export CDAF_WORKSPACE="$(pwd)/${WORK_DIR_DEFAULT}"
-			executeExpression "cd '${CDAF_WORKSPACE}'"
-			echo
-			executeExpression "$containerDeploy"
-			executeExpression "cd '$landingDir'"
+			echo "[$scriptName]   containerDeploy  : (not defined in $SOLUTIONROOT/CDAF.solution)"
 		fi
 	else
-		echo "[$scriptName]   containerDeploy  : (not defined in $SOLUTIONROOT/CDAF.solution)"
+		echo "[$scriptName]   Properties directory ($WORK_DIR_DEFAULT/propertiesForContainerTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 	fi
 else
 	echo; echo "[$scriptName]   Properties directory ($WORK_DIR_DEFAULT/propertiesForContainerTasks) not found, no action taken."

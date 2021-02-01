@@ -121,7 +121,6 @@ if [ -d "./propertiesForLocalTasks" ]; then
 	else
 		echo
 		echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
-		
 	fi
 else
 	echo

@@ -86,13 +86,13 @@ executeExpression "${CDAF_WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER}"
 executeExpression "${CDAF_WORKSPACE}/dockerClean.sh ${id} ${BUILDNUMBER}"
 
 for envVar in $(env | grep CDAF_CD_); do
+	envVar=$(echo ${envVar//CDAF_CD_})
 	buildCommand+=" --env ${envVar}"
 done
 
 prefix=$(echo "$SOLUTION" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
-echo "prefix = CDAF_${prefix}_CD_"
-env | grep "CDAF_${prefix}_CD_"
 for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
+	envVar=$(echo ${envVar//CDAF_${prefix}_CD_})
 	buildCommand+=" --env ${envVar}"
 done
 

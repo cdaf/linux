@@ -155,6 +155,7 @@ if [ ! -z "$imageName" ]; then
 	fi	
 
 	for envVar in $(env | grep CDAF_CB_); do
+		envVar=$(echo ${envVar//CDAF_CB_})
 		buildCommand+=" --env ${envVar}"
 	done
 
@@ -162,6 +163,7 @@ if [ ! -z "$imageName" ]; then
 	echo "prefix = CDAF_${prefix}_CB_"
 	env | grep "CDAF_${prefix}_CB_"
 	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
+		envVar=$(echo ${envVar//CDAF_${prefix}_CB_})
 		buildCommand+=" --env ${envVar}"
 	done
 

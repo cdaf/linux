@@ -116,6 +116,7 @@ if [ ! -z "$CONTAINER_IMAGE" ]; then
 fi
 
 for envVar in $(env | grep CDAF_IB_); do
+	envVar=$(echo ${envVar//CDAF_${prefix}_IB_})
 	buildCommand+=" --build-arg ${envVar}"
 done
 

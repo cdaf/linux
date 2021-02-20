@@ -53,8 +53,9 @@ if [ -z $id ]; then
 	echo "[$scriptName]  id                    : (not supplied, login to Docker Registry only)"
 	dockerLogin
 else
-	ref=${id#*_}  # trim off solution name
-	ref=${ref%_*} # trim of image suffix, e.g. containerbuild, test, etc.
+	SOLUTION=${id%%_*}  # Use solution name for temp directory name
+	ref=${id#*_}       # trim off solution name
+	ref=${ref%_*}      # trim of image suffix, e.g. containerbuild, test, etc.
 	echo "[$scriptName]  id                    : $id"
 	BUILDNUMBER=$2
 	if [ -z $BUILDNUMBER ]; then
@@ -131,7 +132,7 @@ else
 
 	else
 
-		transient="/tmp/buildImage/${id}"
+		transient="/tmp/${SOLUTION}/${id}"
 
 		if [ -d "${transient}" ]; then
 			echo "Build directory ${transient} already exists"

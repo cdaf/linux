@@ -54,8 +54,6 @@ if [ -z $id ]; then
 	dockerLogin
 else
 	SOLUTION=${id%%_*}  # Use solution name for temp directory name
-	ref=${id#*_}       # trim off solution name
-	ref=${ref%_*}      # trim of image suffix, e.g. containerbuild, test, etc.
 	echo "[$scriptName]  id                    : $id"
 	BUILDNUMBER=$2
 	if [ -z $BUILDNUMBER ]; then

@@ -295,6 +295,7 @@ for propertiesDriver in $configManagementList; do
 	export $columns
 	config=$(tail -n +2 ${propertiesDriver})
 	while read -r line; do
+		line=$(echo ${line//$/\\$})
 		eval "cmProperties $line"
 	done < <(echo "$config")
 done
@@ -312,7 +313,8 @@ for propertiesDriver in $pivotList; do
 			read -ra paths <<<"${pvrow}"
 			export $paths
 		else
-			eval "pvProperties ${pvrow}"
+			line=$(echo ${pvrow//$/\\$})
+			eval "pvProperties ${line}"
 		fi
 		i+=1
 	done

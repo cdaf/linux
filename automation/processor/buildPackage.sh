@@ -38,13 +38,68 @@ function executeWarnRetry {
 			success='yes'
 		fi
 	done
-} 
-# Entry point for building projects and packaging solution. 
+}
 
+# 2.4.1 Use the function call to separate fields, this allows support for whitespace and quote wrapped values
+function cmProperties {
+	cmline=()
+	for argument in "${@}"; do
+		cmline+=("$argument")
+	done
+	if [[ "${cmline[0]}" == 'remote' ]]; then
+		cdafPath="./propertiesForRemoteTasks"
+	else
+		if [[ "${cmline[0]}" == 'local' ]]; then
+			cdafPath="./propertiesForLocalTasks"
+		else
+			cdafPath="./propertiesForContainerTasks"
+		fi
+	fi
+	echo "[$scriptName]   Generating ${cdafPath}/${cmline[1]}"
+	if [ ! -d ${cdafPath} ]; then
+		mkdir -p ${cdafPath}
+	fi
+	for i in "${!columns[@]}"; do
+		if [ $i -gt 1 ]; then # do not create entries for context and target
+			if [ ! -z "${cmline[$i]}" ]; then
+				echo "${columns[$i]}=${cmline[$i]}" >> "${cdafPath}/${cmline[1]}"
+			fi
+		fi
+	done
+}
+
+# 2.4.1 Use the function call to separate fields, this allows support for whitespace and quote wrapped values
+function pvProperties {
+	pvline=()
+	for argument in "${@}"; do
+		pvline+=("$argument")
+	done
+	for (( j=1; j<=${#pvline[@]}; j++ )); do
+		if [ ! -z "${columns[$j]}" ] && [ ! -z "${pvline[$j]}" ] ; then
+			if [[ "${columns[$j]}" == 'remote' ]]; then
+				cdafPath="./propertiesForRemoteTasks"
+			else
+				if [[ "${columns[$j]}" == 'local' ]]; then
+					cdafPath="./propertiesForLocalTasks"
+				else
+					cdafPath="./propertiesForContainerTasks"
+				fi
+			fi
+			if [ ! -d "${cdafPath}" ]; then
+				mkdir -p ${cdafPath}
+			fi
+			if [ ! -f "${cdafPath}/${paths[$j]}" ]; then
+				echo "[$scriptName]   Generating ${cdafPath}/${paths[$j]}"
+			fi
+			echo "${pvline[0]}=${pvline[$j]}" >> "${cdafPath}/${paths[$j]}"
+		fi
+	done
+}
+
+# Entry point for building projects and packaging solution. 
 scriptName='buildPackage.sh'
 
-echo
-echo "[$scriptName] ===================================="
+echo; echo "[$scriptName] ===================================="
 echo "[$scriptName] Continuous Integration (CI) Starting"
 echo "[$scriptName] ===================================="
 
@@ -233,60 +288,29 @@ for propertiesDriver in $configManagementList; do
 	echo; echo "[$scriptName] Generating properties files from ${propertiesDriver}"
 	header=$(head -n 1 ${propertiesDriver})
 	read -ra columns <<<"$header"
+	export $columns
 	config=$(tail -n +2 ${propertiesDriver})
 	while read -r line; do
-		read -ra arr <<<"$line"
-		if [[ "${arr[0]}" == 'remote' ]]; then
-			cdafPath="./propertiesForRemoteTasks"
-		else
-			if [[ "${arr[0]}" == 'local' ]]; then
-				cdafPath="./propertiesForLocalTasks"
-			else
-				cdafPath="./propertiesForContainerTasks"
-			fi
-		fi
-		echo "[$scriptName]   Generating ${cdafPath}/${arr[1]}"
-		if [ ! -d ${cdafPath} ]; then
-			mkdir -p ${cdafPath}
-		fi
-		for i in "${!columns[@]}"; do
-			if [ $i -gt 1 ]; then # do not create entries for context and target
-				if [ ! -z "${arr[$i]}" ]; then
-					echo "${columns[$i]}=${arr[$i]}" >> "${cdafPath}/${arr[1]}"
-				fi
-			fi
-		done
+		eval "cmProperties $line"
 	done < <(echo "$config")
 done
 
 # 1.9.3 add pivoted CM table support, with properties as rows and environments as fields, 2.4.0 extend for propertiesForContainerTasks
 for propertiesDriver in $pivotList; do
 	echo; echo "[$scriptName] Generating properties files from ${propertiesDriver}"
-	IFS=$'\r\n' GLOBIGNORE='*' command eval 'rows=($(cat $propertiesDriver))'
-	read -ra columns <<<"${rows[0]}"
-	read -ra paths <<<"${rows[1]}"
-	for (( i=2; i<=${#rows[@]}; i++ )); do
-		read -ra arr <<<"${rows[$i]}"
-		for (( j=1; j<=${#arr[@]}; j++ )); do
-			if [ ! -z "${columns[$j]}" ] && [ ! -z "${arr[$j]}" ] ; then
-				if [[ "${paths[$j]}" == 'remote' ]]; then
-					cdafPath="./propertiesForRemoteTasks"
-				else
-					if [[ "${paths[$j]}" == 'local' ]]; then
-						cdafPath="./propertiesForLocalTasks"
-					else
-						cdafPath="./propertiesForContainerTasks"
-					fi
-				fi
-				if [ ! -d "${cdafPath}" ]; then
-					mkdir -p ${cdafPath}
-				fi
-				if [ ! -f "${cdafPath}/${columns[$j]}" ]; then
-					echo "[$scriptName]   Generating ${cdafPath}/${columns[$j]}"
-				fi
-				echo "${arr[0]}=${arr[$j]}" >> "${cdafPath}/${columns[$j]}"
-			fi
-		done
+	IFS=$'\r\n' GLOBIGNORE='*' command eval 'pvfile=($(cat $propertiesDriver))'
+	declare -i i=0
+	for pvrow in "${pvfile[@]}"; do
+		if [ "$i" -eq "0" ]; then
+			read -ra columns <<<"${pvrow}"
+			export $columns
+		elif [ "$i" -eq "1" ]; then
+			read -ra paths <<<"${pvrow}"
+			export $paths
+		else
+			eval "pvProperties ${pvrow}"
+		fi
+		i+=1
 	done
 done
 

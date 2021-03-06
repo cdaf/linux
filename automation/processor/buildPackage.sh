@@ -46,26 +46,29 @@ function cmProperties {
 	for argument in "${@}"; do
 		cmline+=("$argument")
 	done
-	if [[ "${cmline[0]}" == 'remote' ]]; then
-		cdafPath="./propertiesForRemoteTasks"
-	else
-		if [[ "${cmline[0]}" == 'local' ]]; then
+	if [[ ! -z "${cmline[0]}" ]]; then
+		if [[ "${cmline[0]}" == 'remote' ]]; then
+			cdafPath="./propertiesForRemoteTasks"
+		elif [[ "${cmline[0]}" == 'local' ]]; then
 			cdafPath="./propertiesForLocalTasks"
-		else
+		elif [[ "${cmline[0]}" == 'container' ]]; then
 			cdafPath="./propertiesForContainerTasks"
+		else
+			echo "[$scriptName] Unknown CM context ${cmline[0]}, supported contexts are rempote, local or container"
+			exit 5922
 		fi
-	fi
-	echo "[$scriptName]   Generating ${cdafPath}/${cmline[1]}"
-	if [ ! -d ${cdafPath} ]; then
-		mkdir -p ${cdafPath}
-	fi
-	for i in "${!columns[@]}"; do
-		if [ $i -gt 1 ]; then # do not create entries for context and target
-			if [ ! -z "${cmline[$i]}" ]; then
-				echo "${columns[$i]}=${cmline[$i]}" >> "${cdafPath}/${cmline[1]}"
+		echo "[$scriptName]   Generating ${cdafPath}/${cmline[1]}"
+		if [ ! -d ${cdafPath} ]; then
+			mkdir -p ${cdafPath}
+		fi
+		for i in "${!columns[@]}"; do
+			if [ $i -gt 1 ]; then # do not create entries for context and target
+				if [ ! -z "${cmline[$i]}" ]; then
+					echo "${columns[$i]}=${cmline[$i]}" >> "${cdafPath}/${cmline[1]}"
+				fi
 			fi
-		fi
-	done
+		done
+	fi
 }
 
 # 2.4.1 Use the function call to separate fields, this allows support for whitespace and quote wrapped values
@@ -78,12 +81,13 @@ function pvProperties {
 		if [ ! -z "${columns[$j]}" ] && [ ! -z "${pvline[$j]}" ] ; then
 			if [[ "${columns[$j]}" == 'remote' ]]; then
 				cdafPath="./propertiesForRemoteTasks"
+			elif [[ "${columns[$j]}" == 'local' ]]; then
+				cdafPath="./propertiesForLocalTasks"
+			elif [[ "${columns[$j]}" == 'container' ]]; then
+				cdafPath="./propertiesForContainerTasks"
 			else
-				if [[ "${columns[$j]}" == 'local' ]]; then
-					cdafPath="./propertiesForLocalTasks"
-				else
-					cdafPath="./propertiesForContainerTasks"
-				fi
+				echo "[$scriptName] Unknown PV context ${cmline[0]}, supported contexts are rempote, local or container"
+				exit 5923
 			fi
 			if [ ! -d "${cdafPath}" ]; then
 				mkdir -p ${cdafPath}
@@ -133,7 +137,7 @@ if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi
 if [ -z $BUILDNUMBER ]; then
-	echo "[$scriptName] Build Number not passed! Exiting with code 1"; exit 1
+	echo "[$scriptName] Build Number not passed! Exiting with code 1"; exit 5921
 fi
 echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 

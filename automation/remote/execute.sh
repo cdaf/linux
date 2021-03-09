@@ -194,6 +194,12 @@ function IGNORE {
 	fi
 }
 
+# Return MD5 as uppercase Hexadecimal
+function MD5MSK {
+	read -ra array <<< $(echo -n $1 | md5sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"

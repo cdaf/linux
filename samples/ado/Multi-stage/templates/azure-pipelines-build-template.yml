@@ -1,0 +1,20 @@
+jobs:
+  - job: 'Build'
+    displayName: "dotnet core build and NuGet"
+    pool:
+      vmImage: ubuntu-20.04
+#    pool:
+#      name: 'Self-hosted Pool Name'
+    steps:
+
+      - task: Bash@3
+        displayName: targetlessCD for Feature Branches
+        env: 
+          GIT_USER: $(GIT_USER)
+          GIT_PASS: $(GIT_PASS)
+        inputs:
+          targetType: filePath
+          filePath: ./automation/entry.sh
+          arguments: $(Build.BuildNumber) $(Build.SourceBranchName) staging@${BUILD_ARTIFACTSTAGINGDIRECTORY}
+
+      - task: PublishBuildArtifacts@1

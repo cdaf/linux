@@ -15,6 +15,6 @@ jobs:
         inputs:
           targetType: filePath
           filePath: ./automation/entry.sh
-          arguments: $(Build.BuildNumber) $(Build.SourceBranchName) staging@${BUILD_ARTIFACTSTAGINGDIRECTORY}
+          arguments: $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
       - task: PublishBuildArtifacts@1

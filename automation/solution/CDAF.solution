@@ -3,7 +3,6 @@ solutionName=myproduct
 
 # containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 # containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
-# processSequence=localTasks.sh remoteTasks.sh
 
 # imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage TasksLocal
 # runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
@@ -19,3 +18,6 @@ artifactPrefix=0.0
 # gitUserNameEnvVar=${GIT_USER}
 # gitUserPassEnvVar=${GIT_PASS}
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
+
+# processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
+# containerDeploy=${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"

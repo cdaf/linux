@@ -9,6 +9,9 @@ branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
 ASSIGN $id="${SOLUTION}_${branch}"
 export WORK_SPACE="$(dirname "$(pwd)")"
 
+# Copy any artefacts needed into specific images here, example brings in remoteTasks package
+# VECOPY ../${SOLUTION}-${BUILDNUMBER}.tar.gz compose/target/deploy.tar.gz"
+
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..

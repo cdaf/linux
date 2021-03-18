@@ -17,10 +17,10 @@ RUN mv rd-1.3.4 /opt
 RUN chmod +x /opt/rd-1.3.4/bin/rd
 ENV PATH=/opt/rd-1.3.4/bin:$PATH
 
+# Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/
 WORKDIR /solution/deploy
 ADD deploy.tar.gz .
 
 # Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run
-WORKDIR /solution/deploy
-CMD ["java", "-version"]
+CMD ["./deploy.sh", "${ENVIRONMENT}"]

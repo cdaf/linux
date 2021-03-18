@@ -1,2 +1,4 @@
 automation/provisioning/base.sh
-containerDeploy/bootstrapAgent.sh
+automation/provisioning/installPython.sh
+
+containerDeploy

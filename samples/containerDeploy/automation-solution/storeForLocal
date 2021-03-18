@@ -1,0 +1,4 @@
+automation/provisioning/base.sh
+automation/provisioning/installPython.sh
+
+containerDeploy

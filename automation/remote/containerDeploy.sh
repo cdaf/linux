@@ -82,7 +82,7 @@ id=$(echo "${SOLUTION}_${REVISION}_containerdeploy" | tr '[:upper:]' '[:lower:]'
 
 executeExpression "${CDAF_WORKSPACE}/dockerRun.sh ${id}"
 export CDAF_CD_ENVIRONMENT=$ENVIRONMENT
-executeExpression "${CDAF_WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER}"
+executeExpression "${CDAF_WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
 executeExpression "${CDAF_WORKSPACE}/dockerClean.sh ${id} ${BUILDNUMBER}"
 
 for envVar in $(env | grep CDAF_CD_); do

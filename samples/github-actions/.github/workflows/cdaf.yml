@@ -23,8 +23,8 @@ jobs:
       - name: Artifact Retention
         uses: actions/upload-artifact@v1
         with:
-          name: TasksLocal
-          path: TasksLocal
+          name: deploy
+          path: release.sh
 
   deliver:
     if: github.ref == 'refs/heads/master'
@@ -35,9 +35,10 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v1
         with:
-          name: TasksLocal
+          name: deploy
     
       - name: DOCKER
         run: |
-          for script in $(find . -name "*.sh"); do chmod +x $script; done
-          ./TasksLocal/delivery.sh DOCKER
+          cd ${GITHUB_WORKSPACE}/deploy
+          chmod +x release.sh
+          ./release.sh DOCKER

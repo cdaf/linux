@@ -1,0 +1,35 @@
+jobs:
+  - deployment: Deploy
+    displayName: ${{ parameters.displayName }}
+    environment: ${{ parameters.environment }}
+    pool:
+      vmImage: ubuntu-20.04
+#    pool:
+#      name: 'Self-hosted Pool Name'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: Download the build artifacts
+            inputs:
+              buildType: current
+              downloadType: single
+              artifactName: drop
+
+          # - task: Bash@3
+          #   displayName: Diag
+          #   inputs:
+          #     workingDirectory: $(System.ArtifactsDirectory)/drop
+          #     targetType: inline
+          #     script: ls -al && env
+
+          - task: Bash@3
+            displayName: Execute Loosely Coupled Deployment
+            env: 
+              DOCKERHUB_TOKEN: $(DOCKERHUB_TOKEN)
+            inputs:
+              workingDirectory: $(System.ArtifactsDirectory)/drop
+              targetType: filePath
+              filePath: $(System.ArtifactsDirectory)/drop/release.sh
+              arguments: ${{ parameters.environment }}

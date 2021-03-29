@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    name: CI
+    name: Build and Unit Test
     runs-on: Ubuntu-latest
     steps:
       - name: Checkout
@@ -26,9 +26,9 @@ jobs:
           name: deploy
           path: release.sh
 
-  deliver:
+  test:
     if: github.ref == 'refs/heads/master'
-    name: CD
+    name: Package and Test
     needs: build
     runs-on: Ubuntu-latest
     steps:
@@ -42,3 +42,22 @@ jobs:
           cd ${GITHUB_WORKSPACE}/deploy
           chmod +x release.sh
           ./release.sh DOCKER
+
+  deliver:
+    if: github.ref == 'refs/heads/master'
+    name: Publish to DockerHub
+    needs: [build, test]
+    runs-on: Ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+    
+      - name: HUB
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          cd ${GITHUB_WORKSPACE}/deploy
+          chmod +x release.sh
+          ./release.sh HUB

@@ -33,6 +33,25 @@ else
 	TASKLIST=$4
 fi
 
+function ERRMSG {
+	# Shared function for internal user processing
+	#  required : directory name
+	#  optional : exit code, if not supplied on error message is written
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][WARN] $1"
+	else
+		echo; echo "[$scriptName][ERROR] $1"
+	fi
+	if [ ! -z $CDAF_ERROR_DIAG ]; then
+		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName] Exit with LASTEXITCODE = $exitcode" ; echo
+		exit $2
+	fi
+}
+
 function MAKDIR {
 	# Create Directory, if exists do nothing, else create
 	#  required : directory name
@@ -165,11 +184,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else

@@ -21,4 +21,4 @@ COPY executeTest.sh .
 # Move to (empty) subdirectory for mount
 WORKDIR /solution/workspace
 
-CMD ["../executeTest.sh", "TARGETLESS"]
+CMD ["../executeTest.sh", "AUTO_TEST"]

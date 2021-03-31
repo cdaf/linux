@@ -1,6 +1,4 @@
-context  target      deployTaskOverride
-local    VAGRANT     containerRun.tsk      
-local    LINUX       containerRun.tsk     
-local    SERVER      containerRun.tsk
-local    DOCKER      targetlessCD.tsk
-local    TARGETLESS  containerTest.tsk
+context  target     deployTaskOverride
+local    DOCKER     targetlessCD.tsk
+local    SERVER     containerRun.tsk
+local    AUTO_TEST  containerTest.tsk

@@ -13,7 +13,7 @@ function executeExpression {
 			if [ "$counter" -le "$max" ]; then
 				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
 			else
-				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				echo "[$scriptName][CDAF_DELIVERY_FAILURE] Failed with exit code ${exitCode}! Max retries (${max}) reached."
 				exit $exitCode
 			fi					 
 		else
@@ -22,7 +22,7 @@ function executeExpression {
 	done
 }  
 
-scriptName='bootstrapTarget.sh'
+scriptName='bootstrapTest.sh'
 
 echo "[$scriptName] --- start ---"
 

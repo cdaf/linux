@@ -1,39 +1,46 @@
-image: centos
+image: henres/docker-compose-bash
 
 pipelines:
   default:
     - step:
         name: Build and test
         script:
-          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER
-        artifacts:
-          - "release.sh"
+          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
         services:
           - docker
 
   branches:
     'master':
-    - step:
-        name: Deploy to test
-        deployment: Test
-        script:
-          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
-        services:
-          - docker
+      - step:
+          name: Build and test
+          script:
+            - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER
+          artifacts:
+            - "release.sh"
+          services:
+            - docker
 
-    - step:
-        name: Deploy to staging
-        deployment: Staging
-        script:
-          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
-        services:
-          - docker
+      - step:
+          name: Deploy to test
+          deployment: Test
+          script:
+            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          services:
+            - docker
 
-    - step:
-        name: Deploy to production
-        deployment: Production
-        trigger: manual
-        script:
-          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
-        services:
-          - docker
+      - step:
+          name: Deploy to staging
+          deployment: Staging
+          script:
+            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          services:
+            - docker
+
+      - step:
+          name: Deploy to production
+          deployment: Production
+          trigger: manual
+          script:
+            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          services:
+            - docker

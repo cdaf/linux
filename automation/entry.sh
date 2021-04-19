@@ -215,9 +215,9 @@ else
 					if [ -z "$gitEmail" ]; then
 						git config user.email "you@example.com"
 					fi
-					executeExpression "git pull origin '${branchBase}'"
-					echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads origin)"; echo
-					lsRemote=$(git ls-remote --heads origin)
+					executeExpression "git pull '${gitRemoteURL}'"
+					echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads ${gitRemoteURL})"; echo
+					lsRemote=$(git ls-remote --heads "${gitRemoteURL}")
 				fi
 
 			else
@@ -230,8 +230,8 @@ else
 					lsRemote=$(git ls-remote --heads origin)
 				else
 					executeExpression "git fetch --prune '${gitRemoteURL}'"
-					echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin ${gitRemoteURL})"; echo
-					lsRemote=$(git ls-remote --heads ${gitRemoteURL})
+					echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads ${gitRemoteURL})"; echo
+					lsRemote=$(git ls-remote --heads "${gitRemoteURL}")
 				fi
 
 			fi

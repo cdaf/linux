@@ -5,23 +5,35 @@ pipelines:
     - step:
         name: Build and test
         script:
-          - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER
-        artifacts: # defining the artifacts to be passed to each future step.
-          - "TasksLocal/**"
-          - "*.gz"
+          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER
+        artifacts:
+          - "release.sh"
+        services:
+          - docker
+
+  branches:
+    'master':
     - step:
         name: Deploy to test
         deployment: Test
         script:
-          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+        services:
+          - docker
+
     - step:
         name: Deploy to staging
         deployment: Staging
         script:
-          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+        services:
+          - docker
+
     - step:
         name: Deploy to production
         deployment: Production
         trigger: manual
         script:
-          - ./TasksLocal/delivery.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+          - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+        services:
+          - docker

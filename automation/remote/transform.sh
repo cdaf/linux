@@ -35,19 +35,18 @@ else
 fi
 
 while read -r LINE; do
-	IFS="\="
-	read -ra array <<< "$LINE"
+    IFS="\=" read -r name value <<< "$LINE"
 	if [ -z "$TOKENISED" ]; then
-		echo "  ${array[0]}='${array[1]}'"
-	else		
-		name="%${array[0]}%"
-#		echo "[$scriptName] Replace $name with ${array[1]}"
+		echo "  ${name}='${value}'"
+	else
+   	    name="%${name}%"
+#		echo "[$scriptName] Replace $name with ${value}"
 
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then
-			sed -i '' "s^$name^${array[1]}^g" $TOKENISED
+			sed -i '' "s^$name^${value}^g" $TOKENISED
 		else
-			sed -i "s^$name^${array[1]}^g" $TOKENISED
+			sed -i "s^$name^${value}^g" $TOKENISED
 		fi
 	fi
 

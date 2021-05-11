@@ -25,7 +25,7 @@ function executeSuppress {
 scriptName='entry.sh'
 
 echo; echo "[$scriptName] ---------- start ----------"
-AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
+AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 

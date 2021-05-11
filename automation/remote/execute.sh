@@ -248,7 +248,7 @@ echo "[$scriptName]   TMPDIR      : $TMPDIR"
 if [ -f "../build.properties" ] ;then
 	echo; echo "[$scriptName] Load ../build.properties"; echo
 	eval $(cat ../build.properties)
-	AUTOMATIONHELPER="$( cd "$(dirname "$0")" ; pwd -P )"
+	AUTOMATIONHELPER="$( cd "$(dirname "$0")" && pwd )"
 	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
 	printf "$propertiesList"
 	eval $propertiesList
@@ -259,7 +259,7 @@ else
 	if [ -f "./solution.properties" ] ;then
 		echo; echo "[$scriptName] Load ./solution.properties"; echo
 		eval $(cat ./solution.properties)
-		AUTOMATIONHELPER="$( cd "$(dirname "$0")" ; pwd -P )"
+		AUTOMATIONHELPER="$( cd "$(dirname "$0")" && pwd )"
 		propertiesList=$($AUTOMATIONHELPER/transform.sh ./solution.properties)
 		printf "$propertiesList"
 		eval $propertiesList
@@ -385,13 +385,7 @@ while read LINE; do
 		else
 			sourceDir=${stringarray[2]}
 		fi
-		if [ "$sourceDir" == '.' ]; then
-			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
-		else
-			sourcePath=$(dirname $(readlink -f ${sourceDir}))
-			sourceName=$(basename ${sourceDir})
-			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -C ${sourceDir} -f ${fileName}.tar.gz"
-		fi
+		EXECUTABLESCRIPT="tar -zcvf ${fileName}.tar.gz --exclude=\"*.git\" --exclude=\"*.svn\" ${sourceDir}"
 	fi
 
 	# Decommpress from file

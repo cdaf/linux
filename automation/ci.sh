@@ -18,7 +18,7 @@ echo
 echo "[$scriptName] ======================"
 echo "[$scriptName] Continuous Integration"
 echo "[$scriptName] ======================"
-AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
+AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 

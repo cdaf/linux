@@ -35,7 +35,7 @@ workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
 
 # Framework structure
-automationRoot="$( cd "$(dirname "$0")" ; pwd -P )"
+automationRoot="$( cd "$(dirname "$0")" && pwd )"
 echo "[$scriptName]   automationRoot : $automationRoot"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 

@@ -44,7 +44,7 @@ else
 fi
 
 if [ -z $AUTOMATIONROT ]; then
-	AUTOMATIONROOT="$( cd "$(dirname "$0")" ; pwd -P )"
+	AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 fi
 echo "[$scriptName] AUTOMATIONROOT = $AUTOMATIONROOT"
 

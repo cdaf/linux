@@ -3,7 +3,7 @@
 scriptName='capabilities.sh'
 
 echo; echo "[$scriptName] --- start ---"
-AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
 if [ -f "$AUTOMATIONROOT/CDAF.linux" ]; then
 	productVersion=$(cat "$AUTOMATIONROOT/CDAF.linux" | grep productVersion)
 	IFS='=' read -ra ADDR <<< $productVersion

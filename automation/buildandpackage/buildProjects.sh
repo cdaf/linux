@@ -49,7 +49,7 @@ else
 fi
 
 # Look for automation root definition
-AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 
 AUTOMATIONHELPER="$AUTOMATIONROOT/remote"

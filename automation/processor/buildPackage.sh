@@ -110,7 +110,7 @@ echo "[$scriptName] ===================================="
 # Processed out of order as needed for solution determination
 AUTOMATIONROOT="$5"
 if [ -z $AUTOMATIONROOT ]; then
-	AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+	AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
 	rootLogging="$AUTOMATIONROOT (derived from script path)"
 else
 	rootLogging="$AUTOMATIONROOT (passed)"

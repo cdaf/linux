@@ -50,7 +50,7 @@ echo "[$scriptName]   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
 echo "[$scriptName]   ACTION                   : $ACTION"
 
 # Look for automation root definition, if not found, default
-AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
 echo "[$scriptName]   AUTOMATIONROOT           : $AUTOMATIONROOT"
 
 # Process all entry values

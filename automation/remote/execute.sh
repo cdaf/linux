@@ -380,7 +380,11 @@ while read LINE; do
 		printf "$LINE ==> "
 		stringarray=($LINE)
 		fileName=${stringarray[1]}
-		sourceDir=${stringarray[2]}
+		if [ -z ${stringarray[2]} ]; then
+			sourceDir=${stringarray[1]}
+		else
+			sourceDir=${stringarray[2]}
+		fi
 		if [ "$sourceDir" == '.' ]; then
 			EXECUTABLESCRIPT="tar -zcv --exclude=\"*.git\" --exclude=\"*.svn\" -f ${fileName}.tar.gz ."
 		else

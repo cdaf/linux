@@ -1,5 +1,5 @@
 # Recommended to use wrap.tsk to copy all the files needed for imageBuild, in this example to directory called imagebuild-files
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage runtime
+imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage TasksLocal
 runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
 
 CDAF_REGISTRY_URL=${CI_REGISTRY}

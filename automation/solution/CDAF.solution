@@ -14,6 +14,8 @@ solutionName=myproduct
 artifactPrefix=0.0
 # productVersion=2.0.0
 
+# defaultBranch=main
+
 # gitRemoteURL=https://github.com/cdaf/${SOLUTION}.git
 # gitUserNameEnvVar=${GIT_USER}
 # gitUserPassEnvVar=${GIT_PASS}

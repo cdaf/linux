@@ -45,8 +45,8 @@ echo "List running containers"
 docker ps
 
 echo "Tear down if not master"
-if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose down ; fi
-if [ -z "$DLW_COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; fi
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
 
 echo "Clean-up Transient Directory Created by imageBuild.sh"
 REMOVE /tmp/${SOLUTION}

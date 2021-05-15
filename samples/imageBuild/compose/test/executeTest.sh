@@ -38,3 +38,4 @@ echo "[$scriptName] Automated Test Execution Completed Successfully."
 
 echo; echo "[$scriptName] ---------- end ----------"
 
+tail -1000f /var/log/alternatives.log

@@ -1,0 +1,3 @@
+echo "Smoke Test to make sure container responding"
+
+curl -s target

@@ -1,0 +1,33 @@
+if [ -z $TERRAFORM_TOKEN ]; then ERRMSG "TERRAFORM_TOKEN not set!" 7723; fi
+echo "  TERRAFORM_TOKEN = $(MD5MSK $TERRAFORM_TOKEN) (MD5 mask)"
+
+DETOKN terraform.tf
+cat terraform.tf
+
+dq='"'
+conf="$HOME/.terraform.rc"
+echo 'credentials "app.terraform.io" {' > $conf
+echo "  token = ${dq}${TERRAFORM_TOKEN}${dq}" >> $conf
+echo '}' >> $conf
+cat $conf
+
+export TF_CLI_CONFIG_FILE=$conf
+
+export TF_IN_AUTOMATION='any non-empty value'
+
+echo "\$TERRAFORM_TOKEN    = $(MD5MSK $TERRAFORM_TOKEN) (MD5 Mask)"
+echo "\$TF_CLI_CONFIG_FILE = $TF_CLI_CONFIG_FILE"
+
+export CDAF_ERROR_DIAG="cat crash.log"
+export TF_LOG="TRACE"
+
+terraform --version
+
+echo "Bind to state provider"
+terraform init
+
+echo "Display the interpolated plan"
+terraform plan
+
+# echo "Single Step Plan and Auto Apply"
+# terraform apply -auto-approve

@@ -1,0 +1,52 @@
+echo "List containers current state"
+docker ps
+
+echo "Load the branch (REVISION) & containerImage from the manifest, placed here by package.tsk"
+PROPLD manifest.txt
+
+branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
+
+ASSIGN $id="${SOLUTION}_${branch}"
+export WORK_SPACE="$(dirname "$(pwd)")"
+
+# Copy any artefacts needed into specific images here, example brings in remoteTasks package
+# VECOPY ../${SOLUTION}-${BUILDNUMBER}.tar.gz compose/target/deploy.tar.gz"
+
+cd compose
+../imageBuild.sh ${id} ${BUILDNUMBER} ${testImage}
+cd ..
+
+ASSIGN $composePersist="/tmp/${id}"
+MAKDIR $composePersist
+VECOPY compose/docker-compose.yml $composePersist
+cd $composePersist
+
+echo "Cleanup from previously test"
+export TARGET_TAG="${id}_taskslocal"
+export TEST_TAG="${id}_test"
+docker-compose down --remove-orphans
+docker-compose rm -f
+
+echo "Set build number for environment"
+export TARGET_TAG="${id}_taskslocal:${BUILDNUMBER}"
+export TEST_TAG="${id}_test:${BUILDNUMBER}"
+
+echo "Start Immutable Machine as 'target' using $TARGET_TAG"
+docker-compose up -d target
+containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
+$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'may be persisted to storage in unencrypted form'
+
+echo "Execute tests via volume mount using $TEST_TAG (allow 5 minutes to complete)"
+docker-compose up -d test
+containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
+$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
+
+echo "List running containers"
+docker ps
+
+echo "Tear down if not master"
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; fi
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
+
+echo "Clean-up Transient Directory Created by imageBuild.sh"
+REMOVE /tmp/${SOLUTION}

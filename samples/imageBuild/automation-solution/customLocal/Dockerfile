@@ -7,6 +7,7 @@ WORKDIR /app/publish
 EXPOSE 80
 EXPOSE 443
 
-ADD app.tar.gz .
+ADD content.tar.gz /usr/share/nginx/html/
 
-ENTRYPOINT ["dotnet", "conn.dll"]
+# Normal containers run a console application, this example works in a more similar way to a traditional daemon server
+# CMD ["dotnet", "app.dll"]

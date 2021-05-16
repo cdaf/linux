@@ -1,9 +1,9 @@
 # Application Code
-code/app/app.tar.gz -Flat
+app/content.tar.gz -flat
 
 # Targetless CD
 compose
 
 # Provisioning Required for Test Container
-automation/provisioning/base.sh
-automation/remote/capabilities.sh
+$AUTOMATIONROOT/provisioning/base.sh -flat
+$AUTOMATIONROOT/remote/capabilities.sh -flat

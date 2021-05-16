@@ -6,8 +6,10 @@ FROM ${CONTAINER_IMAGE}
 # Wrapper script to keep container running after executing tests
 WORKDIR /solution
 
-# Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
-COPY automation automation
+# Alternative is to filter scripts in storeForLocal and just copy automation directory, see compose.tsk
+COPY base.sh ./automation/provisioning/base.sh
+COPY capabilities.sh ./automation/remote/capabilities.sh
+
 COPY bootstrapTest.sh .
 RUN chmod +x bootstrapTest.sh
 RUN ./bootstrapTest.sh

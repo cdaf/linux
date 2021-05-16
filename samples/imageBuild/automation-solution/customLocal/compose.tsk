@@ -9,8 +9,9 @@ branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
 ASSIGN $id="${SOLUTION}_${branch}"
 export WORK_SPACE="$(dirname "$(pwd)")"
 
-# Copy any artefacts needed into specific images here, example brings in remoteTasks package
-# VECOPY ../${SOLUTION}-${BUILDNUMBER}.tar.gz compose/target/deploy.tar.gz"
+# Copy any artefacts needed into specific images here, alternative is to filter scripts in storeForLocal and just copy automation directory
+VECOPY base.sh compose/test
+VECOPY capabilities.sh compose/test
 
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${testImage}
@@ -34,7 +35,7 @@ export TEST_TAG="${id}_test:${BUILDNUMBER}"
 echo "Start Immutable Machine as 'target' using $TARGET_TAG"
 docker-compose up -d target
 containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
-$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'may be persisted to storage in unencrypted form'
+$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'ready for start up'
 
 echo "Execute tests via volume mount using $TEST_TAG (allow 5 minutes to complete)"
 docker-compose up -d test

@@ -5,7 +5,6 @@ artifactPrefix=0.1
 defaultBranch=none
 imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage TasksLocal
 runtimeImage=nginx
-testImage=ubuntu
 
 # Test container (compose)
 testImage=ubuntu

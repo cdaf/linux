@@ -51,3 +51,12 @@ if [ -z "$COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
 
 echo "Clean-up Transient Directory Created by imageBuild.sh"
 REMOVE /tmp/${SOLUTION}
+
+# echo "Only push from master, i.e. use Pull/Merge Request as gating mechanism"
+# if [[ $REVISION == 'master' ]]; then echo $DOKERHUB_TOKEN | docker login --username cdaf --password-stdin ; fi
+# if [[ $REVISION == 'master' ]]; then docker tag ${TARGET_TAG} cdaf/terraform:${BUILDNUMBER} ; fi
+# if [[ $REVISION == 'master' ]]; then docker push cdaf/terraform:${BUILDNUMBER} ; fi
+# if [[ $REVISION == 'master' ]]; then docker tag ${TARGET_TAG} cdaf/terraform:${productVersion} ; fi
+# if [[ $REVISION == 'master' ]]; then docker push cdaf/terraform:${productVersion} ; fi
+# if [[ $REVISION == 'master' ]]; then docker tag ${TARGET_TAG} cdaf/terraform:latest ; fi
+# if [[ $REVISION == 'master' ]]; then docker push cdaf/terraform:latest ; fi

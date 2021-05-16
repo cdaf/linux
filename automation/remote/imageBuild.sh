@@ -165,6 +165,7 @@ else
 			executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER $BUILDNUMBER no $(whoami) $(id -u)"
 			executeExpression "cd $workspace"
 		done
+
 		# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
 		if [ -z "$CDAF_REGISTRY_USER" ]; then
 			echo "\$CDAF_REGISTRY_USER not set, to push to registry set CDAF_REGISTRY_URL, CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN"

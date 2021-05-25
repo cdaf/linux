@@ -224,8 +224,8 @@ echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
 echo "[$scriptName]   TARGET      : $TARGET"
 echo "[$scriptName]   TASKLIST    : $TASKLIST"
-workspace=$(pwd)
-echo "[$scriptName]   workspace   : $workspace"
+WORKSPACE=$(pwd)
+echo "[$scriptName]   WORKSPACE   : $WORKSPACE"
 
 if [ -z "$5" ]; then
 	echo "[$scriptName]   OPT_ARG     : (not passed)"

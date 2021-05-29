@@ -66,17 +66,17 @@ fi
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$CDAF_AUTOMATION_ROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
-		executeExpression "rm -rf ./automation"
-		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
+		executeExpression "    rm -rf ./automation"
+		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT}"
 	fi
 else
 	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"; echo
-		executeExpression "cp -a $CDAF_AUTOMATION_ROOT ./automation"
+		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
+		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT : ${CDAF_AUTOMATION_ROOT}"
@@ -84,14 +84,18 @@ else
 fi
 
 if [ ! -z "$imageName" ]; then
-	SOLUTIONROOT="$AUTOMATIONROOT/solution"
-	for i in $(ls -d */); do
+	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 		directoryName=${i%%/}
 		if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 			SOLUTIONROOT="$directoryName"
 		fi
 	done
-	echo "[$scriptName]   SOLUTIONROOT   : $SOLUTIONROOT"
+	if [ -z $SOLUTIONROOT ]; then
+		SOLUTIONROOT="${CDAF_AUTOMATION_ROOT}/solution"
+		echo "[$scriptName]   SOLUTIONROOT   : $SOLUTIONROOT (CDAF.solution not found, so using default)"
+	else
+		echo "[$scriptName]   SOLUTIONROOT   : $SOLUTIONROOT"
+	fi
 
 	SOLUTION=$($CDAF_AUTOMATION_ROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?

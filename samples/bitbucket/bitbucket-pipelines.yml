@@ -5,7 +5,13 @@ pipelines:
     - step:
         name: Build and test
         script:
-          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          # Using CDAF Edge
+          - wget https://codeload.github.com/cdaf/linux/zip/refs/heads/master -O linux-master.zip
+          - unzip linux-master.zip
+          - ./linux-master/automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+
+          # CDAF installed in repo
+          # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
         services:
           - docker
 

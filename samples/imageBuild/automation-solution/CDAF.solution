@@ -3,8 +3,10 @@ solutionName=imagebuild
 artifactPrefix=0.1
 
 defaultBranch=none
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage TasksLocal
+
+buildContext=TasksLocal
 runtimeImage=nginx
+imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $buildContext
 
 # Test container (compose)
 testImage=ubuntu

@@ -3,9 +3,7 @@ docker ps
 
 echo "Load the branch (REVISION) & containerImage from the manifest, placed here by package.tsk"
 PROPLD manifest.txt
-
 branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
-
 ASSIGN $id="${SOLUTION}_${branch}"
 export WORK_SPACE="$(dirname "$(pwd)")"
 
@@ -16,37 +14,36 @@ cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..
 
+export TARGET_TAG="${id}_target"
+export TEST_TAG="${id}_test"
+.\dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
+.\dockerClean.sh $TEST_TAG ${BUILDNUMBER}
+
 ASSIGN $composePersist="/tmp/${id}"
 MAKDIR $composePersist
 VECOPY compose/docker-compose.yml $composePersist
 cd $composePersist
 
 echo "Cleanup from previously test"
-export TARGET_TAG="${id}_target"
-export TEST_TAG="${id}_test"
 docker-compose down --remove-orphans
 docker-compose rm -f
 
 echo "Set build number for environment"
-export TARGET_TAG="${id}_target:${BUILDNUMBER}"
-export TEST_TAG="${id}_test:${BUILDNUMBER}"
+export TARGET_TAG="${TARGET_TAG}:${BUILDNUMBER}"
+export TEST_TAG="${TEST_TAG}:${BUILDNUMBER}"
 
 echo "Deploy to target (allow up to 2 minutes)"
 docker-compose up -d target
 containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
-$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'Watch log to keep container alive' 120
+$WORKSPACE/dockerLog.sh $containerID 'Watch log to keep container alive' 120
 
 echo "Execute tests (allow 5 minutes to complete)"
 docker-compose up -d test
 containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
-$WORK_SPACE/TasksLocal/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
+$WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
 
-echo "List running containers"
-docker ps
-
-echo "Tear down if not master"
-if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; fi
-if [ -z "$COMPOSE_KEEP" ]; then docker-compose rm -f ; fi
+cd $WORKSPACE
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; docker-compose rm -f ; else docker ps ; fi
 
 echo "Clean-up Transient Directory Created by imageBuild.sh"
 REMOVE /tmp/${SOLUTION}

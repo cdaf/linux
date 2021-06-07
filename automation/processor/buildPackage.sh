@@ -401,29 +401,40 @@ if [[ "$ACTION" != 'container_build' ]]; then
 	if [ ! -z "$imageBuild" ]; then
 
 		echo
+		echo "[$scriptName] Execute image build ..."
 		test=$(docker --version 2>&1)
 		if [[ $? -ne 0 ]]; then
 			echo "[$scriptName] imageBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, skipping ..."
 		else
 			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
 			if [ ! -z "$runtimeImage" ]; then
-				echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage)"
+				echo "[$scriptName]   runtimeImage  = $runtimeImage"
 			else
 				runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
 				if [ ! -z "$runtimeImage" ]; then
-					echo "[$scriptName] Execute image build (available runtimeImage = $runtimeImage, runtimeImage not found, using containerImage)"
+					echo "[$scriptName]   containerImage = $containerImage (runtimeImage not defined in $SOLUTIONROOT/CDAF.solution)"
 				else
 					if [ -z "$CONTAINER_IMAGE" ]; then
 						echo "[$scriptName][WARN] neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution, assuming a hardcoded image will be used."
 					else
-						echo "[$scriptName][WARN] neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution, however Environment Variable CONTAINER_IMAGE set to $CONTAINER_IMAGE, overrides image passed to dockerBuild."
 						runtimeImage=$CONTAINER_IMAGE
+						echo "[$scriptName]   runtimeImage  = $runtimeImage (neither runtimeImage nor runtimeImage defined in $SOLUTIONROOT/CDAF.solution, however Environment Variable CONTAINER_IMAGE set)"
 					fi
 				fi
 			fi
+			constructor=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "constructor")
+			if [ ! -z "$constructor" ]; then
+				echo "[$scriptName]   constructor   = $constructor"
+			fi
 
 			# 2.2.0 Integrated Function using environment variables
-			if [ $REVISION == 'master' ]; then
+			defaultBranch=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "defaultBranch")
+			if [ -z "$defaultBranch" ]; then
+				defaultBranch='master'
+			else
+				echo "[$scriptName]   defaultBranch = $defaultBranch"
+			fi
+			if [ $REVISION == $defaultBranch ]; then
 				export CDAF_REGISTRY_URL=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_URL")")
 				export CDAF_REGISTRY_TAG=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_TAG")")
 				export CDAF_REGISTRY_USER=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_USER")")

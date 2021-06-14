@@ -1,5 +1,5 @@
-context  target   deployHost  deployUser
-remote   VAGRANT  linux-1     deployer
+context  target   deployHost         deployUser
+remote   VAGRANT  target.mshome.net  deployer
 local    LINUX    localhost
 local    dev      localhost
 local    test     localhost

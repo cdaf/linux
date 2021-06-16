@@ -6,14 +6,6 @@ if ENV['SCALE_FACTOR']
 else
   SCALE_FACTOR = 1
 end
-if ENV['BASE_MEMORY']
-  BASE_MEMORY = ENV['BASE_MEMORY'].to_i
-else
-  BASE_MEMORY = 2048
-end
-
-vRAM = BASE_MEMORY * SCALE_FACTOR
-vCPU = SCALE_FACTOR
 
 if ENV['OVERRIDE_IMAGE']
   OVERRIDE_IMAGE = ENV['OVERRIDE_IMAGE']
@@ -54,8 +46,6 @@ Vagrant.configure(2) do |config|
 
       # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
       linux.vm.provider 'virtualbox' do |virtualbox, override|
-        virtualbox.memory = "#{vRAM}"
-        virtualbox.cpus = "#{vCPU}"
         override.vm.network 'private_network', ip: "172.16.17.10#{i}"
         override.vm.synced_folder ".", "/vagrant", disabled: true
         if ENV['SYNCED_FOLDER']
@@ -65,8 +55,6 @@ Vagrant.configure(2) do |config|
 
       # vagrant up linux-1 --provider hyperv
       linux.vm.provider 'hyperv' do |hyperv, override|
-        hyperv.memory = "#{vRAM}"
-        hyperv.cpus = "#{vCPU}"
         override.vm.hostname  = "linux-#{i}"
         override.vm.synced_folder ".", "/vagrant", disabled: true
         if ENV['SYNCED_FOLDER']
@@ -86,8 +74,6 @@ Vagrant.configure(2) do |config|
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing
     build.vm.provider 'virtualbox' do |virtualbox, override|
-      virtualbox.memory = "#{vRAM}"
-      virtualbox.cpus = "#{vCPU}"
       override.vm.network 'private_network', ip: '172.16.17.100'
       (1..MAX_SERVER_TARGETS).each do |s|
         override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} linux-#{s}"
@@ -101,8 +87,6 @@ Vagrant.configure(2) do |config|
 
     # vagrant up build --provider hyperv
     build.vm.provider 'hyperv' do |hyperv, override|
-      hyperv.memory = "#{vRAM}"
-      hyperv.cpus = "#{vCPU}"
       override.vm.hostname  = 'build'
       override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false

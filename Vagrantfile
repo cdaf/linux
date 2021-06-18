@@ -76,7 +76,7 @@ Vagrant.configure(2) do |config|
     build.vm.provider 'virtualbox' do |virtualbox, override|
       override.vm.network 'private_network', ip: '172.16.17.100'
       (1..MAX_SERVER_TARGETS).each do |s|
-        override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} linux-#{s}"
+        override.vm.provision 'shell', path: './automation/provisioning/addHOSTS.sh', args: "172.16.17.10#{s} linux-#{s}.mshome.net"
       end
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', privileged: false
       override.vm.provision 'shell', path: './automation/provisioning/CDAF.sh', args: '. buildonly', privileged: false

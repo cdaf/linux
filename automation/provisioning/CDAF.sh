@@ -36,13 +36,23 @@ else
 	fi
 fi
 
-OPT_ARG="$2"
+workspace="$2"
+if [ -z "$workspace" ]; then
+	workspace='/vagrant/'
+	echo "[$scriptName]   workspace      : $workspace (not supplied, set to default)"
+else
+	echo "[$scriptName]   workspace      : $workspace"
+fi
+
+OPT_ARG="$3"
 if [ -z "$OPT_ARG" ]; then
 	echo "[$scriptName]   OPT_ARG        : (not supplied)"
 else
 	echo "[$scriptName]   OPT_ARG        : $OPT_ARG"
 fi
+
 automationRoot=$(setRoot)
+
 if [ -z "$automationRoot" ]; then
 	if [ -d "/vagrant" ]; then
 		cd "/vagrant"
@@ -62,12 +72,12 @@ echo
 echo "[$scriptName] Execute continuous delivery emulation"
 echo
 if [ -z "$runas" ]; then
-	executeExpression "cd /vagrant/"
+	executeExpression "cd $workspace"
 	executeExpression "${automationRoot}/cdEmulate.sh $OPT_ARG"
 else
 su $runas << EOF
-	echo "[$scriptName] cd /vagrant/"
-	cd /vagrant/
+	echo "[$scriptName] cd $workspace"
+	cd $workspace
 	echo "[$scriptName] ${automationRoot}/cdEmulate.sh $OPT_ARG"
 	${automationRoot}/cdEmulate.sh $OPT_ARG
 EOF

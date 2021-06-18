@@ -11,14 +11,7 @@ if ENV['OVERRIDE_IMAGE']
   OVERRIDE_IMAGE = ENV['OVERRIDE_IMAGE']
   puts "OVERRIDE_IMAGE specified, using box #{OVERRIDE_IMAGE}" 
 else
-  case rand(0..2)
-  when 0
-    OVERRIDE_IMAGE = 'cdaf/CentOSLVM'
-  when 1
-    OVERRIDE_IMAGE = 'cdaf/UbuntuLVM'
-  else
-    OVERRIDE_IMAGE = 'cdaf/Ubuntu18'
-  end
+  OVERRIDE_IMAGE = 'cdaf/Ubuntu18'
   puts "OVERRIDE_IMAGE not specified, random box is #{OVERRIDE_IMAGE}" 
 end
 

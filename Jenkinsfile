@@ -12,7 +12,7 @@ node {
 
   try {
 
-    stage ('Test the CDAF sample Vagrantfile') {
+    stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
 
       checkout scm
   
@@ -24,7 +24,23 @@ node {
       sh "vagrant box list"
       sh "vagrant up"
     }
-  
+
+    stage ('Test the CDAF sample on CentOS 7') {
+      sh '''
+        vagrant destroy -f
+        export OVERRIDE_IMAGE="cdaf/CentOSLVM"
+        vagrant up
+      '''
+    }
+
+    stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
+      sh '''
+        vagrant destroy -f
+        export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
+        vagrant up
+      '''
+    }
+
   } catch (e) {
   
     currentBuild.result = "FAILED"
@@ -44,14 +60,14 @@ def notifyFailed() {
 
   emailext (
     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-    subject: "Jenkins Job [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}] failure",
+    subject: "Linux FAILURE [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
     body: "Check console output at ${env.BUILD_URL}"
   )
 
   if (env.DEFAULT_NOTIFICATION) {
     emailext (
       to: "${env.DEFAULT_NOTIFICATION}",
-      subject: "Jenkins Default FAILURE Notification for [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
+      subject: "Linux FAILURE [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
       body: "Check console output at ${env.BUILD_URL}"
     )
   }

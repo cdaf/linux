@@ -3,8 +3,8 @@
 ARG CONTAINER_IMAGE
 FROM ${CONTAINER_IMAGE}
 
-ARG proxy
-ENV http_proxy=$proxy
+ARG HTTP_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY
 
 # Copy solution, provision and then build
 WORKDIR /solution

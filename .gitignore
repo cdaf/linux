@@ -43,16 +43,25 @@ local.properties
 
 # Vagrant cache
 .vagrant/
-/*.gz
+
+# VirtualBox
+/*_virtualbox/
+/*_virtualbox.txt
+
+# CDAF Working Directories and Files
+/buildnumber.counter
 /TasksLocal/
 /TasksRemote/
 /targetList
-/buildnumber.counter
+/projectDirectories.txt
 /manifest.txt
 /projectListFile
-/*_virtualbox/
-/*_virtualbox.txt
-/automation-solution/
+/storeFor_manifest.txt
+/storeForLocal_manifest.txt
+/storeForRemote_manifest.txt
+/projectsToBuild.txt
 /propertiesForLocalTasks/
 /propertiesForRemoteTasks/
+/propertiesForContainerTasks/
+/*.gz
 /release.sh

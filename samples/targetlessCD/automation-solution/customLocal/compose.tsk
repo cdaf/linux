@@ -10,15 +10,19 @@ export WORK_SPACE="$(dirname "$(pwd)")"
 # Copy any artefacts needed into specific images here, example brings in remoteTasks package
 # VECOPY ../${SOLUTION}-${BUILDNUMBER}.tar.gz compose/target/deploy.tar.gz"
 
+echo "Build all images, i.e. directories"
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..
 
+echo "Clean-up old images and transient directory Created by imageBuild.sh"
 export TARGET_TAG="${id}_$(echo "$constructor" | tr '[A-Z]' '[a-z]')"
 export TEST_TAG="${id}_test"
 $WORKSPACE/dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
 $WORKSPACE/dockerClean.sh $TEST_TAG ${BUILDNUMBER}
+REMOVE /tmp/${SOLUTION}
 
+echo "Do not run in workspace to avoid file locks"
 ASSIGN $composePersist="/tmp/${id}"
 MAKDIR $composePersist
 VECOPY compose/docker-compose.yml $composePersist
@@ -42,8 +46,6 @@ docker-compose up -d test
 containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
 $WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
 
-cd $WORKSPACE
+echo "Retain or teardown based on environment variable COMPOSE_KEEP ($COMPOSE_KEEP)"
 if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; docker-compose rm -f ; else docker ps ; fi
-
-echo "Clean-up Transient Directory Created by imageBuild.sh"
-REMOVE /tmp/${SOLUTION}
+cd $WORKSPACE

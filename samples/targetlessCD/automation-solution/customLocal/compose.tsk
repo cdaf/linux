@@ -14,10 +14,10 @@ cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..
 
-export TARGET_TAG="${id}_target"
+export TARGET_TAG="${id}_$(echo "$constructor" | tr '[A-Z]' '[a-z]')"
 export TEST_TAG="${id}_test"
-.\dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
-.\dockerClean.sh $TEST_TAG ${BUILDNUMBER}
+$WORKSPACE/dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
+$WORKSPACE/dockerClean.sh $TEST_TAG ${BUILDNUMBER}
 
 ASSIGN $composePersist="/tmp/${id}"
 MAKDIR $composePersist

@@ -206,30 +206,35 @@ if [[ "$ACTION" == 'container_build' ]]; then
 else
 	containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
 	if [ ! -z "$containerBuild" ]; then
-		test=$(docker --version 2>&1)
-		if [[ "$test" == *"not found"* ]]; then
-			echo "[$scriptName]   Docker          : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
+		if [[ "$ACTION" == 'skip_container_build' ]]; then
+			echo; echo "[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ..."; echo
 			unset containerBuild
 		else
-			IFS=' ' read -ra ADDR <<< $test
-			IFS=',' read -ra ADDR <<< ${ADDR[2]}
-			dockerRun="${ADDR[0]}"
-			echo "[$scriptName]   Docker          : $dockerRun"
-			# Test Docker is running
-			echo "[$scriptName] List all current images"
-			echo "docker images"
-			docker images
-			if [ "$?" != "0" ]; then
-				if [ -z $CDAF_DOCKER_REQUIRED ]; then
-					echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
-					unset containerBuild
-				else
-					echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
-					if [ $(whoami) != 'root' ];then
-						elevate='sudo'
+			test=$(docker --version 2>&1)
+			if [ $? -ne 0 ]; then
+				echo "[$scriptName]   Docker          : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
+				unset containerBuild
+			else
+				IFS=' ' read -ra ADDR <<< $test
+				IFS=',' read -ra ADDR <<< ${ADDR[2]}
+				dockerRun="${ADDR[0]}"
+				echo "[$scriptName]   Docker          : $dockerRun"
+				# Test Docker is running
+				echo "[$scriptName] List all current images"
+				echo "docker images"
+				docker images
+				if [ "$?" != "0" ]; then
+					if [ -z $CDAF_DOCKER_REQUIRED ]; then
+						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
+						unset containerBuild
+					else
+						echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
+						if [ $(whoami) != 'root' ];then
+							elevate='sudo'
+						fi
+						executeExpression "$elevate service docker start"
+						executeExpression "$elevate service docker status"
 					fi
-					executeExpression "$elevate service docker start"
-					executeExpression "$elevate service docker status"
 				fi
 			fi
 		fi

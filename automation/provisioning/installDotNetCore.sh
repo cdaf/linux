@@ -65,17 +65,35 @@ else
 	echo "[$scriptName]   sdk     : $sdk"
 fi
 
-install="$2"
-if [ -z "$install" ]; then
-	if [ "$sdk" == 'yes' ]; then
-		default='dotnet-sdk-2.2'
-	else
-		default='aspnetcore-runtime-2.2'
-	fi	
-	install=$default
-	echo "[$scriptName]   install : $install (default)"
+version="$2"
+if [ -z "$version" ]; then
+	version='5'
+	echo "[$scriptName]   version : $version (default)"
 else
-	echo "[$scriptName]   install : $install"
+	echo "[$scriptName]   version : $version"
+fi
+
+if [ "$version" == '2' ]; then
+	if [ "$sdk" == 'yes' ]; then
+		packageName='dotnet-sdk-2.2'
+	else
+		packageName='aspnetcore-runtime-2.2'
+	fi	
+elif [ "$version" == '3' ]; then
+	if [ "$sdk" == 'yes' ]; then
+		packageName='dotnet-sdk-3.1'
+	else
+		packageName='aspnetcore-runtime-3.1'
+	fi	
+elif [ "$version" == '5' ]; then
+	if [ "$sdk" == 'yes' ]; then
+		packageName='dotnet-sdk-5.0'
+	else
+		packageName='aspnetcore-runtime-5.0'
+	fi	
+else
+	echo "[$scriptName] Version $version not supported!"
+	exit 6824
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -95,7 +113,7 @@ else
 	centos='yes'
 fi
 
-echo; echo "[$scriptName] Install base software ($install)"
+echo; echo "[$scriptName] Install base software ($version)"
 if [ -z "$centos" ]; then
 	echo
 	echo "[$scriptName] Check that APT is available"
@@ -114,31 +132,23 @@ if [ -z "$centos" ]; then
 	installCURL 'apt-get' $elevate
 
 	echo
-	if [ "$install" == 'update' ]; then
-		echo "[$scriptName] Update only, not further action required."; echo
-	else
-		executeExpression "$elevate apt-get install -y apt-utils apt-transport-https"
+	executeExpression "$elevate apt-get install -y apt-utils apt-transport-https"
 
-		# Source to load $VERSION_ID
-        . /etc/os-release
-        executeExpression "curl -O -s https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb"
-        executeExpression "$elevate dpkg -i packages-microsoft-prod.deb"
-		executeExpression "$elevate apt-get update"
-		executeExpression "$elevate apt-get install -y $install"
-	fi
+	# Source to load $VERSION_ID
+	. /etc/os-release
+	executeExpression "curl -O -s https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb"
+	executeExpression "$elevate dpkg -i packages-microsoft-prod.deb"
+	executeExpression "$elevate apt-get update"
+	executeExpression "$elevate apt-get install -y $packageName"
 else    
 	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
 	execute100Ignore "$elevate yum check-update"
 	installCURL 'yum' $elevate
 
 	echo
-	if [ "$install" == 'update' ]; then
-		echo "[$scriptName] Update only, not further action required."; echo
-	else
-		executeExpression "$elevate rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm"
-		executeExpression "$elevate yum update"
-		executeExpression "$elevate yum install -y $install"
-	fi
+	executeExpression "$elevate rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm"
+	executeExpression "$elevate yum update"
+	executeExpression "$elevate yum install -y $packageName"
 fi
 
 # dotnet core

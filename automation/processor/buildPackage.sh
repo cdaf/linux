@@ -206,7 +206,7 @@ if [[ "$ACTION" == 'container_build' ]]; then
 else
 	containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
 	if [ ! -z "$containerBuild" ]; then
-		if [[ "$ACTION" == 'skip_container_build' ]]; then
+		if [ ! -z $CDAF_SKIP_CONTAINER_BUILD ] || [[ "$ACTION" == 'skip_container_build' ]]; then
 			echo; echo "[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ..."; echo
 			unset containerBuild
 		else

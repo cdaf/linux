@@ -17,6 +17,7 @@ jobs:
           script: |
             curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
             unzip linux.zip
+            export CDAF_SKIP_CONTAINER_BUILD=yes
             ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
       - task: PublishBuildArtifacts@1

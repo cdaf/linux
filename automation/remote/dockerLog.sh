@@ -52,7 +52,7 @@ while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 	if [[ "$container" == 'DOCKER-COMPOSE' ]]; then
 		output=$(docker-compose logs)
 	else
-		output=$(docker logs $container)
+		output=$(docker logs $container 2>&1)
 	fi
 	if [ -z "$output" ]; then
 		echo "[$scriptName]   no output ..."

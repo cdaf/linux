@@ -18,14 +18,7 @@ jobs:
       - name: Feature Branch Targetless CD
         run: |
           cd ${GITHUB_WORKSPACE}
-
-          # Using CDAF Edge
-          wget https://codeload.github.com/cdaf/linux/zip/refs/heads/master -O linux-master.zip
-          unzip linux-master.zip
-          ./linux-master/automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
-
-          # CDAF installed in repo
-          # ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
+          ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
 
       - name: Artifact Retention
         uses: actions/upload-artifact@v1

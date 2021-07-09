@@ -65,3 +65,4 @@ local.properties
 /propertiesForContainerTasks/
 /*.gz
 /release.sh
+/solution/

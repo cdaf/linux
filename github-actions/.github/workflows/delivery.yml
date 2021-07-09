@@ -1,0 +1,70 @@
+name: CDAF Targetless CD using hosted agent
+# This workflow is triggered on pushes to the repository.
+on: [push]
+
+jobs:
+  build:
+    name: Build and Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch all history for all tags and branches
+        run: |
+          git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git fetch --prune --unshallow
+
+      - name: Feature Branch Targetless CD
+        run: |
+          cd ${GITHUB_WORKSPACE}
+
+          # Using CDAF Edge
+          wget https://codeload.github.com/cdaf/linux/zip/refs/heads/master -O linux-master.zip
+          unzip linux-master.zip
+          ./linux-master/automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
+
+          # CDAF installed in repo
+          # ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
+
+      - name: Artifact Retention
+        uses: actions/upload-artifact@v1
+        with:
+          name: deploy
+          path: release.sh
+
+  # Test using Docker Compose
+  test:
+    if: github.ref == 'refs/heads/master'
+    name: Package and Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+    
+      - name: DOCKER
+        run: |
+          cd ${GITHUB_WORKSPACE}/deploy
+          chmod +x release.sh
+          ./release.sh DOCKER
+
+  # As at Jul 2021 there is no gating capability in GitHub Actions
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    name: Publish to DockerHub
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+    
+      - name: PROD
+        run: |
+          cd ${GITHUB_WORKSPACE}/deploy
+          chmod +x release.sh
+          ./release.sh PROD

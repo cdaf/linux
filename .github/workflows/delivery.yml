@@ -35,7 +35,7 @@ jobs:
 
   NO_PROP:
     if: github.ref == 'refs/heads/master'
-    name: Package and Test
+    name: Verify nothing attempted when unknown Environment supplied
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
 
   LINUX:
     if: github.ref == 'refs/heads/master'
-    name: Publish to DockerHub
+    name: GPG Decryption Test from Sample
     needs: [build, NO_PROP]
     runs-on: ubuntu-latest
     steps:
@@ -66,20 +66,3 @@ jobs:
           cd ${GITHUB_WORKSPACE}/deploy
           chmod +x release.sh
           ./release.sh LINUX
-
-  CDAF:
-    if: github.ref == 'refs/heads/master'
-    name: Publish to DockerHub
-    needs: [build, LINUX]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: deploy
-    
-      - name: Deploy
-        run: |
-          cd ${GITHUB_WORKSPACE}/deploy
-          chmod +x release.sh
-          ./release.sh CDAF

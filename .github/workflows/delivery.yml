@@ -53,7 +53,7 @@ jobs:
   LINUX:
     if: github.ref == 'refs/heads/master'
     name: Publish to DockerHub
-    needs: [build, test]
+    needs: [build, NO_PROP]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
@@ -70,7 +70,7 @@ jobs:
   CDAF:
     if: github.ref == 'refs/heads/master'
     name: Publish to DockerHub
-    needs: [build, test]
+    needs: [build, LINUX]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts

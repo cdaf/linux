@@ -33,8 +33,7 @@ jobs:
           name: deploy
           path: release.sh
 
-  # Test using Docker Compose
-  test:
+  NO_PROP:
     if: github.ref == 'refs/heads/master'
     name: Package and Test
     needs: build
@@ -45,14 +44,13 @@ jobs:
         with:
           name: deploy
     
-      - name: DOCKER
+      - name: Deploy
         run: |
           cd ${GITHUB_WORKSPACE}/deploy
           chmod +x release.sh
-          ./release.sh DOCKER
+          ./release.sh NO_PROP
 
-  # As at Jul 2021 there is no gating capability in GitHub Actions
-  deploy:
+  LINUX:
     if: github.ref == 'refs/heads/master'
     name: Publish to DockerHub
     needs: [build, test]
@@ -63,8 +61,25 @@ jobs:
         with:
           name: deploy
     
-      - name: PROD
+      - name: Deploy
         run: |
           cd ${GITHUB_WORKSPACE}/deploy
           chmod +x release.sh
-          ./release.sh PROD
+          ./release.sh LINUX
+
+  CDAF:
+    if: github.ref == 'refs/heads/master'
+    name: Publish to DockerHub
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+    
+      - name: Deploy
+        run: |
+          cd ${GITHUB_WORKSPACE}/deploy
+          chmod +x release.sh
+          ./release.sh CDAF

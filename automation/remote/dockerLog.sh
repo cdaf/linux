@@ -50,7 +50,7 @@ exitCode=4366
 while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 	sleep $wait
 	if [[ "$container" == 'DOCKER-COMPOSE' ]]; then
-		output=$(docker-compose logs)
+		output=$(docker-compose logs --no-color 2>&1)
 	else
 		output=$(docker logs $container 2>&1)
 	fi

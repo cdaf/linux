@@ -1,6 +1,3 @@
-default:
-  image: cdaf/linux:latest
-
 stages:
   - build
   - targetlessCD

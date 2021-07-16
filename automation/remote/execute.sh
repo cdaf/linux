@@ -52,6 +52,16 @@ function ERRMSG {
 	fi
 }
 
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		ERRMSG "$EXECUTABLESCRIPT returned $exitCode" $exitCode
+	fi
+}  
+
 function MAKDIR {
 	# Create Directory, if exists do nothing, else create
 	#  required : directory name

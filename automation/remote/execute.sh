@@ -79,16 +79,24 @@ function REMOVE {
 	fi
 }  
 
-# Delete (verbose)
+# Verbose Copy
 function VECOPY {
-	executeFunction="cp -vR $1 $2"
-	echo "$executeFunction"
-	set +f # enable globbing for copy operation
-	eval "$executeFunction"
-	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+	if [ -f $1 ] && [ -f $2 ]; then
+		absFrom="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+		absTo="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
+		if [ "$absFrom" == "$absTo" ]; then
+			echo "From and to ($absFrom) are the same file, skipping..."
+		fi
+	else
+		executeFunction="cp -vR $1 $2"
+		echo "$executeFunction"
+		set +f # enable globbing for copy operation
+		eval "$executeFunction"
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
+			exit $exitCode
+		fi
 	fi
 }  
 

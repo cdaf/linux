@@ -68,7 +68,7 @@ fi
 
 # Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
 if [ -f "${HOME}/buildnumber.counter" ]; then
-	let "buildNumber=$(cat ${HOME}/buildnumber.counter)"
+	let "buildNumber=$(cat ${HOME}/buildnumber.counter|tr -d '\r')" # in case the home directory is shared by Windows and Linux
 else
 	let "buildNumber=0"
 fi

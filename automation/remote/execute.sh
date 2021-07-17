@@ -98,14 +98,17 @@ function VECOPY {
 			echo "From and to ($absFrom) are the same file, skipping..."
 		fi
 	else
+		parentDir=$(dirname "$2")
+		if [ ! -d "$parentDir" ]; then
+			MAKDIR $parentDir
+		fi
 		executeFunction="cp -vR $1 $2"
 		echo "$executeFunction"
 		set +f # enable globbing for copy operation
 		eval "$executeFunction"
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-			exit $exitCode
+			ERRMSG "${executeFunction} returned $exitCode" $exitCode
 		fi
 	fi
 }  

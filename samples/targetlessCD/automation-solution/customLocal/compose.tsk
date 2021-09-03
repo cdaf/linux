@@ -47,5 +47,6 @@ containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
 $WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
 
 echo "Retain or teardown based on environment variable COMPOSE_KEEP ($COMPOSE_KEEP)"
-if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; docker-compose rm -f ; else docker ps ; fi
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; docker-compose rm -f ; else docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) ; fi
+
 cd $WORKSPACE

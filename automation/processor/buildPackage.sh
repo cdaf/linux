@@ -194,11 +194,36 @@ else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
 
+printf "[$scriptName]   Pre-build Tasks : "
+prebuildTasks="$SOLUTIONROOT/prebuild.tsk"
+if [ -f $prebuildTasks ]; then
+	echo "found ($prebuildTasks)"
+else
+	echo "none ($prebuildTasks)"
+fi
+
 echo "[$scriptName]   pwd             : $(pwd)"
 echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"
 
 echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
+
+# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+if [ -f $prebuildTasks ]; then
+
+	# Set properties for execution engine
+	echo "PROJECT=${projectName}" > ../build.properties
+	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
+	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
+
+	echo; echo "Process Pre-Build Tasks ..."; echo
+	$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+		exit $exitCode
+	fi
+fi
 
 # If a container build command is specified, use this instead of CI process
 if [[ "$ACTION" == 'container_build' ]]; then

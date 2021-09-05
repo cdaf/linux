@@ -186,10 +186,10 @@ function DETOKN {
 	else
 		propertyFile=$2
 	fi
-	./transform.sh "$propertyFile" "$1" "$3"
+	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$3"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ./transform.sh \"$propertyFile\" \"$1\" \"$3\" returned $exitCode"
+		echo "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$3\" returned $exitCode"
 		exit $exitCode
 	fi
 }

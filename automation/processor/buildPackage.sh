@@ -209,7 +209,7 @@ echo "[$scriptName]   whoami          : $(whoami)"
 echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
 # Process optional post-packaging tasks (Task driver support added in release 0.8.2)
-if [ -f $prebuildTasks ]; then
+if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 
 	# Set properties for execution engine
 	echo "PROJECT=${projectName}" > ../build.properties

@@ -275,7 +275,7 @@ if [ -f "../build.properties" ] ;then
 	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
 	printf "$propertiesList"
 	eval $propertiesList
-	echo
+	echo; echo
 	rm ../build.properties
 else
 	# If not build, is it a package process?

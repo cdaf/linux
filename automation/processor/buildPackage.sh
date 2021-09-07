@@ -202,6 +202,14 @@ else
 	echo "none ($prebuildTasks)"
 fi
 
+printf "[$scriptName]   Postbuild Tasks : "
+postbuild="$SOLUTIONROOT/postbuild.tsk"
+if [ -f $postbuild ]; then
+	echo "found ($postbuild)"
+else
+	echo "none ($postbuild)"
+fi
+
 echo "[$scriptName]   pwd             : $(pwd)"
 echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"
@@ -426,6 +434,23 @@ if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM Blue
 fi
 
 if [[ "$ACTION" != 'container_build' ]]; then
+
+	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+	if [ -f $postbuild ]; then
+
+		# Set properties for execution engine
+		echo "PROJECT=${projectName}" > ../build.properties
+		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
+		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
+
+		echo; echo "Process Post-Build Tasks ..."; echo
+		$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			exit $exitCode
+		fi
+	fi
 
 	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
 	if [ ! -z "$imageBuild" ]; then

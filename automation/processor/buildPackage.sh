@@ -224,7 +224,7 @@ if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
-	echo; echo "Process Pre-Build Tasks ..."; echo
+	echo; echo "Process Pre-Build Tasks ..."
 	$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
@@ -443,7 +443,7 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
-		echo; echo "Process Post-Build Tasks ..."; echo
+		echo; echo "Process Post-Build Tasks ..."
 		$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then

@@ -194,7 +194,7 @@ else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
 
-printf "[$scriptName]   Pre-build Tasks : "
+printf "[$scriptName]   Pre-build Task  : "
 prebuildTasks="$SOLUTIONROOT/prebuild.tsk"
 if [ -f $prebuildTasks ]; then
 	echo "found ($prebuildTasks)"
@@ -202,7 +202,7 @@ else
 	echo "none ($prebuildTasks)"
 fi
 
-printf "[$scriptName]   Postbuild Tasks : "
+printf "[$scriptName]   Post-build Task : "
 postbuild="$SOLUTIONROOT/postbuild.tsk"
 if [ -f $postbuild ]; then
 	echo "found ($postbuild)"
@@ -216,7 +216,7 @@ echo "[$scriptName]   whoami          : $(whoami)"
 
 echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
-# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+# Process optional post-packaging tasks (Task driver support added in release 2.4.4)
 if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 
 	# Set properties for execution engine
@@ -435,7 +435,7 @@ fi
 
 if [[ "$ACTION" != 'container_build' ]]; then
 
-	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+	# Process optional post-packaging tasks (Task driver support added in release 2.4.4)
 	if [ -f $postbuild ]; then
 
 		# Set properties for execution engine

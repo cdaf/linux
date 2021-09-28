@@ -14,13 +14,20 @@ jobs:
           GIT_PASS: $(GIT_PASS)
         inputs:
           targetType: inline
+
           script: |
-            curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
-            unzip linux.zip
-            export CDAF_SKIP_CONTAINER_BUILD=yes
+            curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
             ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
-#          "In-source" Implementation 
+#          # Edge Implementation 
+#          script: |
+#            curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
+#            unzip linux.zip
+#            export CDAF_SKIP_CONTAINER_BUILD=yes
+#            ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+
+#          # In-source Implementation 
+#          script: |
 #          targetType: filePath
 #          filePath: ./automation/entry.sh
 #          arguments: $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)

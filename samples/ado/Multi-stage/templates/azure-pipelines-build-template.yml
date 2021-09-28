@@ -17,7 +17,7 @@ jobs:
 
           script: |
             curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-            ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+            ./automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
 #          # Edge Implementation 
 #          script: |

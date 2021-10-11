@@ -15,7 +15,7 @@ scriptName='InstallApacheTomcat.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='8.5.32'
+	version='9.0.54'
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"
@@ -74,7 +74,7 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "$elevate mkdir -p $mediaCache"
 	fi
-	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-8/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-9/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ ! -z "$(getent passwd $serviceAccount)" ]; then
@@ -90,23 +90,19 @@ else
 	fi
 fi
 
-echo
-echo "[$scriptName] Create application root directory and change to runtime directory"
+echo; echo "[$scriptName] Create application root directory and change to runtime directory"
 executeExpression "$elevate mkdir -p $appRoot"
 executeExpression "cd $appRoot"
 
-echo
-echo "[$scriptName] Copy media and extract"
+echo; echo "[$scriptName] Copy media and extract"
 
 executeExpression "$elevate cp -v \"$mediaFullPath\" ."
 executeExpression "$elevate tar -zxf ${tomcat}.tar.gz"
 
-echo
-echo "[$scriptName] Retain the default tomcat console"
+echo; echo "[$scriptName] Retain the default tomcat console"
 executeExpression "$elevate mv -v $appRoot/$tomcat/webapps/ROOT/ $appRoot/$tomcat/webapps/console"
 
-echo
-echo "[$scriptName] Create a link (static for different versions)"
+echo; echo "[$scriptName] Create a link (static for different versions)"
 if [ -d "$appRoot/webapps" ]; then
 	executeExpression "$elevate unlink $appRoot/webapps"
 fi
@@ -116,13 +112,11 @@ fi
 executeExpression "$elevate ln -s $appRoot/$tomcat/webapps $appRoot/webapps"
 executeExpression "$elevate ln -s $appRoot/$tomcat $appRoot/current"
 
-echo
-echo "[$scriptName] Make all objects executable and owned by tomcat service account"
+echo; echo "[$scriptName] Make all objects executable and owned by tomcat service account"
 executeExpression "$elevate chmod 755 -R $tomcat"
 executeExpression "$elevate chown -R $serviceAccount:$serviceAccount $tomcat"
 
-echo
-echo "[$scriptName] Set the application folder to be group writable"
+echo; echo "[$scriptName] Set the application folder to be group writable"
 executeExpression "$elevate chmod -R g+rwx $appRoot/$tomcat/webapps"
 
 # If a systemd distribution, create service
@@ -155,7 +149,7 @@ if [ "$?" == "0" ]; then
 			sudo sh -c "echo \"WantedBy=multi-user.target\" >> /etc/systemd/system/${serviceAccount}.service"
 		fi
 	fi
-	
+
 	executeExpression "$elevate systemctl daemon-reload"
 	executeExpression "$elevate systemctl enable ${serviceAccount}"
 	executeExpression "$elevate systemctl start ${serviceAccount}"

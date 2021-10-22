@@ -24,6 +24,12 @@ function executeRetry {
 	done
 }  
 
+# Return MD5 as uppercase Hexadecimal
+function MD5MSK {
+	read -ra array <<< $(echo -n $1 | md5sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+}
+
 scriptName='rancher.sh'
 
 echo "[$scriptName] --- start ---"
@@ -43,18 +49,26 @@ else
 	echo "[$scriptName]   installType        : $installType (choices rancher or cattle)"
 fi
 
-RANCHER_ACCESS_KEY=$3
+RANCHER_SECRET_KEY=$3
+if [ -z "$adminPassword" ]; then
+	echo "[$scriptName]   adminPassword      : (not supplied, set to default password)"
+	adminPassword='password'
+else
+	echo "[$scriptName]   adminPassword      : $(MD5MSK $adminPassword) (MD5MSK)"
+fi
+
+RANCHER_ACCESS_KEY=$4
 if [ -z "$RANCHER_ACCESS_KEY" ]; then
 	echo "[$scriptName]   RANCHER_ACCESS_KEY : (not supplied, will look for /vagrant/rancherAPI.key)"
 else
 	echo "[$scriptName]   RANCHER_ACCESS_KEY : $RANCHER_ACCESS_KEY"
 fi
 
-RANCHER_SECRET_KEY=$4
+RANCHER_SECRET_KEY=$5
 if [ -z "$RANCHER_SECRET_KEY" ]; then
 	echo "[$scriptName]   RANCHER_SECRET_KEY : (not supplied, will look for /vagrant/rancherAPI.key)"
 else
-	echo "[$scriptName]   RANCHER_SECRET_KEY : ****************************************"
+	echo "[$scriptName]   RANCHER_SECRET_KEY : $(MD5MSK $RANCHER_SECRET_KEY) (MD5MSK)"
 fi
 
 if [ "$installType" == "rancher" ]; then
@@ -90,7 +104,7 @@ if [ "$installType" == "rancher" ]; then
 	executeRetry "curl -s -X PUT -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'X-Api-Account-Id: 1a1' -d '{\"activeValue\":\"http://localhost:18080\", \"id\":\"1as1\", \"name\":\"api.host\", \"source\":\"Database\", \"value\":\"http://${baseURL}:8080\"}' 'http://localhost:8080/v1/activesettings/1as!api.host'"
 	echo
 	echo "[$scriptName] Set the admin user"
-	executeRetry "curl -s -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"accessMode\":\"unrestricted\", \"enabled\":true, \"name\":\"Administrator\", \"password\":\"password\", \"username\":\"admin\"}' 'http://localhost:8080/v1/localauthconfigs' " 
+	executeRetry "curl -s -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"accessMode\":\"unrestricted\", \"enabled\":true, \"name\":\"Administrator\", \"password\":\"${adminPassword}\", \"username\":\"admin\"}' 'http://localhost:8080/v1/localauthconfigs' " 
 	
 else
 	# Derived from http://yayprogramming.com/auto-connect-rancher-hosts/

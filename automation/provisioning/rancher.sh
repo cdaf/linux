@@ -49,7 +49,7 @@ else
 	echo "[$scriptName]   installType        : $installType (choices rancher or cattle)"
 fi
 
-RANCHER_SECRET_KEY=$3
+adminPassword=$3
 if [ -z "$adminPassword" ]; then
 	echo "[$scriptName]   adminPassword      : (not supplied, set to default password)"
 	adminPassword='password'

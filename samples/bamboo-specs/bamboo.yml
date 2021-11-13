@@ -14,6 +14,7 @@ Build Job:
   tasks:
     - script:
         - '#!/bin/bash'
+        - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
         - "./automation/ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
 
   artifacts:

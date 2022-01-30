@@ -125,16 +125,44 @@ if [ -z "$defaultBranch" ]; then
 	defaultBranch='master'
 else
 	defaultBranch=$(eval "echo $defaultBranch")
-fi	
+fi
 
-echo
-if [ "$BRANCH" == "$defaultBranch" ]; then
-	echo "[$scriptName] Skipping $environment test in $BRANCH"
-else
-	if [ -z "$artifactPrefix" ]; then
-		executeExpression "./TasksLocal/delivery.sh $environment"
+if [ -f "$SOLUTIONROOT/feature-branch.properties" ]; then
+	echo "[$scriptName] Found $SOLUTIONROOT/feature-branch.properties, test for feature branch prefix match..."; echo
+	propList=$(eval "$AUTOMATIONROOT/remote/transform.sh $SOLUTIONROOT/feature-branch.properties")
+	DEFAULT_IFS=$IFS
+	IFS=$'\n'
+	for featureProp in $propList; do
+		IFS='='
+		read -ra array <<< "$featureProp"
+		featurePrefix=$(echo "${array[0]}" | tr '[:upper:]' '[:lower:]' | tr -d '[[:space:]]')
+		branchLower=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]')
+		featureEnv="${array[1]}"
+		processEnv=$(eval "if [[ '$branchLower' == '$featurePrefix'* ]]; then echo $featureEnv; fi")
+		if [ ! -z "$processEnv" ]; then
+			featureBranchProcess='yes'
+			if [ -z "$artifactPrefix" ]; then
+				executeExpression "./TasksLocal/delivery.sh $processEnv"
+			else
+				executeExpression "./release.sh $processEnv"
+			fi
+		else
+			echo "  Skip feature branch prefix $featurePrefix"
+		fi
+	done
+	IFS=$DEFAULT_IFS
+fi
+
+if [ -z $featureBranchProcess ]; then
+	echo
+	if [ "$BRANCH" == "$defaultBranch" ]; then
+		echo "[$scriptName] Skipping $environment test in $BRANCH"
 	else
-		executeExpression "./release.sh $environment"
+		if [ -z "$artifactPrefix" ]; then
+			executeExpression "./TasksLocal/delivery.sh $environment"
+		else
+			executeExpression "./release.sh $environment"
+		fi
 	fi
 fi
 

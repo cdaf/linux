@@ -205,11 +205,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -226,12 +226,14 @@ function REPLAC {
 function IGNORE {
 	# Execute command with only warning message if exit code is not zero
 	#  required : command to execute
+	set +e
 	echo "$1"
 	eval "$1"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName][WARN] ${executeFunction} returned ${exitCode}, continuing ..."
 	fi
+	set -e
 }
 
 # Return MD5 as uppercase Hexadecimal

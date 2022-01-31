@@ -128,7 +128,7 @@ else
 fi
 
 if [ -f "$SOLUTIONROOT/feature-branch.properties" ]; then
-	echo "[$scriptName] Found $SOLUTIONROOT/feature-branch.properties, test for feature branch prefix match..."; echo
+	echo "[$scriptName] Found $SOLUTIONROOT/feature-branch.properties, test for match with '$BRANCH' ..."; echo
 	propList=$(eval "$AUTOMATIONROOT/remote/transform.sh $SOLUTIONROOT/feature-branch.properties")
 	DEFAULT_IFS=$IFS
 	IFS=$'\n'
@@ -140,14 +140,15 @@ if [ -f "$SOLUTIONROOT/feature-branch.properties" ]; then
 		featureEnv="${array[1]}"
 		processEnv=$(eval "if [[ '$branchLower' == '$featurePrefix'* ]]; then echo $featureEnv; fi")
 		if [ ! -z "$processEnv" ]; then
+			echo "  Deploy feature branch prefix '$featurePrefix'"
 			featureBranchProcess='yes'
 			if [ -z "$artifactPrefix" ]; then
-				executeExpression "./TasksLocal/delivery.sh $processEnv"
+				executeExpression "  ./TasksLocal/delivery.sh $processEnv"
 			else
-				executeExpression "./release.sh $processEnv"
+				executeExpression "  ./release.sh $processEnv"
 			fi
 		else
-			echo "  Skip feature branch prefix $featurePrefix"
+			echo "  Skip feature branch prefix '$featurePrefix' ($processEnv)"
 		fi
 	done
 	IFS=$DEFAULT_IFS

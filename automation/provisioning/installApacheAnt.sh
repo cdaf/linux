@@ -13,7 +13,7 @@ scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	version='1.9.10'
+	version='1.10.11'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	version="$1"

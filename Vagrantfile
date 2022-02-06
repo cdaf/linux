@@ -12,7 +12,7 @@ if ENV['OVERRIDE_IMAGE']
   puts "OVERRIDE_IMAGE specified, using box #{OVERRIDE_IMAGE}" 
 else
   OVERRIDE_IMAGE = 'cdaf/Ubuntu18'
-  puts "OVERRIDE_IMAGE not specified, random box is #{OVERRIDE_IMAGE}" 
+  puts "OVERRIDE_IMAGE not specified, use default box #{OVERRIDE_IMAGE}" 
 end
 
 # This is provided to make scaling easier

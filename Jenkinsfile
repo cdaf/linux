@@ -26,15 +26,23 @@ timeout(time: 60, unit: 'MINUTES') {
         sh "vagrant up"
       }
 
-      stage ('Test the CDAF sample on CentOS 7') {
+      stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
         sh '''
           vagrant destroy -f
-          export OVERRIDE_IMAGE="cdaf/CentOSLVM"
+          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
           vagrant up
         '''
       }
 
-      stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
+      stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
+        sh '''
+          vagrant destroy -f
+          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
+          vagrant up
+        '''
+      }
+
+      stage ('Test the CDAF sample on Ubuntu 20.04 LTS') {
         sh '''
           vagrant destroy -f
           export OVERRIDE_IMAGE="cdaf/UbuntuLVM"

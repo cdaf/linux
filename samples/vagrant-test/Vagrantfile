@@ -6,12 +6,12 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 
-# Different VM images can be used by changing this variable, for example to use Windows Server 2016 with GUI
-# $env:OVERRIDE_IMAGE = 'cdaf/CentOSLVM'
+# Different VM images can be used by changing this variable, to use an older distribution
+# $env:OVERRIDE_IMAGE = 'cdaf/Ubuntu18'
 if ENV['OVERRIDE_IMAGE']
   vagrantBox = ENV['OVERRIDE_IMAGE']
 else
-  vagrantBox = 'cdaf/UbuntuLVM'
+  vagrantBox = 'cdaf/Ubuntu20'
 end
 
 # If this environment variable is set, then the location defined will be used for media

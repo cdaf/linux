@@ -124,38 +124,48 @@ else
 	defaultBranch=$(eval "echo $defaultBranch")
 fi
 
-if [ -f "$SOLUTIONROOT/feature-branch.properties" ]; then
-	echo "[$scriptName] Found $SOLUTIONROOT/feature-branch.properties, test for match with '$BRANCH' ..."; echo
-	propList=$(eval "$AUTOMATIONROOT/remote/transform.sh $SOLUTIONROOT/feature-branch.properties")
-	DEFAULT_IFS=$IFS
-	IFS=$'\n'
-	for featureProp in $propList; do
-		IFS='='
-		read -ra array <<< "$featureProp"
-		featurePrefix=$(echo "${array[0]}" | tr '[:upper:]' '[:lower:]' | tr -d '[[:space:]]')
-		branchLower=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]')
-		featureEnv="${array[1]}"
-		processEnv=$(eval "if [[ '$branchLower' == '$featurePrefix'* ]]; then echo $featureEnv; fi")
-		if [ ! -z "$processEnv" ]; then
-			echo "  Deploy feature branch prefix '$featurePrefix'"
-			featureBranchProcess='yes'
-			if [ -z "$artifactPrefix" ]; then
-				executeExpression "  ./TasksLocal/delivery.sh $processEnv"
+if [ "$BRANCH" == "$defaultBranch" ]; then
+	echo; echo "[$scriptName] Only perform container test in CI for branches, $defaultBranch execution in CD pipeline"
+else
+	if [ -f "$SOLUTIONROOT/feature-branch.properties" ]; then
+		echo "[$scriptName] Found $SOLUTIONROOT/feature-branch.properties, test for match with '$BRANCH' ..."; echo
+		propList=$(eval "$AUTOMATIONROOT/remote/transform.sh $SOLUTIONROOT/feature-branch.properties")
+		DEFAULT_IFS=$IFS
+		IFS=$'\n'
+		for featureProp in $propList; do
+			IFS='='
+			read -ra array <<< "$featureProp"
+			featurePrefix=$(echo "${array[0]}" | tr '[:upper:]' '[:lower:]' | tr -d '[[:space:]]')
+			branchLower=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]')
+			featureEnv="${array[1]}"
+			processEnv=$(eval "if [[ '$branchLower' == '$featurePrefix'* ]]; then echo $featureEnv; fi")
+			if [ ! -z "$processEnv" ]; then
+				echo "  Deploy feature branch prefix '$featurePrefix'"
+				featureBranchProcess='yes'
+				if [ -z "$artifactPrefix" ]; then
+					executeExpression "  ./TasksLocal/delivery.sh $processEnv"
+				else
+					executeExpression "  ./release.sh $processEnv"
+				fi
 			else
-				executeExpression "  ./release.sh $processEnv"
+				echo "  Skip feature branch prefix '$featurePrefix' ($processEnv)"
 			fi
-		else
-			echo "  Skip feature branch prefix '$featurePrefix' ($processEnv)"
+		done
+		IFS=$DEFAULT_IFS
+		if [ -z $featureBranchProcess ]; then
+			if [ -z $defaultEnvironment ]; then
+				echo "[$scriptName] No feature branches processed and defaultEnvironment not set, feature branch delivery not attempted."
+			else
+				echo "[$scriptName] Performing container test in CI for feature branch ($BRANCH), CD for branch $defaultBranch"
+				if [ -z "$artifactPrefix" ]; then
+					executeExpression "./TasksLocal/delivery.sh $environment"
+				else
+					executeExpression "./release.sh $environment"
+				fi
+			fi
 		fi
-	done
-	IFS=$DEFAULT_IFS
-fi
-
-if [ -z $featureBranchProcess ]; then
-	echo
-	if [ "$BRANCH" == "$defaultBranch" ]; then
-		echo "[$scriptName] Skipping $environment test in $BRANCH"
 	else
+		echo "[$scriptName] $SOLUTIONROOT/feature-branch.properties not found, performing container test in CI for feature branch ($BRANCH), CD for branch $defaultBranch"
 		if [ -z "$artifactPrefix" ]; then
 			executeExpression "./TasksLocal/delivery.sh $environment"
 		else

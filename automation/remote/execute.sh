@@ -33,14 +33,14 @@ else
 	TASKLIST=$4
 fi
 
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
 function ERRMSG {
-	# Shared function for internal user processing
-	#  required : directory name
-	#  optional : exit code, if not supplied on error message is written
 	if [ -z "$2" ]; then
-		echo; echo "[$scriptName][WARN] $1"
+		echo; echo "[$scriptName][WARN]$1"
 	else
-		echo; echo "[$scriptName][ERROR] $1"
+		echo; echo "[$scriptName][ERROR]$1"
 	fi
 	if [ ! -z $CDAF_ERROR_DIAG ]; then
 		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
@@ -244,24 +244,22 @@ function MD5MSK {
 
 # Validate Variables (2.4.6)
 function VARCHK {
+	echo
 	propertiesFile="$1"
 	if [ ! -f "$propertiesFile" ]; then
 		ERRMSG "[VARCHK_PROP_FILE_NOT_FOUND] $propertiesFile not found" 7781
 	fi
 
-	failureCount=0
+	declare -i failureCount=0
 	propList=$($AUTOMATIONHELPER/transform.sh "$propertiesFile")
 	DEFAULT_IFS=$IFS
 	IFS=$'\n'
 	for variableProp in $propList; do
 		IFS='='
-		read -ra array <<< "$variableProp"
-		variableValidation=$(eval "echo ${array[1]}")  # Transform returns $ prefix applied to variable name
-		echo "[DEBUG] variableValidation=$variableValidation"
-		variableName="${array[0]}"
-		echo "[DEBUG] variableName=$variableName"
-		variableValue=$(eval "echo $variableName")
-		echo "[DEBUG] variableValue=$variableValue"
+		read -ra array <<< "$variableProp"                        # Transform does not return $ prefix, but has two preceeding spaces
+		variableValidation=$(eval "echo ${array[1]}")  
+		variableName=$(echo "${array[0]}" | tr -d '[[:space:]]')  # trim preceeding spaces
+		variableValue=$(eval "echo \$$variableName")
 		if [ -z "$variableValidation" ]; then
 			echo "  $variableName = '$variableValue'"
 		elif [[ "$variableValidation" == 'optional' ]]; then
@@ -273,14 +271,14 @@ function VARCHK {
 		elif [[ "$variableValidation" == 'required' ]]; then
 			if [ -z $variableValue ]; then
 				echo "  $variableName = [REQUIRED VARIABLE NOT SET]"
-				let "failureCount++"
+				failureCount=$((failureCount+1))
 			else
 			    echo "  $variableName = '$variableValue'"
 			fi
 		elif [[ "$variableValidation" == 'secret' ]]; then
 			if [ -z $variableValue ]; then
 				echo "  $variableName = [REQUIRED SECRET NOT SET]"
-				let "failureCount++"
+				failureCount=$((failureCount+1))
 			else
 			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK required secret)"
 			fi
@@ -291,11 +289,14 @@ function VARCHK {
 				echo "  $variableName = $variableValueMD5 (MD5MSK check success with '$variableValidation')"
 			else
 			    echo "  $variableName = $variableValueMD5 [MD5 CHECK FAILED FOR '$variableValidation']"
-				let "failureCount++"
+				failureCount=$((failureCount+1))
 			fi
 		fi
 	done
 	IFS=$DEFAULT_IFS
+	if [ $failureCount -gt 0 ]; then
+		ERRMSG "[VARCHK_FAILURE_COUNT] Validation Failures = $failureCount" $failureCount
+	fi
 }
 
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo

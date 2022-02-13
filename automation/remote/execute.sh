@@ -242,6 +242,62 @@ function MD5MSK {
 	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
 }
 
+# Validate Variables (2.4.6)
+function VARCHK {
+	propertiesFile="$1"
+	if [ ! -f "$propertiesFile" ]; then
+		ERRMSG "[VARCHK_PROP_FILE_NOT_FOUND] $propertiesFile not found" 7781
+	fi
+
+	failureCount=0
+	propList=$($AUTOMATIONHELPER/transform.sh "$propertiesFile")
+	DEFAULT_IFS=$IFS
+	IFS=$'\n'
+	for variableProp in $propList; do
+		IFS='='
+		read -ra array <<< "$variableProp"
+		variableValidation=$(eval "echo ${array[1]}")  # Transform returns $ prefix applied to variable name
+		echo "[DEBUG] variableValidation=$variableValidation"
+		variableName="${array[0]}"
+		echo "[DEBUG] variableName=$variableName"
+		variableValue=$(eval "echo $variableName")
+		echo "[DEBUG] variableValue=$variableValue"
+		if [ -z "$variableValidation" ]; then
+			echo "  $variableName = '$variableValue'"
+		elif [[ "$variableValidation" == 'optional' ]]; then
+			if [ -z $variableValue ]; then
+				echo "  $variableName = (optional secret not set)"
+			else
+			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK optional secret)"
+			fi
+		elif [[ "$variableValidation" == 'required' ]]; then
+			if [ -z $variableValue ]; then
+				echo "  $variableName = [REQUIRED VARIABLE NOT SET]"
+				let "failureCount++"
+			else
+			    echo "  $variableName = '$variableValue'"
+			fi
+		elif [[ "$variableValidation" == 'secret' ]]; then
+			if [ -z $variableValue ]; then
+				echo "  $variableName = [REQUIRED SECRET NOT SET]"
+				let "failureCount++"
+			else
+			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK required secret)"
+			fi
+		else
+			variableValidation=$(eval "echo $variableValidation") # Resolve value containing a variable name, e.g. $variableValidation = '$SECRET_VALUE_MD5'
+			variableValueMD5=MD5MSK $variableValue
+			if [[ "$variableValueMD5" == "$variableValidation" ]]; then
+				echo "  $variableName = $variableValueMD5 (MD5MSK check success with '$variableValidation')"
+			else
+			    echo "  $variableName = $variableValueMD5 [MD5 CHECK FAILED FOR '$variableValidation']"
+				let "failureCount++"
+			fi
+		fi
+	done
+	IFS=$DEFAULT_IFS
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"

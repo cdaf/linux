@@ -51,6 +51,7 @@ To alleviate the burden of argument passing, exception handling and logging, the
 | PROPLD  | Load properties as variables      | PROPLD prop.file                |
 | REMOVE  | Delete files, including wildcard  | REMOVE *.war                    |
 | REPLAC  | Replace token in file   		  | REPLAC fileName %token% $value  |
+| VARCHK  | Variable validation check         | VARCHK varlistFileName          |
 | VECOPY  | Verbose copy					  | VECOPY *.war                    |
 
 Runtime variables, automatically set
@@ -104,6 +105,19 @@ Custom elements, i,.e. deployScriptOverride and deployTaskOverride scripts
 	/customRemote
 	/customLocal
 
+## Common Functions
+
+VARCHK varlistFileName example file
+
+    # Plain text values
+    OPT_ARG                                # Optional plain text
+    terraform_version=required             # Required plain text
+
+    # Secret values
+    TERRAFORM_TOKEN=optional               # Optional secret
+    TERRAFORM_TOKEN=secret                 # Required secret
+    TERRAFORM_TOKEN=$TERRAFORM_TOKEN_MD5   # Required secret verified against supplied MD5 value
+
 # Continuous Delivery Emulation
 
 To support Continuous Delivery, the automation of Deployment is required, to automate deployment, the automation of packaging is required, and to automate packaging, the automation of build is required.
@@ -142,3 +156,15 @@ The automation of deployment uses ssh to create a remote connection to each targ
 ## Local Tasks
 
 Executed from the current host, i.e. the build server or agent, and may connect to remove hosts through direct protocols, i.e. WebDAV, ODBC/JDBC, HTTP(S), etc.
+
+## Feature Branch Environments
+
+Only available when using Git aware entry.ps1. If file feature-branch.properties is found in solution root, each matching branch name prefix will be deployed to the defined environment in the CI process. Example contents
+
+    # Separate environments for features and bugs
+    feature=DEV1
+    bugfix=DEV2
+
+    # Hotfixes deploy to all environments
+    hotfix-DEV1
+    hotfix-DEV2

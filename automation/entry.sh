@@ -14,10 +14,9 @@ function executeSuppress {
 	echo "$1"
 	eval $1
 	exitCode=$?
-	# Check execution normal, anything other than 0 is an exception
+	# Check execution normal, anything other than 0 will trigger a warning, but will continue
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName][WARN] $1 returned $exitCode"
-		exit $exitCode
 	fi
 }  
 
@@ -148,15 +147,16 @@ else
 					executeExpression "  ./release.sh $processEnv"
 				fi
 			else
-				echo "  Skip feature branch prefix '$featurePrefix' ($processEnv)"
+				echo "  Skip feature branch prefix '$featurePrefix' ($featureEnv)"
 			fi
 		done
 		IFS=$DEFAULT_IFS
 		if [ -z $featureBranchProcess ]; then
+			echo
 			if [ -z $defaultEnvironment ]; then
 				echo "[$scriptName] No feature branches processed and defaultEnvironment not set, feature branch delivery not attempted."
 			else
-				echo "[$scriptName] Performing container test in CI for feature branch ($BRANCH), CD for branch $defaultBranch"
+				echo "[$scriptName] Performing container test in CI for feature branch ($BRANCH), CD for default branch $defaultBranch"
 				if [ -z "$artifactPrefix" ]; then
 					executeExpression "./TasksLocal/delivery.sh $environment"
 				else
@@ -165,7 +165,7 @@ else
 			fi
 		fi
 	else
-		echo "[$scriptName] $SOLUTIONROOT/feature-branch.properties not found, performing container test in CI for feature branch ($BRANCH), CD for branch $defaultBranch"
+		echo "[$scriptName] $SOLUTIONROOT/feature-branch.properties not found, performing container test in CI for feature branch ($BRANCH), CD for default branch $defaultBranch"
 		if [ -z "$artifactPrefix" ]; then
 			executeExpression "./TasksLocal/delivery.sh $environment"
 		else

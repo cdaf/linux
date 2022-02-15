@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 scriptName=${0##*/}
+export DEFAULT_IFS=$IFS
 
 # This deploy script processes the package, and is therefore dependant on the build
 # and package processes.
@@ -238,8 +239,11 @@ function IGNORE {
 
 # Return MD5 as uppercase Hexadecimal
 function MD5MSK {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
 	read -ra array <<< $(echo -n $1 | md5sum)
 	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
 }
 
 # Validate Variables (2.4.6)
@@ -252,7 +256,7 @@ function VARCHK {
 
 	declare -i failureCount=0
 	propList=$($AUTOMATIONHELPER/transform.sh "$propertiesFile")
-	DEFAULT_IFS=$IFS
+	echo "$propList"; echo
 	IFS=$'\n'
 	for variableProp in $propList; do
 		IFS='='
@@ -283,9 +287,9 @@ function VARCHK {
 			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK required secret)"
 			fi
 		else
-			variableValidation=$(eval "echo $variableValidation") # Resolve value containing a variable name, e.g. $variableValidation = '$SECRET_VALUE_MD5'
-			variableValueMD5=MD5MSK $variableValue
-			if [[ "$variableValueMD5" == "$variableValidation" ]]; then
+			validationEvaluated=$(eval "echo $variableValidation") # Resolve value containing a variable name, e.g. $variableValidation = '$SECRET_VALUE_MD5'
+			variableValueMD5=$(MD5MSK $variableValue)
+			if [[ "$variableValueMD5" == "$validationEvaluated" ]]; then
 				echo "  $variableName = $variableValueMD5 (MD5MSK check success with '$variableValidation')"
 			else
 			    echo "  $variableName = $variableValueMD5 [MD5 CHECK FAILED FOR '$variableValidation']"

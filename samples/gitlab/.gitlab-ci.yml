@@ -8,7 +8,22 @@ cdaf-ci:
   stage: build
   tags:
     - bash
-  script: "automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
+
+  # Latest Published Release
+  script: |
+    curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+
+#  # Edge Implementation 
+#  script: |
+#    curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
+#    unzip linux.zip
+#    export CDAF_SKIP_CONTAINER_BUILD=yes
+#    ./linux-master/automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+
+#  # In-source Implementation 
+#  script: "automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
+
   artifacts:
     paths:
       - release.sh

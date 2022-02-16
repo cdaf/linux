@@ -15,10 +15,11 @@ When using for the first time, the users workstation needs to be prepared by pro
 
 # Solution Driver
 
-The following files control solution level functionality.
+The identification of the SOLUTIONROOT and the core properties and behaviors are driven from CDAF.solution. The following properties are supported
 
-    CDAF.linux : used by the CD emulator to determine the automation root directory  
-    CDAF.solution : optional file to identify a directory as the automation solution directory, if contains property solutionName, this will be used in the emulator
+| Property       | Description                                                        |
+| ---------------|--------------------------------------------------------------------|
+| defaultBranch  | Used to determine feature branch functionality, default is master  |
 
 Basic driver files (introduced 1.7.8):
 

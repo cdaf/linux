@@ -12,23 +12,25 @@ stages:
 
 Build Job:
   tasks:
-    - script:
-        - '#!/bin/bash'
-        - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-        - "./automation/ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}"
+    - script: |
+        !/bin/bash
+        curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+        "./automation/ci.sh ${bamboo.buildNumber} ${bamboo.repository.branch.name}
 
-#          # Edge Implementation 
-#          script: |
-#            curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
-#            unzip linux.zip
-#            export CDAF_SKIP_CONTAINER_BUILD=yes
-#            ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+# Edge Implementation 
+#    - script: |
+#        !/bin/bash
+#        curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
+#        unzip linux.zip
+#        export CDAF_SKIP_CONTAINER_BUILD=yes
+#        ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
-#          # In-source Implementation 
-#          script: |
-#          targetType: filePath
-#          filePath: ./automation/entry.sh
-#          arguments: $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+# In-source Implementation 
+#    - script: |
+#        !/bin/bash
+#        targetType: filePath
+#        filePath: ./automation/entry.sh
+#        arguments: $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
   artifacts:
     - name: Package

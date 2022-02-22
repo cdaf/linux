@@ -1,4 +1,5 @@
 context  target     deployTaskOverride
+local    LINUX      compose.tsk
 local    DOCKER     compose.tsk
 local    AUTO_TEST  containerTest.tsk
 local    DockerHub  push.tsk

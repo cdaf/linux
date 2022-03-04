@@ -125,50 +125,6 @@ if [ -z "$solutionName" ]; then
 	echo; echo "[$scriptName] solutionName not defined in $solutionRoot/CDAF.solution, exiting with code 3"; exit 3
 fi
 
-if [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
-	echo
-	echo "[$scriptName] ---------- CI Toolset Configuration Guide -------------"
-	echo
-    echo 'For TeamCity ...'
-    echo "  Command Executable : $ciProcess"
-    echo "  Command parameters : %build.number% %build.vcs.number%"
-	echo
-    echo 'For Go (requires explicit bash invoke) ...'
-    echo '  Command   : /bin/bash'
-    echo "  Arguments : -c '$ciProcess \${GO_PIPELINE_COUNTER} \${GO_REVISION}'"
-    echo
-    echo 'For Bamboo ...'
-    echo "  Script file : $ciProcess"
-	echo "  Argument    : \${bamboo.buildNumber} \${bamboo.repository.branch.name}"
-    echo
-    echo 'For Jenkins ...'
-    echo "  Command : $ciProcess \$BUILD_NUMBER \$JOB_NAME"
-    echo
-	echo 'Azure DevOps (formerly TFS/VSTS)'
-	echo '  Set the build name to the solution, to assure known workspace name in Release phase.'
-    echo '  Use the visual studio template and delete the nuget and VS tasks.'
-    echo '  Instructions are based on default VS layout, i.e. repo, solution, projects, with the solution in the repo root.'
-	echo '  NOTE: The BUILD DEFINITION NAME must not contain spaces in the name as it is the directory'
-	echo '        Set the build number $(rev:r) to ensure build number is an integer'
-	echo '        Cannot use %BUILD_SOURCEVERSION% with external Git'
-    echo "  Command Filename  : $ciProcess"
-    echo "  Command arguments : \$BUILD_BUILDNUMBER \$BUILD_SOURCEVERSION"
-    echo '  Working directory : selected and set to blank (otherwise the path of the ciProcess will be used)'
-	echo
-    echo 'For GitLab (requires shell runner) ...'
-    echo '  In .gitlab-ci.yml (in the root of the repository) add the following hook into the CI job'
-    echo '    script: "automation/processor/buildPackage.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"'
-	echo
-    echo 'For BlueMix ...'
-    echo '  Similar to TFS/Azure DevOps, BlueMix supports a single "staging" directory for artefact retention'
-    echo '  Build script : ./automation/processor/buildPackage.sh $BUILD_NUMBER $GIT_BRANCH staging@staging'
-	echo
-    echo 'For GitHub Actions ...'
-    echo '  Copy the sample coded pipeline file from GitHub'
-    echo '  https://github.com/cdaf/linux/tree/master/samples/github-actions'
-    echo
-	echo "[$scriptName] -------------------------------------------------------"
-fi
 if [ "$caseinsensitive" != "cdonly" ]; then
 	$ciProcess "$buildNumber" "$revision" "$ACTION"
 	exitCode=$?
@@ -180,117 +136,11 @@ fi
 
 # Do not process Remote and Local Tasks if the action is cionly or clean
 if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
-	echo
-	echo "[$scriptName] ---------- Artefact Configuration Guide -------------"
-	echo
-	echo 'Configure artefact retention patterns to retain package and local tasks'
-	echo
-	echo 'For TeamCity ...'
-    echo "  Artifact paths : TasksLocal => TasksLocal"
-	echo "                 : *.gz"
-	echo
-	echo 'For Jenkins ...'
-    echo '  Use Post-build Action Archive the Artefacts'
-	echo "  Files to archive : TasksLocal/**, *.gz"
-	echo
-    echo 'For Go ...'
-    echo '  Source        | Destination | Type'
-	echo '  *.gz          | package     | Build Artifact'
-    echo '  TasksLocal/** |             | Build Artifact'
-	echo
-    echo 'For Bamboo ...'
-    echo '  Name    : Package'
-	echo '  Pattern : *.gz'
-	echo
-    echo '  Name    : TasksLocal'
-	echo '  Pattern : TasksLocal/**'
-	echo
-    echo 'For Azure DevOps (formerly TFS/VSTS)'
-    echo '  Use the combination of Copy files and Retain Artefacts from Visual Studio Solution Template'
-    echo "  Source Folder   : \$(Agent.BuildDirectory)/s/"
-    echo '  Copy files task : TasksLocal/**'
-    echo '                    *.gz'
-	echo
-    echo 'For GitLab (.gitlab-ci.yml, within the build job definition) ...'
-    echo '    artifacts:'
-    echo '      paths:'
-    echo '      - TasksLocal/'
-    echo '      - .gz'
-	echo
-	echo 'For BlueMix ...'
-	echo '  Use the staging directory created based on staging@ argument'
-	echo '  Build archive directory : staging'
-	echo
-	echo "[$scriptName] -------------------------------------------------------"
-	echo
-	echo "[$scriptName] ---------- CD Toolset Configuration Guide -------------"
-	echo
-	echo 'Note: artifact retention typically does include file attribute for executable, so'
-	echo '  set the first step of deploy process to make all scripts executable'
-	echo '  chmod +x ./*/*.sh'
-	echo
-	echo 'For TeamCity ...'
-	echo '  Choose "Deployment" build'
-	echo '  "Use Finish Build" trigger (branch filter +:<default>)'
-	echo '  Configure artifact dependency using "Build from the same chain"'
-	echo '  Add a Configuration parameter from build.vcs.number to %env.BUILD_NUMBER%'
-	echo '  Add Command Line build step'
-	echo "  Command Executable : $cdProcess \$TEAMCITY_BUILDCONF_NAME \$build.number"
-	echo
-	echo 'For Go ...'
-	echo '  requires explicit bash invoke'
-	echo '  Command   : /bin/bash'
-	echo "  Arguments : -c '$cdProcess \${GO_ENVIRONMENT_NAME}'"
-	echo
-	echo 'For Bamboo ...'
-	echo '  Warning! Ensure there are no spaces in the environment name or release (by default release Release-xx)'
-	echo "  Script file : $cdProcess"
-	echo "  Argument    : \${bamboo.deploy.environment} \${bamboo.deploy.release}"
-	echo
-	echo 'For Jenkins ...'
-	echo '  Artefacts do not retain their executable bit:'
-	echo '	chmod +x ./*/*.sh'
-	echo '  Promote plugin:'
-	echo '    For each environment, the environment name is a literal which needs to be defined each time'
-	echo "    Command : ./$cdProcess <environment name> \$PROMOTED_NUMBER"
-	echo '  Delivery Pipeline plugin:'
-	echo '    Retrieve the upstream build number from the manifest. Can use the Job Name as Environment Name'
-	echo '    Command : ./TasksLocal/transform.sh ./TasksLocal/manifest.txt'
-	echo '    Command : eval $(./TasksLocal/transform.sh ./TasksLocal/manifest.txt)'
-	echo '    Command : ./TasksLocal/delivery.sh $JOB_NAME $BUILDNUMBER'
-	echo
-	echo 'For Azure DevOps (formerly TFS/VSTS)'
-	echo '  Verify the queue for each Environment definition, and ensure Environment names do not contain spaces.'
-	echo '  Create an "Empty" Release definition, and use the "Command Line" utility task (note, requires double quote when more than one argument).'
-	echo '    Tool           : Run'
-	echo '    Script         : chmod +x **/*.sh && ./TasksLocal/delivery.sh $RELEASE_ENVIRONMENTNAME $RELEASE_RELEASENAME'
-	echo "    Working folder : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
-	echo
-	echo '  then add "Shell Script" utility task to execute the delivery process'
-	echo "    Command Filename  : \$(System.DefaultWorkingDirectory)/$solutionName/drop/$cdProcess"
-	echo '    Command arguments : $RELEASE_ENVIRONMENTNAME $RELEASE_RELEASENAME'
-	echo "    Working folder    : \$(System.DefaultWorkingDirectory)/$solutionName/drop"
-	echo
-    echo 'For GitLab (requires shell runner) ...'
-    echo '  If using the sample .gitlab-ci.yml simply clone and change the Environment literal'
-    echo '  variables:'
-    echo '    ENV: "<environment>"'
-    echo "    script: \"$cdProcess \${ENV} \${CI_PIPELINE_ID}\""
-    echo '    environment: <environment>'
-	echo
-	echo 'For BlueMix ...'
-	echo '  Ensure staging@ directive has been used in build or the relative path will be incorrect'
-	echo '    ./TasksLocal/delivery.sh $IDS_STAGE_NAME $IDS_JOB_NAME'
-   	echo
-	echo "[$scriptName] -------------------------------------------------------"
-
-	if [ "$caseinsensitive" != "cionly" ]; then
-		$cdProcess "$CDAF_DELIVERY"
-		exitCode=$?
-		if [ $exitCode -ne 0 ]; then
-			echo "[$scriptName] CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
-			exit $exitCode
-		fi
+	$cdProcess "$CDAF_DELIVERY"
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "[$scriptName] CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
+		exit $exitCode
 	fi
 fi
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Emulate calling the package and deploy process as it would be from the automation toolset, e.g. Bamboo or Jenkings. 
+# Workspace with temp space. The variables provided in Jenkins are emulated in the scripts themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1
@@ -9,8 +13,26 @@ function executeExpression {
 		exit $exitCode
 	fi
 }  
-# Emulate calling the package and deploy process as it would be from the automation toolset, e.g. Bamboo or Jenkings. 
-# Workspace with temp space. The variables provided in Jenkins are emulated in the scripts themselves, that way the scripts remain portable, i.e. can be used in other CI tools.
+
+
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
+function ERRMSG {
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][WARN]$1"
+	else
+		echo; echo "[$scriptName][ERROR]$1"
+	fi
+	if [ ! -z $CDAF_ERROR_DIAG ]; then
+		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName] Exit with LASTEXITCODE = $2" ; echo
+		exit $2
+	fi
+}
 
 # Check Action
 ACTION="$1"
@@ -47,8 +69,7 @@ for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	fi
 done
 if [ -z "$solutionRoot" ]; then
-	solutionRoot="$automationRoot/solution"
-	echo "$solutionRoot (default, project directory containing CDAF.solution not found)"
+	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurance of this file." 7611
 else
 	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
 fi
@@ -127,20 +148,16 @@ fi
 
 if [ "$caseinsensitive" != "cdonly" ]; then
 	$ciProcess "$buildNumber" "$revision" "$ACTION"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\". Halt with exit code = $exitCode."
-		exit $exitCode
+	if [ $? -ne 0 ]; then
+		ERRMSG "[CI_FAILURE] CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\"" $?
 	fi
 fi
 
 # Do not process Remote and Local Tasks if the action is cionly or clean
 if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	$cdProcess "$CDAF_DELIVERY"
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] CD Failed! $cdProcess \"$CDAF_DELIVERY\". Halt with exit code = $exitCode."
-		exit $exitCode
+	if [ $? -ne 0 ]; then
+		ERRMSG "[CD_FAILURE] CD Failed! $cdProcess \"$CDAF_DELIVERY\"" $?
 	fi
 fi
 

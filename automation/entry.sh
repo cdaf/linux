@@ -20,6 +20,25 @@ function executeSuppress {
 	fi
 }  
 
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
+function ERRMSG {
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][WARN]$1"
+	else
+		echo; echo "[$scriptName][ERROR]$1"
+	fi
+	if [ ! -z $CDAF_ERROR_DIAG ]; then
+		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName] Exit with LASTEXITCODE = $2" ; echo
+		exit $2
+	fi
+}
+
 # Entry point for branch based targetless CD
 scriptName='entry.sh'
 
@@ -76,8 +95,7 @@ for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
-	SOLUTIONROOT="$AUTOMATIONROOT/solution"
-	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
+	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurance of this file." 7610
 else
 	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
 fi
@@ -103,8 +121,7 @@ else
 fi
 
 if [ -z ${solutionName} ]; then
-	echo "[$scriptName]   solutionName not defined!"
-	exit 7762 
+	ERRMSG "[NO_SOLUTION_NAME]   solutionName not defined!" 7762 
 else
 	SOLUTION=$solutionName
 	echo "[$scriptName]   SOLUTION       : $SOLUTION"
@@ -198,8 +215,7 @@ else
 				else
 					userName=${userName//@/%40}
 					if [ -z "$gitUserPassEnvVar" ]; then
-						echo "[$scriptName]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!"
-						exit 6921
+						ERRMSG "[GIT_CLEANUP]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!" 6921
 					fi
 					userPass=$(eval "echo $gitUserPassEnvVar")
 					if [ -z "$userPass" ]; then

@@ -89,22 +89,22 @@ timeout(time: 60, unit: 'MINUTES') {
       }
     }
   }
+}
 
-  def notifyFailed() {
+def notifyFailed() {
 
+  emailext (
+    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+    subject: "Linux FAILURE [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
+    body: "Check console output at ${env.BUILD_URL}"
+  )
+
+  if (env.DEFAULT_NOTIFICATION) {
     emailext (
-      recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+      to: "${env.DEFAULT_NOTIFICATION}",
       subject: "Linux FAILURE [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
       body: "Check console output at ${env.BUILD_URL}"
     )
-
-    if (env.DEFAULT_NOTIFICATION) {
-      emailext (
-        to: "${env.DEFAULT_NOTIFICATION}",
-        subject: "Linux FAILURE [${env.JOB_NAME}] Build [${env.BUILD_NUMBER}]",
-        body: "Check console output at ${env.BUILD_URL}"
-      )
-    }
-
   }
+
 }

@@ -1,4 +1,4 @@
-timeout(time: 60, unit: 'MINUTES') {
+timeout(time: 4, unit: 'HOURS') {
   node {
 
     properties(
@@ -13,7 +13,7 @@ timeout(time: 60, unit: 'MINUTES') {
 
     try {
 
-      stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
+      stage ('Prepare Workspace') {
 
         checkout scm
     

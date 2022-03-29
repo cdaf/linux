@@ -18,6 +18,9 @@ jobs:
       - name: Feature Branch Targetless CD
         run: |
           cd ${GITHUB_WORKSPACE}
+          cp -r automation/solution solution
+          cat solution/CDAF.solution
+
           ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
 
       - name: Artifact Retention

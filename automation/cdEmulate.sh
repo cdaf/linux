@@ -14,7 +14,6 @@ function executeExpression {
 	fi
 }  
 
-
 # Consolidated Error processing function
 #  required : error message
 #  optional : exit code, if not supplied only error message is written
@@ -69,7 +68,7 @@ for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	fi
 done
 if [ -z "$solutionRoot" ]; then
-	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurance of this file." 7611
+	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurrence of this file." 7611
 else
 	echo "$solutionRoot (override $solutionRoot/CDAF.solution found)"
 fi

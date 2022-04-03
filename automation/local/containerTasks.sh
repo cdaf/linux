@@ -104,9 +104,7 @@ else
 	fi
 
 	# Test Docker is running
-	echo "[$scriptName] List all current images"
-	echo "docker images"
-	docker images
+	imageLIst=$(docker images)
 	if [ "$?" != "0" ]; then
 		if [ -z $CDAF_DOCKER_REQUIRED ]; then
 			echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
@@ -153,11 +151,15 @@ else
 		fi
 	fi
 
+	echo; echo "[$scriptName] List all current images"
+	echo "$imageLIst"; echo
+
 	# 2.5.0 Process all containerDeploy environments based on prefix pattern (align with localTasks and remoteTasks)
-	echo "[$scriptName] Preparing to process deploy targets :"; echo
+	echo; echo "[$scriptName] Preparing to process deploy targets :"
 	for propFile in $propertiesFilter; do
-		echo "[$scriptName]   $propFile"
+		echo "[$scriptName]   $(basename "$propFile")"
 	done
+	echo
 
 	for propFile in $propertiesFilter; do
 		TARGET=$(basename "$propFile")

@@ -4,9 +4,9 @@ function executeExpression {
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
-		exit $exitCode
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		ERRMSG "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
 	fi
 }
 
@@ -29,8 +29,7 @@ function executeWarnRetry {
 				if [ "$counter" -le "$max" ]; then
 					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
 				else
-					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
-					exit $exitCode
+					ERRMSG "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached." $exitCode
 				fi
 			fi					 
 		else
@@ -181,8 +180,9 @@ if [[ $SOLUTION == *'$'* ]]; then
 fi
 if [ -z $SOLUTION ]; then
 	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
-	if [ "$?" != "0" ]; then
-		ERRMSG "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode" $?
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		ERRMSG "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode" $exitCode
 	fi
 	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 else
@@ -240,8 +240,9 @@ if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 
 	echo; echo "Process Pre-Build Tasks ..."
 	$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
-	if [ "$?" != "0" ]; then
-		ERRMSG "[PREBUILD_FAILURE] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $?" $?
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		ERRMSG "[PREBUILD_FAILURE] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
 	fi
 fi
 
@@ -379,8 +380,9 @@ else
 		echo; echo "[$scriptName] action is ${ACTION}, do not perform build."
 	else
 		$AUTOMATIONROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
-		if [ $? -ne 0 ]; then
-			ERRMSG "[BUILD_PROJECTS_FAILURE] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $?" $?
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			ERRMSG "[BUILD_PROJECTS_FAILURE] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode" $exitCode
 		fi
 	fi
 	
@@ -388,8 +390,9 @@ else
 		echo "[$scriptName] action is ${ACTION}, do not perform package."
 	else
 		$AUTOMATIONROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
-		if [ $? -ne 0 ]; then
-			echo "[PACKAGE_FAILURE] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $?" $?
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			ERRMSG "[PACKAGE_FAILURE] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode" $exitCode
 		fi
 	fi
 fi
@@ -451,8 +454,9 @@ if [[ "$ACTION" != 'container_build' ]]; then
 
 		echo; echo "Process Post-Build Tasks ..."
 		$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
-		if [ "$?" != "0" ]; then
-			ERRMSG "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $?" $?
+		exitCode=$?
+		if [ $exitCode -ne 0 ]; then
+			ERRMSG "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
 		fi
 	fi
 

@@ -147,16 +147,18 @@ fi
 
 if [ "$caseinsensitive" != "cdonly" ]; then
 	$ciProcess "$buildNumber" "$revision" "$ACTION"
-	if [ $? -ne 0 ]; then
-		ERRMSG "[CI_FAILURE] CI Failed! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\"" $?
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		ERRMSG "[CI_FAILURE] CI Failed with exit code $exitCode! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\"" $exitCode
 	fi
 fi
 
 # Do not process Remote and Local Tasks if the action is cionly or clean
 if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
 	$cdProcess "$CDAF_DELIVERY"
-	if [ $? -ne 0 ]; then
-		ERRMSG "[CD_FAILURE] CD Failed! $cdProcess \"$CDAF_DELIVERY\"" $?
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		ERRMSG "[CD_FAILURE] CD Failed with exit code $exitCode! $cdProcess \"$CDAF_DELIVERY\"" $exitCode
 	fi
 fi
 

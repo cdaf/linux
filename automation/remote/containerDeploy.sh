@@ -16,12 +16,12 @@ echo
 echo "[$scriptName] +-------------------------+"
 echo "[$scriptName] | Process Container Tasks |"
 echo "[$scriptName] +-------------------------+"
-ENVIRONMENT=$1
-if [ -z "$ENVIRONMENT" ]; then
-	echo "$scriptName ENVIRONMENT Argument not passed. HALT!"
+TARGET=$1
+if [ -z "$TARGET" ]; then
+	echo "$scriptName TARGET Argument not passed. HALT!"
 	exit 1341
 else
-	echo "[$scriptName]   ENVIRONMENT : $ENVIRONMENT"
+	echo "[$scriptName]   TARGET      : $TARGET"
 fi
 
 if [ -z "$2" ]; then
@@ -64,6 +64,9 @@ else
 	echo "[$scriptName]   imageDir    : $imageDir"
 fi
 
+WORKING_DIRECTORY=$(pwd)
+echo "[$scriptName]   pwd         : $WORKING_DIRECTORY"
+
 if [ ! -d "$imageDir" ]; then
 	echo "[$scriptName] $imageDir does not exist! Please ensure this is included in your storeFor or stoteForLocal declaration file"
 	exit 1346
@@ -74,23 +77,27 @@ if [ -d "automation" ]; then
 fi
 
 executeExpression "cp -r propertiesForContainerTasks $imageDir/properties"
-executeExpression "cp ../${SOLUTION}-${BUILDNUMBER}.tar.gz $imageDir/deploy.tar.gz"
+if [ -f ../${SOLUTION}-${BUILDNUMBER}.tar.gz ]; then
+	executeExpression "cp ../${SOLUTION}-${BUILDNUMBER}.tar.gz $imageDir/deploy.tar.gz"
+else
+	echo "[$scriptName][INFO] ..\${SOLUTION}-${BUILDNUMBER}.tar.gz not found."
+fi
 executeExpression "cd $imageDir"
 
 echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
 id=$(echo "${SOLUTION}_${REVISION}_containerdeploy" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
-executeExpression "${CDAF_WORKSPACE}/dockerRun.sh ${id}"
-export CDAF_CD_ENVIRONMENT=$ENVIRONMENT
-executeExpression "${CDAF_WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
-executeExpression "${CDAF_WORKSPACE}/dockerClean.sh ${id} ${BUILDNUMBER}"
+executeExpression "${WORKING_DIRECTORY}/dockerRun.sh ${id}"
+export CDAF_CD_ENVIRONMENT=$TARGET
+executeExpression "${WORKING_DIRECTORY}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
+executeExpression "${WORKING_DIRECTORY}/dockerClean.sh ${id} ${BUILDNUMBER}"
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
 	buildCommand+=" --env ${envVar}"
 done
 
-prefix=$(echo "$SOLUTION" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
+prefix=$(echo "${SOLUTION//-/_}" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
 for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	envVar=$(echo ${envVar//CDAF_${prefix}_CD_})
 	buildCommand+=" --env ${envVar}"
@@ -99,12 +106,12 @@ done
 # If a build number is not passed, use the CDAF emulator
 executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ]; then
-	executeExpression "docker run --tty --user $(id -u) ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${ENVIRONMENT}"
+	executeExpression "docker run --tty --user $(id -u) ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 else
-	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${ENVIRONMENT}"
+	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 fi
 
 echo
-executeExpression "${CDAF_WORKSPACE}/dockerRun.sh ${id}"
+executeExpression "${WORKING_DIRECTORY}/dockerRun.sh ${id}"
 
 echo; echo "[$scriptName] --- end ---"

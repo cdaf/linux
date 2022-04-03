@@ -246,7 +246,7 @@ function MD5MSK {
 	IFS=$CURRENT_IFS
 }
 
-# Validate Variables (2.4.6)
+# Validate Variables (2.5.0)
 function VARCHK {
 	echo
 	propertiesFile="$1"

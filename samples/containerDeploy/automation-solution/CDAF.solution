@@ -1,10 +1,7 @@
 # Container image used for both containerBuild and containerDeploy if runtimeImage not specified
 containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
 
-# runtimeImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+# runtimeImage=ubuntu:20.04
 
-# Use the default build folder, containerDeploy
-containerDeploy=${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
-
-# Use a specific build folder, e.g. using docker-compose definition
-containerDeploy=${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}" compose/target
+# Use non-default image build location, compose/test instead of containerDeploy
+# containerDeploy=${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}" compose/target

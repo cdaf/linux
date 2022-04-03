@@ -12,8 +12,31 @@ function executeExpression {
 	fi
 }  
 
-echo
-echo "[$scriptName] +-------------------------+"
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
+function ERRMSG {
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][WARN]$1"
+	else
+		echo; echo "[$scriptName][ERROR]$1"
+	fi
+	if [ ! -z $CDAF_ERROR_DIAG ]; then
+		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName] Exit with LASTEXITCODE = $2" ; echo
+		exit $2
+	fi
+}
+
+function getProp {
+	propValue=$($WORK_DIR_DEFAULT/getProperty.sh "$1" "$2")
+	echo $propValue
+}
+
+echo; echo "[$scriptName] +-------------------------+"
 echo "[$scriptName] | Process Container Tasks |"
 echo "[$scriptName] +-------------------------+"
 ENVIRONMENT=$1
@@ -49,90 +72,97 @@ else
 	echo "[$scriptName]   SOLUTION         : $SOLUTION"
 fi
 
-landingDir=$(pwd)
 WORK_DIR_DEFAULT=$5
-if [ "$WORK_DIR_DEFAULT" ]; then
-	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
-else
-	WORK_DIR_DEFAULT=$landingDir
-	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT (not passed, using landing directory)"
-fi
+echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
+
+# Capture landing directory, then change to Default Working Directory and resolve to absolute path
+CDAF_WORKSPACE=$(pwd)
+cd $WORK_DIR_DEFAULT
+WORK_DIR_DEFAULT=$(pwd)
 
 OPT_ARG=$6
-if [ -z "$OPT_ARG" ]; then
-	echo "[$scriptName]   OPT_ARG          : (Optional task argument not supplied)"
-else
-	echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
-fi
+echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 
+echo "[$scriptName]   CDAF Version     : $(getProp "CDAF.properties" "productVersion")"
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
-echo "[$scriptName]   pwd              : $landingDir"
+echo "[$scriptName]   pwd              : $WORK_DIR_DEFAULT"
 
-if [ -d "$WORK_DIR_DEFAULT/propertiesForContainerTasks" ]; then
-
-	taskList=$(find $WORK_DIR_DEFAULT/propertiesForContainerTasks -name "$ENVIRONMENT*" | sort)
-	if [ ! -z "$taskList" ]; then
-
-		# 2.4.0 The containerDeploy is an extension to remote tasks, which means recursive call to this script should not happen (unlike containerBuild)
-		# containerDeploy example ${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
-		containerDeploy=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "containerDeploy")
-		REVISION=$($WORK_DIR_DEFAULT/getProperty.sh "$WORK_DIR_DEFAULT/manifest.txt" "REVISION")
-		if [ ! -z "$containerDeploy" ]; then
-			test=$(docker --version 2>&1)
-			if [ $? -ne 0 ]; then
-				echo "[$scriptName]   Docker           : containerDeploy defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
-				unset containerDeploy
-			else
-				IFS=' ' read -ra ADDR <<< $test
-				IFS=',' read -ra ADDR <<< ${ADDR[2]}
-				dockerRun="${ADDR[0]}"
-				echo "[$scriptName]   Docker           : $dockerRun"
-				# Test Docker is running
-				echo "[$scriptName] List all current images"
-				echo "docker images"
-				docker images
-				if [ "$?" != "0" ]; then
-					if [ -z $CDAF_DOCKER_REQUIRED ]; then
-						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
-						unset containerDeploy
-					else
-						echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
-						if [ $(whoami) != 'root' ];then
-							elevate='sudo'
-						fi
-						executeExpression "$elevate service docker start"
-						executeExpression "$elevate service docker status"
-					fi
-				fi
-			fi
-			echo
-			if [ -z "$containerDeploy" ]; then
-				if [ -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks/$ENVIRONMENT*" ]; then
-					echo "[$scriptName]   Cannot use container properties for local execution as existing local definition exits"
-				else
-					if [ ! -d "$WORK_DIR_DEFAULT/propertiesForLocalTasks" ]; then
-						executeExpression "mkdir -p $WORK_DIR_DEFAULT/propertiesForLocalTasks"
-					fi
-					executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT/propertiesForLocalTasks"
-					executeExpression "cp -v $WORK_DIR_DEFAULT/propertiesForContainerTasks/$ENVIRONMENT* $WORK_DIR_DEFAULT"
-					echo
-					executeExpression "$WORK_DIR_DEFAULT/localTasks.sh '$ENVIRONMENT' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
-				fi
-			else
-				export CONTAINER_IMAGE=$($WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "containerImage")
-				export CDAF_WORKSPACE="$(pwd)/${WORK_DIR_DEFAULT}"
-				executeExpression "cd '${CDAF_WORKSPACE}'"
-				echo
-				executeExpression "$containerDeploy"
-				executeExpression "cd '$landingDir'"
-			fi
-		else
-			echo "[$scriptName]   containerDeploy  : (not defined in $SOLUTIONROOT/CDAF.solution)"
-		fi
-	else
-		echo "[$scriptName]   Properties directory ($WORK_DIR_DEFAULT/propertiesForContainerTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
-	fi
+propertiesFilter=$(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}"* | sort)
+if [ -z "$propertiesFilter" ]; then
+	echo "[$scriptName][INFO] Properties directory ($propertiesFilter) not found, alter processSequence property to skip."
 else
-	echo; echo "[$scriptName]   Properties directory ($WORK_DIR_DEFAULT/propertiesForContainerTasks) not found, no action taken."
+	# Verify docker available
+	test=$(docker --version 2>&1)
+	if [ $? -ne 0 ]; then
+		ERRMSG "[NO_DOCKER] Docker not installed or running" 3913
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		IFS=',' read -ra ADDR <<< ${ADDR[2]}
+		dockerRun="${ADDR[0]}"
+		echo "[$scriptName]   Docker           : $dockerRun"
+	fi
+
+	# Test Docker is running
+	echo "[$scriptName] List all current images"
+	echo "docker images"
+	docker images
+	if [ "$?" != "0" ]; then
+		if [ -z $CDAF_DOCKER_REQUIRED ]; then
+			echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
+			unset containerDeploy
+		else
+			echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
+			if [ $(whoami) != 'root' ];then
+				elevate='sudo'
+			fi
+			executeExpression "$elevate service docker start"
+			executeExpression "$elevate service docker status"
+		fi
+	fi
+
+	# 2.4.0 Introduce containerDeploy as a prescriptive "remote" process, changed in 2.5.0 to allow re-use of compose assets
+	containerDeploy=$(getProp 'manifest.txt' 'containerDeploy')
+	REVISION=$(getProp 'manifest.txt' 'REVISION')
+
+	# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.ps1 to support 2.4.0 functionality
+	if [ -z $containerDeploy ]; then
+		containerDeploy='${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"'
+		echo "[$scriptName]   containerDeploy  : $containerDeploy (Default)"
+	else
+		echo "[$scriptName]   containerDeploy  : $containerDeploy"
+	fi
+
+	deployImage=$(getProp 'manifest.txt' 'deployImage')
+	if [ ! -z $deployImage ]; then
+		export CONTAINER_IMAGE=$deployImage
+		echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (deployImage)"
+	else
+		runtimeImage=$(getProp 'manifest.txt' 'runtimeImage')
+		if [ ! -z $runtimeImage ]; then
+			export CONTAINER_IMAGE=$runtimeImage
+			echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (runtimeImage)"
+		else
+			containerImage=$(getProp 'manifest.txt' 'containerImage')
+			if [ ! -z $containerImage ]; then
+				export CONTAINER_IMAGE=$containerImage
+				echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (containerImage)"
+			else
+				ERRMSG "[DEPLOY_BASE_IMAGE_NOT_DEFINED] Base image not defined in either deployImage, runtimeImage nor containerImage in CDAF.solution" 3911
+			fi
+		fi
+	fi
+
+	# 2.5.0 Process all containerDeploy environments based on prefix pattern (align with localTasks and remoteTasks)
+	echo "[$scriptName] Preparing to process deploy targets :"; echo
+	for propFile in $propertiesFilter; do
+		echo "[$scriptName]   $propFile"
+	done
+
+	for propFile in $propertiesFilter; do
+		TARGET=$(basename "$propFile")
+		echo "[$scriptName] Processing \$TARGET = $TARGET..."; echo
+		executeExpression "$containerDeploy"
+		executeExpression "cd '$WORK_DIR_DEFAULT'" # Return to Landing Directory in case a custom containerTask has been used, e.g. containerRemote
+	done
 fi

@@ -4,9 +4,9 @@ function executeExpression {
 	eval $1
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
-	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		ERRMSG "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
+		exit $exitCode
 	fi
 }
 
@@ -29,7 +29,8 @@ function executeWarnRetry {
 				if [ "$counter" -le "$max" ]; then
 					echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
 				else
-					ERRMSG "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached." $exitCode
+					echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+					exit $exitCode
 				fi
 			fi					 
 		else
@@ -37,25 +38,6 @@ function executeWarnRetry {
 			success='yes'
 		fi
 	done
-}
-
-# Consolidated Error processing function
-#  required : error message
-#  optional : exit code, if not supplied only error message is written
-function ERRMSG {
-	if [ -z "$2" ]; then
-		echo; echo "[$scriptName][WARN]$1"
-	else
-		echo; echo "[$scriptName][ERROR]$1"
-	fi
-	if [ ! -z $CDAF_ERROR_DIAG ]; then
-		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
-		eval "$CDAF_ERROR_DIAG"
-	fi
-	if [ ! -z "$2" ]; then
-		echo; echo "[$scriptName] Exit with LASTEXITCODE = $2" ; echo
-		exit $2
-	fi
 }
 
 # 2.4.1 Use the function call to separate fields, this allows support for whitespace and quote wrapped values
@@ -72,7 +54,8 @@ function cmProperties {
 		elif [[ "${cmline[0]}" == 'container' ]]; then
 			cdafPath="./propertiesForContainerTasks"
 		else
-			ERRMSG "[CM_PROPERTIES] Unknown CM context ${cmline[0]}, supported contexts are rempote, local or container" 5922
+			echo "[$scriptName] Unknown CM context ${cmline[0]}, supported contexts are rempote, local or container"
+			exit 5922
 		fi
 		echo "[$scriptName]   Generating ${cdafPath}/${cmline[1]}"
 		if [ ! -d ${cdafPath} ]; then
@@ -103,7 +86,8 @@ function pvProperties {
 			elif [[ "${columns[$j]}" == 'container' ]]; then
 				cdafPath="./propertiesForContainerTasks"
 			else
-				ERRMSG "[PV_PROPERTIES] Unknown PV context ${cmline[0]}, supported contexts are rempote, local or container" 5923
+				echo "[$scriptName] Unknown PV context ${cmline[0]}, supported contexts are rempote, local or container"
+				exit 5923
 			fi
 			if [ ! -d "${cdafPath}" ]; then
 				mkdir -p ${cdafPath}
@@ -141,7 +125,8 @@ for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
-	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurrence of this file." 7611
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
+	solutionMessage="$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
 	solutionMessage="$SOLUTIONROOT ($SOLUTIONROOT/CDAF.solution found)"
 fi
@@ -152,7 +137,7 @@ if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi
 if [ -z $BUILDNUMBER ]; then
-	ERRMSG "[BUILDNUMBER_NOT_PASSED] Build Number not passed! Exiting with code 5921" 5921
+	echo "[$scriptName] Build Number not passed! Exiting with code 1"; exit 5921
 fi
 echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 
@@ -181,8 +166,9 @@ fi
 if [ -z $SOLUTION ]; then
 	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		ERRMSG "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode" $exitCode
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
+		exit $exitCode
 	fi
 	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 else
@@ -241,8 +227,9 @@ if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 	echo; echo "Process Pre-Build Tasks ..."
 	$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
 	exitCode=$?
-	if [ $exitCode -ne 0 ]; then
-		ERRMSG "[PREBUILD_FAILURE] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+		exit $exitCode
 	fi
 fi
 
@@ -382,7 +369,9 @@ else
 		$AUTOMATIONROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			ERRMSG "[BUILD_PROJECTS_FAILURE] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode" $exitCode
+			echo
+			echo "[$scriptName] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
+			exit $exitCode
 		fi
 	fi
 	
@@ -392,7 +381,9 @@ else
 		$AUTOMATIONROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			ERRMSG "[PACKAGE_FAILURE] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode" $exitCode
+			echo
+			echo "[$scriptName] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
+			exit $exitCode
 		fi
 	fi
 fi
@@ -455,8 +446,9 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		echo; echo "Process Post-Build Tasks ..."
 		$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
 		exitCode=$?
-		if [ $exitCode -ne 0 ]; then
-			ERRMSG "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
+		if [ "$exitCode" != "0" ]; then
+			echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			exit $exitCode
 		fi
 	fi
 

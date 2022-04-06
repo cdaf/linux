@@ -101,3 +101,8 @@ for step in $processSequence; do
 	echo
 	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
 done
+
+
+echo; echo "[$scriptName] ========================================="
+echo "[$scriptName]        Delivery Process Complete"
+echo "[$scriptName] ========================================="

@@ -303,6 +303,10 @@ function VARCHK {
 	fi
 }
 
+function resolveContent {
+	eval "echo $1"
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
@@ -381,7 +385,8 @@ while read LINE; do
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
 	
 	# Check for cross platform key words, first 6 characters, by convention uppercase but either supported
-	feature=$(echo "${LINE:0:6}" | tr '[a-z]' '[A-Z]')
+	read -ra exprArray <<< ${LINE}
+	feature=$(echo "${exprArray[0]}" | tr '[a-z]' '[A-Z]')
 
 	# Exit argument set
 	if [ "$feature" == "EXITIF" ]; then
@@ -404,13 +409,25 @@ while read LINE; do
 
 	# Exit argument set
 	if [ "$feature" == "PROPLD" ]; then
-		propFile="${LINE:7}"
-		echo "$LINE ==> $AUTOMATIONHELPER/transform.sh $propFile"
-		echo
+		propFile="${exprArray[1]}"
 		execute="$AUTOMATIONHELPER/transform.sh $propFile"
 		propertiesList=$(eval $execute)
-		printf "$propertiesList"
-		eval $propertiesList
+		if [ "${exprArray[2]}" == "resolve" ]; then
+			echo "Resolve variables defined within $propFile"; echo
+			for nameContent in $propertiesList; do
+				echo "  $nameContent"
+				IFS='=' read -r name content <<< "$nameContent"
+				IFS=$DEFAULT_IFS
+				resolved=$(eval resolveContent $content)
+				eval "$name='$resolved'"
+			done
+		else
+			echo "Variables defined within $propFile"; echo
+			for nameContent in $propertiesList; do
+				echo "  $nameContent"
+			done
+			eval $propertiesList
+		fi
 		echo			
 		loadProperties=""
 	fi
@@ -493,7 +510,7 @@ while read LINE; do
 		if [ ! -z "$EXECUTABLESCRIPT" ]; then
 			# Do not echo line if it is an echo itself or it is determining controlled exit
 			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
-# This leaks secrets, but I have left it should someone need to temporarilty use it for debugging					
+# This leaks secrets, but I have left it should someone need to temporarily use it for debugging					
 #				echo $(eval echo "$EXECUTABLESCRIPT")
 				echo "$EXECUTABLESCRIPT"
 			fi

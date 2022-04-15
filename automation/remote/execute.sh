@@ -410,26 +410,30 @@ while read LINE; do
 	# Exit argument set
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
+		propldAction="${exprArray[2]}"
 		execute="$AUTOMATIONHELPER/transform.sh $propFile"
 		propertiesList=$(eval $execute)
-		if [ "${exprArray[2]}" == "resolve" ]; then
-			echo "Resolve variables defined within $propFile"; echo
+		if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then
+			echo "PROPLD $propldAction variables defined within $propFile"; echo
+			revealed=()
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 				IFS='=' read -r name content <<< "$nameContent"
 				IFS=$DEFAULT_IFS
 				resolved=$(eval resolveContent $content)
+				revealed+=("  $name = '$resolved'")
 				eval "$name='$resolved'"
 			done
+			if [[ "$propldAction" == "reveal" ]]; then
+				echo; printf '%s\n' "${revealed[@]}"
+			fi
 		else
-			echo "Variables defined within $propFile"; echo
+			echo "PROPLD variables defined within $propFile"; echo
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 			done
 			eval $propertiesList
 		fi
-		echo			
-		loadProperties=""
 	fi
 
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux

@@ -3,7 +3,7 @@ set -e
 scriptName=${0##*/}
 export DEFAULT_IFS=$IFS
 
-# This deploy script processes the package, and is therefore dependant on the build
+# This deploy script processes the package, and is therefore dependent on the build
 # and package processes.
 
 if [ -z "$1" ]; then
@@ -177,7 +177,7 @@ function DECRYP {
 # Detokenise a file
 #  required : file to be detokenised
 #  optional : properties file, by default the TARGET is used
-#  optional : AES key
+#  optional : GPG key or variable expansion feature
 function DETOKN {
 	if [ -z "$1" ]; then
 		echo "Token file not supplied!"; exit 3523
@@ -187,7 +187,7 @@ function DETOKN {
 	else
 		propertyFile=$2
 	fi
-	if [ -z "$3" ]; then
+	if [ ! -z "$3" ]; then
 		if [[ "$3" == "resolve" || "$3" == "reveal" ]]; then
 			export propldAction=$3
 		else
@@ -201,6 +201,7 @@ function DETOKN {
 		echo "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode"
 		exit $exitCode
 	fi
+	unset propldAction
 }
 
 # Replace in file
@@ -311,6 +312,7 @@ function VARCHK {
 	fi
 }
 
+# Expand argument for variables within properties
 function resolveContent {
 	eval "echo $1"
 }
@@ -450,7 +452,7 @@ while read LINE; do
 		printf "$LINE ==> "
 		IFS='=' read -r name value <<< "$arguments"
 		IFS=$DEFAULT_IFS
-		EXECUTABLESCRIPT="$(echo "${name}" | xargs | sed 's/\$//g')=\"$(eval "resolveContent $value")\""
+		EXECUTABLESCRIPT="$(echo "${name}" | xargs | sed 's/\$//g')='$(eval "resolveContent $value")'"
 	fi
 
 	# Invoke a custom script

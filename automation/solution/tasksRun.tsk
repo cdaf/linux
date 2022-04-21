@@ -5,6 +5,8 @@ echo "Some basic functions"
 REFRSH . $TMPDIR/workspacecopy
 REMOVE TMPDIR/workspacecopy
 
+echo "Resolve and reveal property, then assign to a named variable"
+
 echo "Passphrase should be supplied by CD tooling"
 passphrase=8b778ff3fd80def90161e40b9c54527e
 
@@ -23,11 +25,11 @@ DECRYP ./crypt/PGP_CRYPT $passphrase > decrypted.txt
 echo "DO NOT list the decrypted file contents"
 cat decrypted.txt
 
-echo "By supplying an AES key, a tokenised file can be detokenised without the secrets being written to disk"
+echo "By supplying an GPG key, a tokenised file can be detokenised without the secrets being written to disk"
 cat crypt-test.yml
 
 echo "Detokenise plain text"
-DETOKN crypt-test.yml
+DETOKN crypt-test.yml $TARGET reveal
 
 echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"
 DETOKN crypt-test.yml ./crypt/PGP_CRYPT $passphrase

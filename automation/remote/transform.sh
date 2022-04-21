@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 scriptName=${0##*/}
 
 # Read in two files, the definition file and template file, the name values in the
@@ -7,8 +6,18 @@ scriptName=${0##*/}
 # If a tokenised file is not supplied, then simply return the name value pairs
 # from the properties file, without new lines or comments.
 
+# Expand argument for variables within properties
 function resolveContent {
 	eval "echo $1"
+}
+
+# Return MD5 as uppercase Hexadecimal
+function MD5MSK {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | md5sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
 }
 
 if [ -z "$1" ]; then
@@ -30,12 +39,12 @@ if [ ! -z "$2" ]; then
 	fi
 fi
 
-if [ ! -z "$3" ]; then
-	decryptedFileInMemory=$(gpg --decrypt --batch --passphrase $3 ${PROPERTIES})
-	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $decryptedFileInMemory)
-else
+if [ -z "$3" ]; then
 	#deleting lines starting with # ,blank lines ,lines with only spaces
 	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
+else
+	decryptedFileInMemory=$(gpg --decrypt --batch --passphrase $3 ${PROPERTIES})
+	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $decryptedFileInMemory)
 fi
 
 while read -r LINE; do
@@ -45,21 +54,30 @@ while read -r LINE; do
 		echo "  ${name}='${value}'"
 	else
    	    name="%${name}%"
-		if [[ "$propldAction" == "resolve" ]]; then
-			echo "Found ${name}, replacing with ${value}"
-			value=$(eval resolveContent $value)				
-		elif [[ "$propldAction" == "reveal" ]]; then
-			value=$(eval resolveContent $value)				
-			echo "Found ${name}, replacing with ${value}"
+   	    grep -q ${name} ${TOKENISED}
+   	    if [ $? -eq 0 ]; then
+			if [[ "$propldAction" == "resolve" ]]; then
+				echo "Found ${name}, replacing with ${value}"
+				value=$(eval resolveContent "$value")
+			elif [[ "$propldAction" == "reveal" ]]; then
+				value=$(eval resolveContent "$value")
+				echo "Found ${name}, replacing with ${value}"
+			else
+				if [ -z "$3" ]; then
+					echo "Found ${name}, replacing with ${value}"
+				else
+					echo "Found ${name}, replacing with $(MD5MSK ${value}) (MD5 Mask)"
+				fi
+			fi
+			
+			# Mac OSX sed 
+			if [[ "$OSTYPE" == "darwin"* ]]; then
+				sed -i '' -- "s•${name}•${value}•g" ${TOKENISED}
+			else
+				sed -i -- "s•${name}•${value}•g" ${TOKENISED}
+			fi
 		else
-			echo "Found ${name}, replacing with ${value}"
-		fi
-		
-		# Mac OSX sed 
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			sed -i '' -- \"s•${name}•${value}•g\" ${TOKENISED}
-		else
-			sed -i -- \"s•${name}•${value}•g\" ${TOKENISED}
+			( exit 0 )
 		fi
 	fi
 done < <(echo "$fileWithoutComments")

@@ -1,6 +1,7 @@
 ---
 application:
   admin-password: "%secret1%"
+  user_dir: "%user_dir%"
   database:
     target: "%deployHost%"
     user: "dbreaderwriter"

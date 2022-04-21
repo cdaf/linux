@@ -387,6 +387,7 @@ while read LINE; do
 	# Check for cross platform key words, first 6 characters, by convention uppercase but either supported
 	read -ra exprArray <<< ${LINE}
 	feature=$(echo "${exprArray[0]}" | tr '[a-z]' '[A-Z]')
+	arguments=$(echo "${exprArray[@]:1}")
 
 	# Exit argument set
 	if [ "$feature" == "EXITIF" ]; then
@@ -439,13 +440,15 @@ while read LINE; do
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux
 	if [ "$feature" == "ASSIGN" ]; then
 		printf "$LINE ==> "
-		EXECUTABLESCRIPT="${LINE:8}"
+		IFS='=' read -r name value <<< "$arguments"
+		IFS=$DEFAULT_IFS
+		EXECUTABLESCRIPT="$(echo "${name}" | xargs | sed 's/\$//g')=\"$(eval "resolveContent $value")\""
 	fi
 
 	# Invoke a custom script
 	if [ "$feature" == "INVOKE" ]; then
 		printf "$LINE ==> "
-		scriptLine="${LINE:7}"
+		scriptLine="${arguments}"
 		sep=' '
 		
 		case $scriptLine in
@@ -465,7 +468,7 @@ while read LINE; do
 	# Execute Remote Command or Local Shell Script (via ssh)
 	if [ "$feature" == "EXCREM" ]; then
 		printf "$LINE ==> "
-		scriptLine="${LINE:7}"
+		scriptLine="${arguments}"
 		sep=' '
    	    EXECUTABLESCRIPT='./remoteExec.sh'
 		case $scriptLine in

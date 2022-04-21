@@ -1,6 +1,6 @@
-context  target   user_dir  deployHost          deployUser
-remote   VAGRANT  $HOME     linux-1.mshome.net  deployer
-local    LINUX    $HOME     localhost
-local    dev      $HOME     localhost
-local    test     $HOME     localhost
-local    prod     $HOME     localhost
+context  target   user_dir  user_password  deployHost          deployUser
+remote   VAGRANT  $HOME     $SHELL         linux-1.mshome.net  deployer
+local    LINUX    $HOME     $SHELL         localhost
+local    dev      $HOME     $SHELL         localhost
+local    test     $HOME     $SHELL         localhost
+local    prod     $HOME     $SHELL         localhost

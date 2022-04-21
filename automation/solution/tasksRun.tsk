@@ -1,38 +1,44 @@
-echo "List available software"
+echo "List available software"; echo
 ./capabilities.sh
 
-echo "Some basic functions"
+echo "Some basic functions"; echo
 REFRSH . $TMPDIR/workspacecopy
 REMOVE TMPDIR/workspacecopy
 
-echo "Resolve and reveal property, then assign to a named variable"
+echo "Resolve and reveal property, then assign to a named variable"; echo
+ASSIGN $userDir = $user_dir
 
-echo "Passphrase should be supplied by CD tooling"
+echo "Passphrase should be supplied by CD tooling"; echo
 passphrase=8b778ff3fd80def90161e40b9c54527e
 
-echo "DO NOT decrypt the file without capturing the result"
+echo "DO NOT decrypt the file without capturing the result"; echo
 DECRYP ./crypt/PGP_CRYPT $passphrase
 
-echo "Decrypt to a variable"
+echo "Decrypt to a variable"; echo
 result=$(DECRYP ./crypt/PGP_CRYPT $passphrase)
 
-echo "DO NOT log the result"
+echo "DO NOT log the result"; echo
 echo $result
 
-echo "Decrypt to a file"
+echo "Decrypt to a file"; echo
 DECRYP ./crypt/PGP_CRYPT $passphrase > decrypted.txt
 
-echo "DO NOT list the decrypted file contents"
-cat decrypted.txt
-
-echo "By supplying an GPG key, a tokenised file can be detokenised without the secrets being written to disk"
+echo "List content of tokenised properties file"; echo
 cat crypt-test.yml
 
-echo "Detokenise plain text"
+echo "Detokenise plain text with embedded variable"; echo
 DETOKN crypt-test.yml $TARGET reveal
 
-echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"
+echo "Safe to list as no sensitive values have been transformed"; echo
+cat crypt-test.yml
+
+echo "Detokenise secrets with embedded variable, using non-default token, i.e. @user_password@"; echo
+export CDAF_OVERRIDE_TOKEN=@
+DETOKN crypt-test.yml $TARGET resolve
+
+echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"; echo
+unset CDAF_OVERRIDE_TOKEN
 DETOKN crypt-test.yml ./crypt/PGP_CRYPT $passphrase
 
-echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"
+echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"; echo
 cat crypt-test.yml

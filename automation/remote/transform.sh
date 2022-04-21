@@ -53,7 +53,11 @@ while read -r LINE; do
 		# Cannot execute resolve/reveal logic here as there is only 1 output stream
 		echo "  ${name}='${value}'"
 	else
-   	    name="%${name}%"
+		if [ -z "$CDAF_OVERRIDE_TOKEN" ]; then
+	   	    name="%${name}%"
+   	    else
+	   	    name="${CDAF_OVERRIDE_TOKEN}${name}${CDAF_OVERRIDE_TOKEN}"
+   	    fi
    	    grep -q ${name} ${TOKENISED}
    	    if [ $? -eq 0 ]; then
 			if [[ "$propldAction" == "resolve" ]]; then

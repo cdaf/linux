@@ -7,6 +7,10 @@ scriptName=${0##*/}
 # If a tokenised file is not supplied, then simply return the name value pairs
 # from the properties file, without new lines or comments.
 
+function resolveContent {
+	eval "echo $1"
+}
+
 if [ -z "$1" ]; then
 	echo "$scriptName Properties File not passed. HALT!"
 	exit 101
@@ -37,17 +41,25 @@ fi
 while read -r LINE; do
     IFS="\=" read -r name value <<< "$LINE"
 	if [ -z "$TOKENISED" ]; then
+		# Cannot execute resolve/reveal logic here as there is only 1 output stream
 		echo "  ${name}='${value}'"
 	else
    	    name="%${name}%"
-#		echo "[$scriptName] Replace $name with ${value}"
-
+		if [[ "$propldAction" == "resolve" ]]; then
+			echo "Found ${name}, replacing with ${value}"
+			value=$(eval resolveContent $value)				
+		elif [[ "$propldAction" == "reveal" ]]; then
+			value=$(eval resolveContent $value)				
+			echo "Found ${name}, replacing with ${value}"
+		else
+			echo "Found ${name}, replacing with ${value}"
+		fi
+		
 		# Mac OSX sed 
 		if [[ "$OSTYPE" == "darwin"* ]]; then
-			sed -i '' "s^$name^${value}^g" $TOKENISED
+			sed -i '' -- \"s•${name}•${value}•g\" ${TOKENISED}
 		else
-			sed -i "s^$name^${value}^g" $TOKENISED
+			sed -i -- \"s•${name}•${value}•g\" ${TOKENISED}
 		fi
 	fi
-
 done < <(echo "$fileWithoutComments")

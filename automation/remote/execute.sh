@@ -187,10 +187,18 @@ function DETOKN {
 	else
 		propertyFile=$2
 	fi
-	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$3"
+	if [ -z "$3" ]; then
+		if [[ "$3" == "resolve" || "$3" == "reveal" ]]; then
+			export propldAction=$3
+		else
+			gpg=$3
+		fi
+	fi
+
+	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$gpg"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$3\" returned $exitCode"
+		echo "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode"
 		exit $exitCode
 	fi
 }

@@ -37,7 +37,7 @@ export CDAF_OVERRIDE_TOKEN=@
 DETOKN crypt-test.yml $TARGET resolve
 
 echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"; echo
-unset CDAF_OVERRIDE_TOKEN
+ASSIGN CDAF_OVERRIDE_TOKEN
 DETOKN crypt-test.yml ./crypt/PGP_CRYPT $passphrase
 
 echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"; echo

@@ -162,7 +162,7 @@ else
 	fi
 
 	echo; echo "[$scriptName] Register with token"
-	executeRetry "sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:1.2.11 $baseURL/v1/scripts/$TOKEN"
+	executeRetry "sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v1.2.11 $baseURL/v1/scripts/$TOKEN"
 	echo	
 fi
 

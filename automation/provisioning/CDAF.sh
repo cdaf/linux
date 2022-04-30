@@ -14,7 +14,7 @@ function setRoot {
 	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 		directoryName=${i%%/}
 		if [ -f "$directoryName/CDAF.linux" ]; then
-			echo $directoryName
+			cd "$(dirname "$0")" && pwd
 		fi
 	done
 }  
@@ -51,35 +51,21 @@ else
 	echo "[$scriptName]   OPT_ARG        : $OPT_ARG"
 fi
 
-automationRoot=$(setRoot)
-
-if [ -z "$automationRoot" ]; then
-	if [ -d "/vagrant" ]; then
-		cd "/vagrant"
-		automationRoot=$(setRoot)
-	fi
-	if [ -z "$automationRoot" ]; then
-		automationRoot="automation"
-		echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux not found)"
-	else
-		echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux found in /vagrant)"
-	fi
-else
-	echo "[$scriptName]   automationRoot : $automationRoot (CDAF.linux found)"
-fi
+AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 
 echo
 echo "[$scriptName] Execute continuous delivery emulation"
 echo
 if [ -z "$runas" ]; then
 	executeExpression "cd $workspace"
-	executeExpression "${automationRoot}/cdEmulate.sh $OPT_ARG"
+	executeExpression "${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG"
 else
 su $runas << EOF
 	echo "[$scriptName] cd $workspace"
 	cd $workspace
-	echo "[$scriptName] ${automationRoot}/cdEmulate.sh $OPT_ARG"
-	${automationRoot}/cdEmulate.sh $OPT_ARG
+	echo "[$scriptName] ${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG"
+	${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG
 EOF
 fi
 

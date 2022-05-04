@@ -68,7 +68,7 @@ Encrypted files (for passwords)
 	/cryptRemoteRemote
 	/cryptRemoteLocal
 
-Custom elements, i,.e. deployScriptOverride and deployTaskOverride scripts
+Custom elements, i.e. deployScriptOverride and deployTaskOverride scripts
 
 	/custom
 	/customRemote

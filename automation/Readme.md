@@ -15,11 +15,7 @@ When using for the first time, the users workstation needs to be prepared by pro
 
 # Solution Driver
 
-The identification of the SOLUTIONROOT and the core properties and behaviors are driven from CDAF.solution. The following properties are supported
-
-| Property       | Description                                                        |
-| ---------------|--------------------------------------------------------------------|
-| defaultBranch  | Used to determine feature branch functionality, default is master  |
+See [Solution Properties](https://docs.cdaf.io/mydoc_solution_properties.html)
 
 Basic driver files (introduced 1.7.8):
 

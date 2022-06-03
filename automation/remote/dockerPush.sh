@@ -22,10 +22,13 @@ function executeSuppress {
 	fi
 }
 
-# Return MD5 as uppercase Hexadecimal
-function MD5MSK {
-	read -ra array <<< $(echo -n $1 | md5sum)
+# 2.5.2 Return SHA256 as uppercase Hexadecimal, default algorith is SHA256, but setting explicitely should this change in the future
+function MASKED {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | sha256sum)
 	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
 }
 
 scriptName='dockerPush.sh'
@@ -78,7 +81,7 @@ registryToken=$6
 if [ -z "$registryToken" ]; then
 	echo "[$scriptName] registryToken   : (not supplied, login will not be attempted)"
 else
-	echo "[$scriptName] registryToken   : $(MD5MSK $registryToken) (MD5 mask)"
+	echo "[$scriptName] registryToken   : $(MASKED $registryToken) (MASKED)"
 fi
 
 # DockerHub example

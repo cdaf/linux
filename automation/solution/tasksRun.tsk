@@ -8,20 +8,29 @@ REMOVE TMPDIR/workspacecopy
 echo "Resolve and reveal property, then assign to a named variable"; echo
 ASSIGN $userDir = $user_dir
 
-echo "Passphrase should be supplied by CD tooling"; echo
-passphrase=8b778ff3fd80def90161e40b9c54527e
+echo "Load Propertes as variables and reveal their values"
+PROPLD $TARGET reveal
+
+echo "The following is an example of secrets management"
+echo "DO NOT log the GPG_KEY, this is supplied by CD tool as environment variable"; echo
+GPG_KEY=8b778ff3fd80def90161e40b9c54527e
+
+echo "A sensitive value can be logged using non-reversable mask"
+GPG_KEY_MASK=$(MASKED $GPG_KEY)
+
+VARCHK varchk.properties
 
 echo "DO NOT decrypt the file without capturing the result"; echo
-DECRYP ./crypt/PGP_CRYPT $passphrase
+DECRYP ./crypt/PGP_CRYPT $GPG_KEY
 
 echo "Decrypt to a variable"; echo
-result=$(DECRYP ./crypt/PGP_CRYPT $passphrase)
+result=$(DECRYP ./crypt/PGP_CRYPT $GPG_KEY)
 
 echo "DO NOT log the result"; echo
 echo $result
 
 echo "Decrypt to a file"; echo
-DECRYP ./crypt/PGP_CRYPT $passphrase > decrypted.txt
+DECRYP ./crypt/PGP_CRYPT $GPG_KEY > decrypted.txt
 
 echo "List content of tokenised properties file"; echo
 cat crypt-test.yml
@@ -38,7 +47,7 @@ DETOKN crypt-test.yml $TARGET resolve
 
 echo "Detokenise with masked secrets, only supports encrypted name/value files, in-memory, i.e. unencrypted file is never on disk"; echo
 ASSIGN CDAF_OVERRIDE_TOKEN
-DETOKN crypt-test.yml ./crypt/PGP_CRYPT $passphrase
+DETOKN crypt-test.yml ./crypt/PGP_CRYPT $GPG_KEY
 
 echo "DO NOT list the contents of the detokenised file because CD tool does not know to mask these values"; echo
 cat crypt-test.yml

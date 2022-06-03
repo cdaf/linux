@@ -11,11 +11,11 @@ function resolveContent {
 	eval "echo $1"
 }
 
-# Return MD5 as uppercase Hexadecimal
-function MD5MSK {
+# 2.5.2 Return SHA256 as uppercase Hexadecimal, default algorith is SHA256, but setting explicitely should this change in the future
+function MASKED {
 	CURRENT_IFS=$IFS
 	IFS=$DEFAULT_IFS
-	read -ra array <<< $(echo -n $1 | md5sum)
+	read -ra array <<< $(echo -n $1 | sha256sum)
 	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
 	IFS=$CURRENT_IFS
 }
@@ -70,7 +70,7 @@ while read -r LINE; do
 				if [ -z "$3" ]; then
 					echo "Found ${name}, replacing with ${value}"
 				else
-					echo "Found ${name}, replacing with $(MD5MSK ${value}) (MD5 Mask)"
+					echo "Found ${name}, replacing with $(MASKED ${value}) (MASKED)"
 				fi
 			fi
 			

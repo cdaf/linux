@@ -255,6 +255,15 @@ function MD5MSK {
 	IFS=$CURRENT_IFS
 }
 
+# 2.5.2 Return SHA256 as uppercase Hexadecimal, default algorith is SHA256, but setting explicitely should this change in the future
+function MASKED {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | sha256sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
+}
+
 # Validate Variables (2.4.6)
 function VARCHK {
 	echo
@@ -279,7 +288,7 @@ function VARCHK {
 			if [ -z $variableValue ]; then
 				echo "  $variableName = (optional secret not set)"
 			else
-			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK optional secret)"
+			    echo "  $variableName = $(MASKED $variableValue) (MASKED optional secret)"
 			fi
 		elif [[ "$variableValidation" == 'required' ]]; then
 			if [ -z $variableValue ]; then
@@ -293,15 +302,15 @@ function VARCHK {
 				echo "  $variableName = [REQUIRED SECRET NOT SET]"
 				failureCount=$((failureCount+1))
 			else
-			    echo "  $variableName = $(MD5MSK $variableValue) (MD5MSK required secret)"
+			    echo "  $variableName = $(MASKED $variableValue) (MASKED required secret)"
 			fi
 		else
-			validationEvaluated=$(eval "echo $variableValidation") # Resolve value containing a variable name, e.g. $variableValidation = '$SECRET_VALUE_MD5'
-			variableValueMD5=$(MD5MSK $variableValue)
-			if [[ "$variableValueMD5" == "$validationEvaluated" ]]; then
-				echo "  $variableName = $variableValueMD5 (MD5MSK check success with '$variableValidation')"
+			validationEvaluated=$(eval "echo $variableValidation") # Resolve value containing a variable name, e.g. $variableValidation = '$SECRET_VALUE_MASKED'
+			variableValueMASKED=$(MASKED $variableValue)
+			if [[ "$variableValueMASKED" == "$validationEvaluated" ]]; then
+				echo "  $variableName = $variableValueMASKED (MASKED check success)"
 			else
-			    echo "  $variableName = $variableValueMD5 [MD5 CHECK FAILED FOR '$variableValidation']"
+			    echo "  $variableName = $variableValueMASKED [MASKED CHECK FAILED FOR '${variableValidation}']"
 				failureCount=$((failureCount+1))
 			fi
 		fi

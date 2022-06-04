@@ -18,7 +18,7 @@ GPG_KEY=8b778ff3fd80def90161e40b9c54527e
 echo "A sensitive value can be logged using non-reversable mask"
 GPG_KEY_MASK=$(MASKED $GPG_KEY)
 
-VARCHK varchk.properties
+VARCHK properties.varchk
 
 echo "DO NOT decrypt the file without capturing the result"; echo
 DECRYP ./crypt/PGP_CRYPT $GPG_KEY

@@ -1,0 +1,3 @@
+# Verify variable is populated, and the SHA256 matches, support literal or variable
+GPG_KEY=4ADB29D51AF260D52DA7D03385641CB774EB0FD4298464FB9C9ED62B6478CB5C
+GPG_KEY=$GPG_KEY_MASK

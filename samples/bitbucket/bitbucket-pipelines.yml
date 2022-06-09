@@ -5,10 +5,15 @@ pipelines:
     - step:
         name: Build and test
         script:
+        
+          # Use Latest Stable
+          - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          
           # Using CDAF Edge
-          - curl -s https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux-master.zip
-          - unzip linux-master.zip
-          - ./linux-master/automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          # - curl -s https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux-master.zip
+          # - unzip linux-master.zip
+          # - ./linux-master/automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
 
           # CDAF installed in repo
           # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
@@ -20,9 +25,8 @@ pipelines:
       - step:
           name: Build and test
           script:
-            - curl -s https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux-master.zip
-            - unzip linux-master.zip
-            - ./linux-master/automation/ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+            - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+            - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
           artifacts:
             - "release.sh"
           services:

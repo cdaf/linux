@@ -1,15 +1,18 @@
-image: henres/docker-compose-bash
+image: cdaf/linux:latest
 
 pipelines:
   default:
     - step:
-        name: Build and test
+        name: Build and Test
         script:
         
-          # Use Latest Stable
-          - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-          - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          ## CDAF Install is not required because pre-instlled in cdaf/linux:latest, following samples are for use in images without CDAF
+          - entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
           
+          # Use Latest Stable
+          # - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+          # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+
           # Using CDAF Edge
           # - curl -s https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux-master.zip
           # - unzip linux-master.zip
@@ -17,13 +20,14 @@ pipelines:
 
           # CDAF installed in repo
           # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          
         services:
           - docker
 
   branches:
     'master':
       - step:
-          name: Build and test
+          name: Build Only
           script:
             - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
             - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
@@ -33,8 +37,8 @@ pipelines:
             - docker
 
       - step:
-          name: Deploy to test
-          deployment: Test
+          name: Docker Test
+          deployment: DOCKER
           script:
             - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
           services:

@@ -6,7 +6,7 @@ solutionName=myproduct
 
 # constructor=TasksLocal
 # runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
-# imageBuild=./automation/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+# imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
 # CDAF_REGISTRY_URL=${CI_REGISTRY}
 # CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER
 # CDAF_REGISTRY_USER=${CI_REGISTRY_USER}

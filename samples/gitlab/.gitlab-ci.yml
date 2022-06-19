@@ -13,6 +13,8 @@ cdaf-ci:
   # tags:
   #   - linux
   # image: cdaf/linux
+  # script: entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+
 
   # Latest Published Release
   script: |

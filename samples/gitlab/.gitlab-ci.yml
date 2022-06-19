@@ -9,6 +9,11 @@ cdaf-ci:
   tags:
     - bash
 
+  # To use native container runner with CDAF pre-installed
+  # tags:
+  #   - linux
+  # image: cdaf/linux
+
   # Latest Published Release
   script: |
     curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -

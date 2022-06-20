@@ -3,11 +3,9 @@
 ARG CONTAINER_IMAGE
 FROM ${CONTAINER_IMAGE}
 
-WORKDIR /app/publish
-EXPOSE 80
-EXPOSE 443
+WORKDIR /home/root
 
-ADD content.tar.gz /usr/share/nginx/html/
+COPY provision.sh .
+RUN ./provision.sh
 
-# Normal containers run a console application, this example works in a more similar way to a traditional daemon server
-# CMD ["dotnet", "app.dll"]
+CMD ["sleep", "infinity"]

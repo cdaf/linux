@@ -16,7 +16,7 @@ cd compose
 cd ..
 
 echo "Clean-up old images and transient directory Created by imageBuild.sh"
-export TARGET_TAG="${id}_$(echo "$constructor" | tr '[A-Z]' '[a-z]')"
+export TARGET_TAG="${id}_target"
 export TEST_TAG="${id}_test"
 $WORKSPACE/dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
 $WORKSPACE/dockerClean.sh $TEST_TAG ${BUILDNUMBER}

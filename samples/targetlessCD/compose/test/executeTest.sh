@@ -36,5 +36,6 @@ executeExpression "./TasksLocal/delivery.sh $ENVIRONMENT"
 
 echo "[$scriptName] Automated Test Execution Completed Successfully."
 
-echo; echo "[$scriptName] ---------- end ----------"
-
+echo 'Watch log to keep container alive' > /tmp/cdaf.log
+echo;echo "tail -1000f /tmp/cdaf.log";echo
+tail -1000f /tmp/cdaf.log

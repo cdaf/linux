@@ -7,15 +7,10 @@ FROM ${CONTAINER_IMAGE}
 WORKDIR /solution
 
 # Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
-COPY automation automation
+COPY *.sh ./
 
 # Provision Build Dependancies
-RUN automation/provisioning/base.sh 'openjdk-8-jdk-headless curl'
-RUN curl -LO https://github.com/rundeck/rundeck-cli/releases/download/v1.3.4/rd-1.3.4.zip
-RUN jar -xvf rd-1.3.4.zip
-RUN mv rd-1.3.4 /opt
-RUN chmod +x /opt/rd-1.3.4/bin/rd
-ENV PATH=/opt/rd-1.3.4/bin:$PATH
+RUN ./bootstrapAgent.sh
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/

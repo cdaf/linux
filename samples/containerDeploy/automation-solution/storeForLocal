@@ -1,4 +1,2 @@
-automation/provisioning/base.sh
-automation/provisioning/installPython.sh
-
+# The construction of the deploy container executes in the local context
 containerDeploy

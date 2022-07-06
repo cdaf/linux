@@ -153,8 +153,13 @@ if [ -d "./propertiesForContainerTasks" ]; then
 			fi
 		fi
 
-		export CDAF_HOME_MOUNT=$(getProp "./manifest.txt" "CDAF_HOME_MOUNT")
-		echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT}"
+		homeMount=$(getProp "./manifest.txt" "CDAF_HOME_MOUNT")
+		if [ -z $homeMount ]; then
+			echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT}"
+		else
+			export CDAF_HOME_MOUNT=$homeMount
+			echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT} (solution override)"
+		fi
 	
 		echo; echo "[$scriptName] List all current images"
 		echo "$imageLIst"; echo

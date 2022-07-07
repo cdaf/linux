@@ -152,10 +152,13 @@ if [ -d "./propertiesForContainerTasks" ]; then
 				fi
 			fi
 		fi
+
+		export CDAF_HOME_MOUNT=$(getProp "./manifest.txt" "CDAF_HOME_MOUNT")
+		echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT}"
 	
 		echo; echo "[$scriptName] List all current images"
 		echo "$imageLIst"; echo
-	
+
 		# 2.5.0 Process all containerDeploy environments based on prefix pattern (align with localTasks and remoteTasks)
 		echo; echo "[$scriptName] Preparing to process deploy targets :"
 		for propFile in $propertiesFilter; do

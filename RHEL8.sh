@@ -83,7 +83,24 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 ADDREPO
  
 writeLog "Install VS Code"
-executeExpression "${elevation} sudo dnf install -y code" 
+executeExpression "${elevation} sudo dnf install -y code"
+
+writeLog "Always overrite to ensure the script config is being used"; echo
+sudo tee /etc/yum.repos.d/kubernetes.repo <<ADDREPO
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+ADDREPO
+ 
+writeLog "Install K8S CLI"
+executeExpression "${elevation} sudo dnf install -y kubectl"
+
+writeLog "Install Git CLI"
+executeExpression "${elevation} dnf install -y git"
 
 writeLog "--- end ---"
 exit 0

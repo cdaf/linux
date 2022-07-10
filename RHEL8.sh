@@ -33,6 +33,7 @@ function executeIgnore {
 			fi
 		fi
 	fi
+
 }  
 
 echo; echo "--- start ---"
@@ -83,7 +84,7 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 ADDREPO
  
 writeLog "Install VS Code"
-executeExpression "${elevation} sudo dnf install -y code"
+executeExpression "${elevation} dnf install -y code"
 
 writeLog "Always overrite to ensure the script config is being used"; echo
 sudo tee /etc/yum.repos.d/kubernetes.repo <<ADDREPO
@@ -97,10 +98,13 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ADDREPO
  
 writeLog "Install K8S CLI"
-executeExpression "${elevation} sudo dnf install -y kubectl"
+executeExpression "${elevation} dnf install -y kubectl"
 
 writeLog "Install Git CLI"
 executeExpression "${elevation} dnf install -y git"
+
+writeLog "dotnet core"
+executeExpression "${elevation} dnf install -y dotnet-sdk-6.0"
 
 writeLog "--- end ---"
 exit 0

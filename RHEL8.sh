@@ -64,8 +64,8 @@ fi
 executeExpression "${elevation} snap install --classic eclipse"
  
 # Chrome
-executeExpression "wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
-executeExpression "${elevation} dnf localinstall -y google-chrome-stable_current_x86_64.rpm"
+executeExpression "wget /tmp/https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
+executeExpression "${elevation} dnf localinstall -y /tmp/google-chrome-stable_current_x86_64.rpm"
 
 writeLog "--- end ---"
 exit 0

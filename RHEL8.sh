@@ -2,7 +2,7 @@
 scriptName='RHEL8.sh'
 
 function writeLog {
-	echo "[$scriptName][$(date)] $1"
+	echo; echo "[$scriptName][$(date)] $1"
 }
 
 function executeExpression {
@@ -35,37 +35,55 @@ function executeIgnore {
 	fi
 }  
 
-echo; writeLog "--- start ---"
+echo; echo "--- start ---"
 current_user=$(whoami)
 if [[ $current_user != 'root' ]]; then
 	elevation='sudo'
 fi
 
-writeLog "  whoami       : $current_user"
+echo "  whoami       : $current_user"
 
 if [ ! -z "$HTTP_PROXY" ]; then
-	writeLog "  HTTP_PROXY   : $HTTP_PROXY"
+	echo "  HTTP_PROXY   : $HTTP_PROXY"
 	curlOpt="-x $HTTP_PROXY"
 else
-	writeLog "  HTTP_PROXY   : (not set)"
+	echo "  HTTP_PROXY   : (not set)"
 fi
 
+writeLog "Add Extra Packages for Enterprise Linux"
 executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
 executeExpression "${elevation} yum install -y snapd"
 executeExpression "${elevation} systemctl enable --now snapd.socket"
 if [ ! -e "/var/lib/snapd/snap" ]; then
-	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"       # To enable classic snap support, en
+	writeLog "To enable classic snap support, en"
+	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
 fi
 
 # executeExpression "${elevation} snap install powershell --classic"
  
 executeExpression "${elevation} snap install --classic eclipse"
  
-# Chrome
+writeLog "Download Chrome RPM and install using Dandified YUM"
 executeExpression "wget --directory-prefix=/tmp/chrome https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
 executeExpression "${elevation} dnf localinstall -y /tmp/chrome/google-chrome-stable_current_x86_64.rpm"
+
+writeLog "Add Microsoft Keys for VS Code"
+executeExpression "${elevation} rpm --import https://packages.microsoft.com/keys/microsoft.asc"
+
+writeLog "Always overrite to ensure the script config is being used"; echo
+sudo tee /etc/yum.repos.d/vscode.repo <<ADDREPO
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+ADDREPO
+ 
+writeLog "Install VS Code"
+executeExpression "${elevation} sudo dnf install -y code" 
 
 writeLog "--- end ---"
 exit 0

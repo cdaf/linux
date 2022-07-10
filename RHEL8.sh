@@ -50,21 +50,21 @@ else
 	writeLog "  HTTP_PROXY   : (not set)"
 fi
 
-executeExpression "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
-
-executeExpression "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
 executeExpression "${elevation} yum install -y snapd"
 executeExpression "${elevation} systemctl enable --now snapd.socket"
-executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"       # To enable classic snap support, en
-  
+if [ ! -e "/var/lib/snapd/snap" ]; then
+	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"       # To enable classic snap support, en
+fi
+
 # executeExpression "${elevation} snap install powershell --classic"
  
 executeExpression "${elevation} snap install --classic eclipse"
  
 # Chrome
-executeExpression "$wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
+executeExpression "wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
 executeExpression "${elevation} dnf localinstall -y google-chrome-stable_current_x86_64.rpm"
 
 writeLog "--- end ---"

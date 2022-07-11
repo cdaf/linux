@@ -23,4 +23,6 @@ artifactPrefix=0.0
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
+
 # containerDeploy=${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
+# CDAF_HOME_MOUNT=no

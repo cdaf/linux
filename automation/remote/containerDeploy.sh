@@ -106,6 +106,8 @@ done
 # If a build number is not passed, use the CDAF emulator
 executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then
+	echo "[$scriptName] \$CDAF_HOME_MOUNT = $CDAF_HOME_MOUNT"
+	echo "[$scriptName] \$HOME            = $HOME"
 	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 else
 	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"

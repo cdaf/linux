@@ -153,6 +153,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 			fi
 		fi
 
+		# 2.5.3 Option to disable volume mount for containerDeploy
 		homeMount=$(getProp "./manifest.txt" "CDAF_HOME_MOUNT")
 		if [ -z $homeMount ]; then
 			echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT}"

@@ -154,7 +154,7 @@ else
 			featurePrefix=$(echo "${array[0]}" | tr '[:upper:]' '[:lower:]' | tr -d '[[:space:]]')
 			branchLower=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]')
 			featureEnv="${array[1]}"
-			processEnv=$(eval "if [[ '$branchLower' == '$featurePrefix'* ]]; then echo $featureEnv; fi")
+			processEnv=$(eval "if [[ '$branchLower' == *'$featurePrefix'* ]]; then echo $featureEnv; fi")
 			if [ ! -z "$processEnv" ]; then
 				echo "  Deploy feature branch prefix '$featurePrefix'"
 				featureBranchProcess='yes'

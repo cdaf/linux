@@ -36,7 +36,7 @@ function executeIgnore {
 
 }
 
-executeRetry {
+function executeRetry {
 	wait="$2"
 	if [ -z "$wait" ]; then
 		wait=10

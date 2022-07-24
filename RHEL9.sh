@@ -34,7 +34,46 @@ function executeIgnore {
 		fi
 	fi
 
-}  
+}
+
+executeRetry {
+	wait="$2"
+	if [ -z "$wait" ]; then
+		wait=10
+		echo "[$scriptName]   wait      : $wait (default, seconds)"
+	else
+		echo "[$scriptName]   wait      : $wait (seconds)"
+	fi
+	
+	retryMax="$3"
+	if [ -z "$retryMax" ]; then
+		retryMax=20
+		echo "[$scriptName]   retryMax  : $retryMax (default)"
+	else
+		echo "[$scriptName]   retryMax  : $retryMax"
+	fi
+	
+	counter=1
+	success='no'
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
+		eval $1
+		exitCode=$?
+		# Check execution normal, anything other than 0 is an exception
+		if [ "$exitCode" != "0" ]; then
+			counter=$((counter + 1))
+			if [ "$counter" -le "$retryMax" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Wait $wait seconds, then retry $counter of ${retryMax}"
+				sleep $wait
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Maximum retries (${retryMax}) reached."
+				exit $exitCode
+			fi					 
+		else
+			success='yes'
+		fi
+	done
+}
 
 echo; echo "--- start ---"
 current_user=$(whoami)
@@ -56,15 +95,16 @@ executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-
 executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
 executeExpression "${elevation} yum install -y snapd"
+
 executeExpression "${elevation} systemctl enable --now snapd.socket"
 if [ ! -e "/var/lib/snapd/snap" ]; then
 	writeLog "To enable classic snap support, en"
 	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
 fi
+ 
+executeRetry "${elevation} snap install --classic eclipse"
 
 # executeExpression "${elevation} snap install powershell --classic"
- 
-executeExpression "${elevation} snap install --classic eclipse"
  
 writeLog "Download Chrome RPM and install using Dandified YUM"
 executeExpression "wget --directory-prefix=/tmp/chrome https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
@@ -73,7 +113,7 @@ executeExpression "${elevation} dnf localinstall -y /tmp/chrome/google-chrome-st
 writeLog "Add Microsoft Keys for VS Code"
 executeExpression "${elevation} rpm --import https://packages.microsoft.com/keys/microsoft.asc"
 
-writeLog "Always overrite to ensure the script config is being used"; echo
+writeLog "Always overwrite to ensure the script config is being used"; echo
 sudo tee /etc/yum.repos.d/vscode.repo <<ADDREPO
 [code]
 name=Visual Studio Code
@@ -86,7 +126,7 @@ ADDREPO
 writeLog "Install VS Code"
 executeExpression "${elevation} dnf install -y code"
 
-writeLog "Always overrite to ensure the script config is being used"; echo
+writeLog "Always overwrite to ensure the script config is being used"; echo
 sudo tee /etc/yum.repos.d/kubernetes.repo <<ADDREPO
 [kubernetes]
 name=Kubernetes

@@ -97,11 +97,14 @@ executeExpression "${elevation} yum install -y java-11-openjdk-devel"
 executeExpression "${elevation} yum install -y snapd"
 
 executeExpression "${elevation} systemctl enable --now snapd.socket"
-if [ ! -e "/var/lib/snapd/snap" ]; then
-	writeLog "To enable classic snap support, en"
-	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
+if [ -e "/var/lib/snapd/snap" ]; then
+	writeLog "Unlink any existing configuration"
+	executeExpression "${elevation} unlink /snap"
 fi
- 
+
+writeLog "To enable classic snap support, en"
+executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
+
 executeRetry "${elevation} snap install --classic eclipse"
 
 # executeExpression "${elevation} snap install powershell --classic"

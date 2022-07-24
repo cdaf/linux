@@ -97,7 +97,7 @@ executeExpression "${elevation} yum install -y java-11-openjdk-devel"
 executeExpression "${elevation} yum install -y snapd"
 
 executeExpression "${elevation} systemctl enable --now snapd.socket"
-if [ -e "/var/lib/snapd/snap" ]; then
+if [ -e "/snap" ]; then
 	writeLog "Unlink any existing configuration"
 	executeExpression "${elevation} unlink /snap"
 fi

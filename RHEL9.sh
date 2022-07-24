@@ -56,7 +56,7 @@ function executeRetry {
 	counter=1
 	success='no'
 	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName][$counter] $1"
+		writeLog "[$scriptName][$counter] $1"
 		eval $1
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception

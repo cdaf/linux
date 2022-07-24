@@ -57,12 +57,13 @@ executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
 executeExpression "${elevation} yum install -y snapd"
 executeExpression "${elevation} systemctl enable --now snapd.socket"
-if [ ! -e "/var/lib/snapd/snap" ]; then
-	writeLog "To enable classic snap support, en"
-	executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
+if [ -e "/var/lib/snapd/snap" ]; then
+	writeLog "Unlink any existing configuration"
+	executeExpression "${elevation} unlink /snap"
 fi
 
-# executeExpression "${elevation} snap install powershell --classic"
+writeLog "To enable classic snap support, en"
+executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
  
 executeExpression "${elevation} snap install --classic eclipse"
  
@@ -105,6 +106,13 @@ executeExpression "${elevation} dnf install -y git"
 
 writeLog "dotnet core"
 executeExpression "${elevation} dnf install -y dotnet-sdk-6.0"
+
+writeLog "NodeJS"
+executeExpression "${elevation} dnf module install -y nodejs:16"
+
+writeLog "Buildah & Podman"
+executeExpression "${elevation} yum install -y podman-docker"
+executeExpression "${elevation} touch /etc/containers/nodocker"
 
 writeLog "--- end ---"
 exit 0

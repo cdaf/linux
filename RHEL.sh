@@ -166,7 +166,7 @@ executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
 
 # Test Buildah & Podman
-executeExpression "docker run cdaf/linux terraform --version"
+executeExpression "docker run -t docker.io/cdaf/linux terraform --version"
  
 writeLog "--- end ---"
 exit 0

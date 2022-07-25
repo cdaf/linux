@@ -152,5 +152,9 @@ executeExpression "${elevation} dnf install -y git"
 writeLog "dotnet core"
 executeExpression "${elevation} dnf install -y dotnet-sdk-6.0"
 
+writeLog "Buildah & Podman"
+executeExpression "${elevation} yum install -y podman-docker"
+executeExpression "${elevation} touch /etc/containers/nodocker"
+
 writeLog "--- end ---"
 exit 0

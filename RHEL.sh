@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptName='RHEL9.sh'
+scriptName='RHEL.sh'
 
 function writeLog {
 	echo; echo "[$scriptName][$(date)] $1"
@@ -90,8 +90,12 @@ else
 	echo "  HTTP_PROXY   : (not set)"
 fi
 
+IFS='-' read -ra ADDR <<< $(rpm --query redhat-release)
+IFS='.' read -ra ADDR <<< ${ADDR[2]}
+echo "  RHEL Version : ${ADDR[0]}"
+
 writeLog "Add Extra Packages for Enterprise Linux"
-executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"
+executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-${ADDR[0]}.noarch.rpm"
 executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
 executeExpression "${elevation} yum install -y snapd"
@@ -105,8 +109,7 @@ fi
 writeLog "To enable classic snap support, en"
 executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
 
-executeRetry "${elevation} snap install --classic eclipse"
-
+# executeRetry "${elevation} snap install --classic eclipse"
 # executeExpression "${elevation} snap install powershell --classic"
  
 writeLog "Download Chrome RPM and install using Dandified YUM"

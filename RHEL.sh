@@ -163,6 +163,10 @@ executeExpression "curl --silent -l https://releases.hashicorp.com/terraform/1.2
 executeExpression "unzip terraform.zip"
 
 executeExpression "${elevation} mv -f terraform /usr/bin/"
+executeExpression "terraform --version"
+
+# Test Buildah & Podman
+executeExpression "docker run -it cdaf/linux terraform --version"
  
 writeLog "--- end ---"
 exit 0

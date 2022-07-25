@@ -165,8 +165,11 @@ executeExpression "unzip terraform.zip"
 executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
 
-# Test Buildah & Podman
+writeLog "Test Buildah & Podman"
 executeExpression "docker run -t docker.io/cdaf/linux terraform --version"
+
+writeLog "Office 365 support in Evolution"
+executeExpression "${elevation} yum install -y evolution evolution-ews"
  
 writeLog "--- end ---"
 exit 0

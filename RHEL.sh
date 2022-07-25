@@ -159,8 +159,8 @@ executeExpression "${elevation} touch /etc/containers/nodocker"
 docker run -it cdaf/linux terraform --version
 
 writeLog "Terraform for KOT, align with cdaf/linux image"
-executeExpression "wget https://releases.hashicorp.com/terraform/1.2.2/terraform_1.2.2_linux_amd64.zip"
-executeExpression "unzip terraform_1.2.2_linux_amd64.zip"
+executeExpression "curl --silent -l https://releases.hashicorp.com/terraform/1.2.2/terraform_1.2.2_linux_amd64.zip --output terraform.zip"
+executeExpression "unzip terraform.zip"
 
 executeExpression "${elevation} mv -f terraform /usr/bin/"
  

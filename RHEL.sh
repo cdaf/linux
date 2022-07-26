@@ -156,8 +156,6 @@ writeLog "Buildah & Podman"
 executeExpression "${elevation} yum install -y podman-docker"
 executeExpression "${elevation} touch /etc/containers/nodocker"
 
-docker run -it cdaf/linux terraform --version
-
 writeLog "Terraform for KOT, align with cdaf/linux image"
 executeExpression "curl --silent -l https://releases.hashicorp.com/terraform/1.2.2/terraform_1.2.2_linux_amd64.zip --output terraform.zip"
 executeExpression "unzip terraform.zip"
@@ -165,11 +163,11 @@ executeExpression "unzip terraform.zip"
 executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
 
-writeLog "Test Buildah & Podman"
-executeExpression "docker run -t docker.io/cdaf/linux terraform --version"
-
 writeLog "Office 365 support in Evolution"
 executeExpression "${elevation} yum install -y evolution evolution-ews"
+
+writeLog "Test Buildah & Podman"
+executeExpression "docker run -t docker.io/cdaf/linux terraform --version"
  
 writeLog "--- end ---"
 exit 0

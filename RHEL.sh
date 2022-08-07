@@ -168,6 +168,13 @@ executeExpression "${elevation} yum install -y evolution evolution-ews"
 
 writeLog "Test Buildah & Podman"
 executeExpression "docker run -t docker.io/cdaf/linux terraform --version"
- 
+
+writeLog "Helm & Helmsman"
+executeExpression "${elevation} snap install helm --classic"
+
+executeExpression "curl -L https://github.com/Praqma/helmsman/releases/download/v3.11.0/helmsman_3.11.0_linux_amd64.tar.gz | tar zx"
+executeExpression "${elevation} mv helmsman /usr/sbin"
+executeExpression "helmsman"
+
 writeLog "--- end ---"
 exit 0

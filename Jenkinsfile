@@ -35,6 +35,28 @@ timeout(time: 4, unit: 'HOURS') {
         '''
       }
 
+      stage ('Test the CDAF sample on CentOS 7') {
+        sh '''
+          echo "Test the CDAF sample on CentOS 7"
+          if [ -d ./.vagrant ]; then
+            vagrant destroy -f
+          fi
+          export OVERRIDE_IMAGE="cdaf/CentOSLVM"
+          vagrant up
+        '''
+      }
+
+      stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
+        sh '''
+          echo "Test the CDAF sample on Ubuntu 16.04 LTS"
+          if [ -d ./.vagrant ]; then
+            vagrant destroy -f
+          fi
+          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
+          vagrant up
+        '''
+      }
+
       stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
         sh '''
           echo "Test the CDAF sample on Ubuntu 18.04 LTS"

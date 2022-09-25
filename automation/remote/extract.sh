@@ -26,3 +26,6 @@ else
 
 fi
 
+for script in $(find $2/$1 -name "*.sh"); do 
+	chmod +x $script
+done

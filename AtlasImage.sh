@@ -59,7 +59,7 @@ hypervisor=$1
 if [ ! -z "$hypervisor" ]; then
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		if [ -z "$2" ]; then
-			vbadd='5.2.30'
+			vbadd='6.1.0_RC1'
 			writeLog "  hypervisor   : $hypervisor (installing default extension version ${vbadd})"
 		else
 			vbadd="$2"

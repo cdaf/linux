@@ -48,7 +48,11 @@ function installVBox {
 
 	echo;writeLog "This is normal for server install ..."
 	writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-	executeIgnore "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run" $3
+	if [ -z "$3" ]; then
+		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	else
+		executeIgnore "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run" $3
+	fi
 	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 	executeExpression "sudo umount /media/VBoxGuestAdditions"
 	executeExpression "sudo rmdir /media/VBoxGuestAdditions"

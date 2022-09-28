@@ -46,7 +46,6 @@ function installVBox {
 	executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 
 	if [ -d "/media/VBoxGuestAdditions" ]; then
-		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 		executeExpression "sudo umount /media/VBoxGuestAdditions"
 		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
 	fi

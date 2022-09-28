@@ -77,7 +77,6 @@ if [ -z "$haltonaddon" ]; then
 	haltonaddon='proceed'
 	writeLog "  haltonaddon  : $haltonaddon (default)"
 else
-	vbadd="$3"
 	writeLog "  haltonaddon  : $haltonaddon (halt if installVBox fails)"
 fi
 

@@ -68,16 +68,16 @@ if [ ! -z "$hypervisor" ]; then
 	else
 		writeLog "  hypervisor   : $hypervisor"
 	fi
+
+	haltonaddon=$2
+	if [ -z "$haltonaddon" ]; then
+		haltonaddon='proceed'
+		writeLog "  haltonaddon  : $haltonaddon (default)"
+	else
+		writeLog "  haltonaddon  : $haltonaddon (halt if installVBox fails)"
+	fi
 else
 	writeLog "  hypervisor   : (not passed, extension install will not be attempted)"
-fi
-
-haltonaddon=$2
-if [ -z "$haltonaddon" ]; then
-	haltonaddon='proceed'
-	writeLog "  haltonaddon  : $haltonaddon (default)"
-else
-	writeLog "  haltonaddon  : $haltonaddon (halt if installVBox fails)"
 fi
 
 if [[ $(whoami) != 'vagrant' ]];then

@@ -42,6 +42,7 @@ function installVBox {
 	vbadd="$2"
 	echo;writeLog "Download and install VirtualBox Guest Additions version $vbadd"; echo
 	executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
+	executeExpression "sudo rm -rfv /media/VBoxGuestAdditions"
 	executeExpression "sudo mkdir /media/VBoxGuestAdditions"
 	executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
 
@@ -253,7 +254,7 @@ else # VitualBox
 				if [[ "$haltonaddon" == 'proceed' ]]; then
 					installVBox "$curlOpt" "$vbadd" 2 # ignore exit code 2 when installing additions
 				else
-					installVBox "$curlOpt" "$vbadd"# halt on error
+					installVBox "$curlOpt" "$vbadd" # halt on error
 				fi
 			fi
 		fi

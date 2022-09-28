@@ -58,11 +58,11 @@ echo; writeLog "--- start ---"
 hypervisor=$1
 if [ ! -z "$hypervisor" ]; then
 	if [ "$hypervisor" == 'virtualbox' ]; then
-		if [ -z "$2" ]; then
+		if [ -z "$3" ]; then
 			vbadd='6.1.0_RC1'
 			writeLog "  hypervisor   : $hypervisor (installing default extension version ${vbadd})"
 		else
-			vbadd="$2"
+			vbadd="$3"
 			writeLog "  hypervisor   : $hypervisor (installing extension version ${vbadd})"
 		fi
 	else
@@ -70,6 +70,15 @@ if [ ! -z "$hypervisor" ]; then
 	fi
 else
 	writeLog "  hypervisor   : (not passed, extension install will not be attempted)"
+fi
+
+haltonaddon=$2
+if [ -z "$haltonaddon" ]; then
+	haltonaddon='proceed'
+	writeLog "  haltonaddon  : $haltonaddon (default)"
+else
+	vbadd="$3"
+	writeLog "  haltonaddon  : $haltonaddon (installing extension version ${vbadd})"
 fi
 
 if [[ $(whoami) != 'vagrant' ]];then
@@ -242,7 +251,11 @@ else # VitualBox
 				# Canonical does not work, using https://www.tecmint.com/install-virtualbox-guest-additions-in-ubuntu/ as guide
 				writeLog "Distro is ${distro}, install latest VirtualBox Guest Additions"
 				executeExpression "sudo apt install -y build-essential dkms linux-headers-$(uname -r)"
-				installVBox "$curlOpt" "$vbadd" 2 # ignore exit code 2 when installing additions
+				if [[ "$haltonaddon" == 'proceed' ]]; then
+					installVBox "$curlOpt" "$vbadd" 2 # ignore exit code 2 when installing additions
+				else
+					installVBox "$curlOpt" "$vbadd"# halt on error
+				fi
 			fi
 		fi
 	fi

@@ -29,6 +29,8 @@ function executeIgnore {
 		else
 			if [ "$exitCode" == "$2" ]; then
 				writeLog "$0 : Warning! $EXECUTABLESCRIPT returned non-zero exit code ${exitCode} but is ignored due to $2 passed as ignored exit code"
+				writeLog "cat /var/log/vboxadd-setup.log"
+				cat /var/log/vboxadd-setup.log
 			else
 				writeLog "$0 : ERROR! $EXECUTABLESCRIPT returned non-zero exit code ${exitCode} and is exiting becuase ignored exist code is $2"
 				exit $exitCode

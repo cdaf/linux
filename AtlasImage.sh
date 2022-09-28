@@ -78,7 +78,7 @@ if [ -z "$haltonaddon" ]; then
 	writeLog "  haltonaddon  : $haltonaddon (default)"
 else
 	vbadd="$3"
-	writeLog "  haltonaddon  : $haltonaddon (installing extension version ${vbadd})"
+	writeLog "  haltonaddon  : $haltonaddon (halt if installVBox fails)"
 fi
 
 if [[ $(whoami) != 'vagrant' ]];then

@@ -42,7 +42,13 @@ function installVBox {
 	vbadd="$2"
 	echo;writeLog "Download and install VirtualBox Guest Additions version $vbadd"; echo
 	executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
-	executeExpression "sudo rm -rfv /media/VBoxGuestAdditions"
+
+	if [ -d "/media/VBoxGuestAdditions" ]; then
+		executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
+		executeExpression "sudo umount /media/VBoxGuestAdditions"
+		executeExpression "sudo rmdir /media/VBoxGuestAdditions"
+	fi
+
 	executeExpression "sudo mkdir /media/VBoxGuestAdditions"
 	executeExpression "sudo mount -o loop,ro VBoxGuestAdditions_${vbadd}.iso /media/VBoxGuestAdditions"
 

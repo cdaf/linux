@@ -11,7 +11,7 @@ if ENV['OVERRIDE_IMAGE']
   OVERRIDE_IMAGE = ENV['OVERRIDE_IMAGE']
   puts "OVERRIDE_IMAGE specified, using box #{OVERRIDE_IMAGE}" 
 else
-  OVERRIDE_IMAGE = 'cdaf/Ubuntu18'
+  OVERRIDE_IMAGE = 'cdaf/Ubuntu20'
   puts "OVERRIDE_IMAGE not specified, use default box #{OVERRIDE_IMAGE}" 
 end
 

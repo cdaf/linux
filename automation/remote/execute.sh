@@ -268,6 +268,13 @@ function MASKED {
 function VARCHK {
 	echo
 	propertiesFile="$1"
+	if [ -z "$propertiesFile" ]; then
+		propertiesFile='properties.varchk'
+		echo "  VARCHK using $propertiesFile (default)"
+	else
+		echo "  VARCHK using $propertiesFile"
+	fi
+	
 	if [ ! -f "$propertiesFile" ]; then
 		ERRMSG "[VARCHK_PROP_FILE_NOT_FOUND] $propertiesFile not found" 7781
 	fi

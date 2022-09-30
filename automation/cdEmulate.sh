@@ -155,6 +155,12 @@ fi
 
 # Do not process Remote and Local Tasks if the action is cionly or clean
 if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] && [ "$caseinsensitive" != "packageonly" ] && [ "$caseinsensitive" != "clean" ]; then
+
+	# If running in VirtualBox on windows, bit changes can be delayed
+	if [ ! -x $cdProcess ]; then
+		sleep 1
+	fi
+
 	$cdProcess "$CDAF_DELIVERY"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then

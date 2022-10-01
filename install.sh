@@ -20,9 +20,6 @@ else
 	echo "[$scriptName]   version : $version"
 fi
 
-scriptName='install.sh'
-echo "[$scriptName] --- start ---"
-
 if [ -z "$version" ]; then
 	executeExpression "curl -s -O https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh"
 	executeExpression "chmod +x base.sh"

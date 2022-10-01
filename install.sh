@@ -41,6 +41,6 @@ else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 fi
 
-executeExpression "./automation/remote/capabilities.sh"
+executeExpression "${CDAF_INSTALL_PATH}/remote/capabilities.sh"
 
 echo "[$scriptName] --- end ---"

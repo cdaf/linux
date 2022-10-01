@@ -28,7 +28,7 @@ if [ -z "$version" ]; then
 	executeExpression "unzip linux-master.zip"
 	executeExpression "mv ./linux-master/ ./automation/"
 else
-	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-2.5.3.tar.gz | tar -xz"
+	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 fi
 
 executeExpression "./automation/remote/capabilities.sh"

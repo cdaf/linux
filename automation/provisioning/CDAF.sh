@@ -55,16 +55,20 @@ fi
 echo "[$scriptName]   whoami         = $(whoami)"
 echo "[$scriptName]   pwd            = $(pwd)"
 
-AUTOMATIONROOT=$(setRoot "/vagrant")
-if [ -z "$AUTOMATIONROOT" ]; then
-	AUTOMATIONROOT=$(setRoot "/vagrant/automation")
-	echo "[$scriptName]   AUTOMATIONROOT = $AUTOMATIONROOT"
-	if [ -z "$AUTOMATIONROOT" ]; then
-		echo "[$scriptName] AUTOMATIONROOT cannot be found!"
-		exit 7755
-	fi
+capabilities.sh 2> /dev/null
+if [ "$?" -eq 0 ]; then
+	command='cdEmulate.sh'
 else
-	echo "[$scriptName]   AUTOMATIONROOT = $AUTOMATIONROOT"
+	AUTOMATIONROOT=$(setRoot "/vagrant")
+	if [ -z "$AUTOMATIONROOT" ]; then
+		AUTOMATIONROOT=$(setRoot "/vagrant/automation")
+		if [ -z "$AUTOMATIONROOT" ]; then
+			echo "[$scriptName] AUTOMATIONROOT cannot be found!"
+			exit 7755
+		fi
+	else
+		command="${AUTOMATIONROOT}/cdEmulate.sh"
+	fi
 fi
 
 echo
@@ -77,13 +81,13 @@ fi
 echo; echo "[$scriptName] Execute continuous delivery emulation"; echo
 if [ -z "$runas" ]; then
 	executeExpression "cd $workspace"
-	executeExpression "${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG"
+	executeExpression "${command} $OPT_ARG"
 else
 su $runas << EOF
 	echo "[$scriptName] cd $workspace"
 	cd $workspace
-	echo "[$scriptName] ${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG"
-	${AUTOMATIONROOT}/cdEmulate.sh $OPT_ARG
+	echo "[$scriptName] ${command} $OPT_ARG"
+	${command} $OPT_ARG
 EOF
 fi
 

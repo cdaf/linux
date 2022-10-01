@@ -1,45 +1,41 @@
 #!/usr/bin/env bash
-
 function executeExpression {
-	echo "[$scriptName] $1"
-	eval $1
+	echo "$1"
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $EXECUTABLESCRIPT returned $exitCode"
+		echo "[$scriptName][ERROR] $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-}
+}  
 
-function executeYumCheck {
-	counter=1
-	max=5
-	success='no'
-	while [ "$success" != 'yes' ]; do
-		echo "[$scriptName][$counter] $1"
-		eval $1
-		exitCode=$?
-		# Exit 0 and 100 are both success
-		if [ "$exitCode" == "100" ] || [ "$exitCode" == "0" ]; then
-			success='yes'
-		else
-			counter=$((counter + 1))
-			if [ "$counter" -le "$max" ]; then
-				echo "[$scriptName] Failed with exit code ${exitCode}! Retrying $counter of ${max}"
-			else
-				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
-				exit $exitCode
-			fi					 
-		fi
-	done
-}
+scriptName='install.sh'
+
+echo "[$scriptName] --- start ---"
+version="$1"
+if [ -z "$version" ]; then
+	echo "[$scriptName]   version : (not passed, use edge)"
+else
+	echo "[$scriptName]   version : $version"
+fi
 
 scriptName='install.sh'
 echo "[$scriptName] --- start ---"
 
-executeExpression "curl -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-executeExpression "tar -xzf LU-CDAF.tar.gz"
+if [ -z "$version" ]; then
+	executeExpression "curl -s -O https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh"
+	executeExpression "chmod +x base.sh"
+	executeExpression "./base.sh unzip"
+	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
+	executeExpression "unzip linux-master.zip"
+	executeExpression "mv ./linux-master/ ./automation/"
+else
+	executeExpression "curl -O http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz"
+	executeExpression "tar -xzf LU-CDAF-${version}.tar.gz"
+	executeExpression "rm LU-CDAF.tar.gz"
+fi
+
 executeExpression "./automation/remote/capabilities.sh"
-executeExpression "rm LU-CDAF.tar.gz"
 
 echo "[$scriptName] --- end ---"

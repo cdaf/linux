@@ -23,9 +23,11 @@ fi
 if [ -z "$version" ]; then
 	executeExpression "curl -s -O https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh"
 	executeExpression "chmod +x base.sh"
+	executeExpression "rm base.sh"
 	executeExpression "./base.sh unzip"
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-	executeExpression "unzip linux-master.zip"
+	executeExpression "unzip -o linux-master.zip"
+	executeExpression "rm linux-master.zip"
 	executeExpression "mv ./linux-master/ ./automation/"
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"

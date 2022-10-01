@@ -28,7 +28,7 @@ else
 fi
 
 if [ -z "$version" ]; then
-	executeExpression "curl -s -O https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package in unzip
+	executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package in unzip
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"

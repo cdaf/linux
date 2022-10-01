@@ -15,9 +15,16 @@ scriptName='install.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	echo "[$scriptName]   version : (not passed, use edge)"
+	echo "[$scriptName]   version           : (not passed, use edge)"
 else
-	echo "[$scriptName]   version : $version"
+	echo "[$scriptName]   version           : $version"
+fi
+
+if [ -z $"CDAF_INSTALL_PATH" ]; then
+	CDAF_INSTALL_PATH='./automation'
+	echo "[$scriptName]   CDAF_INSTALL_PATH : $CDAF_INSTALL_PATH (default)"
+else
+	echo "[$scriptName]   CDAF_INSTALL_PATH : $CDAF_INSTALL_PATH"
 fi
 
 if [ -z "$version" ]; then
@@ -28,7 +35,7 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
-	executeExpression "mv ./linux-master/automation/ ."
+	executeExpression "mv ./linux-master/automation/ ${CDAF_INSTALL_PATH}"
 	executeExpression "rm -rf linux-master"	
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"

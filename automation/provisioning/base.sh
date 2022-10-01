@@ -124,7 +124,12 @@ scriptName='base.sh'
 
 echo "[$scriptName] --- start ---"
 install=$1
-echo "[$scriptName]   install    : $install"
+if [ -z "$install" ]; then
+	install='unzip'
+	echo "[$scriptName]   install    : $install (default)"
+else
+	echo "[$scriptName]   install    : $install"
+fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'

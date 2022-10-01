@@ -67,15 +67,9 @@ else
 			exit 7755
 		fi
 	else
+		executeExpression "${AUTOMATIONROOT}/remote/capabilities.sh"
 		command="${AUTOMATIONROOT}/cdEmulate.sh"
 	fi
-fi
-
-echo
-cat "${AUTOMATIONROOT}/CDAF.linux" | grep productVersion
-if [ "$?" != "0" ]; then
-	echo "$0 : Exception! CDAF productVersion not found"
-	exit $exitCode
 fi
 
 echo; echo "[$scriptName] Execute continuous delivery emulation"; echo

@@ -22,9 +22,9 @@ fi
 
 if [ -z $"CDAF_INSTALL_PATH" ]; then
 	CDAF_INSTALL_PATH='./automation'
-	echo "[$scriptName]   CDAF_INSTALL_PATH : $CDAF_INSTALL_PATH (default)"
+	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH} (default)"
 else
-	echo "[$scriptName]   CDAF_INSTALL_PATH : $CDAF_INSTALL_PATH"
+	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH}"
 fi
 
 if [ -z "$version" ]; then
@@ -36,6 +36,12 @@ if [ -z "$version" ]; then
 	executeExpression "rm -rf linux-master"	
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
+fi
+
+if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
+	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}/provisioning"
+	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}/remote"
+	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}"
 fi
 
 executeExpression "${CDAF_INSTALL_PATH}/remote/capabilities.sh"

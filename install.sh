@@ -26,10 +26,11 @@ else
 fi
 
 if [ -z "$CDAF_INSTALL_PATH" ]; then
-	CDAF_INSTALL_PATH='./automation'
-	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH} (default)"
+	installPath='./automation'
+	echo "[$scriptName]   installPath       : $installPath (default)"
 else
-	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH}"
+	installPath="$CDAF_INSTALL_PATH"
+	echo "[$scriptName]   installPath       : $installPath (from CDAF_INSTALL_PATH)"
 fi
 
 if [ -z "$version" ]; then
@@ -37,18 +38,18 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
-	executeExpression "mv ./linux-master/automation ${CDAF_INSTALL_PATH}"
+	executeExpression "mv ./linux-master/automation ${installPath}"
 	executeExpression "rm -rf linux-master"	
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 fi
 
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
-	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}/provisioning"
-	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}/remote"
-	executeExpression "${CDAF_INSTALL_PATH}/provisioning/addPath.sh ${CDAF_INSTALL_PATH}"
+	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}/provisioning"
+	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}/remote"
+	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}"
 fi
 
-executeExpression "${CDAF_INSTALL_PATH}/remote/capabilities.sh"
+executeExpression "${installPath}/remote/capabilities.sh"
 
 echo "[$scriptName] --- end ---"

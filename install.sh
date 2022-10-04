@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# Download to named directory and add to path, without this, will simply download and extract in current directory
+# export CDAF_INSTALL_PATH=/opt/cdaf
+# curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+
 function executeExpression {
 	echo "$1"
 	eval "$1"
@@ -20,7 +25,7 @@ else
 	echo "[$scriptName]   version           : $version"
 fi
 
-if [ -z $"CDAF_INSTALL_PATH" ]; then
+if [ -z "$CDAF_INSTALL_PATH" ]; then
 	CDAF_INSTALL_PATH='./automation'
 	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH} (default)"
 else
@@ -32,7 +37,7 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
-	executeExpression "mv ./linux-master/automation/ ${CDAF_INSTALL_PATH}"
+	executeExpression "mv ./linux-master/automation ${CDAF_INSTALL_PATH}"
 	executeExpression "rm -rf linux-master"	
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"

@@ -19,7 +19,7 @@ echo "[$scriptName] --- start ---"
 
 username=$1
 if [ -z "$username" ]; then
-	username='deployer'
+	username=$(whoami)
 	echo "[$scriptName]   username     : $username (default)"
 else
 	echo "[$scriptName]   username     : $username"

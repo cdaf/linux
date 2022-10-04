@@ -25,7 +25,7 @@ else
 	echo "[$scriptName]   version           : $version"
 fi
 
-if [ -z $"CDAF_INSTALL_PATH" ]; then
+if [ -z "$CDAF_INSTALL_PATH" ]; then
 	CDAF_INSTALL_PATH='./automation'
 	echo "[$scriptName]   CDAF_INSTALL_PATH : ${CDAF_INSTALL_PATH} (default)"
 else

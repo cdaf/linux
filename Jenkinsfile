@@ -52,7 +52,7 @@ timeout(time: 4, unit: 'HOURS') {
           if [ -d ./.vagrant ]; then
             vagrant destroy -f
           fi
-          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
+          export OVERRIDE_IMAGE="cdaf/Ubuntu22"
           vagrant up
         '''
       }

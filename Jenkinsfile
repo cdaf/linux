@@ -16,44 +16,11 @@ timeout(time: 4, unit: 'HOURS') {
       stage ('Prepare Workspace') {
 
         checkout scm
-    
+
         sh '''
           cat Jenkinsfile
           cat Vagrantfile
-          cat automation/CDAF.linux | grep productVersion
-
-          echo "Copy solution to workspace"
-          rm -rf solution
-          cp -r automation/solution solution
-          if [ -f solution/CDAF.solution ]; then
-            cat solution/CDAF.solution
-          else
-            exit 8833
-          fi
-
           vagrant box list
-        '''
-      }
-
-      stage ('Test the CDAF sample on CentOS 7') {
-        sh '''
-          echo "Test the CDAF sample on CentOS 7"
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
-          export OVERRIDE_IMAGE="cdaf/CentOSLVM"
-          vagrant up
-        '''
-      }
-
-      stage ('Test the CDAF sample on Ubuntu 16.04 LTS') {
-        sh '''
-          echo "Test the CDAF sample on Ubuntu 16.04 LTS"
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
-          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
-          vagrant up
         '''
       }
 
@@ -75,6 +42,17 @@ timeout(time: 4, unit: 'HOURS') {
             vagrant destroy -f
           fi
           export OVERRIDE_IMAGE="cdaf/Ubuntu20"
+          vagrant up
+        '''
+      }
+
+      stage ('Test the CDAF sample on Ubuntu 20.22 LTS') {
+        sh '''
+          echo "Test the CDAF sample on Ubuntu 20.22 LTS"
+          if [ -d ./.vagrant ]; then
+            vagrant destroy -f
+          fi
+          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
           vagrant up
         '''
       }

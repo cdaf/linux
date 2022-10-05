@@ -57,6 +57,17 @@ timeout(time: 4, unit: 'HOURS') {
         '''
       }
 
+      stage ('Test the CDAF sample on Ubuntu Latest') {
+        sh '''
+          echo "Test the CDAF sample on Ubuntu Latest"
+          if [ -d ./.vagrant ]; then
+            vagrant destroy -f
+          fi
+          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
+          vagrant up
+        '''
+      }
+
     } catch (e) {
 
       currentBuild.result = "FAILED"

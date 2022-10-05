@@ -58,16 +58,20 @@ timeout(time: 4, unit: 'HOURS') {
       }
 
     } catch (e) {
-    
+
       currentBuild.result = "FAILED"
       println currentBuild.result
       notifyFailed()
       throw e
 
     } finally {
-    
+
       stage ('Destroy VMs and Discard sample vagrantfile') {
-        sh "if [ -d ./.vagrant ]; then vagrant destroy -f; fi"
+        sh '''
+          if [ -d ./.vagrant ]; then
+            vagrant destroy -f
+          fi
+        '''
       }
     }
   }

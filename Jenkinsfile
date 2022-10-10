@@ -1,4 +1,4 @@
-timeout(time: 4, unit: 'HOURS') {
+timeout(time: 6, unit: 'HOURS') {
   node {
 
     properties(

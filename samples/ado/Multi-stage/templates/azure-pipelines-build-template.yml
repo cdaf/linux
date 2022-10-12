@@ -15,18 +15,17 @@ jobs:
         inputs:
           targetType: inline
 
+          # Latest Published Version
           script: |
             curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
             ./automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
-#          # Edge Implementation 
+          # Edge Implementation 
 #          script: |
-#            curl --silent https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux.zip
-#            unzip linux.zip
-#            export CDAF_SKIP_CONTAINER_BUILD=yes
-#            ./linux-master/automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+#            curl --silent https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+#            ./automation/entry.sh $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
 
-#          # In-source Implementation 
+          # In-source Implementation 
 #          script: |
 #          targetType: filePath
 #          filePath: ./automation/entry.sh

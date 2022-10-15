@@ -78,7 +78,8 @@ echo
 echo "[$scriptName] Determine distribution"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get"
+	DEBIAN_FRONTEND=noninteractive
+	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get with DEBIAN_FRONTEND = $DEBIAN_FRONTEND"
 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)

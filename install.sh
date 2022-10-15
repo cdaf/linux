@@ -38,8 +38,11 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
+	if [ -d "${installPath}" ]; then
+		executeExpression "rm -rf '${installPath}'"
+	fi
 	executeExpression "mv ./linux-master/automation ${installPath}"
-	executeExpression "rm -rf linux-master"	
+	executeExpression "rm -rf linux-master"
 else
 	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 fi

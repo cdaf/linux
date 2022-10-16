@@ -78,7 +78,7 @@ echo
 echo "[$scriptName] Determine distribution"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
-	DEBIAN_FRONTEND=noninteractive
+	export DEBIAN_FRONTEND=noninteractive
 	echo "[$scriptName] Ubuntu/Debian, update repositories using apt-get with DEBIAN_FRONTEND = $DEBIAN_FRONTEND"
 	echo
 	echo "[$scriptName] Check that APT is available"

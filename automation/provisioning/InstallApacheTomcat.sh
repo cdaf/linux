@@ -74,7 +74,7 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "$elevate mkdir -p $mediaCache"
 	fi
-	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-9/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-10/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ ! -z "$(getent passwd $serviceAccount)" ]; then

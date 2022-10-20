@@ -43,7 +43,7 @@ function ERRMSG {
 	else
 		echo; echo "[$scriptName][ERROR]$1"
 	fi
-	if [ ! -z $CDAF_ERROR_DIAG ]; then
+	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
 		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
 		eval "$CDAF_ERROR_DIAG"
 	fi
@@ -544,8 +544,10 @@ while read LINE; do
 				EXECUTABLESCRIPT="echo"
 			fi
 		fi
+		set +e
 		eval $EXECUTABLESCRIPT
 		exitCode=$?
+		set -e
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
 			ERRMSG "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode

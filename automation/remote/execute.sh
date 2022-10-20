@@ -72,8 +72,7 @@ function MAKDIR {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }
 
@@ -85,8 +84,7 @@ function REMOVE {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }  
 
@@ -126,22 +124,19 @@ function REFRSH {
 	MAKDIR "$destination"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	REMOVE "$destination/*"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	if [ ! -z $source ]; then
 		if [ -d $source ]; then
 			set +f # enable globbing for copy operation
 			cp -vR --no-target-directory "$source" "$destination"
 			if [ "$exitCode" != "0" ]; then
-				echo "[$scriptName] Exception! ${executeFunction} returned $exitCode copying directory"
-				exit $exitCode
+				ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode copying directory" $exitCode
 			fi
 		else
 			VECOPY "$source" "$destination"
@@ -149,8 +144,7 @@ function REFRSH {
 	fi
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	if [ ! -z $source ]; then
 		for fileName in $(find "$destination" -name "*.sh"); do 
@@ -169,8 +163,7 @@ function DECRYP {
 	./decryptKey.sh "$1" "$2"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode"
-		exit $exitCode
+		ERRMSG "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode" $exitCode
 	fi
 }  
 
@@ -180,7 +173,7 @@ function DECRYP {
 #  optional : GPG key or variable expansion feature
 function DETOKN {
 	if [ -z "$1" ]; then
-		echo "Token file not supplied!"; exit 3523
+		ERRMSG "Token file not supplied!" 3523
 	fi
 	if [ -z "$2" ]; then
 		propertyFile=$TARGET
@@ -198,8 +191,7 @@ function DETOKN {
 	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$gpg"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode" $exitCode
 	fi
 	unset propldAction
 }
@@ -215,11 +207,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -228,8 +220,7 @@ function REPLAC {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! ${executeFunction} returned $exitCode"
-		exit $exitCode
+		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }
 
@@ -557,8 +548,7 @@ while read LINE; do
 		exitCode=$?
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
-			exit $exitCode
+			ERRMSG "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
 		fi
 	fi
 	

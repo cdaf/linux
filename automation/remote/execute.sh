@@ -324,6 +324,17 @@ function resolveContent {
 	eval "echo $1"
 }
 
+function IMGTXT {
+	# Wrapper for jp2a, only supports JPG format
+	#  required : JPG File
+    jp2a -V >/dev/null 2>&1
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		ERRMSG "[$scriptName] Install jp2a to use function IMGTXT" 6632
+	fi
+	jp2a $1
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"

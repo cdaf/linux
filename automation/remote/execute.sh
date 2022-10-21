@@ -39,16 +39,16 @@ fi
 #  optional : exit code, if not supplied only error message is written
 function ERRMSG {
 	if [ -z "$2" ]; then
-		echo; echo "[$scriptName][WARN]$1"
+		echo; echo "[$scriptName][ERRMSG][WARN] $1"
 	else
-		echo; echo "[$scriptName][ERROR]$1"
+		echo; echo "[$scriptName][ERRMSG][ERROR] $1"
 	fi
 	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
-		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
+		echo "[$scriptName][ERRMSG]   Invoke custom diag CDAF_ERROR_DIAG = '$CDAF_ERROR_DIAG'"; echo
 		eval "$CDAF_ERROR_DIAG"
 	fi
 	if [ ! -z "$2" ]; then
-		echo; echo "[$scriptName] Exit with LASTEXITCODE = $exitcode" ; echo
+		echo; echo "[$scriptName][ERRMSG] Exit with LASTEXITCODE = $2" ; echo
 		exit $2
 	fi
 }
@@ -72,7 +72,7 @@ function MAKDIR {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }
 
@@ -84,7 +84,7 @@ function REMOVE {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }  
 
@@ -124,19 +124,19 @@ function REFRSH {
 	MAKDIR "$destination"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	REMOVE "$destination/*"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	if [ ! -z $source ]; then
 		if [ -d $source ]; then
 			set +f # enable globbing for copy operation
 			cp -vR --no-target-directory "$source" "$destination"
 			if [ "$exitCode" != "0" ]; then
-				ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode copying directory" $exitCode
+				ERRMSG "Exception! ${executeFunction} returned $exitCode copying directory" $exitCode
 			fi
 		else
 			VECOPY "$source" "$destination"
@@ -144,7 +144,7 @@ function REFRSH {
 	fi
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	if [ ! -z $source ]; then
 		for fileName in $(find "$destination" -name "*.sh"); do 
@@ -191,7 +191,7 @@ function DETOKN {
 	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$gpg"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode" $exitCode
+		ERRMSG "Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode" $exitCode
 	fi
 	unset propldAction
 }
@@ -220,7 +220,7 @@ function REPLAC {
 	eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Exception! ${executeFunction} returned $exitCode" $exitCode
+		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 }
 
@@ -330,7 +330,7 @@ function IMGTXT {
     jp2a -V >/dev/null 2>&1
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[$scriptName] Install jp2a to use function IMGTXT" 6632
+		ERRMSG "Install jp2a to use function IMGTXT" 6632
 	fi
 	jp2a $1
 }
@@ -561,7 +561,7 @@ while read LINE; do
 		set -e
 		# Check execution normal, anything other than 0 is an exception
 		if [ "$exitCode" != "0" ]; then
-			ERRMSG "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
+			ERRMSG "Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
 		fi
 	fi
 	

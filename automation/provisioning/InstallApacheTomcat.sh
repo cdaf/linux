@@ -21,6 +21,9 @@ else
 	echo "[$scriptName]   version        : $version"
 fi
 
+IFS='.' read -ra array <<< "$version"
+prefix=${array[0]}
+
 appRoot="$2"
 if [ -z "$appRoot" ]; then
 	appRoot='/opt/tomcat'
@@ -74,7 +77,7 @@ else
 	if [ ! -d "$mediaCache" ]; then
 		executeExpression "$elevate mkdir -p $mediaCache"
 	fi
-	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-10/v${version}/bin/${tomcat}.tar.gz"
+	executeExpression "$elevate curl -s --output $mediaFullPath https://archive.apache.org/dist/tomcat/tomcat-${prefix}/v${version}/bin/${tomcat}.tar.gz"
 fi
 
 if [ ! -z "$(getent passwd $serviceAccount)" ]; then

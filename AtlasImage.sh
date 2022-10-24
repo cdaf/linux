@@ -171,7 +171,8 @@ else
 fi
 executeExpression "sudo cat /etc/sudoers | grep PASS"
 
-echo;writeLog "Perform provider independent steps"
+echo;writeLog "Perform provider distribution steps"
+
 if [ "$fedora" ]; then
 
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
@@ -201,13 +202,13 @@ if [ "$fedora" ]; then
 
 else # Ubuntu
 
-	# Disable IPv6, which stops default gateway in Ubuntu 22.10
+	echo;writeLog "Disable IPv6, which stops default gateway in Ubuntu 22.10"
 	echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
 	echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
 	echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 	executeExpression "sudo sysctl -p"
 
-    # disable auto updates introduced in 18.04
+	echo;writeLog "disable auto updates introduced in 18.04"
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
 		if [ ! -z "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"
@@ -222,12 +223,14 @@ else # Ubuntu
 		fi
 		executeExpression "sudo apt remove -y unattended-upgrades"
 	fi
-	executeExpression "sudo apt-get update"
-	executeExpression "sudo apt-get upgrade -y"
+	executeExpression "sudo apt-get update && sudo apt-get upgrade -y"
 fi
 
 echo;writeLog "Perform provider specific steps"
+
 if [ "$hypervisor" == 'hyperv' ]; then
+
+	echo;writeLog "Perform Hyper-V steps"
 	if [ "$fedora" ]; then
 	   	executeExpression "sudo yum install -y hyperv-daemons cifs-utils"
 		executeExpression "sudo systemctl daemon-reload"
@@ -247,7 +250,10 @@ if [ "$hypervisor" == 'hyperv' ]; then
 		executeExpression "sudo apt-get install -y --install-recommends linux-virtual linux-cloud-tools-virtual linux-tools-virtual cifs-utils"
 		executeExpression "sudo update-initramfs -u"
 	fi
-else # VitualBox
+
+else
+
+	echo;writeLog "Perform VitualBox steps"
 	if [ "$hypervisor" == 'virtualbox' ]; then
 		echo;writeLog "Install VirtualBox Guest Additions"
 		if [ "$fedora" ]; then
@@ -283,8 +289,12 @@ else # VitualBox
 	fi
 fi
 
-writeLog "Cleanup"
+writeLog "Perform final update before clean-up"
 if [ "$fedora" ]; then
+
+	executeExpression "sudo yum -y upgrade"
+
+	writeLog "Cleanup Fedora"
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"
 	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
@@ -300,8 +310,12 @@ if [ "$fedora" ]; then
 	executeExpression "sudo sync"
 	executeExpression "cat /dev/null > ~/.bash_history"
 	executeExpression "history -c"
-else # Ubuntu
-	executeExpression "sudo apt-get autoremove" 
+
+else
+
+	writeLog "Cleanup Debian"
+	executeExpression "sudo apt-get update && sudo apt-get upgrade -y"
+	executeExpression "sudo apt-get autoremove"
 	executeExpression "sudo apt-get clean" 
 	executeExpression "sudo apt-get autoclean" 
 	executeExpression "sudo rm -r /var/log/*"

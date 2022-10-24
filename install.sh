@@ -44,10 +44,16 @@ if [ -z "$version" ]; then
 	if [ -d "${installPath}" ]; then
 		executeExpression "rm -rf '${installPath}'"
 	fi
+
+	parentdir="$(dirname "${installPath}")"
+	if [ ! -d "${parentdir}" ]; then
+		executeExpression "mkdir -p '${parentdir}'"
+	fi
+	
 	executeExpression "mv ./linux-master/automation ${installPath}"
 	executeExpression "rm -rf linux-master"
 else
-	executeExpression " curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
+	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 fi
 
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then

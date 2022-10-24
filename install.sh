@@ -66,6 +66,14 @@ if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
 	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}"
 fi
 
-executeExpression "${installPath}/remote/capabilities.sh"
+echo "${installPath}/remote/capabilities.sh"
+eval "${installPath}/remote/capabilities.sh"
+exitCode=$?
+# Check execution normal, anything other than 0 is an exception
+if [ "$exitCode" != "0" ]; then
+	echo "[$scriptName][ERROR] $EXECUTABLESCRIPT returned $exitCode, list install directory contents and exit..."
+	ls -al -R
+	exit $exitCode
+fi
 
 echo "[$scriptName] --- end ---"

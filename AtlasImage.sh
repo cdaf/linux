@@ -173,6 +173,7 @@ executeExpression "sudo cat /etc/sudoers | grep PASS"
 
 echo;writeLog "Perform provider independent steps"
 if [ "$fedora" ]; then
+
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	echo;writeLog "Remove additional packages"
 	executeIgnore "sudo systemctl stop postfix"
@@ -197,7 +198,16 @@ if [ "$fedora" ]; then
 	writeLog "  sudo sh -c 'echo \"Defaults !requiretty\" >> /etc/sudoers'"
 	sudo sh -c 'echo "Defaults !requiretty" >> /etc/sudoers'
 	executeExpression "sudo cat /etc/sudoers"
-else # Ubuntu, disable auto updates introduced in 18.04
+
+else # Ubuntu
+
+	# Disable IPv6, which stops default gateway in Ubuntu 22.10
+	echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+	echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+	echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+	executeExpression "sudo sysctl -p"
+
+    # disable auto updates introduced in 18.04
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then
 		if [ ! -z "$(cat "/etc/apt/apt.conf.d/20auto-upgrades" | grep 1)" ]; then
 			executeExpression "cat /etc/apt/apt.conf.d/20auto-upgrades"

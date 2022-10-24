@@ -27,12 +27,19 @@ Vagrant.configure(2) do |config|
     test.vm.box = "#{vagrantBox}"
     test.vm.provision 'shell', inline: 'echo ; echo "Check disk availability"; echo'
     test.vm.provision 'shell', inline: 'df'
+
     test.vm.provision 'shell', inline: 'echo ; echo "Check IP addresses"; echo'
     test.vm.provision 'shell', inline: 'ip a'
+
     test.vm.provision 'shell', inline: 'echo ; echo "Check IP routes"; echo'
     test.vm.provision 'shell', inline: 'ip r'
+
+    test.vm.provision 'shell', inline: 'echo ; echo "List the defaul adapter"; echo'
+    test.vm.provision 'shell', inline: "ip route get $(getent ahosts 'google.com' | awk '{print $1; exit}') | grep -Po '(?<=(dev ))(\S+)'"
+
     test.vm.provision 'shell', inline: 'echo ; echo "Check connectivity using curl"; echo'
     test.vm.provision 'shell', inline: 'curl -v google.com'
+
     test.vm.provision 'shell', inline: 'echo ; echo "Test Complete"; echo'
 
     # Oracle VirtualBox with private NAT has insecure deployer keys for desktop testing

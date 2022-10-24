@@ -33,6 +33,15 @@ else
 	echo "[$scriptName]   installPath       : $installPath (from CDAF_INSTALL_PATH)"
 fi
 
+if [ -d "${installPath}" ]; then
+	executeExpression "rm -rf '${installPath}'"
+fi
+
+parentdir="$(dirname "${installPath}")"
+if [ ! -d "${parentdir}" ]; then
+	executeExpression "mkdir -p '${parentdir}'"
+fi
+
 if [ -z "$version" ]; then
 	unzip &>/dev/null
 	if [ $? -ne 0 ]; then
@@ -41,19 +50,14 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
-	if [ -d "${installPath}" ]; then
-		executeExpression "rm -rf '${installPath}'"
-	fi
-
-	parentdir="$(dirname "${installPath}")"
-	if [ ! -d "${parentdir}" ]; then
-		executeExpression "mkdir -p '${parentdir}'"
-	fi
 	
 	executeExpression "mv ./linux-master/automation ${installPath}"
 	executeExpression "rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
+	if [[ installPath != './automation' ]]; then
+		executeExpression "mv ./automation ${installPath}"
+	fi
 fi
 
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then

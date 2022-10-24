@@ -202,11 +202,11 @@ if [ "$fedora" ]; then
 
 else # Ubuntu
 
-	echo;writeLog "Disable IPv6, which stops default gateway in Ubuntu 22.10"
-	echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
-	echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
-	echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
-	executeExpression "sudo sysctl -p"
+	# echo;writeLog "Disable IPv6, which stops default gateway in Ubuntu 22.10"
+	# echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+	# echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+	# echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+	# executeExpression "sudo sysctl -p"
 
 	echo;writeLog "disable auto updates introduced in 18.04"
 	if [ -f "/etc/apt/apt.conf.d/20auto-upgrades" ]; then

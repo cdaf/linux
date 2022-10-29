@@ -14,43 +14,42 @@ scriptName='installAgent.sh'
 echo "[$scriptName] --- start ---"
 url="$1"
 if [ -z "$url" ]; then
-	echo "url not passed, HALT!"
-	exit 101
+	echo "[$scriptName]   url            : (not suppplied, install binaries and dependencies only)"
 else
 	echo "[$scriptName]   url            : $url"
-fi
 
-pat="$2"
-if [ -z "$pat" ]; then
-	echo "pat not passed, HALT!"
-	exit 102
-else
-	echo "[$scriptName]   pat            : \$pat"
-fi
-
-pool="$3"
-if [ -z "$pool" ]; then
-	pool='Default'
-	echo "[$scriptName]   pool           : $pool (default, use pool name with '@' for Project@Deployment Group)"
-else
-	echo "[$scriptName]   pool           : $pool (use pool name with '@' for Project@Deployment Group)"
-fi
-
-agentName="$4"
-if [ -z "$agentName" ]; then
-	agentName=$(hostname)
-	agentName=${agentName//-}
-	echo "[$scriptName]   agentName      : $agentName (default)"
-else
-	echo "[$scriptName]   agentName      : $agentName"
-fi
-
-srvAccount="$5"
-if [ -z "$srvAccount" ]; then
-	srvAccount='vstsagent'
-	echo "[$scriptName]   srvAccount     : $srvAccount (default)"
-else
-	echo "[$scriptName]   srvAccount     : $srvAccount"
+	pat="$2"
+	if [ -z "$pat" ]; then
+		echo "pat not passed, HALT!"
+		exit 102
+	else
+		echo "[$scriptName]   pat            : \$pat"
+	fi
+	
+	pool="$3"
+	if [ -z "$pool" ]; then
+		pool='Default'
+		echo "[$scriptName]   pool           : $pool (default, use pool name with '@' for Project@Deployment Group)"
+	else
+		echo "[$scriptName]   pool           : $pool (use pool name with '@' for Project@Deployment Group)"
+	fi
+	
+	agentName="$4"
+	if [ -z "$agentName" ]; then
+		agentName=$(hostname)
+		agentName=${agentName//-}
+		echo "[$scriptName]   agentName      : $agentName (default)"
+	else
+		echo "[$scriptName]   agentName      : $agentName"
+	fi
+	
+	srvAccount="$5"
+	if [ -z "$srvAccount" ]; then
+		srvAccount='vstsagent'
+		echo "[$scriptName]   srvAccount     : $srvAccount (default)"
+	else
+		echo "[$scriptName]   srvAccount     : $srvAccount"
+	fi
 fi
 
 echo "[$scriptName]   hostname       : $(hostname)"
@@ -76,9 +75,19 @@ executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/${ver
 executeExpression "mkdir vso"
 executeExpression "tar zxf ${media} -C ./vso"
 executeExpression "$elevate cp -r vso /opt"
-executeExpression "$elevate chown -R $srvAccount /opt/vso"
+
+if [ ! -z "$srvAccount" ]; then
+	executeExpression "$elevate chown -R $srvAccount /opt/vso"
+fi
+
 executeExpression "cd /opt/vso"
 executeExpression "$elevate ./bin/installdependencies.sh"
+
+if [ -z "$url" ]; then
+	echo "[$scriptName] URL not supplied, binary install only, exiting."
+	echo "[$scriptName] --- end ---"
+	exit 0
+fi
 
 if [[ "$pool" == *"@"* ]]; then
 	IFS='@' read -ra arr <<< $pool

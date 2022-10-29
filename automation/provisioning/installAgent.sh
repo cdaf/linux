@@ -42,14 +42,19 @@ else
 	else
 		echo "[$scriptName]   agentName      : $agentName"
 	fi
-	
-	srvAccount="$5"
-	if [ -z "$srvAccount" ]; then
+fi
+
+srvAccount="$5"
+if [ -z "$srvAccount" ]; then
+	if [ -z "$ADO_AGENT_SERVICE_ACCOUNT" ]; then
 		srvAccount='vstsagent'
 		echo "[$scriptName]   srvAccount     : $srvAccount (default)"
 	else
-		echo "[$scriptName]   srvAccount     : $srvAccount"
+		srvAccount="$ADO_AGENT_SERVICE_ACCOUNT"
+		echo "[$scriptName]   srvAccount     : $srvAccount (set from environment variable ADO_AGENT_SERVICE_ACCOUNT)"
 	fi
+else
+	echo "[$scriptName]   srvAccount     : $srvAccount (Agent cannot be run installed as root)"
 fi
 
 echo "[$scriptName]   hostname       : $(hostname)"
@@ -75,10 +80,7 @@ executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/${ver
 executeExpression "mkdir vso"
 executeExpression "tar zxf ${media} -C ./vso"
 executeExpression "$elevate cp -r vso /opt"
-
-if [ ! -z "$srvAccount" ]; then
-	executeExpression "$elevate chown -R $srvAccount /opt/vso"
-fi
+executeExpression "$elevate chown -R $srvAccount /opt/vso"
 
 executeExpression "cd /opt/vso"
 executeExpression "$elevate ./bin/installdependencies.sh"

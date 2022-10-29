@@ -67,7 +67,7 @@ fi
 
 version="$2"
 if [ -z "$version" ]; then
-	version='5'
+	version='6'
 	echo "[$scriptName]   version : $version (default)"
 else
 	echo "[$scriptName]   version : $version"
@@ -90,6 +90,12 @@ elif [ "$version" == '5' ]; then
 		packageName='dotnet-sdk-5.0'
 	else
 		packageName='aspnetcore-runtime-5.0'
+	fi	
+elif [ "$version" == '6' ]; then
+	if [ "$sdk" == 'yes' ]; then
+		packageName='dotnet-sdk-6.0'
+	else
+		packageName='aspnetcore-runtime-6.0'
 	fi	
 else
 	echo "[$scriptName] Version $version not supported!"

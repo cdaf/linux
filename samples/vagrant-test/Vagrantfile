@@ -34,8 +34,11 @@ Vagrant.configure(2) do |config|
     test.vm.provision 'shell', inline: 'echo ; echo "Check IP routes"; echo'
     test.vm.provision 'shell', inline: 'ip r'
 
+    test.vm.provision 'shell', inline: 'echo ; echo "List IP resolution"; echo'
+    test.vm.provision 'shell', inline: "getent ahosts 'google.com'"
+
     test.vm.provision 'shell', inline: 'echo ; echo "List the default adapter (verifies connectivity)"; echo'
-    test.vm.provision 'shell', inline: "ip route get $(getent ahosts 'google.com' | awk '{print $1; exit}') | grep -Po '(?<=(dev ))(\S+)'"
+    test.vm.provision 'shell', inline: "ip route get 8.8.8.8 | head -n1 | awk '{print $5}'"
 
     test.vm.provision 'shell', inline: 'echo ; echo "Test Complete"; echo'
 

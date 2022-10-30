@@ -454,6 +454,10 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		fi
 	fi
 
+	if [ -f "build.properties" ]; then
+		executeExpression "rm -f build.properties"
+	fi
+
 	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
 	if [ ! -z "$imageBuild" ]; then
 

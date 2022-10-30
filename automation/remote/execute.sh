@@ -370,7 +370,6 @@ if [ -f "../build.properties" ] ;then
 	printf "$propertiesList"
 	eval $propertiesList
 	echo; echo
-	rm ../build.properties
 else
 	# If not build, is it a package process?
 	if [ -f "./solution.properties" ] ;then

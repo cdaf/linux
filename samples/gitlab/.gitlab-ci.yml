@@ -6,8 +6,14 @@ stages:
 
 cdaf-ci:
   stage: build
+
   tags:
-    - bash
+    - linux
+  image: cdaf/linux
+
+  # Self-hosted Runner
+  # tags:
+  #   - bash
 
   # To use native container runner with CDAF pre-installed
   # tags:

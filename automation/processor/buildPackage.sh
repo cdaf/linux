@@ -132,7 +132,7 @@ else
 fi
 echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
 
-cat "$SOLUTIONROOT/CDAF.solution" > build.properties
+cp -f "$SOLUTIONROOT/CDAF.solution" build.properties
 
 BUILDNUMBER="$1"
 if [[ $BUILDNUMBER == *'$'* ]]; then

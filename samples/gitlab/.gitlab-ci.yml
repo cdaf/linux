@@ -7,33 +7,26 @@ stages:
 cdaf-ci:
   stage: build
 
-  tags:
-    - linux
+  # To use native container runner with CDAF pre-installed
   image: cdaf/linux
+  script: entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
 
   # Self-hosted Runner
   # tags:
   #   - bash
 
-  # To use native container runner with CDAF pre-installed
-  # tags:
-  #   - linux
-  # image: cdaf/linux
-  # script: entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
-
-
   # Latest Published Release
-  script: |
-    curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+  # script: |
+  #   curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+  #   ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
 
   # Edge Implementation 
-#  script: |
-#    curl --silent https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
-#    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+  #  script: |
+  #    curl --silent https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+  #    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
 
-#  # In-source Implementation 
-#  script: "automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
+  # In-source Implementation 
+  #  script: "automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}"
 
   artifacts:
     paths:

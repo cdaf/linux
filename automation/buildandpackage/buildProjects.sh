@@ -142,7 +142,7 @@ else
 		fi
 
 		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
-		echo "PROJECT=${projectName}" > ../build.properties
+		echo "PROJECT=${projectName}" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 

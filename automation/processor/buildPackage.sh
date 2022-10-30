@@ -132,6 +132,8 @@ else
 fi
 echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
 
+cat "$SOLUTIONROOT/CDAF.solution" > build.properties
+
 BUILDNUMBER="$1"
 if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
@@ -220,7 +222,7 @@ echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh 
 if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 
 	# Set properties for execution engine
-	echo "PROJECT=${projectName}" > ../build.properties
+	echo "PROJECT=${projectName}" >> ../build.properties
 	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
@@ -439,7 +441,7 @@ if [[ "$ACTION" != 'container_build' ]]; then
 	if [ -f $postbuild ]; then
 
 		# Set properties for execution engine
-		echo "PROJECT=${projectName}" > ../build.properties
+		echo "PROJECT=${projectName}" >> ../build.properties
 		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 

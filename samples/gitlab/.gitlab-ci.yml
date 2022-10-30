@@ -17,9 +17,9 @@ cdaf-ci:
 
 
   # Latest Published Release
-#  script: |
-#    curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-#    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
+  script: |
+    curl --silent https://cdaf.io/static/app/downloads/cdaf.sh | bash -
+    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
 
   # Edge Implementation 
 #  script: |

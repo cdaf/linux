@@ -365,7 +365,6 @@ echo "[$scriptName]   TMPDIR      : $TMPDIR"
 # this is not required in the PowerShell version as variables are global
 if [ -f "../build.properties" ] ;then
 	echo; echo "[$scriptName] Load ../build.properties"; echo
-	eval $(cat ../build.properties)
 	AUTOMATIONHELPER="$( cd "$(dirname "$0")" && pwd )"
 	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
 	printf "$propertiesList"

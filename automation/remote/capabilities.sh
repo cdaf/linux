@@ -262,6 +262,14 @@ if [ -z "$test" ]; then
 	echo "  dotnet           : (not installed)"
 else
 	echo "  dotnet           : $test"
-fi	
+fi
+
+test=$(kubectl version --short=true --client=true)
+if [ -z "$test" ]; then
+	echo "  kubectl          : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	echo "  kubectl          : ${ADDR[2]}"
+fi
 
 echo; echo "[$scriptName] --- end ---"; echo

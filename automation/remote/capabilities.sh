@@ -264,7 +264,7 @@ else
 	echo "  dotnet           : $test"
 fi
 
-test=$(kubectl version --short=true --client=true)
+test=$(kubectl version --short=true --client=true 2>/dev/null)
 if [ -z "$test" ]; then
 	echo "  kubectl          : (not installed)"
 else

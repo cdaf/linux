@@ -227,9 +227,9 @@ fi
 # NodeJS components
 test=$(node --version 2>/dev/null)
 if [ -z "$test" ]; then
-	echo "  node             : (not installed)"
+	echo "  NodeJS           : (not installed)"
 else
-	echo "  node             : $test"
+	echo "  NodeJS           : ${test##*v}"
 fi	
 
 # Node Package Manager
@@ -264,12 +264,27 @@ else
 	echo "  dotnet           : $test"
 fi
 
+# Kubectl is required for Helm
 test=$(kubectl version --short=true --client=true 2>/dev/null)
 if [ -z "$test" ]; then
 	echo "  kubectl          : (not installed)"
 else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  kubectl          : ${ADDR[2]}"
+	echo "  kubectl          : ${test##*v}"
+fi
+
+test=$(helm version --short 2>/dev/null)
+if [ -z "$test" ]; then
+	echo "  helm             : (not installed)"
+else
+	test="${test##*v}"
+	echo "  helm             : ${test%+*}"
+fi
+
+test=$(helmsman -v 2>/dev/null)
+if [ -z "$test" ]; then
+	echo "  helmsman         : (not installed)"
+else
+	echo "  helmsman         : ${test##*v}"
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

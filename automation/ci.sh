@@ -47,7 +47,7 @@ BRANCH=${BRANCH##*/}                                    # strip to basename
 BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $BRANCH)         # remove non-alphanumeric characters
 BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]') # make case insensitive
 if [ -z $BRANCH ]; then
-	BRANCH='targetlesscd'
+	BRANCH='revision'
 	echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 else
 	echo "[$scriptName]   BRANCH         : $BRANCH"

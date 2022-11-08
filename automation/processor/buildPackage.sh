@@ -132,7 +132,12 @@ else
 fi
 echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
 
-cp -f "$SOLUTIONROOT/CDAF.solution" build.properties
+# Seed the global properties file, catering for files without a closing linefeed
+truncate -s 0 build.properties
+manifest=$(cat ${SOLUTIONROOT}/CDAF.solution)
+while read -r line; do
+   echo ${line} >> build.properties
+done < <(echo "$manifest")
 
 BUILDNUMBER="$1"
 if [[ $BUILDNUMBER == *'$'* ]]; then
@@ -217,6 +222,18 @@ echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"
 
 echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
+
+# 2.5.5 default error diagnostic command as solution property
+if [ -z "$CDAF_ERROR_DIAG" ]; then
+	export CDAF_ERROR_DIAG=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_ERROR_DIAG")
+	if [ -z "$CDAF_ERROR_DIAG" ]; then
+		echo "[$scriptName]   CDAF_ERROR_DIAG : (not set or defined in $SOLUTIONROOT/CDAF.solution)"
+	else
+		echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG (defined in $SOLUTIONROOT/CDAF.solution)"
+	fi
+else
+	echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG"
+fi
 
 # Process optional post-packaging tasks (Task driver support added in release 2.4.4)
 if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
@@ -308,6 +325,7 @@ for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks .
 		rm -rf ${packageDir}
 	fi
 done
+echo
 
 configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name "*.cm")
 if [ -z "$configManagementList" ]; then

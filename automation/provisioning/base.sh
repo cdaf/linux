@@ -120,6 +120,31 @@ function executeAptCheck {
 	done
 }
 
+function executeRetry {
+	counter=1
+	max=5
+	success='no'
+	wait=1
+	while [ "$success" != 'yes' ]; do
+		echo "[$scriptName][$counter] $1"
+		eval "$1"
+		exitCode=$?
+		# Check execution normal, anything other than 0 is an exception
+		if [ "$exitCode" != "0" ]; then
+			counter=$((counter + 1))
+			if [ "$counter" -le "$max" ]; then
+				echo "[$scriptName] Failed with exit code ${exitCode}! Wait $wait seconds, then retry $counter of ${max}"
+				sleep $wait
+			else
+				echo "[$scriptName] Failed with exit code ${exitCode}! Max retries (${max}) reached."
+				exit $exitCode
+			fi					 
+		else
+			success='yes'
+		fi
+	done
+}  
+
 scriptName='base.sh'
 
 echo "[$scriptName] --- start ---"

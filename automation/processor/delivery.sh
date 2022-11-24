@@ -90,13 +90,14 @@ echo "[$scriptName]   CDAF Version     : $(./$WORK_DIR_DEFAULT/getProperty.sh ".
 
 # 2.5.5 default error diagnostic command as solution property
 if [ -z "$CDAF_ERROR_DIAG" ]; then
-	export CDAF_ERROR_DIAG=$($AUTOMATIONROOT/remote/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "CDAF_ERROR_DIAG")
+	export CDAF_ERROR_DIAG=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "CDAF_ERROR_DIAG")
 	if [ -z "$CDAF_ERROR_DIAG" ]; then
-		echo "[$scriptName]   CDAF_ERROR_DIAG : (not set or defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
+		echo "[$scriptName]   CDAF_ERROR_DIAG  : (not set or defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
 	else
-		echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG (defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
+		echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG (defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
 	fi
-	echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG"
+else
+	echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG"
 fi
 
 workingDir=$(pwd)

@@ -111,6 +111,7 @@ else
 fi
 
 if [ ! -z "$CONTAINER_IMAGE" ]; then
+	echo; echo "[$scriptName] \$CONTAINER_IMAGE is set (${CONTAINER_IMAGE}), pass as \$CONTAINER_IMAGE to build"
 	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
     executeExpression "docker pull ${CONTAINER_IMAGE}"
 fi

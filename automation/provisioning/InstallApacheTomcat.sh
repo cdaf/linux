@@ -15,7 +15,11 @@ scriptName='InstallApacheTomcat.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='10.0.27'
+	# Get latest version
+	latest=$(curl --silent https://tomcat.apache.org/download-90.cgi | grep '<a href="#')
+	IFS='#' read -ra arr <<< $latest
+	IFS='"' read -ra arr <<< ${arr[1]}
+	version=${arr[0]}
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"

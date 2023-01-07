@@ -158,7 +158,11 @@ else
 	if [ "$systemWide" == 'yes' ]; then
 		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 			echo "[$scriptName] Red Hat Enterprise Linux"
-		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm" # Ignore if already installed
+			version=$(cat /etc/redhat-release)
+			IFS='.' read -ra arr <<< $version
+			IFS=' ' read -ra arr <<< ${arr[0]}
+			epelversion=$(echo ${arr[${#arr[@]} - 1]})
+		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
 		else
 			executeRetry "$elevate yum install -y epel-release"
 		fi

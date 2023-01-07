@@ -158,12 +158,6 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName] sestatus        : $test"
 	fi	
 
-	if [ -z "${CDAF_VOLUME_OPT}" ]; then
-		echo "[$scriptName] CDAF_VOLUME_OPT : (not set)"
-		echo "[$scriptName] sestatus        : (not installed)"
-		CDAF_VOLUME_OPT
-	fi
-
 	for envVar in $(env | grep CDAF_CB_); do
 		envVar=$(echo ${envVar//CDAF_CB_})
 		buildCommand+=" --env ${envVar}"
@@ -177,12 +171,25 @@ if [ ! -z "$imageName" ]; then
 		buildCommand+=" --env ${envVar}"
 	done
 
-	# If a build number is not passed, use the CDAF emulator
-	executeExpression "export MSYS_NO_PATHCONV=1"
-	if [ -z "$HOME" ]; then
-		executeExpression "docker run --tty --user $(id -u) --volume ${workspace}:/solution/workspace${CDAF_VOLUME_OPT} ${buildCommand} ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+	# :Z flag sets Podman to label the volume content as "private unshared" with SELinux. This label allows the container to write to the volume. https://www.tutorialworks.com/podman-rootless-volumes/
+	# Because podman is rootless, the resulting output is still owned by the workspace user
+	test="`podman -v 2>&1`"
+	if [ $? -eq 0 ]; then
+		IFS=' ' read -ra ADDR <<< $test
+		test=${ADDR[2]}
+		echo "[$scriptName] Podman $test installed, run as root inside the container (do not attempt to mount home directory)"
+		volumeOpt=:Z
+		containerUser=root
 	else
-		executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home${CDAF_VOLUME_OPT} --volume ${workspace}:/solution/workspace${CDAF_VOLUME_OPT} ${buildCommand} ${buildImage}:${newTag} ./automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		containerUser=$(id -u)
+		mountHome="$HOME"
+	fi
+
+	executeExpression "export MSYS_NO_PATHCONV=1"
+	if [ -z "$mountHome" ] ; then
+		executeExpression "docker run --tty --user $containerUser --volume ${workspace}:/solution/workspace${volumeOpt} ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+	else
+		executeExpression "docker run --tty --user $containerUser --volume ${mountHome}:/solution/home${volumeOpt} --volume ${workspace}:/solution/workspace${volumeOpt} ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	fi
 
 	echo "[$scriptName] List and remove all stopped containers"

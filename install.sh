@@ -34,7 +34,7 @@ else
 fi
 
 if [ -d "${installPath}" ]; then
-	executeExpression "rm -rf \"${installPath}/*\""
+	executeExpression "find \"${installPath}/*\" -mindepth 1 -delete"
 else
 	executeExpression "mkdir -p \"${installPath}\""
 fi
@@ -47,13 +47,16 @@ if [ -z "$version" ]; then
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
-	
-	executeExpression "mv \"./linux-master/automation/*\" ${installPath}"
+
+
+sudo find ~/Downloads -mindepth 1 -prune -exec mv '{}' ~/Videos \;
+
+	executeExpression "find \"./linux-master/automation/*\" -mindepth 1 -exec mv '{}' ${installPath} \;"
 	executeExpression "rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 	if [[ installPath != './automation' ]]; then
-		executeExpression "mv \"./automation/*\" ${installPath}"
+		executeExpression "find \"./automation/*\" -mindepth 1 -exec mv '{}' ${installPath} \;"
 		executeExpression "rm -rf automation"
 	fi
 fi

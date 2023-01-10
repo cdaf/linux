@@ -35,11 +35,8 @@ fi
 
 if [ -d "${installPath}" ]; then
 	executeExpression "rm -rf '${installPath}/*'"
-fi
-
-parentdir="$(dirname "${installPath}")"
-if [ ! -d "${parentdir}" ]; then
-	executeExpression "mkdir -p '${parentdir}'"
+else
+	executeExpression "mkdir -p '${installPath}'"
 fi
 
 if [ -z "$version" ]; then
@@ -51,12 +48,13 @@ if [ -z "$version" ]; then
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
 	
-	executeExpression "mv ./linux-master/automation ${installPath}"
+	executeExpression "mv ./linux-master/automation/* ${installPath}"
 	executeExpression "rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 	if [[ installPath != './automation' ]]; then
-		executeExpression "mv ./automation ${installPath}"
+		executeExpression "mv ./automation/* ${installPath}"
+		executeExpression "rm -rf automation"
 	fi
 fi
 

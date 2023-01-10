@@ -48,12 +48,12 @@ if [ -z "$version" ]; then
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
 	
-	executeExpression "mv './linux-master/automation/*' ${installPath}"
+	executeExpression "mv ./linux-master/automation/\* ${installPath}"
 	executeExpression "rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 	if [[ installPath != './automation' ]]; then
-		executeExpression "mv './automation/*' ${installPath}"
+		executeExpression "mv ./automation/\* ${installPath}"
 		executeExpression "rm -rf automation"
 	fi
 fi

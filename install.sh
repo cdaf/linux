@@ -34,7 +34,7 @@ else
 fi
 
 if [ -d "${installPath}" ]; then
-	executeExpression "find \"${installPath}/*\" -mindepth 1 -delete"
+	executeExpression "find \"${installPath}\" -mindepth 1 -delete"
 else
 	executeExpression "mkdir -p \"${installPath}\""
 fi
@@ -51,12 +51,12 @@ if [ -z "$version" ]; then
 
 sudo find ~/Downloads -mindepth 1 -prune -exec mv '{}' ~/Videos \;
 
-	executeExpression "find \"./linux-master/automation/*\" -mindepth 1 -exec mv '{}' ${installPath} \;"
+	executeExpression "find \"./linux-master/automation\" -mindepth 1 -exec mv '{}' ${installPath} \;"
 	executeExpression "rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 	if [[ installPath != './automation' ]]; then
-		executeExpression "find \"./automation/*\" -mindepth 1 -exec mv '{}' ${installPath} \;"
+		executeExpression "find \"./automation\" -mindepth 1 -exec mv '{}' ${installPath} \;"
 		executeExpression "rm -rf automation"
 	fi
 fi

@@ -48,8 +48,6 @@ if [ -z "$version" ]; then
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
 
-
-sudo find ~/Downloads -mindepth 1 -prune -exec mv '{}' ~/Videos \;
 	executeExpression "cd linux-master/automation"
 	executeExpression "mv * ${installPath}"
 	executeExpression "cd ../.. && rm -rf linux-master"

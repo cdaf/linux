@@ -39,6 +39,9 @@ else
 	executeExpression "mkdir -p \"${installPath}\""
 fi
 
+# Convert to absolute path
+installPath=$(echo "$(cd "$(dirname "$installPath")"; pwd)/$(basename "$installPath")")
+
 if [ -z "$version" ]; then
 	unzip &>/dev/null
 	if [ $? -ne 0 ]; then

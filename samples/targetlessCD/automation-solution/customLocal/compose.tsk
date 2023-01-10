@@ -14,12 +14,11 @@ echo "Build all images, i.e. directories"
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
 cd ..
+for image in $(ls -A images); do $WORKSPACE/dockerClean.sh ${id}_${image} ${BUILDNUMBER}; done
 
 echo "Clean-up old images and transient directory Created by imageBuild.sh"
 export TARGET_TAG="${id}_target"
 export TEST_TAG="${id}_test"
-$WORKSPACE/dockerClean.sh $TARGET_TAG ${BUILDNUMBER}
-$WORKSPACE/dockerClean.sh $TEST_TAG ${BUILDNUMBER}
 REMOVE /tmp/${SOLUTION}
 
 echo "Do not run in workspace to avoid file locks"

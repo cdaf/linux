@@ -51,13 +51,13 @@ if [ -z "$version" ]; then
 
 sudo find ~/Downloads -mindepth 1 -prune -exec mv '{}' ~/Videos \;
 	executeExpression "cd linux-master/automation"
-	executeExpression "mv * /opt/cdaf/ ${installPath}"
+	executeExpression "mv * ${installPath}"
 	executeExpression "cd ../.. && rm -rf linux-master"
 else
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
 	if [[ installPath != './automation' ]]; then
 		executeExpression "cd automation"
-		executeExpression "mv * /opt/cdaf/ ${installPath}"
+		executeExpression "mv * ${installPath}"
 		executeExpression "cd .. && rm -rf automation"
 	fi
 fi

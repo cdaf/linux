@@ -34,9 +34,9 @@ else
 fi
 
 if [ -d "${installPath}" ]; then
-	executeExpression "rm -rf '${installPath}/*'"
+	executeExpression "rm -rf \"${installPath}/\*\""
 else
-	executeExpression "mkdir -p '${installPath}'"
+	executeExpression "mkdir -p \"${installPath}\""
 fi
 
 if [ -z "$version" ]; then

@@ -13,8 +13,8 @@ export WORK_SPACE="$(dirname "$(pwd)")"
 echo "Build all images, i.e. directories"
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
+for image in $(ls -A .); do $WORKSPACE/dockerClean.sh ${id}_${image} ${BUILDNUMBER}; done
 cd ..
-for image in $(ls -A images); do $WORKSPACE/dockerClean.sh ${id}_${image} ${BUILDNUMBER}; done
 
 echo "Clean-up old images and transient directory Created by imageBuild.sh"
 export TARGET_TAG="${id}_target"

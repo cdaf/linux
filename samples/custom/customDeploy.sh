@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+scriptName='customDeploy.sh'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1
@@ -32,7 +35,6 @@ function executeRetry {
 		fi
 	done
 } 
-scriptName='customDeploy.sh'
 
 echo; echo "[$scriptName] --- start ---"
 SOLUTION=$1

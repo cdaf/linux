@@ -4,6 +4,14 @@ pipelines:
   default:
     - step:
         name: Build and Test
+
+        services:
+          - docker
+
+        # runs-on:
+        #   - self.hosted
+        #   - linux.shell
+
         script:
         
           ## CDAF Install is not required because pre-instlled in cdaf/linux:latest, following samples are for use in images without CDAF
@@ -20,43 +28,64 @@ pipelines:
 
           # CDAF installed in repo
           # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
-          
-        services:
-          - docker
 
   branches:
     'master':
       - step:
           name: Build Only
+
+          services:
+            - docker
+
+          # runs-on:
+          #   - self.hosted
+          #   - linux.shell
+
           script:
             - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
             - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
           artifacts:
             - "release.sh"
-          services:
-            - docker
 
       - step:
           name: Docker Test
-          deployment: DOCKER
-          script:
-            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+
           services:
             - docker
+
+          # runs-on:
+          #   - self.hosted
+          #   - linux.shell
+
+          deployment: Test
+          script:
+            - ./release.sh DOCKER
 
       - step:
           name: Deploy to staging
-          deployment: Staging
-          script:
-            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+
           services:
             - docker
 
+          # runs-on:
+          #   - self.hosted
+          #   - linux.shell
+
+          deployment: Staging
+          script:
+            - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+
       - step:
           name: Deploy to production
+
+          services:
+            - docker
+
+          # runs-on:
+          #   - self.hosted
+          #   - linux.shell
+
           deployment: Production
           trigger: manual
           script:
             - ./release.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
-          services:
-            - docker

@@ -34,7 +34,7 @@ else
 fi
 
 if [ -d "${installPath}" ]; then
-	executeExpression "rm -rf '${installPath}'"
+	executeExpression "rm -rf '${installPath}/*'"
 fi
 
 parentdir="$(dirname "${installPath}")"

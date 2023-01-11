@@ -66,7 +66,7 @@ scriptName='installPython.sh'
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
 	version='3'
-	echo "[$scriptName]   version : $version (default)"
+	echo "[$scriptName]   version : $version (default, choices 2 or 3)"
 else
 	version=$1
 	echo "[$scriptName]   version : $version (choices 2 or 3)"
@@ -95,11 +95,13 @@ if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
 else
 	fedora='yes'
-	centos=$(cat /etc/redhat-release | grep CentOS)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux"
+	test=$(rpm --query redhat-release 2>&1)
+	if [ $? -eq 0 ]; then
+		echo "[$scriptName] Red Hat Enterprise Linux $test"
 	else
-		echo "[$scriptName] CentOS Linux"
+		centos=$(rpm --query centos-release)
+		echo "[$scriptName] CentOS Linux $centos"
+		
 	fi
 fi
 echo
@@ -150,7 +152,11 @@ else
 	echo
 	if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
 		echo "[$scriptName] Red Hat Enterprise Linux"
-	    executeIgnore "$elevate yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+		version=$(cat /etc/redhat-release)
+		IFS='.' read -ra arr <<< $version
+		IFS=' ' read -ra arr <<< ${arr[0]}
+		epelversion=$(echo ${arr[${#arr[@]} - 1]})
+	    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
 	else
 		executeRetry "$elevate yum install -y epel-release"
 	fi

@@ -47,6 +47,11 @@ pipelines:
           artifacts:
             - "release.sh"
 
+          # Legacy artefacts
+          # artifacts:
+          #   - "TasksLocal/**"
+          #   - "*.gz"
+
       - step:
           name: Docker Test
 

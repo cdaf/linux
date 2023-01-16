@@ -98,7 +98,7 @@ writeLog "Add Extra Packages for Enterprise Linux"
 executeIgnore "${elevation} rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-${ADDR[0]}.noarch.rpm"
 executeExpression "${elevation} yum install -y java-11-openjdk-devel"
  
-executeExpression "${elevation} yum install -y snapd"
+executeExpression "${elevation} yum install -y snapd wget"
 
 executeExpression "${elevation} systemctl enable --now snapd.socket"
 if [ -e "/snap" ]; then
@@ -162,6 +162,20 @@ executeExpression "unzip terraform.zip"
 
 executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
+
+writeLog "VirtualBox for Vagrant"
+executeExpression "${elevation} dnf -y install wget"
+executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"
+executeExpression "${elevation} mv virtualbox.repo /etc/yum.repos.d/"
+
+executeExpression "wget -q https://www.virtualbox.org/download/oracle_vbox.asc"
+executeExpression "${elevation} rpm --import oracle_vbox.asc"
+
+executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
+executeExpression "${elevation} dnf install -y VirtualBox-6.0"
+
+executeExpression "${elevation} usermod -aG vboxusers $USER"
+
 
 writeLog "Office 365 support in Evolution"
 executeExpression "${elevation} yum install -y evolution evolution-ews"

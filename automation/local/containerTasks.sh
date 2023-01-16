@@ -21,7 +21,7 @@ function ERRMSG {
 	else
 		echo; echo "[$scriptName][ERROR]$1"
 	fi
-	if [ ! -z $CDAF_ERROR_DIAG ]; then
+	if [ ! -z "${CDAF_ERROR_DIAG}" ]; then
 		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
 		eval "$CDAF_ERROR_DIAG"
 	fi
@@ -108,7 +108,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 		# Test Docker is running
 		imageLIst=$(docker images)
 		if [ "$?" != "0" ]; then
-			if [ -z $CDAF_DOCKER_REQUIRED ]; then
+			if [ -z "${CDAF_DOCKER_REQUIRED}" ]; then
 				echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
 				unset containerDeploy
 			else
@@ -126,25 +126,25 @@ if [ -d "./propertiesForContainerTasks" ]; then
 		REVISION=$(getProp 'manifest.txt' 'REVISION')
 	
 		# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.ps1 to support 2.4.0 functionality
-		if [ -z $containerDeploy ]; then
-			containerDeploy='${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"'
+		if [ -z "${containerDeploy}" ]; then
+			containerDeploy='${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"'
 			echo "[$scriptName]   containerDeploy  : $containerDeploy (Default)"
 		else
 			echo "[$scriptName]   containerDeploy  : $containerDeploy"
 		fi
 	
 		deployImage=$(getProp 'manifest.txt' 'deployImage')
-		if [ ! -z $deployImage ]; then
+		if [ ! -z "${deployImage}" ]; then
 			export CONTAINER_IMAGE=$deployImage
 			echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (deployImage)"
 		else
 			runtimeImage=$(getProp 'manifest.txt' 'runtimeImage')
-			if [ ! -z $runtimeImage ]; then
+			if [ ! -z "${runtimeImage}" ]; then
 				export CONTAINER_IMAGE=$runtimeImage
 				echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (runtimeImage)"
 			else
 				containerImage=$(getProp 'manifest.txt' 'containerImage')
-				if [ ! -z $containerImage ]; then
+				if [ ! -z "${containerImage}" ]; then
 					export CONTAINER_IMAGE=$containerImage
 					echo "[$scriptName]   CONTAINER_IMAGE  : ${CONTAINER_IMAGE} (containerImage)"
 				else
@@ -155,7 +155,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 
 		# 2.5.3 Option to disable volume mount for containerDeploy
 		homeMount=$(getProp "./manifest.txt" "CDAF_HOME_MOUNT")
-		if [ -z $homeMount ]; then
+		if [ -z "${homeMount}" ]; then
 			echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT}"
 		else
 			export CDAF_HOME_MOUNT=$homeMount

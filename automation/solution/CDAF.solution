@@ -25,5 +25,5 @@ artifactPrefix=0.0
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
-# containerDeploy=${CDAF_WORKSPACE}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}"
+# containerDeploy=${WORK_DIR_DEFAULT}/containerDeploy.sh "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"
 # CDAF_HOME_MOUNT=no

@@ -48,12 +48,12 @@ else
 	echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
 fi
 
-REVISION=$5
-if [ -z "$REVISION" ]; then
-	echo "$scriptName REVISION Number not passed. HALT!"
+id=$5
+if [ -z "$id" ]; then
+	echo "$scriptName id Number not passed. HALT!"
 	exit 1345
 else
-	echo "[$scriptName]   REVISION    : $REVISION"
+	echo "[$scriptName]   id          : $id"
 fi
 
 imageDir=$6
@@ -85,7 +85,7 @@ fi
 executeExpression "cd $imageDir"
 
 echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
-id=$(echo "${SOLUTION}_${REVISION}_containerdeploy" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
+id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
 executeExpression "${WORKING_DIRECTORY}/dockerRun.sh ${id}"
 export CDAF_CD_ENVIRONMENT=$TARGET
@@ -108,9 +108,9 @@ executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then
 	echo "[$scriptName] \$CDAF_HOME_MOUNT = $CDAF_HOME_MOUNT"
 	echo "[$scriptName] \$HOME            = $HOME"
-	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
+	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 else
-	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${REVISION} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
+	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 fi
 
 echo

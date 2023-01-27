@@ -20,9 +20,9 @@ scriptName='install.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	echo "[$scriptName]   version           : (not passed, use edge)"
+	echo "[$scriptName]   version           : (not passed, use edge from GitHub)"
 else
-	echo "[$scriptName]   version           : $version"
+	echo "[$scriptName]   version           : $version (use published version from cdaf.io)"
 fi
 
 if [ -z "$CDAF_INSTALL_PATH" ]; then
@@ -43,10 +43,25 @@ fi
 installPath=$(echo "$(cd "$(dirname "$installPath")"; pwd)/$(basename "$installPath")")
 
 if [ -z "$version" ]; then
-	unzip &>/dev/null
+	test="`unzip 2>&1`"
 	if [ $? -ne 0 ]; then
-		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package is unzip
-	fi
+		echo "unzip, not installed, installing"
+		if [ $? -ne 0 ]; then
+			executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package is unzip
+		fi
+		test="`unzip --version 2>&1`"
+		if [ $? -ne 0 ]; then
+			echo "Could not install unzip!"; exit 4624
+		else
+			IFS=' ' read -ra ADDR <<< $test
+			test=${ADDR[1]}
+			echo "  unzip             : $test"
+		fi	
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		test=${ADDR[1]}
+		echo "  unzip             : $test"
+	fi	
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"

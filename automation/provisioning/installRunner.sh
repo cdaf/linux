@@ -170,7 +170,16 @@ else
 	else
 		runnerBin='/usr/local/bin/gitlab-runner'
 	fi
-	executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --tag-list '$tags'"
+	execprefix=$(echo ${executor%/*})
+	if [[ "$execprefix" == 'docker' ]]; then
+		execsuffix=$(echo ${executor##*/})
+		if [[ -z "$execsuffix" ]]; then
+			execsuffix='ubuntu:latest'
+		fi
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --docker-image $execsuffix --tag-list '$tags'"
+	else	
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --tag-list '$tags'"
+	fi
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

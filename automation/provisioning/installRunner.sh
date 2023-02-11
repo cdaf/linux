@@ -176,9 +176,9 @@ else
 		if [[ -z "$execsuffix" ]]; then
 			execsuffix='ubuntu:latest'
 		fi
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --docker-image $execsuffix --tag-list '$tags'"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $execprefix --docker-image $execsuffix --tag-list '$tags'"
 	else	
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $executor --tag-list '$tags'"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --registration-token \$pat --name $name --executor $execprefix --tag-list '$tags'"
 	fi
 fi
 

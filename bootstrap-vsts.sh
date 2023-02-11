@@ -45,8 +45,8 @@ fi
 
 stable="$5"
 if [ -z "$stable" ]; then
-	stable='no' # I change this to no when there is a required pending change in addUser.s, base.sh or installAgent.sh
-	echo "[$scriptName]   stable         : $stable (not supplied, set to default)"
+	stable='no'
+	echo "[$scriptName]   stable         : $stable (not supplied, set to default, i.e. use latest from GitHub)"
 else
 	echo "[$scriptName]   stable         : $stable"
 fi

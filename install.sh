@@ -54,12 +54,12 @@ if [ -z "$version" ]; then
 			IFS=' ' read -ra ADDR <<< $test
 			test=${ADDR[1]}
 			echo "  unzip             : $test"
-		fi	
+		fi
 	else
 		IFS=' ' read -ra ADDR <<< $test
 		test=${ADDR[1]}
 		echo "  unzip             : $test"
-	fi	
+	fi
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
 	executeExpression "unzip -o linux-master.zip"
 	executeExpression "rm linux-master.zip"

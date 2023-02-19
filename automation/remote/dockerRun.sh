@@ -76,9 +76,6 @@ else
 	fi
 fi
 
-echo
-executeExpression "docker --version"
-
 if [ ! -z "$dockerExpose" ]; then
 	echo
 	# Globally unique label, based on port, if in use, stop and remove
@@ -89,6 +86,9 @@ if [ ! -z "$dockerExpose" ]; then
 	name="${imageName}_${publishedPort}"
 	echo "[$scriptName] name            : $name"
 fi
+
+echo
+executeExpression "docker --version"
 
 echo
 echo "List the running containers (before)"

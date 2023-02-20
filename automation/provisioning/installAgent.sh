@@ -57,16 +57,22 @@ else
 	echo "[$scriptName]   srvAccount     : $srvAccount (Agent cannot be run installed as root)"
 fi
 
-echo "[$scriptName]   hostname       : $(hostname)"
-echo "[$scriptName]   pwd            : $(pwd)"
+version="$6"
+if [ -z "$version" ]; then
+	version='2.217.2'
+	echo "[$scriptName]   version        : $version (default)"
+else
+	echo "[$scriptName]   version        : $version"
+fi
+
+echo "[$scriptName]   hostname       = $(hostname)"
+echo "[$scriptName]   pwd            = $(pwd)"
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami         : $(whoami)"
+	echo "[$scriptName]   whoami         = $(whoami)"
 else
-	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
+	echo "[$scriptName]   whoami         = $(whoami) (elevation not required)"
 fi
-version='2.217.2'
-echo "[$scriptName]   version        : $version"
 
 media="vsts-agent-linux-x64-${version}.tar.gz"
 

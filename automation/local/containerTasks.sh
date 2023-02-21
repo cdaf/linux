@@ -108,7 +108,8 @@ if [ -d "./propertiesForContainerTasks" ]; then
 		# Test Docker is running
 		imageLIst=$(docker images)
 		if [ "$?" != "0" ]; then
-			if [ -z "${CDAF_DOCKER_REQUIRED}" ]; then
+			dockerRequiredProp=$(getProp 'manifest.txt' 'CDAF_DOCKER_REQUIRED')
+			if [ -z "$CDAF_DOCKER_REQUIRED" ] && [ -z "$dockerRequiredProp" ]; then
 				echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
 				unset containerDeploy
 			else

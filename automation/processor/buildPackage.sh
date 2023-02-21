@@ -276,7 +276,8 @@ else
 				echo "docker images"
 				docker images
 				if [ "$?" != "0" ]; then
-					if [ -z "$CDAF_DOCKER_REQUIRED" ]; then
+					dockerRequiredProp=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
+					if [ -z "$CDAF_DOCKER_REQUIRED" ] && [ -z "$dockerRequiredProp" ]; then
 						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
 						unset containerBuild
 					else

@@ -287,6 +287,12 @@ else
 						fi
 						executeExpression "$elevate service docker start"
 						executeExpression "$elevate service docker status"
+						docker images
+						exitCode=$?
+						if [ $exitCode -ne 0 ]; then
+							echo "[$scriptName] Docker installed and running, but inaccessible. Halting."
+							exit $exitCode
+						fi
 					fi
 				fi
 			fi

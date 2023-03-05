@@ -183,8 +183,8 @@ else
 			echo "Do not set CDAF_REGISTRY_URL when pushing to dockerhub"
 		else
 			executeExpression "echo $CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $registryURL"
-			executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${CDAF_REGISTRY_TAG}"
-			for registryTag in ${CDAF_REGISTRY_TAG}; do
+			for registryTag in "${CDAF_REGISTRY_TAG}"; do
+				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
 				executeExpression "docker push ${registryTag}"
 			done
 		fi

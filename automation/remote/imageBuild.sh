@@ -99,9 +99,9 @@ else
 		fi
 
 		if [ -z "$CDAF_REGISTRY_TAG" ]; then
-			echo "[$scriptName]  CDAF_REGISTRY_TAG     = (not supplied)"
+			echo "[$scriptName]  CDAF_REGISTRY_TAG     = (not supplied, supports space separated list)"
 		else
-			echo "[$scriptName]  CDAF_REGISTRY_TAG     = $CDAF_REGISTRY_TAG"
+			echo "[$scriptName]  CDAF_REGISTRY_TAG     = $CDAF_REGISTRY_TAG (supports space separated list)"
 		fi
 
 		if [ -z "$CDAF_REGISTRY_USER" ]; then
@@ -184,7 +184,9 @@ else
 		else
 			executeExpression "echo $CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $registryURL"
 			executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${CDAF_REGISTRY_TAG}"
-			executeExpression "docker push ${CDAF_REGISTRY_TAG}"
+			for registryTag in ${CDAF_REGISTRY_TAG}; do
+				executeExpression "docker push ${registryTag}"
+			done
 		fi
 
 	fi

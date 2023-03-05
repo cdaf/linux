@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 function executeExpression {
 	echo "$1"
 	eval $1
@@ -98,6 +99,16 @@ function pvProperties {
 			echo "${pvline[0]}=${pvline[$j]}" >> "${cdafPath}/${paths[$j]}"
 		fi
 	done
+}
+
+function executeIgnore {
+	echo "$1"
+	eval $1
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName][WARN] $EXECUTABLESCRIPT returned $exitCode"
+	fi
 }
 
 # Entry point for building projects and packaging solution. 
@@ -532,36 +543,36 @@ if [[ "$ACTION" != 'container_build' ]]; then
 
 	# CDAF 2.1.0 Self-extracting Script Artifact
 	if [ ! -z $artifactPrefix ]; then
-		executeExpression "rm -rf TasksLocal"
-		executeExpression "rm -rf propertiesForLocalTasks"
+		executeIgnore "rm -rf TasksLocal"
+		executeIgnore "rm -rf propertiesForLocalTasks"
 		for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
-			executeExpression "rm '${packageFile}'"
+			executeIgnore "rm '${packageFile}'"
 		done
 	fi
 
 	echo; echo "[$scriptName] Clean Workspace..."
-	executeExpression "rm -rf propertiesForLocalTasks"
+	executeIgnore "rm -rf propertiesForLocalTasks"
 	if [ -d "TasksRemote" ]; then
-		executeExpression "rm -rf TasksRemote"
+		executeIgnore "rm -rf TasksRemote"
 	fi
 	if [ -d "propertiesForRemoteTasks" ]; then
-		executeExpression "rm -rf propertiesForRemoteTasks"
+		executeIgnore "rm -rf propertiesForRemoteTasks"
 	fi
 	if [ -d "propertiesForContainerTasks" ]; then
-		executeExpression "rm -rf propertiesForContainerTasks"
+		executeIgnore "rm -rf propertiesForContainerTasks"
 	fi
 
 	if [ -f "manifest.txt" ]; then
-		executeExpression "rm -f manifest.txt"
+		executeIgnore "rm -f manifest.txt"
 	fi
 	if [ -f "storeForLocal_manifest.txt" ]; then
-		executeExpression "rm -f storeForLocal_manifest.txt"
+		executeIgnore "rm -f storeForLocal_manifest.txt"
 	fi
 	if [ -f "storeForRemote_manifest.txt" ]; then
-		executeExpression "rm -f storeForRemote_manifest.txt"
+		executeIgnore "rm -f storeForRemote_manifest.txt"
 	fi
 	if [ -f "storeFor_manifest.txt" ]; then
-		executeExpression "rm -f storeFor_manifest.txt"
+		executeIgnore "rm -f storeFor_manifest.txt"
 	fi
 fi
 

@@ -194,7 +194,10 @@ if [ ! -z "$imageName" ]; then
 
 	echo "[$scriptName] List and remove all stopped containers"
 	executeExpression 'docker ps --filter "status=exited" -a'
-	executeExpression 'docker rm $(docker ps --filter "status=exited" -aq)'
+	exitedContainers=$(docker ps --filter "status=exited" -aq)
+	if [ ! -z "$exitedContainers" ]; then
+		executeExpression "docker rm $exitedContainers"
+	fi
 
 	if [[ "$cleanupCDAF" == 'yes' ]]; then
 		executeExpression "rm -rf $absolute"

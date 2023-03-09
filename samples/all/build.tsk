@@ -1,0 +1,4 @@
+echo "Variable validation based on properties.varchk in SOLUTIONROOT ($SOLUTIONROOT)"
+TOKEN='Password1'
+
+VARCHK

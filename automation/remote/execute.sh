@@ -207,11 +207,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -261,7 +261,14 @@ function VARCHK {
 	propertiesFile="$1"
 	if [ -z "$propertiesFile" ]; then
 		propertiesFile='properties.varchk'
-		echo "  VARCHK using $propertiesFile (default)"
+		if [ -f "$propertiesFile" ]; then
+			echo "  VARCHK using $propertiesFile (workspace default)"
+		else
+			propertiesFile="${SOLUTIONROOT}/properties.varchk"
+			if [ -f "$propertiesFile" ]; then
+				echo "  VARCHK using $propertiesFile (solution default)"
+			fi
+		fi
 	else
 		echo "  VARCHK using $propertiesFile"
 	fi

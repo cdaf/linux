@@ -211,6 +211,7 @@ function REPLAC {
 	else
 		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
 	fi
+echo "[DEBUG] sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	printable=$(echo "${executeFunction//•/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"

@@ -61,7 +61,7 @@ function executeExpression {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "$EXECUTABLESCRIPT returned $exitCode" $exitCode
 	fi
-}
+}  
 
 function MAKDIR {
 	# Create Directory, if exists do nothing, else create
@@ -86,7 +86,7 @@ function REMOVE {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
-}
+}  
 
 # Verbose Copy
 function VECOPY {
@@ -110,7 +110,7 @@ function VECOPY {
 			ERRMSG "${executeFunction} returned $exitCode" $exitCode
 		fi
 	fi
-}
+}  
 
 # Refresh Directory Contents
 # If single argument clear directory, if two arguments, copy source to clean destination
@@ -154,7 +154,7 @@ function REFRSH {
 			fi
 		done
 	fi
-}
+}  
 
 # Decrypt a file
 #  required : file to descrypt
@@ -165,7 +165,7 @@ function DECRYP {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode" $exitCode
 	fi
-}
+}  
 
 # Detokenise a file
 #  required : file to be detokenised
@@ -262,18 +262,10 @@ function VARCHK {
 	if [ -z "$propertiesFile" ]; then
 		propertiesFile='properties.varchk'
 		echo "  VARCHK using $propertiesFile (default)"
-		if [ -f "$propertiesFile" ]; then
-			echo "  VARCHK using $propertiesFile (workspace default)"
-		else
-			propertiesFile="${SOLUTIONROOT}/properties.varchk"
-			if [ -f "$propertiesFile" ]; then
-				echo "  VARCHK using $propertiesFile (solution default)"
-			fi
-		fi
 	else
 		echo "  VARCHK using $propertiesFile"
 	fi
-
+	
 	if [ ! -f "$propertiesFile" ]; then
 		ERRMSG "[VARCHK_PROP_FILE_NOT_FOUND] $propertiesFile not found" 7781
 	fi

@@ -261,7 +261,14 @@ function VARCHK {
 	propertiesFile="$1"
 	if [ -z "$propertiesFile" ]; then
 		propertiesFile='properties.varchk'
-		echo "  VARCHK using $propertiesFile (default)"
+		if [ -f "$propertiesFile" ]; then
+			echo "  VARCHK using $propertiesFile (workspace default)"
+		else
+			propertiesFile="${SOLUTIONROOT}/properties.varchk"
+			if [ -f "$propertiesFile" ]; then
+				echo "  VARCHK using $propertiesFile (solution default)"
+			fi
+		fi
 	else
 		echo "  VARCHK using $propertiesFile"
 	fi

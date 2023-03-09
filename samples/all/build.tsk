@@ -1,15 +1,17 @@
 echo "Variable validation based on properties.varchk in SOLUTIONROOT ($SOLUTIONROOT)"
-TOKEN='Password1'
+export PASS='Password1'
 
 VARCHK
 
 echo 'Detokenisation Example : %token%' > tokenised.file
+echo 'Variable token Example : %passwd%' >> tokenised.file
 echo 'Explicit token Example : @token@' >> tokenised.file
 cat tokenised.file
 echo 'token=value1' > properties.file
+echo 'passwd=$PASS' >> properties.file
 cat properties.file
 
-DETOKN tokenised.file properties.file
+DETOKN tokenised.file properties.file resolve
 
 REPLAC tokenised.file @token@ value2
 

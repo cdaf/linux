@@ -1,0 +1,3 @@
+# Properties for remote task execution from local tasks
+deployHost=server-1.sky.net
+deployUser=deployer

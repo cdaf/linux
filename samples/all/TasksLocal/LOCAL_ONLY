@@ -1,0 +1,2 @@
+# Use the same process as loop-back connection (LINUX_LOCALHOST) but on the localhost
+deployTaskOverride=tasksRunRemote.tsk

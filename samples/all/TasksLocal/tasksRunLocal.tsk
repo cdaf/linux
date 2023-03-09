@@ -1,0 +1,10 @@
+echo "Same example CDAF task execution engine cases"
+
+PROPLD manifest.txt
+
+ASSIGN $productVersion+='.'
+ASSIGN $productVersion+=$BUILDNUMBER
+
+EXCREM whoami
+
+EXCREM ./capabilities.sh test nocheck

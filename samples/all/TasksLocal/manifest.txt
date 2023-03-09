@@ -1,0 +1,15 @@
+# Manifest for revision myproduct
+SOLUTION=myproduct
+BUILDNUMBER=67
+REVISION=revision
+# This file defines the automation root along with CD emulator value (solutionName)
+productVersion=0.0.1
+productName=My Product Name
+solutionName=myproduct
+
+# containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
+# containerImage=ubuntu@sha256:6d0e0c26489e33f5a6f0020edface2727db9489744ecc9b4f50c7fa671f23c49
+
+# imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage
+
+# processSequence=localTasks.sh remoteTasks.sh

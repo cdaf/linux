@@ -10,7 +10,7 @@ function executeExpression {
 		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-}  
+}
 
 echo
 echo "[$scriptName] --- start ---"
@@ -38,6 +38,22 @@ else
 	echo "[$scriptName] waitTime    : $waitTime (seconds)"
 fi
 
+exactMatch=$4
+if [ -z "$exactMatch" ]; then
+	exactMatch="CONTAINS"
+	echo "[$scriptName] exactMatch  : $exactMatch (default)"
+else
+	echo "[$scriptName] exactMatch  : $exactMatch"
+fi
+
+trim=$5
+if [ -z "$trim" ]; then
+	trim="false"
+	echo "[$scriptName] trim        : $trim (default)"
+else
+	echo "[$scriptName] trim        : $trim"
+fi
+
 echo
 echo "[$scriptName] Monitor log of $container for match on \"$stringMatch\"."
 echo
@@ -62,7 +78,7 @@ while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 	    	if [ $lineCount -gt $lastLineNumber ]; then
 				echo "> $line"
 				lastLineNumber=$lineCount
-			fi	
+			fi
 			let "lineCount=lineCount+1"
 		done < <(echo "$output")
 
@@ -72,10 +88,24 @@ while [ $retryCount -le $retryMax ] && [ $exitCode -ne 0 ]; do
 		    exitCode=8335
 		    retryCount=$retryMax
 		else
-			found=$(echo $output | grep "$stringMatch")
-		    if [ ! -z "$found" ]; then
-				echo "[$scriptName] stringMatch ($stringMatch) found."
-			    exitCode=0
+			if [ "$exactMatch" == "EXACT" ]; then
+				readarray -t outputLines <<< "$output"
+				for line in "${outputLines[@]}"; do
+					if [ "$trim" == "TRIM" ]; then
+						line="$(echo -e "${line}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+					fi
+					if [ "$line" == "$stringMatch" ]; then
+						echo "[$scriptName] exact stringMatch ($stringMatch) found."
+						exitCode=0
+						break
+					fi
+				done
+			else
+				found=$(echo $output | grep "$stringMatch")
+		    	if [ ! -z "$found" ]; then
+					echo "[$scriptName] stringMatch ($stringMatch) found."
+			   	exitCode=0
+				fi
 			fi
 		fi
 	fi

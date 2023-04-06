@@ -1,6 +1,6 @@
 jobs:
 # Environment of Virtual Machines, replaces legacy "Deployment Groups"
-  - deployment: Release
+  - deployment: Release # do not use "Deploy" or job will get stuck at "Job is pending..."
     displayName: ${{ parameters.displayName }}
     environment:
       name: PROD

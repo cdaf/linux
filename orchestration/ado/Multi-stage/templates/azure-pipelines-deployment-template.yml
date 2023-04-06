@@ -1,11 +1,20 @@
 jobs:
-  - deployment: Deploy
+# Environment of Virtual Machines, replaces legacy "Deployment Groups"
+  - deployment: Release
     displayName: ${{ parameters.displayName }}
-    environment: ${{ parameters.environment }}
-    pool:
-      vmImage: ubuntu-20.04
+    environment:
+      name: PROD
+      resourceType: VirtualMachine
+
+# Deploy to agent pool, either Microsoft hosted or Self-hosted
+#  - deployment: Deploy
+#    displayName: ${{ parameters.displayName }}
+#    environment: ${{ parameters.environment }}
+#    pool:
+#      vmImage: ubuntu-20.04
 #    pool:
 #      name: 'Self-hosted Pool Name'
+
     strategy:
       runOnce:
         deploy:

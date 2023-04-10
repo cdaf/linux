@@ -60,7 +60,7 @@ else
 	if [ -z "$registry" ]; then
 		echo "[$scriptName] registry        : not passed, use local repo"
 	else
-		if [ "$registry" = 'none' ]; then
+		if [ "$registry" == 'none' ]; then
 			echo "[$scriptName] registry        : passed as '$registry', ignoring"
 			unset registry
 		else

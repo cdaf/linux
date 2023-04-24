@@ -3,7 +3,7 @@ jobs:
   - deployment: Release # do not use "Deploy" or job will get stuck at "Job is pending..."
     displayName: ${{ parameters.displayName }}
     environment:
-      name: PROD
+      name: ${{ parameters.environment }}
       resourceType: VirtualMachine
 
 # Deploy to agent pool, either Microsoft hosted or Self-hosted
@@ -35,9 +35,9 @@ jobs:
 
           - task: Bash@3
             displayName: Execute Loosely Coupled Deployment
-            env: 
-              CONNECTION_STRING: $(CONNECTION_STRING)
-              DATABASE_PASSWORD: $(DATABASE_PASSWORD)
+#            env: 
+#              CONNECTION_STRING: $(CONNECTION_STRING)
+#              DATABASE_PASSWORD: $(DATABASE_PASSWORD)
             inputs:
               workingDirectory: $(System.ArtifactsDirectory)/drop
               targetType: filePath

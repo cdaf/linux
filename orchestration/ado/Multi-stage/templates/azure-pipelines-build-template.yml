@@ -9,9 +9,9 @@ jobs:
 
       - task: Bash@3
         displayName: targetlessCD for Feature Branches
-        env: 
-          GIT_USER: $(GIT_USER)
-          GIT_PASS: $(GIT_PASS)
+#        env: 
+#          GIT_USER: $(GIT_USER)
+#          GIT_PASS: $(GIT_PASS)
         inputs:
           targetType: inline
 

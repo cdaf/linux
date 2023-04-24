@@ -17,13 +17,6 @@ jobs:
               downloadType: single
               artifactName: drop
 
-          # - task: Bash@3
-          #   displayName: Diag
-          #   inputs:
-          #     workingDirectory: $(System.ArtifactsDirectory)/drop
-          #     targetType: inline
-          #     script: ls -al && env
-
           - task: Bash@3
             displayName: Execute Loosely Coupled Deployment
             env: 

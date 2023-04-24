@@ -8,8 +8,8 @@ trigger:
 stages:
 - stage: DEV
   displayName: dotnet core Build
-  variables:
-  - group: Git Reader
+#  variables:
+#  - group: Git Reader
   jobs:
   - template: templates/azure-pipelines-build-template.yml
 
@@ -17,8 +17,8 @@ stages:
   displayName: User Acceptence Test
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   dependsOn: DEV
-  variables:
-  - group: Web Deploy Test
+#  variables:
+#  - group: Web Deploy Test
   jobs:
   - template: templates/azure-pipelines-deployment-template.yml
     parameters:
@@ -29,8 +29,8 @@ stages:
   displayName: Production Gated Deployment
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   dependsOn: TEST
-  variables:
-  - group: Web Deploy Production
+#  variables:
+#  - group: Web Deploy Production
   jobs:
   - template: templates/azure-pipelines-deployment-template.yml
     parameters:

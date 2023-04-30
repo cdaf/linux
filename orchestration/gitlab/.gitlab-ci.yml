@@ -22,7 +22,7 @@ cdaf-ci:
 
   # Edge Implementation 
   #  script: |
-  #    curl --silent https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+  #    curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
   #    ./automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
 
   # In-source Implementation 

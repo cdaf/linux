@@ -32,52 +32,58 @@ if [ -z "$imageName" ]; then
 	exit 1
 else
 	imageName=$(echo "$imageName" | tr '[:upper:]' '[:lower:]')
-	echo "[$scriptName] imageName : $imageName"
+	echo "[$scriptName] imageName       : $imageName"
 fi
 
 tag=$2
 if [ -z "$tag" ]; then
 	echo "[$scriptName] tag not supplied"
 else
-	echo "[$scriptName] tag       : $tag"
+	echo "[$scriptName] tag             : $tag"
 fi
 
 version=$3
 if [ -z "$version" ]; then
 	if [ ! -z "$tag" ]; then
 		version=$tag
-	    echo "[$scriptName] version   : $version (not supplied, defaulted to tag)"
+	    echo "[$scriptName] version         : $version (not supplied, defaulted to tag)"
 	else
 		version='0.0.0'
-	    echo "[$scriptName] version   : $version (not supplied, and tag not passed, set to 0.0.0)"
+	    echo "[$scriptName] version         : $version (not supplied, and tag not passed, set to 0.0.0)"
 	fi
 else
 	if [ "$version" == 'dockerfile' ]; then # Backward compatibility
-		echo "[$scriptName] version   : $version (please set label in Dockerfile cdaf.${imageName}.image.version)"
+		echo "[$scriptName] version         : $version (please set label in Dockerfile cdaf.${imageName}.image.version)"
 	else
-		echo "[$scriptName] version   : $version"
+		echo "[$scriptName] version         : $version"
 	fi
 fi
 
 rebuild=$4
 if [ -z "$rebuild" ]; then
-	echo "[$scriptName] rebuild   : (not supplied)"
+	echo "[$scriptName] rebuild         : (not supplied)"
 else
-	echo "[$scriptName] rebuild   : $rebuild"
+	echo "[$scriptName] rebuild         : $rebuild"
 fi
 
 userName=$5
 if [ -z "$userName" ]; then
-	echo "[$scriptName] userName  : (not supplied)"
+	echo "[$scriptName] userName        : (not supplied)"
 else
-	echo "[$scriptName] userName  : $userName"
+	echo "[$scriptName] userName        : $userName"
 fi
 
 userID=$6
 if [ -z "$userID" ]; then
-	echo "[$scriptName] userID    : (not supplied)"
+	echo "[$scriptName] userID          : (not supplied)"
 else
-	echo "[$scriptName] userID    : $userID"
+	echo "[$scriptName] userID          : $userID"
+fi
+
+if [ -z "$CDAF_SKIP_PULL" ]; then
+	echo "[$scriptName]  CDAF_SKIP_PULL = (not supplied)"
+else
+	echo "[$scriptName]  CDAF_SKIP_PULL = $CDAF_SKIP_PULL"
 fi
 
 echo; echo "[$scriptName] List existing images..."
@@ -113,7 +119,9 @@ fi
 if [ ! -z "$CONTAINER_IMAGE" ]; then
 	echo; echo "[$scriptName] \$CONTAINER_IMAGE is set (${CONTAINER_IMAGE}), pass as \$CONTAINER_IMAGE to build"
 	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
-    executeExpression "docker pull ${CONTAINER_IMAGE}"
+	if [ "$CDAF_SKIP_PULL" != 'yes' ]; then
+		executeExpression "docker pull ${CONTAINER_IMAGE}"
+	fi
 fi
 
 for envVar in $(env | grep CDAF_IB_); do

@@ -86,6 +86,12 @@ else
 			echo "[$scriptName]  constructor           : $constructor (supports space separated list)"
 		fi
 
+		if [ -z "$CDAF_SKIP_PULL" ]; then
+			echo "[$scriptName]  CDAF_SKIP_PULL        = (not supplied)"
+		else
+			echo "[$scriptName]  CDAF_SKIP_PULL        = $CDAF_SKIP_PULL"
+		fi
+
 		# 2.4.7 Support for DockerHub
 		if [ -z "$CDAF_REGISTRY_URL" ]; then
 			echo "[$scriptName]  CDAF_REGISTRY_URL     = (not supplied)"
@@ -173,7 +179,7 @@ else
 			executeExpression "cd ${transient}"
 			executeExpression "cat Dockerfile"
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
-			executeExpression "./dockerBuild.sh ${id}_${image##*/} $BUILDNUMBER $BUILDNUMBER no $(whoami) $(id -u)"
+			executeExpression "./dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${CONTAINER_IMAGE}"
 			executeExpression "cd $workspace"
 		done
 

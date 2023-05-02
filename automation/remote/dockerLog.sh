@@ -48,7 +48,7 @@ fi
 
 trim=$5
 if [ -z "$trim" ]; then
-	trim="false"
+	trim="NO_TRIM"
 	echo "[$scriptName] trim        : $trim (default)"
 else
 	echo "[$scriptName] trim        : $trim"

@@ -23,7 +23,7 @@ function ERRMSG {
 	else
 		echo; echo "[$scriptName][ERROR]$1"
 	fi
-	if [ ! -z $CDAF_ERROR_DIAG ]; then
+	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
 		echo; echo "[$scriptName] Invoke custom diag CDAF_ERROR_DIAG = $CDAF_ERROR_DIAG"; echo
 		eval "$CDAF_ERROR_DIAG"
 	fi

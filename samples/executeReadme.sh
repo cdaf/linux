@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+scriptName=${0##*/}
 
 function executeExpression {
 	echo "[$scriptName] $1"
@@ -11,23 +12,8 @@ function executeExpression {
 	fi
 }  
 
-scriptName='ci.sh'
 echo;echo "[$scriptName] --- start ---"
-buildNumber=$1
-if [ -z "$buildNumber" ]; then
-	echo "[$scriptName]   buildNumber not supplied"; exit 101
-else
-	echo "[$scriptName]   buildNumber : $buildNumber"
-fi
-
-branchName=$2
-if [ -z "$branchName" ]; then
-	echo "[$scriptName]   branchName  : (no supplied)"
-else
-	echo "[$scriptName]   branchName  : $branchName"
-fi
-
-echo;echo "[$scriptName] execute all code blocks in the readme"
+echo "[$scriptName] execute all code blocks in the readme, wrapped in \`\`\`, ignore those using four (4) spaces"; echo
 while read LINE
 do
 	if [[ $LINE == '```' ]]; then
@@ -44,4 +30,4 @@ do
 	
 done < readme.md
 
-echo "[$scriptName] --- end ---"
+echo;echo "[$scriptName] --- end ---"

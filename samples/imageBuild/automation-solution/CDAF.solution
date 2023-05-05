@@ -5,7 +5,7 @@ artifactPrefix=0.1
 # defaultBranch=main
 
 constructor=TasksLocal
-runtimeImage=nginx
+runtimeImage=docker.io/library/nginx:latest
 imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
 
 # Push resulting image to DockerHub

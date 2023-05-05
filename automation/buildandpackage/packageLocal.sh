@@ -125,7 +125,7 @@ if [ "$packageFeatures" == 'minimal' ]; then
 	cp -av $AUTOMATIONROOT/remote/getProperty.sh $WORK_DIR_DEFAULT
 	cp -av $AUTOMATIONROOT/local/localTasks.sh $WORK_DIR_DEFAULT
 	cp -av $AUTOMATIONROOT/remote/execute.sh $WORK_DIR_DEFAULT
-	cp -av $AUTOMATIONROOT/remote/Transform.sh $WORK_DIR_DEFAULT
+	cp -av $AUTOMATIONROOT/remote/transform.sh $WORK_DIR_DEFAULT
 	echo
 
 else

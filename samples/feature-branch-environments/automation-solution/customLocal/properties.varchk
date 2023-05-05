@@ -1,4 +1,4 @@
 NON_EXIST=optional
 
 # Verify variable is populated and log the checksum value
-NAME=secret
+HOME=secret

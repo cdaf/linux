@@ -124,7 +124,7 @@ for folder in $dirList; do
 done
 
 if [ -z "$projectsToBuild" ]; then
-	echo; echo "[$scriptName] No projects found, no build action attempted."
+	echo; echo "[$scriptName] No projects found, no build action attempted."; echo
 else
 	echo; echo "[$scriptName]   Projects to process :"; echo
 	for projectName in $projectsToBuild; do

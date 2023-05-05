@@ -125,6 +125,13 @@ echo "[$scriptName]   whoami                   : $(whoami)"
 cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
 echo "[$scriptName]   CDAF Version             : $cdafVersion"
 
+packageFeatures=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "packageFeatures")
+if [ -z "$4" ]; then
+	echo "[$scriptName]   packageFeatures          : (optional property not set, option minimal)"
+else
+	echo "[$scriptName]   packageFeatures          : $packageFeatures (option minimal)"
+fi
+
 echo; echo "[$scriptName] Clean root workspace ($(pwd))"; echo
 rm -fv *.tar *.gz manifest.txt targetList
 

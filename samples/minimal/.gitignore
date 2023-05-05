@@ -1,0 +1,15 @@
+/buildnumber.counter
+/TasksLocal/
+/TasksRemote/
+/targetList
+/projectDirectories.txt
+/manifest.txt
+/storeFor_manifest.txt
+/storeForLocal_manifest.txt
+/storeForRemote_manifest.txt
+/projectsToBuild.txt
+/propertiesForLocalTasks/
+/propertiesForRemoteTasks/
+/propertiesForContainerTasks/
+/*.gz
+/release.sh

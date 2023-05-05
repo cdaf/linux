@@ -1,0 +1,2 @@
+context  target  literal        zero  integer  var_load
+local    LINUX   "Hello World"    '0'       3  $env:USERNAME

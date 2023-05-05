@@ -111,13 +111,42 @@ else
 	echo "none ($containerGenPropDir)"
 fi
 
-echo; echo "[$scriptName] Create working directory and seed with solution files"; echo
+echo; echo "[$scriptName] Create $WORK_DIR_DEFAULT and seed with solution files"; echo
 mkdir -v $WORK_DIR_DEFAULT
 cp -av manifest.txt $WORK_DIR_DEFAULT
 cp -v $AUTOMATIONROOT/CDAF.linux $WORK_DIR_DEFAULT/CDAF.properties
 
-echo; echo "[$scriptName] Copy required local scripts"; echo
-cp -avR $AUTOMATIONROOT/local/* $WORK_DIR_DEFAULT
+# 2.5.7 Support for reduced number of helper scripts to be included in release package
+packageFeatures=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "packageFeatures")
+
+if [ "$packageFeatures" == 'minimal' ]; then
+
+	echo; echo "[$scriptName] packageFeatures = ${packageFeatures}"
+	cp -av $AUTOMATIONROOT/remote/getProperty.sh $WORK_DIR_DEFAULT
+	cp -av $AUTOMATIONROOT/local/localTasks.sh $WORK_DIR_DEFAULT
+	cp -av $AUTOMATIONROOT/remote/execute.sh $WORK_DIR_DEFAULT
+	cp -av $AUTOMATIONROOT/remote/Transform.sh $WORK_DIR_DEFAULT
+	echo
+
+else
+
+	# Copy all local script helpers, flat set to true to copy to root, not sub directory
+	cp -avR $AUTOMATIONROOT/local/* $WORK_DIR_DEFAULT
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "[$scriptName] cp -av $AUTOMATIONROOT/local/*.sh $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
+		exit $exitCode
+	fi
+
+	# Copy all remote script helpers, flat set to true to copy to root, not sub directory
+	echo; echo "[$scriptName] Copy all helper scripts from remote to local : "; echo
+	cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
+	exitCode=$?
+	if [ $exitCode -ne 0 ]; then
+		echo "[$scriptName] cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
+		exit $exitCode
+	fi
+fi
 
 # Only retain either the override or default delivery process
 if [ -f "$SOLUTIONROOT/delivery.sh" ]; then
@@ -232,14 +261,6 @@ if [ -d "$containerGenPropDir" ]; then
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> $WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}
 	done
-fi
-
-echo; echo "[$scriptName] Copy all helper scripts from remote to local : "; echo
-cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT
-exitCode=$?
-if [ $exitCode -ne 0 ]; then
-	echo "[$scriptName] cp -av $AUTOMATIONROOT/remote/*.sh $WORK_DIR_DEFAULT failed! Exit code = $exitCode."
-	exit $exitCode
 fi
 
 # Process Specific Local artifacts

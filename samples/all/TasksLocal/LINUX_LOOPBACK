@@ -1,3 +1,0 @@
-# Properties for remote task execution from local tasks
-deployHost=localhost
-deployUser=deployer

@@ -61,7 +61,7 @@ function executeExpression {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "$EXECUTABLESCRIPT returned $exitCode" $exitCode
 	fi
-}  
+}
 
 function MAKDIR {
 	# Create Directory, if exists do nothing, else create
@@ -86,7 +86,7 @@ function REMOVE {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
-}  
+}
 
 # Verbose Copy
 function VECOPY {
@@ -110,7 +110,7 @@ function VECOPY {
 			ERRMSG "${executeFunction} returned $exitCode" $exitCode
 		fi
 	fi
-}  
+}
 
 # Refresh Directory Contents
 # If single argument clear directory, if two arguments, copy source to clean destination
@@ -154,7 +154,7 @@ function REFRSH {
 			fi
 		done
 	fi
-}  
+}
 
 # Decrypt a file
 #  required : file to descrypt
@@ -165,7 +165,7 @@ function DECRYP {
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "$0 : Exception! decryptKey.sh $1 $2 returned $exitCode" $exitCode
 	fi
-}  
+}
 
 # Detokenise a file
 #  required : file to be detokenised
@@ -205,13 +205,13 @@ function REPLAC {
 	token="$2"
 	value="$3"
 	plaintext="$4"
-	# Mac OSX sed 
+	# Mac OSX sed
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
+		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
+		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//ï¿½/â€¢}")
+	printable=$(echo "${executeFunction//•/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -272,7 +272,7 @@ function VARCHK {
 	else
 		echo "  VARCHK using $propertiesFile"
 	fi
-	
+
 	if [ ! -f "$propertiesFile" ]; then
 		ERRMSG "[VARCHK_PROP_FILE_NOT_FOUND] $propertiesFile not found" 7781
 	fi
@@ -405,7 +405,7 @@ else
 		printf "$propertiesList"
 		eval $propertiesList
 	fi
-	echo; echo			
+	echo; echo
 fi
 
 # Process Task Execution
@@ -416,7 +416,7 @@ while read LINE; do
 	fi
 	# Execute the script, logging is left to the invoked script, unless an exception occurs
 	EXECUTABLESCRIPT=$(echo $LINE | cut -d '#' -f 1)
-	
+
 	# Check for cross platform key words, first 6 characters, by convention uppercase but either supported
 	read -ra exprArray <<< ${LINE}
 	feature=$(echo "${exprArray[0]}" | tr '[a-z]' '[A-Z]')
@@ -429,7 +429,7 @@ while read LINE; do
 		condition="${ADDR[2]}"
 		echo $exitVar
 		echo $condition
-		
+
 		if [ -z "$condition" ]; then
 			printf "$LINE ==> if [ ${exitVar} ]; then exit"
 			EXECUTABLESCRIPT="if [ ${exitVar} ]; then "
@@ -483,7 +483,7 @@ while read LINE; do
 		printf "$LINE ==> "
 		scriptLine="${arguments}"
 		sep=' '
-		
+
 		case $scriptLine in
 		(*"$sep"*)
 			script=${scriptLine%%"$sep"*}
@@ -550,7 +550,7 @@ while read LINE; do
 		if [ ! -z "$EXECUTABLESCRIPT" ]; then
 			# Do not echo line if it is an echo itself or it is determining controlled exit
 			if [ "${LINE:0:4}" != "echo" ] && [ "$feature" != "EXITIF" ]; then
-# This leaks secrets, but I have left it should someone need to temporarily use it for debugging					
+# This leaks secrets, but I have left it should someone need to temporarily use it for debugging
 #				echo $(eval echo "$EXECUTABLESCRIPT")
 				echo "$EXECUTABLESCRIPT"
 			fi
@@ -569,7 +569,7 @@ while read LINE; do
 			ERRMSG "Exception! $EXECUTABLESCRIPT returned $exitCode" $exitCode
 		fi
 	fi
-	
+
 done < <(echo "$executionList")
 
 echo; echo "~~~~~~ Shutdown Execution Engine ~~~~~~"

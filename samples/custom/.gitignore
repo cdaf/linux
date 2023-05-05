@@ -15,3 +15,5 @@
 /release.sh
 /properties.file
 /tokenised.file
+/solution.properties
+/binary.sh

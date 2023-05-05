@@ -43,9 +43,14 @@ else
 	echo "[$scriptName] ACTION        : $ACTION"
 fi
 
-echo "Load product (solution) attributes"
+echo; echo 'Disadvantage of a custom script is that the default variables, e.g. $AUTOMATIONROOT & $SOLUTIONROOT are not loaded,'
+echo 'Consider calling a custom script from a build.tsk and pass these as variables.'
+echo; echo 'Use executeExpression to replicate the build.tsk logging and exception handling'
 
-eval $($AUTOMATIONROOT/remote/transform.sh $SOLUTIONROOT/CDAF.solution)
-productVersion+=".${BUILDNUMBER}"
+executeExpression 'echo "#!/usr/bin/env bash" > binary.sh'
+executeExpression 'echo "echo" >> binary.sh'
+executeExpression 'echo "echo [binary.sh] Created by custom build script" >> binary.sh'
+executeExpression 'chmod +x binary.sh'
+executeExpression './binary.sh'
 
 echo; echo "[$scriptName] --- end ---"; echo

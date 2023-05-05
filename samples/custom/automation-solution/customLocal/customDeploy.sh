@@ -44,11 +44,12 @@ echo "[$scriptName]  BUILDNUMBER   : $BUILDNUMBER"
 DEPLOY_TARGET=$3
 echo "[$scriptName]  DEPLOY_TARGET : $DEPLOY_TARGET"
 
+echo; echo "Load properties using ./transform.sh and eval"; echo
 propertiesList=$(./transform.sh "$DEPLOY_TARGET")
 printf "$propertiesList"
 eval $propertiesList
 
-echo "custom script testing compatible commands:"
-executeExpression "whoami"
+echo; echo; echo "Execute the build artefact"; echo
+executeExpression "./binary.sh"
 
-echo "[$scriptName] --- stop ---"
+echo; echo "[$scriptName] --- stop ---"

@@ -1,7 +1,7 @@
 # Manifest for revision myproduct
 SOLUTION=myproduct
-BUILDNUMBER=67
-REVISION=revision
+BUILDNUMBER=148
+REVISION=release
 # This file defines the automation root along with CD emulator value (solutionName)
 productVersion=0.0.1
 productName=My Product Name

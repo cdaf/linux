@@ -1,0 +1,7 @@
+productName=Custom Scripts
+solutionName=custom
+
+artifactPrefix=0.0
+packageFeatures=minimal
+
+processSequence=localTasks.sh

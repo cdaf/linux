@@ -27,7 +27,7 @@ fi
 
 NOMARKER=$(cat .$ABS_PATH | grep "$MARKER")
 if [ -z "$NOMARKER" ]; then
-	echo "[$scriptName] Warning : Source file $ABS_PATH does not contain marker ($MARKER)."
+	echo "[$scriptName] Warning : Source file $ABS_PATH does not contain marker ($MARKER %buildRevision%)."
 fi
 
 if [ ! -f $ABS_PATH ]; then

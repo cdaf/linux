@@ -14,8 +14,18 @@ function executeExpression {
 
 echo; echo "--- Test all Samples ---"
 
+echo; echo "Test connectivity deployer@localhost"
+ssh deployer@localhost hostname
+if [ $? -eq 0 ]; then
+	echo; echo "Connection successful, execute all tests"
+	dirlist=$(find . -maxdepth 1 -type d -not -path ".")
+else
+	echo; echo "Connection not successful, limit tests to local"
+	dirlist=$(find . -maxdepth 1 -type d -not -path "." -not -path "./all")
+fi
+
 echo
-for dirname in $(find . -maxdepth 1 -type d -not -path "." -not -path "./all"); do
+for dirname in $dirlist; do
 	executeExpression "cd $dirname"
 	executeExpression "../../automation/cdEmulate.sh"
 	executeExpression "cd .."

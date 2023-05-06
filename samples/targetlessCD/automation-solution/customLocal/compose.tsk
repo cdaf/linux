@@ -7,6 +7,9 @@ branch=$(echo "$REVISION" | tr '[A-Z]' '[a-z]')
 ASSIGN $id="${SOLUTION}_${branch}"
 export WORK_SPACE="$(dirname "$(pwd)")"
 
+echo "Check is using podman, as this applies a prefix to the image name"
+test=$(podman --version 2>&1); if [ $? -eq 0 ]; then prefix='localhost/'; echo $test; fi
+
 # Copy any artefacts needed into specific images here, example brings in remoteTasks package
 # VECOPY ../${SOLUTION}-${BUILDNUMBER}.tar.gz compose/target/deploy.tar.gz"
 
@@ -17,8 +20,8 @@ for image in $(ls -A .); do $WORKSPACE/dockerClean.sh ${id}_${image} ${BUILDNUMB
 cd ..
 
 echo "Clean-up old images and transient directory Created by imageBuild.sh"
-export TARGET_TAG="${id}_target"
-export TEST_TAG="${id}_test"
+export TARGET_TAG="${prefix}${id}_taskslocal"
+export TEST_TAG="${prefix}${id}_test"
 REMOVE /tmp/${SOLUTION}
 
 echo "Do not run in workspace to avoid file locks"
@@ -29,14 +32,14 @@ cd $composePersist
 
 echo "Cleanup from previously test"
 docker-compose down --remove-orphans
-docker-compose rm -f
 
 echo "Set build number for environment"
 export TARGET_TAG="${TARGET_TAG}:${BUILDNUMBER}"
 export TEST_TAG="${TEST_TAG}:${BUILDNUMBER}"
 
-echo "Deploy to target (allow up to 2 minutes)"
+echo "Deploy to target $TARGET_TAG (allow up to 2 minutes)"
 docker-compose up -d target
+
 containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
 $WORKSPACE/dockerLog.sh $containerID 'Watch log to keep container alive' 120
 
@@ -46,6 +49,6 @@ containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
 $WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
 
 echo "Retain or teardown based on environment variable COMPOSE_KEEP ($COMPOSE_KEEP)"
-if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; docker-compose rm -f ; else docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) ; fi
+if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; else docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) ; fi
 
 cd $WORKSPACE

@@ -4,7 +4,8 @@ ARG CONTAINER_IMAGE
 FROM ${CONTAINER_IMAGE}
 
 WORKDIR /solution
+ENV LISTENING_PORT=8000
 
 COPY pyserver.py .
 
-CMD ["python", "pyserver.py"]
+CMD ["python", "-u", "pyserver.py"]

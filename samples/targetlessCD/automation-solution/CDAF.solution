@@ -1,5 +1,5 @@
 solutionName=targetless-cd
 
 constructor=TasksLocal
-runtimeImage=docker.io/library/ubuntu:20.04
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+containerImage=docker.io/library/python:latest
+imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage $constructor

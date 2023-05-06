@@ -31,22 +31,22 @@ VECOPY compose/docker-compose.yml $composePersist
 cd $composePersist
 
 echo "Cleanup from previously test"
-docker-compose down --remove-orphans
+docker-compose down
 
 echo "Set build number for environment"
 export TARGET_TAG="${TARGET_TAG}:${BUILDNUMBER}"
 export TEST_TAG="${TEST_TAG}:${BUILDNUMBER}"
 
-echo "Deploy to target $TARGET_TAG (allow up to 2 minutes)"
+echo "Deploy to target $TARGET_TAG"
 docker-compose up -d target
 
 containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
-$WORKSPACE/dockerLog.sh $containerID 'Watch log to keep container alive' 120
+$WORKSPACE/dockerLog.sh $containerID 'Running server ...'
 
-echo "Execute tests (allow 5 minutes to complete)"
+echo "Execute tests $TEST_TAG (allow 2 minutes to complete)"
 docker-compose up -d test
 containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
-$WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 300
+$WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 120
 
 echo "Retain or teardown based on environment variable COMPOSE_KEEP ($COMPOSE_KEEP)"
 if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; else docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) ; fi

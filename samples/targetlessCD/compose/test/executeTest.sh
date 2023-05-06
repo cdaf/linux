@@ -25,14 +25,14 @@ function executeExpression {
 scriptName='executeTests.sh'
 
 echo "[$scriptName] ---------- start ----------"
-ENVIRONMENT="$1"
-if [ -z "$ENVIRONMENT" ]; then
-	echo "[$scriptName] ENVIRONMENT not passed, exit 101"; exit 101
+url="$1"
+if [ -z "$url" ]; then
+	echo "[$scriptName] url not passed, exit 101"; exit 101
 else
-	echo "[$scriptName]   ENVIRONMENT : $ENVIRONMENT"
+	echo "[$scriptName]   url : $url"
 fi
 
-executeExpression "./TasksLocal/delivery.sh $ENVIRONMENT"
+executeExpression "curl $url"
 
 echo "[$scriptName] Automated Test Execution Completed Successfully."
 

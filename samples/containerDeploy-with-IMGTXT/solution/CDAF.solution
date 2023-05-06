@@ -1,0 +1,6 @@
+productName=Log Image as Text using containerDeploy
+solutionName=log-image
+artifactPrefix=0.0
+defaultEnvironment=LINUX
+
+containerImage=docker.io/cdaf/linux:latest

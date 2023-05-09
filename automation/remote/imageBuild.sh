@@ -11,45 +11,19 @@ function executeExpression {
 }
 
 function dockerLogin {
-	if [ -f manifest.txt ]; then
-		echo; echo "[$scriptName] Loading registry properties from manifest.txt..."
-	else
-		echo; echo "[$scriptName] manifest.txt file not found! If processing from CI context, use wrap.tsk driver."; echo
-		exit 6630
-	fi
-
-	export CDAF_REGISTRY_USER=$(eval "echo $(./getProperty.sh "manifest.txt" "CDAF_REGISTRY_USER")")
-	if [ -z "$CDAF_REGISTRY_USER" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_USER not supplied! User credentials required for publishing."
-		exit 6631
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_USER    = $CDAF_REGISTRY_USER"
-	fi
-
-	export CDAF_REGISTRY_TOKEN=$(eval "echo $(./getProperty.sh "manifest.txt" "CDAF_REGISTRY_TOKEN")")
-	if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN not supplied! User credentials required for publishing."
-		exit 6632
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = $CDAF_REGISTRY_TOKEN"
-	fi
-
-	export CDAF_REGISTRY_URL=$(eval "echo $(./getProperty.sh "manifest.txt" "CDAF_REGISTRY_URL")")
-	if [ -z "$CDAF_REGISTRY_URL" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_URL     = (not supplied, do not set when pushing to Dockerhub)"
-	else
-		if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-			echo "[$scriptName]  CDAF_REGISTRY_URL     = $CDAF_REGISTRY_URL (will be set to blank)"
-		else
-			echo "[$scriptName]  CDAF_REGISTRY_URL     = $CDAF_REGISTRY_URL (only pushes tagged image)"
-			registryURL="$CDAF_REGISTRY_URL"
-		fi
-	fi
-
 	executeExpression "echo \$CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $registryURL"
 }
 
+function MASKED {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | sha256sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
+}
+
 scriptName='imageBuild.sh'
+workspace=$(pwd)
 
 # example: imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal registry.example.org/${SOLUTION}:${BUILDNUMBER}
 echo; echo "[$scriptName] --- start ---"
@@ -92,9 +66,26 @@ else
 			echo "[$scriptName]  CDAF_SKIP_PULL        = $CDAF_SKIP_PULL"
 		fi
 
+		if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
+			CDAF_AUTOMATION_ROOT='../automation'
+			echo "[$scriptName]  CDAF_AUTOMATION_ROOT  = $CDAF_AUTOMATION_ROOT (not set, using relative path)"
+		else
+			echo "[$scriptName]  CDAF_AUTOMATION_ROOT  = $CDAF_AUTOMATION_ROOT"
+		fi
+
 		# 2.4.7 Support for DockerHub
 		if [ -z "$CDAF_REGISTRY_URL" ]; then
-			echo "[$scriptName]  CDAF_REGISTRY_URL     = (not supplied)"
+			export CDAF_REGISTRY_URL=$(eval "echo $(${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh "manifest.txt" "CDAF_REGISTRY_URL")")
+			if [ -z "$CDAF_REGISTRY_URL" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_URL     = (not supplied, do not set when pushing to Dockerhub)"
+			else
+				if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
+					echo "[$scriptName]  CDAF_REGISTRY_URL     = $CDAF_REGISTRY_URL (loaded from manifest.txt, will be set to blank)"
+				else
+					echo "[$scriptName]  CDAF_REGISTRY_URL     = $CDAF_REGISTRY_URL (loaded from manifest.txt, only pushes tagged image)"
+					registryURL="$CDAF_REGISTRY_URL"
+				fi
+			fi
 		else
 			if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
 				echo "[$scriptName]  CDAF_REGISTRY_URL     = $CDAF_REGISTRY_URL (will be set to blank)"
@@ -105,32 +96,39 @@ else
 		fi
 
 		if [ -z "$CDAF_REGISTRY_TAG" ]; then
-			echo "[$scriptName]  CDAF_REGISTRY_TAG     = (not supplied, supports space separated list)"
+			export CDAF_REGISTRY_TAG=$(eval "echo $(${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh "manifest.txt" "CDAF_REGISTRY_TAG")")
+			if [ -z "$CDAF_REGISTRY_TAG" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_TAG     = (not supplied, supports space separated list)"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_TAG   = $CDAF_REGISTRY_TAG (loaded from manifest.txt)"
+			fi
 		else
 			echo "[$scriptName]  CDAF_REGISTRY_TAG     = $CDAF_REGISTRY_TAG (supports space separated list)"
 		fi
 
 		if [ -z "$CDAF_REGISTRY_USER" ]; then
-			echo "[$scriptName]  CDAF_REGISTRY_USER    = (not supplied, push will not be attempted)"
+			export CDAF_REGISTRY_USER=$(eval "echo $(${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh "manifest.txt" "CDAF_REGISTRY_USER")")
+			if [ -z "$CDAF_REGISTRY_USER" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_USER    = (not supplied, push will not be attempted)"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_USER    = $CDAF_REGISTRY_USER (loaded from manifest.txt)"
+			fi
 		else
 			echo "[$scriptName]  CDAF_REGISTRY_USER    = $CDAF_REGISTRY_USER"
 		fi
 
 		if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-			echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = (not supplied)"
+			export CDAF_REGISTRY_TOKEN=$(eval "echo $(${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh "manifest.txt" "CDAF_REGISTRY_TOKEN")")
+			if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = (not supplied)"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = $(MASKED ${CDAF_REGISTRY_TOKEN}) (loaded from manifest.txt)"
+			fi
 		else
-			echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = $CDAF_REGISTRY_TOKEN"
-		fi
-
-		if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
-			CDAF_AUTOMATION_ROOT='../automation'
-			echo "[$scriptName]  CDAF_AUTOMATION_ROOT  = $CDAF_AUTOMATION_ROOT (not set, using relative path)"
-		else
-			echo "[$scriptName]  CDAF_AUTOMATION_ROOT  = $CDAF_AUTOMATION_ROOT"
+			echo "[$scriptName]  CDAF_REGISTRY_TOKEN   = $(MASKED ${CDAF_REGISTRY_TOKEN})"
 		fi
 	fi
 
-	workspace=$(pwd)
 	echo "[$scriptName]  pwd                   = $workspace"; echo
 
 	if [ -z $BUILDNUMBER ]; then

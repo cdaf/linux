@@ -465,9 +465,11 @@ while read LINE; do
 			IFS=$DEFAULT_IFS
 		else
 			echo "PROPLD variables defined within $propFile"; echo
+			IFS=$'\n'
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 			done
+			IFS=$DEFAULT_IFS
 			eval $propertiesList
 		fi
 	fi

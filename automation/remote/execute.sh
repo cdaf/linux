@@ -450,6 +450,7 @@ while read LINE; do
 		if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then
 			echo "PROPLD $propldAction variables defined within $propFile"; echo
 			revealed=()
+			IFS=$'\n'
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 				IFS='=' read -r name content <<< "$nameContent"
@@ -461,6 +462,7 @@ while read LINE; do
 			if [[ "$propldAction" == "reveal" ]]; then
 				echo; printf '%s\n' "${revealed[@]}"
 			fi
+			IFS=$DEFAULT_IFS
 		else
 			echo "PROPLD variables defined within $propFile"; echo
 			for nameContent in $propertiesList; do

@@ -49,7 +49,12 @@ else
 				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (set to argument passed)"
 			fi
 		else
-			echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (not changed as already set)"
+			if [ -z "$containerImage" ]; then
+				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (previously set and containerImage argument not passed, no change made)"
+			else
+				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (previously set to $CONTAINER_IMAGE)"
+				export CONTAINER_IMAGE="$containerImage"
+			fi
 		fi
 
 		# 2.2.0 extension for the support as integrated function

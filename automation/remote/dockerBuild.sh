@@ -123,58 +123,82 @@ if [ ! -f "$manifest" ]; then
 fi
 
 # 2.5.8 Image from Private Registry
-if [ -z "$CDAF_PULL_REGISTRY_URL" ]; then
-	export CDAF_PULL_REGISTRY_URL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
+cdafRegistryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
+if [ -z "$cdafRegistryPullURL" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_URL" ]; then
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = (not supplied, do not set when pushing to Dockerhub)"
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = (not supplied, do not set when pulling from Dockerhub)"
 	else
 		if [[ "$CDAF_PULL_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-			echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (loaded from ${manifest}, will be set to blank)"
+			echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (loaded from manifest.txt, will be set to blank)"
 		else
-			echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (loaded from ${manifest}, only pushes tagged image)"
-			registryURL="$CDAF_PULL_REGISTRY_URL"
+			echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (loaded from manifest.txt, only pushes tagged image)"
+			registryPullURL="$CDAF_PULL_REGISTRY_URL"
 		fi
 	fi
 else
-	if [[ "$CDAF_PULL_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (will be set to blank)"
+	if [[ "$cdafRegistryPullURL" == 'DOCKER-HUB' ]]; then
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (will be set to blank, override environment variable $CDAF_PULL_REGISTRY_URL)"
 	else
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (only pushes tagged image)"
-		registryURL="$CDAF_PULL_REGISTRY_URL"
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $cdafRegistryPullURL (set from argument, override environment variable $CDAF_PULL_REGISTRY_URL)"
+		registryPullURL="$cdafRegistryPullURL"
 	fi
 fi
 
-if [ -z "$CDAF_PULL_REGISTRY_USER" ]; then
-	export CDAF_PULL_REGISTRY_USER=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_USER")")
+cdafRegistryPullUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_USER")")
+if [ -z "$cdafRegistryPullUser" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_USER" ]; then
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = (not supplied, push will not be attempted)"
+		registryPullUser='.'
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $registryPullUser (default)"
 	else
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $CDAF_PULL_REGISTRY_USER (loaded from ${manifest})"
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $CDAF_PULL_REGISTRY_USER (using environment variable)"
+		registryPullUser="$CDAF_PULL_REGISTRY_USER"
 	fi
 else
-	echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $CDAF_PULL_REGISTRY_USER"
+	if [ -z "$CDAF_PULL_REGISTRY_USER" ]; then
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $cdafRegistryPullUser (loaded from manifest.txt)"
+	else
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $cdafRegistryPullUser (loaded from manifest.txt, override environment variable $CDAF_PULL_REGISTRY_USER)"
+	fi
+	registryPullUser="$cdafRegistryPullUser"
 fi
 
-if [ -z "$CDAF_PULL_REGISTRY_TOKEN" ]; then
-	export CDAF_PULL_REGISTRY_TOKEN=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
+cdafRegistryPullToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
+if [ -z "$cdafRegistryPullToken" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_TOKEN" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = (not supplied)"
 	else
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${CDAF_PULL_REGISTRY_TOKEN}) (loaded from ${manifest})"
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${CDAF_PULL_REGISTRY_TOKEN}) (from environment variable)"
+		registryPullToken="$CDAF_PULL_REGISTRY_TOKEN"
 	fi
 else
-	echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${CDAF_PULL_REGISTRY_TOKEN})"
+	if [ -z "$CDAF_PULL_REGISTRY_TOKEN" ]; then
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${cdafRegistryPullToken}) (loaded from manifest.txt)"
+	else
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${cdafRegistryPullToken}) (loaded from manifest.txt, override environment variable CDAF_PULL_REGISTRY_TOKEN)"
+	fi
+	registryPullToken="$cdafRegistryPullToken"
 fi
 
-if [ -z "$CDAF_SKIP_PULL" ]; then
-	echo "[$scriptName]  CDAF_SKIP_PULL           = (not supplied)"
+cdafSkipPull=$(eval "echo $(${getProp} "${manifest}" "CDAF_SKIP_PULL")")
+if [ -z "$cdafSkipPull" ]; then
+	if [ -z "$CDAF_SKIP_PULL" ]; then
+		echo "[$scriptName]  CDAF_SKIP_PULL           = (not supplied)"
+	else
+		echo "[$scriptName]  CDAF_SKIP_PULL           = $CDAF_SKIP_PULL"
+		skipPull="$CDAF_SKIP_PULL"
+	fi
 else
-	echo "[$scriptName]  CDAF_SKIP_PULL           = $CDAF_SKIP_PULL"
+	if [ -z "$CDAF_SKIP_PULL" ]; then
+		echo "[$scriptName]  CDAF_SKIP_PULL           = $cdafSkipPull (loaded from manifest.txt)"
+	else
+		echo "[$scriptName]  CDAF_SKIP_PULL           = $cdafSkipPull (loaded from manifest.txt, override environment variable $CDAF_SKIP_PULL)"
+	fi
+	skipPull="$cdafSkipPull"
 fi
 
-if [ ! -z "$CDAF_PULL_REGISTRY_URL" ]; then
-	echo; echo "[$scriptName] CDAF_PULL_REGISTRY_URL set, attempt login..."
-	executeExpression "echo \$CDAF_PULL_REGISTRY_TOKEN | docker login --username $CDAF_PULL_REGISTRY_USER --password-stdin $registryURL"
+if [ ! -z "$registryPullToken" ]; then
+	echo; echo "[$scriptName] CDAF_PULL_REGISTRY_TOKEN set, attempt login..."
+	executeExpression "echo \$registryPullToken | docker login --username $registryPullUser --password-stdin $registryPullURL"
 fi
 
 echo; echo "[$scriptName] List existing images..."

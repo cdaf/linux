@@ -207,11 +207,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
+		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
+		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//ï¿½/â€¢}")
+	printable=$(echo "${executeFunction//•/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -447,10 +447,10 @@ while read LINE; do
 		propldAction="${exprArray[2]}"
 		execute="$AUTOMATIONHELPER/transform.sh $propFile"
 		propertiesList=$(eval $execute)
+		IFS=$'\n'
 		if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then
 			echo "PROPLD $propldAction variables defined within $propFile"; echo
 			revealed=()
-			IFS=$'\n'
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 				IFS='=' read -r name content <<< "$nameContent"
@@ -462,16 +462,14 @@ while read LINE; do
 			if [[ "$propldAction" == "reveal" ]]; then
 				echo; printf '%s\n' "${revealed[@]}"
 			fi
-			IFS=$DEFAULT_IFS
 		else
 			echo "PROPLD variables defined within $propFile"; echo
-			IFS=$'\n'
 			for nameContent in $propertiesList; do
 				echo "  $nameContent"
 			done
-			IFS=$DEFAULT_IFS
 			eval $propertiesList
 		fi
+		IFS=$DEFAULT_IFS
 	fi
 
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux

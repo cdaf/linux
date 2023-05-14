@@ -117,9 +117,9 @@ else
 				fi
 			else
 				if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_URL, will be set to blank)"
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_URL, will be set to blank)"
 				else
-					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_URL, only pushes tagged image)"
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_URL, only pushes tagged image)"
 					registryURL="$cdafRegURL"
 				fi
 			fi
@@ -135,9 +135,9 @@ else
 			fi
 		else
 			if [ -z "$CDAF_REGISTRY_TAG" ]; then
-				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from ${manifest}, supports space separated list)"
+				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from manifest.txt, supports space separated list)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_TAG), supports space separated list"
+				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_TAG), supports space separated list"
 			fi
 			registryTag="$cdafRegTag"
 		fi
@@ -153,9 +153,9 @@ else
 			fi
 		else
 			if [ -z "$CDAF_REGISTRY_USER" ]; then
-				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from ${manifest})"
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from manifest.txt)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_USER)"
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_USER)"
 			fi
 			registryUser="$cdafRegUser"
 		fi
@@ -170,9 +170,9 @@ else
 			fi
 		else
 			if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from ${manifest})"
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from manifest.txt)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from ${manifest}, overiding environment variable \$CDAF_REGISTRY_TOKEN)"
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from manifest.txt, overiding environment variable \$CDAF_REGISTRY_TOKEN)"
 			fi
 			registryToken="$cdafRegToken"
 		fi

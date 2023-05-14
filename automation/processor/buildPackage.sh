@@ -531,12 +531,6 @@ if [[ "$ACTION" != 'container_build' ]]; then
 			else
 				echo "[$scriptName]   defaultBranch = $defaultBranch"
 			fi
-			if [ $REVISION == $defaultBranch ]; then
-				export CDAF_REGISTRY_URL=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_URL")")
-				export CDAF_REGISTRY_TAG=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_TAG")")
-				export CDAF_REGISTRY_USER=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_USER")")
-				export CDAF_REGISTRY_TOKEN=$(eval "echo $($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_REGISTRY_TOKEN")")
-			fi
 			executeExpression "$imageBuild"
 		fi
 	fi

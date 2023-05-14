@@ -232,7 +232,7 @@ else
 
 		# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
 		if [ -z "$registryToken" ]; then
-			echo "\$CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"
+			echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"
 		else
 			executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
 			for registryTag in ${registryTag}; do

@@ -15,6 +15,7 @@ solutionName=myproduct
 
 artifactPrefix=0.0
 # productVersion=2.0.0
+# packageFeatures=minimal
 
 # defaultBranch=main
 

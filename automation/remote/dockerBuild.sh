@@ -88,6 +88,18 @@ else
 	echo "[$scriptName]  userID                   : $userID"
 fi
 
+baseImage=$7
+if [ -z "$baseImage" ]; then
+	echo "[$scriptName]  baseImage                : (not supplied)"
+else
+	if [ -z "$CONTAINER_IMAGE" ]; then
+		echo "[$scriptName]  baseImage                : $baseImage (set environment variable CONTAINER_IMAGE)"
+	else
+		echo "[$scriptName]  baseImage                : $baseImage (override environment variable CONTAINER_IMAGE, original value was $CONTAINER_IMAGE)"
+	fi
+	export CONTAINER_IMAGE="$baseImage"
+fi
+
 if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
 	CDAF_AUTOMATION_ROOT='./automation'
 	if [ ! -d "${CDAF_AUTOMATION_ROOT}" ]; then
@@ -196,7 +208,7 @@ else
 fi
 
 if [ ! -z "$CONTAINER_IMAGE" ]; then
-	echo; echo "[$scriptName] \$CONTAINER_IMAGE is set (${CONTAINER_IMAGE}), pass as \$CONTAINER_IMAGE to build"
+	echo; echo "[$scriptName] CONTAINER_IMAGE is set (${CONTAINER_IMAGE})"
 	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
 	if [ "$CDAF_SKIP_PULL" != 'yes' ]; then
 		executeExpression "docker pull ${CONTAINER_IMAGE}"

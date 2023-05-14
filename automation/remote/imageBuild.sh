@@ -45,15 +45,16 @@ else
 			if [ -z "$containerImage" ]; then
 				echo "[$scriptName] Environment variable CONTAINER_IMAGE not found and containerImage argument not passed!"; exit 2715
 			else
-				export CONTAINER_IMAGE="$containerImage"
-				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (set to argument passed)"
+				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (set to argument passed)"
+				baseImage="$containerImage"
 			fi
 		else
 			if [ -z "$containerImage" ]; then
-				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (previously set and containerImage argument not passed, no change made)"
+				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (using environment variable)"
+				baseImage="$CONTAINER_IMAGE"
 			else
-				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (previously set to $CONTAINER_IMAGE)"
-				export CONTAINER_IMAGE="$containerImage"
+				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (override environment variable $CONTAINER_IMAGE)"
+				baseImage="$containerImage"
 			fi
 		fi
 
@@ -226,7 +227,7 @@ else
 			executeExpression "cd ${transient}"
 			executeExpression "cat Dockerfile"
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
-			executeExpression "./dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${CONTAINER_IMAGE}"
+			executeExpression "./dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
 			executeExpression "cd $workspace"
 		done
 

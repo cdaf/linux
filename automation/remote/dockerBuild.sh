@@ -86,7 +86,6 @@ if [ -z "$userID" ]; then
 	echo "[$scriptName]  userID                   : (not supplied)"
 else
 	echo "[$scriptName]  userID                   : $userID"
-	echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = (not supplied, do not set when pushing to Dockerhub)"
 fi
 
 if [ -z "$CDAF_AUTOMATION_ROOT" ]; then

@@ -11,7 +11,7 @@ function executeExpression {
 }
 
 function dockerLogin {
-	executeExpression "echo \$CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $registryURL"
+	executeExpression "echo \$registryToken | docker login --username $registryUser --password-stdin $registryURL"
 }
 
 function MASKED {
@@ -94,58 +94,87 @@ else
 		fi
 
 		# 2.4.7 Support for DockerHub
-		if [ -z "$CDAF_REGISTRY_URL" ]; then
-			export CDAF_REGISTRY_URL=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_URL")")
+		# 2.5.8 CDAF Solution property support, overriding environment variable.
+		cdafRegURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_URL")")
+		if [ -z "$cdafRegURL" ]; then
 			if [ -z "$CDAF_REGISTRY_URL" ]; then
 				echo "[$scriptName]  CDAF_REGISTRY_URL    = (not supplied, do not set when pushing to Dockerhub)"
 			else
 				if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-					echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (loaded from ${manifest}, will be set to blank)"
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (will not be set)"
 				else
-					echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (loaded from ${manifest}, only pushes tagged image)"
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (only pushes tagged image)"
 					registryURL="$CDAF_REGISTRY_URL"
 				fi
 			fi
 		else
-			if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-				echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (will be set to blank)"
+			if [ -z "$CDAF_REGISTRY_URL" ]; then
+				if [[ "$cdafRegURL" == 'DOCKER-HUB' ]]; then
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (will not set to blank)"
+				else
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (only pushes tagged image)"
+					registryURL="$cdafRegURL"
+				fi
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (only pushes tagged image)"
-				registryURL="$CDAF_REGISTRY_URL"
+				if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_URL, will be set to blank)"
+				else
+					echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_URL, only pushes tagged image)"
+					registryURL="$cdafRegURL"
+				fi
 			fi
 		fi
 
-		if [ -z "$CDAF_REGISTRY_TAG" ]; then
-			export CDAF_REGISTRY_TAG=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TAG")")
+		cdafRegTag=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TAG")")
+		if [ -z "$cdafRegTag" ]; then
 			if [ -z "$CDAF_REGISTRY_TAG" ]; then
 				echo "[$scriptName]  CDAF_REGISTRY_TAG    = (not supplied, supports space separated list)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $CDAF_REGISTRY_TAG (loaded from ${manifest})"
+				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $CDAF_REGISTRY_TAG (loaded from environment variable, supports space separated list)"
+				registryTag="$CDAF_REGISTRY_TAG"
 			fi
 		else
-			echo "[$scriptName]  CDAF_REGISTRY_TAG    = $CDAF_REGISTRY_TAG (supports space separated list)"
-		fi
-
-		if [ -z "$CDAF_REGISTRY_USER" ]; then
-			export CDAF_REGISTRY_USER=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_USER")")
-			if [ -z "$CDAF_REGISTRY_USER" ]; then
-				echo "[$scriptName]  CDAF_REGISTRY_USER   = (not supplied, push will not be attempted)"
+			if [ -z "$CDAF_REGISTRY_TAG" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from ${manifest}, supports space separated list)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_USER   = $CDAF_REGISTRY_USER (loaded from ${manifest})"
+				echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_TAG), supports space separated list"
 			fi
-		else
-			echo "[$scriptName]  CDAF_REGISTRY_USER   = $CDAF_REGISTRY_USER"
+			registryTag="$cdafRegTag"
 		fi
 
-		if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-			export CDAF_REGISTRY_TOKEN=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TOKEN")")
+		cdafRegUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_USER")")
+		if [ -z "$cdafRegUser" ]; then
+			if [ -z "$CDAF_REGISTRY_USER" ]; then
+				registryUser='.'
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (default)"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $CDAF_REGISTRY_USER (loaded from environment variable)"
+				registryUser="$CDAF_REGISTRY_USER"
+			fi
+		else
+			if [ -z "$CDAF_REGISTRY_USER" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from ${manifest})"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from ${manifest}, overiding environment variable $CDAF_REGISTRY_USER)"
+			fi
+			registryUser="$cdafRegUser"
+		fi
+
+		cdafRegToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TOKEN")")
+		if [ -z "$cdafRegToken" ]; then
 			if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
 				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = (not supplied)"
 			else
-				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${CDAF_REGISTRY_TOKEN}) (loaded from ${manifest})"
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${CDAF_REGISTRY_TOKEN}) (loaded from environment variable)"
+				registryToken="$CDAF_REGISTRY_TOKEN"
 			fi
 		else
-			echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${CDAF_REGISTRY_TOKEN})"
+			if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from ${manifest})"
+			else
+				echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from ${manifest}, overiding environment variable \$CDAF_REGISTRY_TOKEN)"
+			fi
+			registryToken="$cdafRegToken"
 		fi
 	fi
 
@@ -202,12 +231,11 @@ else
 		done
 
 		# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
-		if [ -z "$CDAF_REGISTRY_USER" ]; then
-			echo "\$CDAF_REGISTRY_USER not set, to push to registry set CDAF_REGISTRY_URL, CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN"
-			echo "Do not set CDAF_REGISTRY_URL when pushing to dockerhub"
+		if [ -z "$registryToken" ]; then
+			echo "\$CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"
 		else
-			executeExpression "echo $CDAF_REGISTRY_TOKEN | docker login --username $CDAF_REGISTRY_USER --password-stdin $registryURL"
-			for registryTag in ${CDAF_REGISTRY_TAG}; do
+			executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
+			for registryTag in ${registryTag}; do
 				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
 				executeExpression "docker push ${registryTag}"
 			done

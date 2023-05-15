@@ -139,7 +139,7 @@ else
 	if [[ "$cdafRegistryPullURL" == 'DOCKER-HUB' ]]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $CDAF_PULL_REGISTRY_URL (will be set to blank, override environment variable $CDAF_PULL_REGISTRY_URL)"
 	else
-		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $cdafRegistryPullURL (set from argument, override environment variable $CDAF_PULL_REGISTRY_URL)"
+		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $cdafRegistryPullURL (loaded from manifest.txt, override environment variable $CDAF_PULL_REGISTRY_URL)"
 		registryPullURL="$cdafRegistryPullURL"
 	fi
 fi

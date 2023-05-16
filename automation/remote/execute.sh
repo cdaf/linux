@@ -188,10 +188,10 @@ function DETOKN {
 		fi
 	fi
 
-	$AUTOMATIONHELPER/transform.sh "$propertyFile" "$1" "$gpg"
+	"${CDAF_CORE}/transform.sh" "$propertyFile" "$1" "$gpg"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		ERRMSG "Exception! $AUTOMATIONHELPER/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode" $exitCode
+		ERRMSG "Exception! ${CDAF_CORE}/transform.sh \"$propertyFile\" \"$1\" \"$gpg\" returned $exitCode" $exitCode
 	fi
 	unset propldAction
 }
@@ -278,7 +278,7 @@ function VARCHK {
 	fi
 
 	declare -i failureCount=0
-	propList=$($AUTOMATIONHELPER/transform.sh "$propertiesFile")
+	propList=$("${CDAF_CORE}/transform.sh" "$propertiesFile")
 	echo "$propList"; echo
 	IFS=$'\n'
 	for variableProp in $propList; do
@@ -372,8 +372,7 @@ echo "[$scriptName]   TMPDIR      : $TMPDIR"
 # this is not required in the PowerShell version as variables are global
 if [ -f "../build.properties" ] ;then
 	echo; echo "[$scriptName] Load ../build.properties"; echo
-	AUTOMATIONHELPER="$( cd "$(dirname "$0")" && pwd )"
-	propertiesList=$($AUTOMATIONHELPER/transform.sh ../build.properties)
+	propertiesList=$("${CDAF_CORE}/transform.sh" ../build.properties)
 	printf "$propertiesList"
 	eval $propertiesList
 	echo; echo
@@ -382,26 +381,24 @@ else
 	if [ -f "./solution.properties" ] ;then
 		echo; echo "[$scriptName] Load ./solution.properties"; echo
 		eval $(cat ./solution.properties)
-		AUTOMATIONHELPER="$( cd "$(dirname "$0")" && pwd )"
-		propertiesList=$($AUTOMATIONHELPER/transform.sh ./solution.properties)
+		propertiesList=$("${CDAF_CORE}/transform.sh" ./solution.properties)
 		printf "$propertiesList"
 		eval $propertiesList
 		echo
 		rm ./solution.properties
 	else
 		# Neither build nor package, load target properties, i.e. it's either local or remote
-		AUTOMATIONHELPER=.
 		if [ -f "predeploy.properties" ]; then
 			echo; echo "Load predeploy.properties ... "
-			propertiesList=$($AUTOMATIONHELPER/transform.sh "predeploy.properties")
+			propertiesList=$("${CDAF_CORE}/transform.sh" "predeploy.properties")
 			printf "$propertiesList"
 			eval $propertiesList
 		else
 			echo "[$scriptName]   predeploy   : (predeploy.properties not found, skipping)"
 		fi
 		echo
-		echo "Load Target Properties ... $AUTOMATIONHELPER/transform.sh $TARGET"
-		propertiesList=$($AUTOMATIONHELPER/transform.sh "$TARGET")
+		echo "Load Target (${TARGET}) Properties ..."
+		propertiesList=$("${CDAF_CORE}/transform.sh" "$TARGET")
 		printf "$propertiesList"
 		eval $propertiesList
 	fi
@@ -445,7 +442,7 @@ while read LINE; do
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
 		propldAction="${exprArray[2]}"
-		execute="$AUTOMATIONHELPER/transform.sh $propFile"
+		execute="'${CDAF_CORE}/transform.sh' $propFile"
 		propertiesList=$(eval $execute)
 		IFS=$'\n'
 		if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then

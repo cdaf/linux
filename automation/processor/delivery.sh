@@ -51,16 +51,17 @@ if [ -z "$WORK_DIR_DEFAULT" ]; then
 	WORK_DIR_DEFAULT='TasksLocal'
 fi 
 echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
+export CDAF_CORE="$(pwd)/${WORK_DIR_DEFAULT}"
 
 SOLUTION="$5"
 if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z "$SOLUTION" ]; then
-	SOLUTION=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "SOLUTION")
+	SOLUTION=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "SOLUTION")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Read of SOLUTION from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
+		echo "[$scriptName] Read of SOLUTION from ${CDAF_CORE}/manifest.txt failed! Returned $exitCode"
 		exit $exitCode
 	fi
 	echo "[$scriptName]   SOLUTION         : $SOLUTION (derived from $WORK_DIR_DEFAULT/manifest.txt)"
@@ -73,10 +74,10 @@ if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi
 if [ -z "$BUILDNUMBER" ]; then
-	BUILDNUMBER=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "BUILDNUMBER")
+	BUILDNUMBER=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "BUILDNUMBER")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Read of BUILDNUMBER from ./$WORK_DIR_DEFAULT/manifest.txt failed! Returned $exitCode"
+		echo "[$scriptName] Read of BUILDNUMBER from ${CDAF_CORE}/manifest.txt failed! Returned $exitCode"
 		exit $exitCode
 	fi
 	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER (derived from $WORK_DIR_DEFAULT/manifest.txt)"
@@ -86,15 +87,15 @@ fi
 
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
-echo "[$scriptName]   CDAF Version     : $(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/CDAF.properties" "productVersion")"
+echo "[$scriptName]   CDAF Version     : $(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/CDAF.properties" "productVersion")"
 
 # 2.5.5 default error diagnostic command as solution property
 if [ -z "$CDAF_ERROR_DIAG" ]; then
-	export CDAF_ERROR_DIAG=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "CDAF_ERROR_DIAG")
+	export CDAF_ERROR_DIAG=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "CDAF_ERROR_DIAG")
 	if [ -z "$CDAF_ERROR_DIAG" ]; then
-		echo "[$scriptName]   CDAF_ERROR_DIAG  : (not set or defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
+		echo "[$scriptName]   CDAF_ERROR_DIAG  : (not set or defined in ${CDAF_CORE}/manifest.txt)"
 	else
-		echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG (defined in ./$WORK_DIR_DEFAULT/manifest.txt)"
+		echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG (defined in ${CDAF_CORE}/manifest.txt)"
 	fi
 else
 	echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG"
@@ -103,7 +104,7 @@ fi
 workingDir=$(pwd)
 echo "[$scriptName]   workingDir       : $workingDir"
 
-processSequence=$(./$WORK_DIR_DEFAULT/getProperty.sh "./$WORK_DIR_DEFAULT/manifest.txt" "processSequence")
+processSequence=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "processSequence")
 if [ -z "$processSequence" ]; then
 	processSequence='remoteTasks.sh localTasks.sh containerTasks.sh'
 else
@@ -112,7 +113,7 @@ fi
 
 for step in $processSequence; do
 	echo
-	executeExpression "./$WORK_DIR_DEFAULT/${step} '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+	executeExpression "${CDAF_CORE}/${step} '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
 done
 
 

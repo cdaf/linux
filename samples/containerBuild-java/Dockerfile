@@ -3,12 +3,20 @@
 ARG CONTAINER_IMAGE
 FROM ${CONTAINER_IMAGE}
 
+ARG HTTP_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY
+
 # Copy solution, provision and then build
 WORKDIR /solution
 
 # Only copy the scripts required
-COPY automation-solution/bootstrapAgent.sh .
-RUN ./bootstrapAgent.sh
+COPY automation/provisioning/base.sh automation/provisioning/base.sh
+COPY automation/provisioning/installApacheMaven.sh automation/provisioning/installApacheMaven.sh
+COPY automation/remote/capabilities.sh automation/remote/capabilities.sh
+COPY automation-solution/bootstrapAgent.sh automation-solution/bootstrapAgent.sh
+
+# Provision Build Dependancies
+RUN automation-solution/bootstrapAgent.sh
 
 # Prepare for non-root build
 ARG userName

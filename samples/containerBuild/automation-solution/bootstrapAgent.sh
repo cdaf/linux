@@ -33,50 +33,12 @@ else
 fi
 echo "[$scriptName]  pwd    : $(pwd)"
 
-# First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant, default is to use the latest from GitHub (stable='no')
-defaultPath='./automation'
-if [ -d "${defaultPath}/provisioning" ]; then
-	atomicPath="$defaultPath"
-else
-	echo "[$scriptName] Provisioning directory ($defaultPath) not found in workspace, looking for alternative ..."
-	if [ -d '/vagrant/automation/provisioning' ]; then
-		atomicPath='/vagrant/automation'
-		echo "[$scriptName] Vagrant synchronised directory ($atomicPath) found"
-	else
-		if [[ $stable == 'no' ]]; then
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-			if [ -d 'linux-master' ]; then
-				executeExpression "rm -rf linux-master"
-			fi
-			executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-			executeExpression "unzip linux-master.zip"
-			atomicPath='./linux-master/automation'
-		else
-			echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-			executeExpression "tar -xzf LU-CDAF.tar.gz"
-			atomicPath="$defaultPath"
-		fi
-	fi
-fi
+echo "[$scriptName] Download latest from GitHub"; echo
+executeExpression "export CDAF_INSTALL_PATH=/opt/cdaf"
+executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
 
-echo
-test="`curl --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] curl not installed, required to download Maven, install using package manager ..."
-	executeExpression "$atomicPath/provisioning/base.sh curl"
-	executeExpression "curl --version"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] curl : $test"
-fi	
-
-echo
-executeExpression "$elevate $atomicPath/provisioning/base.sh openjdk-11-jdk"
-executeExpression "$elevate $atomicPath/provisioning/installApacheMaven.sh"
+echo "[$scriptName] Add any provisioning needed here"; echo
 executeExpression "$atomicPath/remote/capabilities.sh"
 
-echo
-echo "[$scriptName] --- end ---"
+echo; echo "[$scriptName] --- end ---"
 

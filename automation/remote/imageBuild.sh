@@ -84,12 +84,6 @@ else
 	echo "[$scriptName]  CDAF_AUTOMATION_ROOT = $CDAF_AUTOMATION_ROOT"
 fi
 
-if [ -f "${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh" ]; then
-	getProp="${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh"
-else
-	getProp="${WORKSPACE}/getProperty.sh"
-fi
-
 manifest="./manifest.txt"
 if [ ! -f "$manifest" ]; then
 	manifest="${WORKSPACE}/manifest.txt"
@@ -97,7 +91,9 @@ fi
 
 # 2.4.7 Support for DockerHub
 # 2.5.8 CDAF Solution property support, overriding environment variable.
-cdafRegURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_URL")")
+if [ -f "$manifest" ]; then
+	cdafRegURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
+fi
 if [ -z "$cdafRegURL" ]; then
 	if [ -z "$CDAF_REGISTRY_URL" ]; then
 		echo "[$scriptName]  CDAF_REGISTRY_URL    = (not supplied, do not set when pushing to Dockerhub)"
@@ -127,7 +123,9 @@ else
 	fi
 fi
 
-cdafRegTag=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TAG")")
+if [ -f "$manifest" ]; then
+	cdafRegTag=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
+fi
 if [ -z "$cdafRegTag" ]; then
 	if [ -z "$CDAF_REGISTRY_TAG" ]; then
 		echo "[$scriptName]  CDAF_REGISTRY_TAG    = (not supplied, supports space separated list)"
@@ -144,7 +142,9 @@ else
 	registryTag="$cdafRegTag"
 fi
 
-cdafRegUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_USER")")
+if [ -f "$manifest" ]; then
+	cdafRegUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
+fi
 if [ -z "$cdafRegUser" ]; then
 	if [ -z "$CDAF_REGISTRY_USER" ]; then
 		registryUser='.'
@@ -162,7 +162,9 @@ else
 	registryUser="$cdafRegUser"
 fi
 
-cdafRegToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_REGISTRY_TOKEN")")
+if [ -f "$manifest" ]; then
+	cdafRegToken=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TOKEN")")
+fi
 if [ -z "$cdafRegToken" ]; then
 	if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
 		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = (not supplied)"

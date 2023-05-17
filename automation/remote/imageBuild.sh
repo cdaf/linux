@@ -269,6 +269,8 @@ else
 						executeExpression "docker push ${registryTag}"
 					done
 				fi
+			else
+				echo "Do not push feature branch, set pushFeatureBranch=yes to force push."; echo
 			fi
 		fi
 	fi

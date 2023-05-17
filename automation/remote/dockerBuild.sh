@@ -108,7 +108,9 @@ if [ ! -f "$manifest" ]; then
 fi
 
 # 2.5.8 Image from Private Registry
-cdafRegistryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
+if [ -f "$manifest" ]; then
+	cdafRegistryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
+fi
 if [ -z "$cdafRegistryPullURL" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_URL" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = (not supplied, do not set when pulling from Dockerhub)"
@@ -129,7 +131,9 @@ else
 	fi
 fi
 
-cdafRegistryPullUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_USER")")
+if [ -f "$manifest" ]; then
+	cdafRegistryPullUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_USER")")
+fi
 if [ -z "$cdafRegistryPullUser" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_USER" ]; then
 		registryPullUser='.'
@@ -147,7 +151,9 @@ else
 	registryPullUser="$cdafRegistryPullUser"
 fi
 
-cdafRegistryPullToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
+if [ -f "$manifest" ]; then
+	cdafRegistryPullToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
+fi
 if [ -z "$cdafRegistryPullToken" ]; then
 	if [ -z "$CDAF_PULL_REGISTRY_TOKEN" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = (not supplied)"
@@ -164,7 +170,9 @@ else
 	registryPullToken="$cdafRegistryPullToken"
 fi
 
-cdafSkipPull=$(eval "echo $(${getProp} "${manifest}" "CDAF_SKIP_PULL")")
+if [ -f "$manifest" ]; then
+	cdafSkipPull=$(eval "echo $(${getProp} "${manifest}" "CDAF_SKIP_PULL")")
+fi
 if [ -z "$cdafSkipPull" ]; then
 	if [ -z "$CDAF_SKIP_PULL" ]; then
 		echo "[$scriptName]  CDAF_SKIP_PULL           = (not supplied)"

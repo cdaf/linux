@@ -89,8 +89,8 @@ if [ ! -f "$manifest" ]; then
 	manifest="${WORKSPACE}/manifest.txt"
 fi
 
-# 2.4.7 Support for DockerHub
 # 2.5.8 CDAF Solution property support, overriding environment variable.
+# 2.4.7 Support for DockerHub
 if [ -f "$manifest" ]; then
 	cdafRegURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
 fi
@@ -245,17 +245,33 @@ else
 			executeExpression "cd $imagebuild_workspace"
 		done
 
-		# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
-		if [ -z "$registryToken" ]; then
-			echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"
+		if [ -f "$manifest" ]; then
+			pushFeatureBranch=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "pushFeatureBranch")")
+			REVISION=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "REVISION")")
+			defaultBranch=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "defaultBranch")")
 		else
-			executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
-			for registryTag in ${registryTag}; do
-				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
-				executeExpression "docker push ${registryTag}"
-			done
+			echo "Unable to load manifest, skipping push as cannot determine branch rules."; echo
+		fi
+		if [ -z "$REVISION" ]; then
+			echo "Unable to read REVISION from manifest, skipping push as cannot determine branch rules."; echo
+		else
+			if [ -z "$defaultBranch" ]; then
+				defaultBranch='master'
+			fi
+			if [ "$pushFeatureBranch" == 'yes' ] || [ "$REVISION" == "$defaultBranch" ]; then
+				# 2.2.0 Integrated Registry push, not masking of secrets, it is expected the CI tool will know to mask these
+				if [ -z "$registryToken" ]; then
+					echo; echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"; echo
+				else
+					executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
+					for registryTag in ${registryTag}; do
+						executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
+						executeExpression "docker push ${registryTag}"
+					done
+				fi
+			fi
 		fi
 	fi
 fi
 
-echo "[$scriptName] --- stop ---"
+echo "[$scriptName] --- stop ---"; echo

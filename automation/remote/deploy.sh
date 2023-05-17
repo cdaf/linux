@@ -21,16 +21,19 @@ echo
 echo "[$scriptName]   DEPLOY_TARGET        : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
 if [ "$WORK_DIR_DEFAULT" ]; then
-	cd $WORK_DIR_DEFAULT
 	echo "[$scriptName]   WORK_DIR_DEFAULT     : $WORK_DIR_DEFAULT"
+	cd $WORK_DIR_DEFAULT
+	WORK_DIR_DEFAULT=$(pwd)
 else
-	echo "[$scriptName]   WORK_DIR_DEFAULT     : $(pwd) (not passed, using current)"
+	WORK_DIR_DEFAULT=$(pwd)
+	echo "[$scriptName]   WORK_DIR_DEFAULT     : $WORK_DIR_DEFAULT (not passed, using current)"
 fi
+export CDAF_CORE="${WORK_DIR_DEFAULT}"
 
 # Load solution and build number from Manifest (created in package process)
-SOLUTION=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./manifest.txt" "SOLUTION")
+SOLUTION=$("${CDAF_CORE}/getProperty.sh" "./manifest.txt" "SOLUTION")
 echo "[$scriptName]   SOLUTION             : $SOLUTION"
-BUILDNUMBER=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./manifest.txt" "BUILDNUMBER")
+BUILDNUMBER=$("${CDAF_CORE}/getProperty.sh" "./manifest.txt" "BUILDNUMBER")
 echo "[$scriptName]   BUILDNUMBER          : $BUILDNUMBER"
 
 if [ "$OPT_ARG" ]; then
@@ -42,10 +45,10 @@ fi
 echo "[$scriptName]   whoami               : $(whoami)"
 echo "[$scriptName]   hostname             : $(hostname)"
 
-cdafVersion=$(./$LOCAL_DIR_DEFAULT/getProperty.sh "./$LOCAL_DIR_DEFAULT/CDAF.properties" "productVersion")
+cdafVersion=$("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/CDAF.properties" "productVersion")
 echo "[$scriptName]   CDAF Version         : $cdafVersion"
 
-scriptOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployScriptOverride")
+scriptOverride=$("${CDAF_CORE}/getProperty.sh" "./$DEPLOY_TARGET" "deployScriptOverride")
 if [ "$scriptOverride" ]; then
 	if [ ! -f "./$scriptOverride" ]; then
 		echo "[$scriptName] $scriptOverride not found!"
@@ -66,7 +69,7 @@ if [ "$scriptOverride" ]; then
 else
 
 	echo "[$scriptName]   deployScriptOverride : (not set)"  
-	taskOverride=$(./getProperty.sh "./$DEPLOY_TARGET" "deployTaskOverride")
+	taskOverride=$("${CDAF_CORE}/getProperty.sh" "./$DEPLOY_TARGET" "deployTaskOverride")
 	if [ "$taskOverride" ]; then
 		echo "[$scriptName]   deployTaskOverride   : $taskOverride"
 	else
@@ -81,10 +84,10 @@ else
 		fi
 		echo
 		echo "[$scriptName] Starting deploy process ..."
-		./execute.sh "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$overrideTask" "$OPT_ARG"
+		"${CDAF_CORE}/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$DEPLOY_TARGET" "$overrideTask" "$OPT_ARG"
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] ./execute.sh $SOLUTION $BUILDNUMBER $DEPLOY_TARGET $overrideTask $OPT_ARG failed! Returned $exitCode"
+			echo "[$scriptName] ${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER $DEPLOY_TARGET $overrideTask $OPT_ARG failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	done

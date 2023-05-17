@@ -100,22 +100,7 @@ else
 	export CONTAINER_IMAGE="$baseImage"
 fi
 
-if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
-	CDAF_AUTOMATION_ROOT='./automation'
-	if [ ! -d "${CDAF_AUTOMATION_ROOT}" ]; then
-		CDAF_AUTOMATION_ROOT='../automation'
-	else
-		echo "[$scriptName]  CDAF_AUTOMATION_ROOT     = $CDAF_AUTOMATION_ROOT (not set, using relative path)"
-	fi
-else
-	echo "[$scriptName]  CDAF_AUTOMATION_ROOT     = $CDAF_AUTOMATION_ROOT"
-fi
-
-if [ -f "${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh" ]; then
-	getProp="${CDAF_AUTOMATION_ROOT}/remote/getProperty.sh"
-else
-	getProp="${WORKSPACE}/getProperty.sh"
-fi
+getProp="${CDAF_CORE}/getProperty.sh"
 
 manifest="./manifest.txt"
 if [ ! -f "$manifest" ]; then

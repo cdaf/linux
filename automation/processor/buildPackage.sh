@@ -126,7 +126,8 @@ if [ -z $AUTOMATIONROOT ]; then
 else
 	rootLogging="$AUTOMATIONROOT (passed)"
 fi
-export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
+export CDAF_AUTOMATION_ROOT="$AUTOMATIONROOT"
+export CDAF_CORE="${AUTOMATIONROOT}/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
@@ -182,7 +183,7 @@ if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z $SOLUTION ]; then
-	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
+	SOLUTION=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
@@ -232,11 +233,11 @@ echo "[$scriptName]   pwd             : $(pwd)"
 echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"
 
-echo "[$scriptName]   CDAF Version    : $($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
+echo "[$scriptName]   CDAF Version    : $(${CDAF_CORE}/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
 # 2.5.5 default error diagnostic command as solution property
 if [ -z "$CDAF_ERROR_DIAG" ]; then
-	export CDAF_ERROR_DIAG=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_ERROR_DIAG")
+	export CDAF_ERROR_DIAG=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_ERROR_DIAG")
 	if [ -z "$CDAF_ERROR_DIAG" ]; then
 		echo "[$scriptName]   CDAF_ERROR_DIAG : (not set or defined in $SOLUTIONROOT/CDAF.solution)"
 	else
@@ -255,10 +256,10 @@ if [ -f $prebuildTasks ] && [[ "$ACTION" != 'container_build' ]]; then
 	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
 	echo; echo "Process Pre-Build Tasks ..."
-	$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
+	${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+		echo "[$scriptName] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi
@@ -267,7 +268,7 @@ fi
 if [[ "$ACTION" == 'container_build' ]]; then
 	echo; echo "[$scriptName] \$ACTION = $ACTION, container build detection skipped ..."; echo
 else
-	containerBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
+	containerBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
 	if [ ! -z "$containerBuild" ]; then
 		if [ ! -z $CDAF_SKIP_CONTAINER_BUILD ] || [[ "$ACTION" == 'skip_container_build' ]]; then
 			echo; echo "[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ..."; echo
@@ -287,7 +288,7 @@ else
 				echo "docker images"
 				docker images
 				if [ "$?" != "0" ]; then
-					dockerRequiredProp=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
+					dockerRequiredProp=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
 					if [ -z "$CDAF_DOCKER_REQUIRED" ] && [ -z "$dockerRequiredProp" ]; then
 						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
 						unset containerBuild
@@ -314,7 +315,7 @@ else
 fi
 
 # 2.2.0 Image Build as incorperated function
-imageBuild=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "imageBuild")
+imageBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "imageBuild")
 if [ -z "$imageBuild" ]; then
 	echo "[$scriptName]   imageBuild      : (not defined in $SOLUTIONROOT/CDAF.solution)"
 else
@@ -322,7 +323,7 @@ else
 fi
 
 # Support for image as an environment variable, do not overwrite if already set
-containerImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+containerImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
 if [ -z "$containerImage" ]; then
 	echo "[$scriptName]   containerImage  : (not defined in $SOLUTIONROOT/CDAF.solution)"
 else
@@ -428,7 +429,7 @@ fi
 
 # CDAF 2.1.0 Self-extracting Script Artifact
 if [[ "$ACTION" != 'container_build' ]]; then
-	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
+	artifactPrefix=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
 	if [ ! -z $artifactPrefix ]; then
 		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
 		echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
@@ -482,10 +483,10 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
 		echo; echo "Process Post-Build Tasks ..."
-		$AUTOMATIONROOT/remote/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
+		${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Linear deployment activity ($AUTOMATIONROOT/remote/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			echo "[$scriptName] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi
@@ -503,11 +504,11 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		if [[ $? -ne 0 ]]; then
 			echo "[$scriptName] imageBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, skipping ..."
 		else
-			runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
+			runtimeImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "runtimeImage")
 			if [ ! -z "$runtimeImage" ]; then
 				echo "[$scriptName]   runtimeImage  = $runtimeImage"
 			else
-				runtimeImage=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+				runtimeImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
 				if [ ! -z "$runtimeImage" ]; then
 					echo "[$scriptName]   containerImage = $containerImage (runtimeImage not defined in $SOLUTIONROOT/CDAF.solution)"
 				else
@@ -519,13 +520,13 @@ if [[ "$ACTION" != 'container_build' ]]; then
 					fi
 				fi
 			fi
-			constructor=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "constructor")
+			constructor=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "constructor")
 			if [ ! -z "$constructor" ]; then
 				echo "[$scriptName]   constructor   = $constructor"
 			fi
 
 			# 2.2.0 Integrated Function using environment variables
-			defaultBranch=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "defaultBranch")
+			defaultBranch=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "defaultBranch")
 			if [ -z "$defaultBranch" ]; then
 				defaultBranch='master'
 			else

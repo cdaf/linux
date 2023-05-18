@@ -90,14 +90,19 @@ fi
 
 baseImage=$7
 if [ -z "$baseImage" ]; then
-	echo "[$scriptName]  baseImage                : (not supplied)"
+	if [ -z "$CONTAINER_IMAGE" ]; then
+		echo "[$scriptName]  baseImage                : (not supplied and CONTAINER_IMAGE not set)"
+	else
+		echo "[$scriptName]  baseImage                : (not supplied, using CONTAINER_IMAGE)"
+		containerImage="$CONTAINER_IMAGE"
+	fi
 else
 	if [ -z "$CONTAINER_IMAGE" ]; then
 		echo "[$scriptName]  baseImage                : $baseImage (set environment variable CONTAINER_IMAGE)"
 	else
 		echo "[$scriptName]  baseImage                : $baseImage (override environment variable CONTAINER_IMAGE, original value was $CONTAINER_IMAGE)"
 	fi
-	export CONTAINER_IMAGE="$baseImage"
+	containerImage="$baseImage"
 fi
 
 getProp="${CDAF_CORE}/getProperty.sh"
@@ -224,11 +229,11 @@ else
 	buildCommand+=" --tag ${imageName}"
 fi
 
-if [ ! -z "$CONTAINER_IMAGE" ]; then
-	echo; echo "[$scriptName] CONTAINER_IMAGE is set (${CONTAINER_IMAGE})"
-	buildCommand+=" --build-arg CONTAINER_IMAGE=${CONTAINER_IMAGE}"
+if [ ! -z "$containerImage" ]; then
+	echo; echo "[$scriptName] CONTAINER_IMAGE is set (${containerImage})"
+	buildCommand+=" --build-arg CONTAINER_IMAGE=${containerImage}"
 	if [ "$CDAF_SKIP_PULL" != 'yes' ]; then
-		executeExpression "docker pull ${CONTAINER_IMAGE}"
+		executeExpression "docker pull ${containerImage}"
 	fi
 fi
 

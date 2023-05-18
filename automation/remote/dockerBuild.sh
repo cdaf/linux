@@ -194,11 +194,6 @@ else
 	skipPull="$cdafSkipPull"
 fi
 
-if [ ! -z "$registryPullToken" ]; then
-	echo; echo "[$scriptName] CDAF_PULL_REGISTRY_TOKEN set, attempt login..."
-	executeExpression "echo \$registryPullToken | docker login --username $registryPullUser --password-stdin $registryPullURL"
-fi
-
 echo; echo "[$scriptName] List existing images..."
 executeExpression "docker images -f label=cdaf.${imageName}.image.version"
 
@@ -227,6 +222,11 @@ if [ ! -z "$tag" ]; then
 	buildCommand+=" --tag ${imageName}:${tag}"
 else
 	buildCommand+=" --tag ${imageName}"
+fi
+
+if [ ! -z "$registryPullToken" ]; then
+	echo; echo "[$scriptName] CDAF_PULL_REGISTRY_TOKEN set, attempt login..."
+	executeExpression "echo \$registryPullToken | docker login --username $registryPullUser --password-stdin $registryPullURL"
 fi
 
 if [ ! -z "$containerImage" ]; then

@@ -474,7 +474,7 @@ fi
 
 if [[ "$ACTION" != 'container_build' ]]; then
 
-	# Process optional post-packaging tasks (Task driver support added in release 2.4.4)
+	# 2.4.4 Process optional post-packaging tasks
 	if [ -f $postbuild ]; then
 
 		# Set properties for execution engine

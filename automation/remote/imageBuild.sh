@@ -90,88 +90,54 @@ if [ ! -f "$manifest" ]; then
 	exit 5343
 fi
 
-# 2.6.0 CDAF Solution property support, overriding environment variable.
-# 2.4.7 Support for DockerHub
-cdafRegURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
-if [ -z "$cdafRegURL" ]; then
-	if [ -z "$CDAF_REGISTRY_URL" ]; then
+# 2.6.0 CDAF Solution property support, with environment variable override.
+if [ ! -z "$CDAF_REGISTRY_URL" ]; then
+	registryURL="$CDAF_REGISTRY_URL"
+	echo "[$scriptName]  CDAF_REGISTRY_URL    = $registryURL (loaded from environment variable)"
+else
+	registryURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
+	if [ ! -z "$registryURL" ]; then
+		echo "[$scriptName]  CDAF_REGISTRY_URL    = $registryURL (loaded from manifest.txt)"
+	else
 		echo "[$scriptName]  CDAF_REGISTRY_URL    = (not supplied, do not set when pushing to Dockerhub)"
-	else
-		if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (will not be set)"
-		else
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $CDAF_REGISTRY_URL (only pushes tagged image)"
-			registryURL="$CDAF_REGISTRY_URL"
-		fi
-	fi
-else
-	if [ -z "$CDAF_REGISTRY_URL" ]; then
-		if [[ "$cdafRegURL" == 'DOCKER-HUB' ]]; then
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (will not set to blank)"
-		else
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (only pushes tagged image)"
-			registryURL="$cdafRegURL"
-		fi
-	else
-		if [[ "$CDAF_REGISTRY_URL" == 'DOCKER-HUB' ]]; then
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_URL, will be set to blank)"
-		else
-			echo "[$scriptName]  CDAF_REGISTRY_URL    = $cdafRegURL (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_URL, only pushes tagged image)"
-			registryURL="$cdafRegURL"
-		fi
 	fi
 fi
 
-cdafRegTag=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
-if [ -z "$cdafRegTag" ]; then
-	if [ -z "$CDAF_REGISTRY_TAG" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = (not supplied, supports space separated list)"
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $CDAF_REGISTRY_TAG (loaded from environment variable, supports space separated list)"
-		registryTag="$CDAF_REGISTRY_TAG"
-	fi
+if [ ! -z "$CDAF_REGISTRY_USER" ]; then
+	registryUser="$CDAF_REGISTRY_USER"
+	echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (loaded from environment variable)"
 else
-	if [ -z "$CDAF_REGISTRY_TAG" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from manifest.txt, supports space separated list)"
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $cdafRegTag (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_TAG), supports space separated list"
-	fi
-	registryTag="$cdafRegTag"
-fi
-
-cdafRegUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
-if [ -z "$cdafRegUser" ]; then
-	if [ -z "$CDAF_REGISTRY_USER" ]; then
-		registryUser='.'
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (default)"
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $CDAF_REGISTRY_USER (loaded from environment variable)"
-		registryUser="$CDAF_REGISTRY_USER"
-	fi
-else
-	if [ -z "$CDAF_REGISTRY_USER" ]; then
+	cdafRegUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
+	if [ ! -z "$cdafRegUser" ]; then
 		echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from manifest.txt)"
 	else
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from manifest.txt, overiding environment variable $CDAF_REGISTRY_USER)"
+		registryUser='.'
+		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (default)"
 	fi
-	registryUser="$cdafRegUser"
 fi
 
-cdafRegToken=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TOKEN")")
-if [ -z "$cdafRegToken" ]; then
-	if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = (not supplied)"
-	else
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${CDAF_REGISTRY_TOKEN}) (loaded from environment variable)"
-		registryToken="$CDAF_REGISTRY_TOKEN"
-	fi
+if [ ! -z "$CDAF_REGISTRY_TOKEN" ]; then
+	registryToken="$CDAF_REGISTRY_TOKEN"
+	echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${registryToken}) (loaded from environment variable)"
 else
-	if [ -z "$CDAF_REGISTRY_TOKEN" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from manifest.txt)"
+	registryToken=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TOKEN")")
+	if [ ! -z "$registryToken" ]; then
+		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${registryToken}) (loaded from manifest.txt)"
 	else
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${cdafRegToken}) (loaded from manifest.txt, overiding environment variable \$CDAF_REGISTRY_TOKEN)"
+		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = (not supplied)"
 	fi
-	registryToken="$cdafRegToken"
+fi
+
+if [ ! -z "$CDAF_REGISTRY_TAG" ]; then
+	registryTag="$CDAF_REGISTRY_TAG"
+	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from environment variable, supports space separated lis)"
+else
+	registryTag=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
+	if [ ! -z "$registryTag" ]; then
+		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from manifest.txt, supports space separated list)"
+	else
+		echo "[$scriptName]  CDAF_REGISTRY_TAG    = (not supplied, supports space separated list)"
+	fi
 fi
 
 echo "[$scriptName]  pwd                  = $imagebuild_workspace"; echo

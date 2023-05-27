@@ -204,6 +204,7 @@ if [ -z $LOCAL_WORK_DIR ]; then
 else
 	echo "[$scriptName]   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 fi
+export WORKSPACE="$(pwd)/${LOCAL_WORK_DIR}"
 
 REMOTE_WORK_DIR="$7"
 if [ -z $REMOTE_WORK_DIR ]; then

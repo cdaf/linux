@@ -112,7 +112,7 @@ if [ ! -f "$manifest" ]; then
 	manifest="${WORKSPACE}/manifest.txt"
 fi
 
-# 2.5.8 Image from Private Registry
+# 2.6.0 Image from Private Registry
 if [ -f "$manifest" ]; then
 	cdafRegistryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
 fi

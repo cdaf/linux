@@ -90,7 +90,7 @@ if [ ! -f "$manifest" ]; then
 	exit 5343
 fi
 
-# 2.5.8 CDAF Solution property support, overriding environment variable.
+# 2.6.0 CDAF Solution property support, overriding environment variable.
 # 2.4.7 Support for DockerHub
 cdafRegURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
 if [ -z "$cdafRegURL" ]; then
@@ -254,7 +254,7 @@ else
 		if [ -z "$registryToken" ]; then
 			echo; echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"; echo
 		else
-			executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
+			dockerLogin
 			for registryTag in ${registryTag}; do
 				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
 				executeExpression "docker push ${registryTag}"

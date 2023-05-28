@@ -64,8 +64,8 @@ else
 	echo "[$scriptName]   imageDir    : $imageDir"
 fi
 
-WORKING_DIRECTORY=$(pwd)
-echo "[$scriptName]   pwd         : $WORKING_DIRECTORY"
+export WORKSPACE=$(pwd)
+echo "[$scriptName]   pwd         : $WORKSPACE"
 
 if [ ! -d "$imageDir" ]; then
 	echo "[$scriptName] $imageDir does not exist! Please ensure this is included in your storeFor or stoteForLocal declaration file"
@@ -87,10 +87,10 @@ executeExpression "cd $imageDir"
 echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
-executeExpression "${WORKING_DIRECTORY}/dockerRun.sh ${id}"
+executeExpression "${WORKSPACE}/dockerRun.sh ${id}"
 export CDAF_CD_ENVIRONMENT=$TARGET
-executeExpression "${WORKING_DIRECTORY}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
-executeExpression "${WORKING_DIRECTORY}/dockerClean.sh ${id} ${BUILDNUMBER}"
+executeExpression "${WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
+executeExpression "${WORKSPACE}/dockerClean.sh ${id} ${BUILDNUMBER}"
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
@@ -114,6 +114,6 @@ else
 fi
 
 echo
-executeExpression "${WORKING_DIRECTORY}/dockerRun.sh ${id}"
+executeExpression "${WORKSPACE}/dockerRun.sh ${id}"
 
 echo; echo "[$scriptName] --- end ---"

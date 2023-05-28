@@ -39,22 +39,11 @@ else
 	else
 		echo "[$scriptName]  BUILDNUMBER          : $BUILDNUMBER"
 
-		containerImage=$3
-		if [ -z $CONTAINER_IMAGE ]; then
-			if [ -z "$containerImage" ]; then
-				echo "[$scriptName] Environment variable CONTAINER_IMAGE not found and containerImage argument not passed!"; exit 2715
-			else
-				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (set to argument passed)"
-				baseImage="$containerImage"
-			fi
+		baseImage=$3
+		if [ -z "$baseImage" ]; then
+			echo "[$scriptName]  baseImage            : (not supplied)"
 		else
-			if [ -z "$containerImage" ]; then
-				echo "[$scriptName]  CONTAINER_IMAGE      : $CONTAINER_IMAGE (using environment variable)"
-				baseImage="$CONTAINER_IMAGE"
-			else
-				echo "[$scriptName]  CONTAINER_IMAGE      : $containerImage (override environment variable $CONTAINER_IMAGE)"
-				baseImage="$containerImage"
-			fi
+			echo "[$scriptName]  baseImage            : $baseImage"
 		fi
 
 		# 2.2.0 extension for the support as integrated function
@@ -65,12 +54,6 @@ else
 			echo "[$scriptName]  constructor          : $constructor (supports space separated list)"
 		fi
 	fi
-fi
-
-if [ -z "$CDAF_SKIP_PULL" ]; then
-	echo "[$scriptName]  CDAF_SKIP_PULL       = (not supplied)"
-else
-	echo "[$scriptName]  CDAF_SKIP_PULL       = $CDAF_SKIP_PULL"
 fi
 
 if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
@@ -130,7 +113,7 @@ fi
 
 if [ ! -z "$CDAF_REGISTRY_TAG" ]; then
 	registryTag="$CDAF_REGISTRY_TAG"
-	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from environment variable, supports space separated lis)"
+	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from environment variable, supports space separated list)"
 else
 	registryTag=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
 	if [ ! -z "$registryTag" ]; then

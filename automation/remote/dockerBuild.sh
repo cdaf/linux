@@ -89,20 +89,19 @@ else
 fi
 
 baseImage=$7
-if [ -z "$baseImage" ]; then
-	if [ -z "$CONTAINER_IMAGE" ]; then
-		echo "[$scriptName]  baseImage                : (not supplied and CONTAINER_IMAGE not set)"
+if [ ! -z "$baseImage" ]; then
+	if [ ! -z "$CONTAINER_IMAGE" ]; then
+		echo "[$scriptName]  baseImage                : $baseImage (override environment variable '${CONTAINER_IMAGE}')"
 	else
-		echo "[$scriptName]  baseImage                : (not supplied, using CONTAINER_IMAGE)"
-		containerImage="$CONTAINER_IMAGE"
+		echo "[$scriptName]  baseImage                : $baseImage"
 	fi
 else
-	if [ -z "$CONTAINER_IMAGE" ]; then
-		echo "[$scriptName]  baseImage                : $baseImage (set environment variable CONTAINER_IMAGE)"
+	if [ ! -z "$CONTAINER_IMAGE" ]; then
+		baseImage="$CONTAINER_IMAGE"
+		echo "[$scriptName]  baseImage                : $baseImage (loaded from environment variable CONTAINER_IMAGE)"
 	else
-		echo "[$scriptName]  baseImage                : $baseImage (override environment variable CONTAINER_IMAGE, original value was $CONTAINER_IMAGE)"
+		echo "[$scriptName]  baseImage                : (not supplied)"
 	fi
-	containerImage="$baseImage"
 fi
 
 getProp="${CDAF_CORE}/getProperty.sh"
@@ -119,7 +118,7 @@ if [ ! -z "$CDAF_PULL_REGISTRY_URL" ]; then
 	echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $registryPullURL (loaded from manifest.txt)"
 else
 	registryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
-	if [ -z "$registryPullURL" ]; then
+	if [ ! -z "$registryPullURL" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $registryPullURL (loaded from manifest.txt)"
 	else
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = (not supplied, do not set when pulling from Dockerhub)"
@@ -199,11 +198,11 @@ if [ ! -z "$registryPullToken" ]; then
 	executeExpression "echo \$registryPullToken | docker login --username $registryPullUser --password-stdin $registryPullURL"
 fi
 
-if [ ! -z "$containerImage" ]; then
-	echo; echo "[$scriptName] CONTAINER_IMAGE is set (${containerImage})"
-	buildCommand+=" --build-arg CONTAINER_IMAGE=${containerImage}"
+if [ ! -z "$baseImage" ]; then
+	echo; echo "[$scriptName] CONTAINER_IMAGE is set (${baseImage})"
+	buildCommand+=" --build-arg CONTAINER_IMAGE=${baseImage}"
 	if [ "$skipPull" != 'yes' ]; then
-		executeExpression "docker pull ${containerImage}"
+		executeExpression "docker pull ${baseImage}"
 	fi
 fi
 

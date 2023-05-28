@@ -85,6 +85,10 @@ else
 	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER"
 fi 
 
+# Load TargetlessCD environment variable
+export WORK_SPACE $(pwd)
+export WORKSPACE = "$(WORK_SPACE)\$WORK_DIR_DEFAULT"
+echo "[$scriptName]   pwd              : ${WORK_SPACE}"
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
 echo "[$scriptName]   CDAF Version     : $(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/CDAF.properties" "productVersion")"
@@ -100,9 +104,6 @@ if [ -z "$CDAF_ERROR_DIAG" ]; then
 else
 	echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG"
 fi
-
-workingDir=$(pwd)
-echo "[$scriptName]   workingDir       : $workingDir"
 
 processSequence=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "processSequence")
 if [ -z "$processSequence" ]; then

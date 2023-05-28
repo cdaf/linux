@@ -72,7 +72,7 @@ manifest="${WORKSPACE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
 	manifest="${SOLUTIONROOT}/CDAF.solution"
 	if [ ! -f "$manifest" ]; then
-		echo "[$scriptName] Manifest not found ($manifest)!"
+		echo "[$scriptName] Properties not found in ${WORKSPACE}\manifest.txt or ${manifest}!"
 		exit 5343
 	fi
 fi

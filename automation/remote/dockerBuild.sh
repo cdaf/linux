@@ -109,8 +109,11 @@ getProp="${CDAF_CORE}/getProperty.sh"
 # 2.6.0 Image from Private Registry
 manifest="${WORKSPACE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
-	echo "[$scriptName] Manifest not found ($manifest)!"
-	exit 1114
+	manifest="${SOLUTIONROOT}/CDAF.solution"
+	if [ ! -f "$manifest" ]; then
+		echo "[$scriptName] Manifest not found ($manifest)!"
+		exit 1114
+	fi
 fi
 
 if [ ! -z "$CDAF_PULL_REGISTRY_URL" ]; then

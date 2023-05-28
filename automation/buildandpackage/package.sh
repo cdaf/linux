@@ -133,7 +133,7 @@ else
 fi
 
 echo; echo "[$scriptName] Clean root workspace ($(pwd))"; echo
-rm -fv *.tar *.gz manifest.txt targetList
+rm -fv *.tar *.gz targetList
 
 echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
 for packageDir in $(echo "$REMOTE_WORK_DIR $LOCAL_WORK_DIR"); do

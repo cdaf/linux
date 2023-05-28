@@ -67,10 +67,14 @@ else
 	echo "[$scriptName]  CDAF_AUTOMATION_ROOT = $CDAF_AUTOMATION_ROOT"
 fi
 
+# 2.6.0 Push Private Registry
 manifest="${WORKSPACE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
-	echo "[$scriptName] Manifest not found ($manifest)!"
-	exit 5343
+	manifest="${SOLUTIONROOT}/CDAF.solution"
+	if [ ! -f "$manifest" ]; then
+		echo "[$scriptName] Manifest not found ($manifest)!"
+		exit 5343
+	fi
 fi
 
 # 2.6.0 CDAF Solution property support, with environment variable override.

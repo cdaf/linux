@@ -133,11 +133,11 @@ export CDAF_CORE="${AUTOMATIONROOT}/remote"
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
 	if [ -f "$directoryName/CDAF.solution" ]; then
-		SOLUTIONROOT="$directoryName"
+		export SOLUTIONROOT="$directoryName"
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
-	SOLUTIONROOT="$AUTOMATIONROOT/solution"
+	export SOLUTIONROOT="$AUTOMATIONROOT/solution"
 	solutionMessage="$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 else
 	solutionMessage="$SOLUTIONROOT ($SOLUTIONROOT/CDAF.solution found)"
@@ -339,10 +339,15 @@ fi
 
 # Properties generator (added in release 1.7.8, extended to list in 1.8.11, moved from build to pre-process 1.8.14), added container tasks 2.4.0
 echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-for packageDir in $(echo "./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
-	if [ -d  "${packageDir}" ]; then
-		echo "  removed ${packageDir}"
-		rm -rf ${packageDir}
+for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
+	if [ -d  "${packageArtefact}" ]; then
+		echo "  removed ${packageArtefact}"
+		rm -rf ${packageArtefact}
+	else
+		if [ -f  "${packageArtefact}" ]; then
+			echo "  removed ${packageArtefact}"
+			rm -f ${packageArtefact}
+		fi
 	fi
 done
 echo

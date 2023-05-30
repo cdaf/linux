@@ -86,8 +86,8 @@ else
 fi 
 
 # Load TargetlessCD environment variable
-export WORK_SPACE $(pwd)
-export WORKSPACE = "$(WORK_SPACE)\$WORK_DIR_DEFAULT"
+export WORK_SPACE=$(pwd)
+export WORKSPACE="${WORK_SPACE}\${WORK_DIR_DEFAULT}"
 echo "[$scriptName]   pwd              : ${WORK_SPACE}"
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"

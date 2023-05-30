@@ -58,14 +58,14 @@ else
     echo "[$scriptName] registryTags    : $registryTags (can be space separated list)"
 fi
 
-registryToken=$5
+registryToken=$4
 if [ -z "$registryToken" ]; then
 	echo "[$scriptName] registryToken   : (not supplied, login will not be attempted)"
 else
 	echo "[$scriptName] registryToken   : $(MASKED $registryToken) (MASKED)"
 fi
 
-registryUser=$6
+registryUser=$5
 if [ -z "$registryUser" ]; then
 	registryUser='.'
 	echo "[$scriptName] registryUser    : $registryUser (default)"
@@ -73,7 +73,7 @@ else
 	echo "[$scriptName] registryUser    : $registryUser"
 fi
 
-registryURL=$7
+registryURL=$6
 if [ -z "$registryURL" ]; then
 	echo "[$scriptName] registryURL     : (not supplied, do not set when pushing to Dockerhub)"
 else

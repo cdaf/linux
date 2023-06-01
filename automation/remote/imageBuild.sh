@@ -94,9 +94,9 @@ if [ ! -z "$CDAF_REGISTRY_USER" ]; then
 	registryUser="$CDAF_REGISTRY_USER"
 	echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (loaded from environment variable)"
 else
-	cdafRegUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
-	if [ ! -z "$cdafRegUser" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $cdafRegUser (loaded from manifest.txt)"
+	registryUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
+	if [ ! -z "$registryUser" ]; then
+		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (loaded from manifest.txt)"
 	else
 		registryUser='.'
 		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (default)"
@@ -116,14 +116,15 @@ else
 fi
 
 if [ ! -z "$CDAF_REGISTRY_TAG" ]; then
-	registryTag="$CDAF_REGISTRY_TAG"
-	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from environment variable, supports space separated list)"
+	registryTags="$CDAF_REGISTRY_TAG"
+	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (loaded from environment variable, supports space separated list)"
 else
-	registryTag=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
-	if [ ! -z "$registryTag" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTag (loaded from manifest.txt, supports space separated list)"
+	registryTags=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
+	if [ ! -z "$registryTags" ]; then
+		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (loaded from manifest.txt, supports space separated list)"
 	else
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = (not supplied, supports space separated list)"
+		registryTags='latest'
+		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (default, supports space separated list)"
 	fi
 fi
 
@@ -208,9 +209,9 @@ else
 			echo; echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"; echo
 		else
 			dockerLogin
-			for registryTag in ${registryTag}; do
-				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${registryTag}"
-				executeExpression "docker push ${registryTag}"
+			for tag in ${registryTags}; do
+				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${tag}"
+				executeExpression "docker push ${tag}"
 			done
 		fi
 	fi

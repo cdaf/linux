@@ -132,7 +132,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 		containerDeploy=$(getProp 'manifest.txt' 'containerDeploy')
 		REVISION=$(getProp 'manifest.txt' 'REVISION')
 	
-		# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.ps1 to support 2.4.0 functionality
+		# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.sh to support 2.4.0 functionality
 		if [ -z "${containerDeploy}" ]; then
 			containerDeploy='${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"'
 			echo "[$scriptName]   containerDeploy  : $containerDeploy (Default)"

@@ -56,7 +56,7 @@ Default task definitions, these can be overridden using deployScriptOverride or 
 	tasksRunLocal.tsk
 	tasksRunRemote.tsk
 
-For an empty solution, the automation/cdEmulate.sh should run successfully and simply create a zip file with the remote deployment wrapper and helper scripts. Transform.ps1 utility can be used to load all defined properties or detokenise a settings file.
+For an empty solution, the automation/cdEmulate.sh should run successfully and simply create a zip file with the remote deployment wrapper and helper scripts. Transform.sh utility can be used to load all defined properties or detokenise a settings file.
 
 Optional sub-directories of /solution
 
@@ -128,7 +128,7 @@ Executed from the current host, i.e. the build server or agent, and may connect 
 
 ## Feature Branch Environments
 
-Only available when using Git aware entry.ps1. If file feature-branch.properties is found in solution root, each matching branch name prefix will be deployed to the defined environment in the CI process. Example contents
+Only available when using Git aware entry.sh. If file feature-branch.properties is found in solution root, each matching branch name prefix will be deployed to the defined environment in the CI process. Example contents
 
     # Separate environments for features and bugs
     feature=DEV1

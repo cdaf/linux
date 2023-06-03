@@ -200,19 +200,22 @@ else
 				defaultBranch='master'
 			fi
 			if [ "$REVISION" != "$defaultBranch" ]; then
-				echo "Do not push feature branch, set pushFeatureBranch=yes to force push, clearing registryToken"; echo
-				unset registryToken
+				echo "defaultBranch = $defaultBranch"
+				echo "Do not push feature branch ($REVISION), set pushFeatureBranch=yes to force push."
+				skipPush='yes'
 			fi
 		fi
 
-		if [ -z "$registryToken" ]; then
-			echo; echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"; echo
-		else
-			dockerLogin
-			for tag in ${registryTags}; do
-				executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${tag}"
-				executeExpression "docker push ${tag}"
-			done
+		if [ "$skipPush" != 'yes' ]; then
+			if [ -z "$registryToken" ]; then
+				echo; echo "CDAF_REGISTRY_TOKEN not set, to push to registry set CDAF_REGISTRY_TAG, CDAF_REGISTRY_USER & CDAF_REGISTRY_TOKEN. Only set CDAF_REGISTRY_URL when not pushing to dockerhub"; echo
+			else
+				dockerLogin
+				for tag in ${registryTags}; do
+					executeExpression "docker tag ${id}_${image##*/}:$BUILDNUMBER ${tag}"
+					executeExpression "docker push ${tag}"
+				done
+			fi
 		fi
 	fi
 fi

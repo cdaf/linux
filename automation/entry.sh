@@ -81,7 +81,15 @@ else
 	if [[ $BRANCH == *'$'* ]]; then
 		BRANCH=$(eval echo $BRANCH)
 	fi
-	echo "[$scriptName]   BRANCH         : $BRANCH"
+	origRev="${BRANCH}"
+	BRANCH=${BRANCH##*/}                                    # strip to basename
+	BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $BRANCH)         # remove non-alphanumeric characters
+	BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]') # make case insensitive
+	if [ "${origRev}" != "${BRANCH}" ]; then
+		echo "[$scriptName]   BRANCH         : (cleansed from $origRev)"
+	else
+		echo "[$scriptName]   BRANCH         : $BRANCH"
+	fi
 fi
 
 ACTION="$3"

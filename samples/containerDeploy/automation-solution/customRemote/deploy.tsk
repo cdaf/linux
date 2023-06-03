@@ -1,1 +1,3 @@
-echo "Here we execute the CLI or REST deployment steps"
+echo "Here we execute the CLI or REST deployment steps, list the container capabilities"
+
+/solution/cdaf/remote/capabilities.sh

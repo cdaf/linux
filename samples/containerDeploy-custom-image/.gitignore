@@ -1,0 +1,18 @@
+# CDAF Working Directories and Files
+/buildnumber.counter
+/TasksLocal/
+/TasksRemote/
+/targetList
+/projectDirectories.txt
+/manifest.txt
+/projectListFile
+/storeFor_manifest.txt
+/storeForLocal_manifest.txt
+/storeForRemote_manifest.txt
+/projectsToBuild.txt
+/propertiesForLocalTasks/
+/propertiesForRemoteTasks/
+/propertiesForContainerTasks/
+/*.gz
+/release.sh
+/solution/

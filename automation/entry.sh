@@ -86,7 +86,7 @@ else
 	BRANCH=$(sed 's/[^[:alnum:]]\+//g' <<< $BRANCH)         # remove non-alphanumeric characters
 	BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]') # make case insensitive
 	if [ "${origRev}" != "${BRANCH}" ]; then
-		echo "[$scriptName]   BRANCH         : (cleansed from $origRev)"
+		echo "[$scriptName]   BRANCH         : $BRANCH (cleansed from $origRev)"
 	else
 		echo "[$scriptName]   BRANCH         : $BRANCH"
 	fi

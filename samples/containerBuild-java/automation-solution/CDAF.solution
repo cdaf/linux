@@ -1,6 +1,6 @@
 # This file defines the automation root along with CD emulator value (solutionName)
 artifactPrefix=0.1
 productName=My Product Using Container Build
-solutionName=cb
+solutionName=cb-java
 containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
-containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+containerImage=ubuntu:20.04

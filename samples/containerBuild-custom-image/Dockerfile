@@ -7,6 +7,7 @@ FROM ${CONTAINER_IMAGE}
 WORKDIR /solution
 
 # Only copy the scripts required
+COPY automation automation
 COPY automation-solution/bootstrapAgent.sh .
 RUN ./bootstrapAgent.sh
 

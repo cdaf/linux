@@ -33,12 +33,8 @@ else
 fi
 echo "[$scriptName]  pwd    : $(pwd)"
 
-echo "[$scriptName] Download latest from GitHub"; echo
-executeExpression "export CDAF_INSTALL_PATH=/opt/cdaf"
-executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
-
 echo "[$scriptName] Add any provisioning needed here"; echo
-executeExpression "$atomicPath/remote/capabilities.sh"
+executeExpression "./automation/remote/capabilities.sh"
 
 echo; echo "[$scriptName] --- end ---"
 

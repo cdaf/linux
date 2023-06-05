@@ -26,6 +26,9 @@ fi
 
 echo
 for dirname in $dirlist; do
+	echo;echo "---------------------"
+	echo "   $dirname"
+	echo "---------------------"; echo
 	executeExpression "cd $dirname"
 	executeExpression "../../automation/cdEmulate.sh"
 	executeExpression "cd .."

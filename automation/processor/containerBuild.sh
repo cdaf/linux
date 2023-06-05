@@ -67,8 +67,6 @@ absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$CDAF_AUTOMATION_ROOT" != "$absolute" ]]; then
 		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
-		executeExpression "    rm -rf ./automation"
-		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT}"
@@ -76,7 +74,6 @@ if [ -d "$absolute" ]; then
 else
 	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
 		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
-		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT     : ${CDAF_AUTOMATION_ROOT}"
@@ -113,6 +110,13 @@ if [ ! -z "$imageName" ]; then
 	echo "[$scriptName]   hostname            : $(hostname)"
 	echo "[$scriptName]   whoami              : $(whoami)"
 
+	echo; echo "[$scriptName] Prepare image..."
+
+	if [ $cleanupCDAF == 'yes' ]; then
+		executeExpression "    rm -rf ./automation"
+		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
+	fi
+
 	imageTag=0
 	for tag in $(docker images --filter label=cdaf.${buildImage}.image.version --format "{{.Tag}}"); do
 		if [ "${tag}" != '<none>' ]; then
@@ -122,11 +126,41 @@ if [ ! -z "$imageName" ]; then
 			fi
 		fi
 	done
-	echo "imageTag      : $imageTag"
+	echo "[$scriptName]    imageTag      : $imageTag"
 	newTag=$((${imageTag} + 1))
-	echo "newTag        : $newTag"
-	
-	executeExpression "cat Dockerfile"
+	echo "[$scriptName]    newTag        : $newTag"
+
+	if [ -f './Dockerfile' ]; then
+		executeExpression "cat Dockerfile"
+	else
+
+# Cannot indent heredoc
+(
+cat <<-EOF
+# DOCKER-VERSION 1.2.0
+ARG CONTAINER_IMAGE
+FROM \${CONTAINER_IMAGE}
+
+# Copy solution, provision and then build
+WORKDIR /solution
+
+# Prepare for non-root build
+ARG userName
+ARG userID
+RUN adduser \$userName --uid \$userID --disabled-password --gecos ""
+# RUN adduser \$userName --uid \$userID # CentOS
+RUN chown \$userName:\$userName -R /solution
+USER \$userName
+
+# Move to subdirectory for build, i.e. /solution/workspace
+WORKDIR /solution/workspace
+
+CMD ["sleep", "infinity"]
+
+EOF
+) | tee ./Dockerfile
+
+	fi	
 	
 	if [ -z "$cdafVersion" ]; then
 		cdafVersion=$newTag

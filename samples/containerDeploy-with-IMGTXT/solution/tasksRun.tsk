@@ -1,5 +1,9 @@
+echo "   cURL = $(IFS=' ' read -ra ADDR <<< $(curl --version 2>&1); echo ${ADDR[1]})"
+
+ls -al
+
 echo "Download an image"
-curl -s -O $uri
+curl -s -O "$uri"
 
 echo "Write image to Log"
 IMGTXT $filename

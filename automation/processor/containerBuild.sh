@@ -133,6 +133,7 @@ if [ ! -z "$imageName" ]; then
 	if [ -f './Dockerfile' ]; then
 		executeExpression "cat Dockerfile"
 	else
+		cleanDefaultDockerfile='yes'
 
 # Cannot indent heredoc
 (
@@ -147,9 +148,7 @@ WORKDIR /solution
 # Prepare for non-root build
 ARG userName
 ARG userID
-RUN adduser \$userName --uid \$userID --disabled-password --gecos ""
-# RUN adduser \$userName --uid \$userID # CentOS
-RUN chown \$userName:\$userName -R /solution
+RUN userdel -f \$(id -nu \$userID) ; adduser \$userName --uid \$userID --disabled-password --gecos "" && chown \$userName -R /solution
 USER \$userName
 
 # Move to subdirectory for build, i.e. /solution/workspace
@@ -233,8 +232,12 @@ EOF
 		executeExpression "docker rm $exitedContainers"
 	fi
 
-	if [[ "$cleanupCDAF" == 'yes' ]]; then
+	if [ "$cleanupCDAF" == 'yes' ]; then
 		executeExpression "rm -rf $absolute"
+	fi
+
+	if [ "$cleanDefaultDockerfile" == 'yes' ]; then
+		executeExpression "rm -f ./Dockerfile"
 	fi
 fi
 

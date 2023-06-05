@@ -82,10 +82,18 @@ FROM \${CONTAINER_IMAGE}
 # Copy solution, provision and then build
 WORKDIR /solution
 
+# Prepare for non-root deploy
+ARG userName
+ARG userID
+RUN userdel -f \$(id -nu \$userID) ; adduser \$userName --uid \$userID --disabled-password --gecos ""
+
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/
 WORKDIR /solution/deploy
 ADD deploy.tar.gz .
+
+RUN chown \$userName -R /solution
+USER \$userName
 
 # Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run
 CMD ["./deploy.sh", "\${ENVIRONMENT}"]

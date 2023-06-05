@@ -191,9 +191,9 @@ else
 				echo 'ARG CONTAINER_IMAGE' >> ./Dockerfile
 				echo 'FROM ${CONTAINER_IMAGE}' >> ./Dockerfile
 				echo 'WORKDIR /solution' >> ./Dockerfile
-				echo 'COPY * .' >> ./Dockerfile
+				echo 'COPY * ./TaskLocal/' >> ./Dockerfile
 				if [ -f 'deploy.sh' ]; then
-					echo 'CMD ["./deploy.sh", "IMMUTABLE"]' >> ./Dockerfile
+					echo 'CMD ["./TaskLocal/deploy.sh", "IMMUTABLE"]' >> ./Dockerfile
 				fi
 				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
 				if [ -f 'keepAlive.sh' ]; then

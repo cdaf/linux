@@ -192,14 +192,12 @@ else
 				echo 'FROM ${CONTAINER_IMAGE}' >> ./Dockerfile
 				echo 'WORKDIR /solution' >> ./Dockerfile
 				echo 'COPY * .' >> ./Dockerfile
-				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
-
 				if [ -f 'deploy.sh' ]; then
-					echo 'CMD ["../deploy.sh", "LINUX"]' >> ./Dockerfile
-				elif [ -f 'keepAlive.sh' ]; then
-					echo 'CMD ["../keepAlive.sh", "TARGETLESS"]' >> ./Dockerfile
-				else
-					echo 'CMD ["sleep", "infinity"]' >> ./Dockerfile
+					echo 'CMD ["./deploy.sh", "IMMUTABLE"]' >> ./Dockerfile
+				fi
+				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
+				if [ -f 'keepAlive.sh' ]; then
+					echo 'CMD ["../keepAlive.sh"]' >> ./Dockerfile
 				fi
 			fi
 

@@ -1,0 +1,16 @@
+solutionName=imagebuild-minimal
+artifactPrefix=0.1
+
+constructor=TasksLocal
+buildImage=cdaf/linux
+
+# Base Image from Private Registry
+# CDAF_PULL_REGISTRY_URL=registry.gitlab.com
+# CDAF_PULL_REGISTRY_USER=.
+# CDAF_PULL_REGISTRY_TOKEN=$env:GITLAB_REGISTRY_PAT
+
+# push to registry (exclude URL for DockerHub)
+# CDAF_REGISTRY_URL=myregistry.io/repo
+# CDAF_REGISTRY_TAG=${CDAF_REGISTRY_URL}/${SOLUTION}:$BUILDNUMBER
+# CDAF_REGISTRY_USER=.
+# CDAF_REGISTRY_TOKEN=${ACCESS_TOKEN}

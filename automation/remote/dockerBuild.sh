@@ -219,6 +219,25 @@ if [ "$version" != 'dockerfile' ]; then
 	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
 fi
 
+# 2.6.1 Default Dockerfile for containerBuild
+if [ ! -f './Dockerfile' ]; then
+	echo; echo "[$scriptName] .\Dockerfile not found, creating default"; echo
+
+# Cannot indent heredoc
+(
+cat <<-EOF
+# DOCKER-VERSION 1.2.0
+# Allow override of image as environment variable
+ARG CONTAINER_IMAGE
+FROM \${CONTAINER_IMAGE}
+
+WORKDIR /solution/workspace
+
+CMD ["sleep", "infinity"]
+EOF
+) | tee ./Dockerfile
+fi
+
 echo
 export PROGRESS_NO_TRUNC='1'
 executeExpression "$buildCommand ."

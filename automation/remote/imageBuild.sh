@@ -179,16 +179,36 @@ else
 			else
 				echo "[WARN] CDAF not found in $CDAF_AUTOMATION_ROOT"
 			fi
-			if [ -f "../dockerBuild.sh" ]; then
-				executeExpression "cp ../dockerBuild.sh ${transient}"
-			else
-				executeExpression "cp $CDAF_AUTOMATION_ROOT/remote/dockerBuild.sh ${transient}"
-			fi
+
 			executeExpression "cp -r ${image}/** ${transient}"
 			executeExpression "cd ${transient}"
-			executeExpression "cat Dockerfile"
+
+			# 2.6.1 Default Dockerfile for imageBuild
+			if [ ! -f './Dockerfile' ]; then
+				echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
+
+				echo '# DOCKER-VERSION 1.2.0' > ./Dockerfile
+				echo 'ARG CONTAINER_IMAGE' >> ./Dockerfile
+				echo 'FROM ${CONTAINER_IMAGE}' >> ./Dockerfile
+				echo 'WORKDIR /solution' >> ./Dockerfile
+				echo 'COPY * .' >> ./Dockerfile
+				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
+
+				if [ -f 'deploy.sh' ]; then
+					echo 'CMD ["../deploy.sh", "LINUX"]' >> ./Dockerfile
+				elif [ -f 'keepAlive.sh' ]; then
+					echo 'CMD ["../keepAlive.sh", "TARGETLESS"]' >> ./Dockerfile
+				else
+					echo 'CMD ["sleep", "infinity"]' >> ./Dockerfile
+				fi
+			fi
+
+			echo "--- Dockerfile ---"    ; echo
+			cat ./Dockerfile
+			echo; echo "--- Dockerfile ---"     ; echo
+
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
-			executeExpression "./dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
+			executeExpression "${CDAF_CORE}/dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
 			executeExpression "cd $imagebuild_workspace"
 		done
 

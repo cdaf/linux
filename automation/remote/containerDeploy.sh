@@ -67,10 +67,10 @@ fi
 export WORKSPACE=$(pwd)
 echo "[$scriptName]   pwd         : $WORKSPACE"
 
+# 2.6.1 Prepare the image build directory and Dockerfile
 if [ ! -d "$imageDir" ]; then
-	echo; echo "[$scriptName] $imageDir does not exist, creating default using CDAF image"; echo
-	executeExpression "mkdir $imageDir"
-	echo
+	echo; echo "[$scriptName] $imageDir does not exist, creating $(mkdir $imageDir), with default Dockerfile"; echo
+
 # Cannot indent heredoc
 (
 cat <<-EOF

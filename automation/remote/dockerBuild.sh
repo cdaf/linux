@@ -88,6 +88,18 @@ else
 	echo "[$scriptName]  userID                   : $userID"
 fi
 
+getProp="${CDAF_CORE}/getProperty.sh"
+
+# 2.6.0 Image from Private Registry
+manifest="${WORKSPACE}/manifest.txt"
+if [ ! -f "$manifest" ]; then
+	manifest="${SOLUTIONROOT}/CDAF.solution"
+	if [ ! -f "$manifest" ]; then
+		echo "[$scriptName] Properties not found in ${WORKSPACE}\manifest.txt or ${manifest}!"
+		exit 1114
+	fi
+fi
+
 baseImage=$7
 if [ ! -z "$baseImage" ]; then
 	if [ ! -z "$CONTAINER_IMAGE" ]; then
@@ -100,19 +112,19 @@ else
 		baseImage="$CONTAINER_IMAGE"
 		echo "[$scriptName]  baseImage                : $baseImage (loaded from environment variable CONTAINER_IMAGE)"
 	else
-		echo "[$scriptName]  baseImage                : (not supplied)"
-	fi
-fi
 
-getProp="${CDAF_CORE}/getProperty.sh"
-
-# 2.6.0 Image from Private Registry
-manifest="${WORKSPACE}/manifest.txt"
-if [ ! -f "$manifest" ]; then
-	manifest="${SOLUTIONROOT}/CDAF.solution"
-	if [ ! -f "$manifest" ]; then
-		echo "[$scriptName] Properties not found in ${WORKSPACE}\manifest.txt or ${manifest}!"
-		exit 1114
+		# If an explicit image is not defined, perform implicit cascading load
+		baseImage=$(eval "echo $(${getProp} "${manifest}" "runtimeImage")")
+		if [ ! -z "$baseImage" ]; then
+			echo "[$scriptName]  baseImage                : $baseImage (not supplied, using runtimeImage property)"
+		else
+			baseImage=$(eval "echo $(${getProp} "${manifest}" "containerImage")")
+			if [ ! -z "$runtimeImage" ]; then
+				echo "[$scriptName]  baseImage                : $baseImage (not supplied, using containerImage property)"
+			else
+				echo "[$scriptName]  baseImage                : (baseImage not supplied or determined, hardcoded image required in Dockerfile)"
+			fi
+		fi
 	fi
 fi
 

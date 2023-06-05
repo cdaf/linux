@@ -1,5 +1,5 @@
 solutionName=targetless-cd
 
-constructor=TasksLocal
-containerImage=docker.io/library/python:latest
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage $constructor
+# Do not set containerImage or containerBuild will be triggered
+buildImage=docker.io/library/python:latest
+runtimeImage=docker.io/cdaf/linux:latest

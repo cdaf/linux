@@ -2,8 +2,20 @@
 
 Execute function test without deploying a target, instead, perform test in docker-compose environment.
 
-## imageBuild
+This leverages two key featues of imageBuild
 
-Used to create the target image to be tested
+## Post Build & Package Image Build
 
+Triggered from the CDAF.solution property
 
+    buildImage=docker.io/library/python:latest
+
+This launches the default construction process. After the Build and Package is complete, the customer Dockerfile is placed in Taskslocal, this is used to construct the deliverable image.
+
+## Build All Images
+
+At deploy time, the `compose.tsk` calls imageBuild without specifying an image or constructor, this triggers a build of each subdirectory
+
+### Default Image
+
+A base image is not supplied, so `dockerBuild` will attempt to derive from the `runtimeImage` property.

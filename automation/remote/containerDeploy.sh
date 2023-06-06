@@ -85,7 +85,8 @@ WORKDIR /solution
 # Prepare for non-root deploy
 ARG userName
 ARG userID
-RUN userdel -f \$(id -nu \$userID) ; adduser \$userName --uid \$userID --disabled-password --gecos ""
+RUN user=$(id -nu 1000 2>/dev/null || exit 0) ; if [ ! -z "$user" ]; then userdel -f $user ; fi
+RUN adduser \$userName --uid \$userID --disabled-password --gecos "" && chown \$userName -R /solution
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/

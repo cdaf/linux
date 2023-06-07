@@ -148,8 +148,14 @@ WORKDIR /solution
 # Prepare for non-root build
 ARG userName
 ARG userID
-RUN user=$(id -nu 1000 2>/dev/null || exit 0) ; if [ ! -z "$user" ]; then userdel -f $user ; fi
-RUN adduser \$userName --uid \$userID --disabled-password --gecos "" && chown \$userName -R /solution
+
+RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
+	if [ ! -z "\$user" ]; then \\
+		userdel -f \$user ; \\
+	fi ;  \\
+	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
+	chown \$userName -R /solution
+
 USER \$userName
 
 # Move to subdirectory for build, i.e. /solution/workspace

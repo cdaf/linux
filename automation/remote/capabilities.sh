@@ -84,16 +84,23 @@ else
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[2]}
 	echo "  git              : $test"
-fi	
+fi
 
 test="`curl --version 2>&1`"
 if [ $? -ne 0 ]; then
 	echo "  curl             : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "  curl             : $test"
-fi	
+	echo "  curl             : ${ADDR[1]}"
+fi
+
+test="`jq --version 2>&1`"
+if [ $? -ne 0 ]; then
+	echo "  jq               : (not installed)"
+else
+	IFS='-' read -ra ADDR <<< $test
+	echo "  jq               : ${ADDR[1]}"
+fi
 
 # Java version lists to standard error
 test="`java -version 2>&1`"
@@ -103,16 +110,15 @@ else
 	IFS=' ' read -ra ADDR <<< $test
 	IFS='"' read -ra ADDR <<< ${ADDR[2]}
 	echo "  java             : $(echo -e "${ADDR[@]}" | tr -d '[[:space:]]')"
-fi	
+fi
 
 test="`javac -version 2>&1`"
 if [ $? -ne 0 ]; then
 	echo "  javac            : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "  javac            : $test"
-fi	
+	echo "  javac            : ${ADDR[1]}"
+fi
 
 # Ant version lists to standard error
 test="`ant -version 2>&1`"
@@ -120,17 +126,15 @@ if [ $? -ne 0 ]; then
 	echo "  ant              : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[3]}
-	echo "  ant              : $test"
-fi	
+	echo "  ant              : ${ADDR[3]}"
+fi
 
 test=$(mvn -version 2>&1)
 if [ $? -ne 0 ]; then
 	echo "  mvn              : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[2]}
-	echo "  mvn              : $test"
+	echo "  mvn              : ${ADDR[2]}"
 fi
 
 test=$(docker --version 2>&1)
@@ -167,7 +171,7 @@ if [ $? -ne 0 ]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "  python           : ${ADDR[1]}"
-fi	
+fi
 
 # PIP version lists to standard error
 test="`pip --version 2>&1`"
@@ -175,9 +179,8 @@ if [ $? -ne 0 ]; then
 	echo "  pip              : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "  pip              : $test"
-fi	
+	echo "  pip              : ${ADDR[1]}"
+fi
 
 # Python version lists to standard error
 test="`python3 --version 2>&1`"
@@ -185,9 +188,8 @@ if [ $? -ne 0 ]; then
 	echo "  python3          : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "  python3          : $test"
-fi	
+	echo "  python3          : ${ADDR[1]}"
+fi
 
 # PIP version lists to standard error
 test="`pip3 --version 2>&1`"
@@ -196,7 +198,7 @@ if [ $? -ne 0 ]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "  pip3             : ${ADDR[1]}"
-fi	
+fi
 
 # Ansible components
 test=$(ansible-playbook --version 2>/dev/null)
@@ -204,8 +206,8 @@ if [ -z "$test" ]; then
 	echo "  ansible-playbook : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
-	echo "  ansible-playbook : ${ADDR[1]}"
-fi	
+	echo "  ansible-playbook : ${ADDR[-1]%]}"
+fi
 
 # Ruby
 test="`ruby --version 2>&1`"
@@ -214,7 +216,7 @@ if [ $? -ne 0 ]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "  ruby             : ${ADDR[1]}"
-fi	
+fi
 
 # Puppet
 test="`puppet --version 2>&1`"
@@ -222,7 +224,7 @@ if [ $? -ne 0 ]; then
 	echo "  puppet           : (not installed)"
 else
 	echo "  puppet           : $test"
-fi	
+fi
 
 # NodeJS components
 test=$(node --version 2>/dev/null)
@@ -230,7 +232,7 @@ if [ -z "$test" ]; then
 	echo "  NodeJS           : (not installed)"
 else
 	echo "  NodeJS           : ${test##*v}"
-fi	
+fi
 
 # Node Package Manager
 test=$(npm -version 2>/dev/null)
@@ -238,7 +240,7 @@ if [ -z "$test" ]; then
 	echo "  npm              : (not installed)"
 else
 	echo "  npm              : $test"
-fi	
+fi
 
 # process manager for Node.js
 test=$(pm2 --version 2>/dev/null)
@@ -246,7 +248,7 @@ if [ -z "$test" ]; then
 	echo "  pm2              : (not installed)"
 else
 	echo "  pm2              : $test"
-fi	
+fi
 
 # process manager for Node.js "nodemon reload, automatically"
 test=$(nodemon --version 2>/dev/null)
@@ -254,7 +256,7 @@ if [ -z "$test" ]; then
 	echo "  nodemon          : (not installed)"
 else
 	echo "  nodemon          : $test"
-fi	
+fi
 
 # dotnet core
 test=$(dotnet --version 2>/dev/null)

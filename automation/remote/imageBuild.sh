@@ -25,7 +25,8 @@ function MASKED {
 scriptName='imageBuild.sh'
 imagebuild_workspace=$(pwd)
 
-# example: imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${runtimeImage} TasksLocal registry.example.org/${SOLUTION}:${BUILDNUMBER}
+# Default call process is : ${CDAF_CORE}/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${buildImage} ${LOCAL_WORK_DIR}
+# an example call to build all child directories (non-recursive) : ${CDAF_CORE}/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} ${buildImage}
 echo; echo "[$scriptName] --- start ---"
 id=$1
 if [ -z $id ]; then
@@ -183,17 +184,24 @@ else
 			executeExpression "cp -r ${image}/** ${transient}"
 			executeExpression "cd ${transient}"
 
+			# 2.6.2 Check and remove default dockerfile, i.e. after previously failed build
+			if [[ $(cat './Dockerfile' 2> /dev/null | grep 'CDAF Default Dockerfile') ]]; then
+				echo; echo "[$scriptName] default dockerfile found, removing..."
+				executeExpression "rm './Dockerfile'"
+			fi
+
 			# 2.6.1 Default Dockerfile for imageBuild
 			if [ ! -f './Dockerfile' ]; then
 				echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
 
 				echo '# DOCKER-VERSION 1.2.0' > ./Dockerfile
+				echo '# CDAF Default Dockerfile' > ./Dockerfile
 				echo 'ARG CONTAINER_IMAGE' >> ./Dockerfile
 				echo 'FROM ${CONTAINER_IMAGE}' >> ./Dockerfile
 				echo 'WORKDIR /solution' >> ./Dockerfile
-				echo 'COPY * ./TaskLocal/' >> ./Dockerfile
-				if [ -f 'deploy.sh' ]; then
-					echo 'CMD ["./TaskLocal/deploy.sh", "IMMUTABLE"]' >> ./Dockerfile
+				echo 'COPY ./ ./TasksLocal/' >> ./Dockerfile
+				if [ -f 'delivery.sh' ]; then
+					echo 'RUN ./TasksLocal/delivery.sh IMMUTABLE' >> ./Dockerfile
 				fi
 				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
 				if [ -f 'keepAlive.sh' ]; then

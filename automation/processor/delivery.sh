@@ -52,6 +52,7 @@ if [ -z "$WORK_DIR_DEFAULT" ]; then
 fi 
 echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 export CDAF_CORE="$(pwd)/${WORK_DIR_DEFAULT}"
+echo "[$scriptName]   CDAF_CORE        : $CDAF_CORE"
 
 SOLUTION="$5"
 if [[ $SOLUTION == *'$'* ]]; then

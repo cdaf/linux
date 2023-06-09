@@ -1,10 +1,14 @@
 solutionName=myproduct
 # productName=My Product Name
 
-# containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
-# containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+# Global Error handling additional diagnostics
 # CDAF_ERROR_DIAG=df
 
+# Build process within a container
+# containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+# containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
+
+# Immutable image based on the build artefacts
 # constructor=TasksLocal
 # runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
 # imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor

@@ -44,7 +44,6 @@ scriptName='entry.sh'
 
 echo; echo "[$scriptName] ---------- start ----------"
 AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
-echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
 
 BUILDNUMBER="$1"
@@ -70,8 +69,10 @@ if [ -z "$BRANCH" ]; then
 		BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 		if [ -z "${BRANCH}" ]; then
 			BRANCH='targetlesscd'
+			echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
+		else
+			echo "[$scriptName]   BRANCH         : $BRANCH (not passed, retrieved from Git workspace)"
 		fi
-		echo "[$scriptName]   BRANCH         : $BRANCH (not passed, set to default)"
 	else
 		BRANCH="$CDAF_BRANCH_NAME"
 		skipBranchCleanup='yes'
@@ -95,17 +96,19 @@ fi
 ACTION="$3"
 echo "[$scriptName]   ACTION         : $ACTION"
 
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
-		SOLUTIONROOT="$directoryName"
+		SOLUTIONROOT="$( cd "$directoryName" && pwd )"
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
 	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurance of this file." 7610
 else
-	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
+	echo "$SOLUTIONROOT"
 fi
 
 echo; echo "[$scriptName] Load Solution Properties $SOLUTIONROOT/CDAF.solution"
@@ -140,7 +143,7 @@ echo "[$scriptName]   pwd            : $workspace"
 echo "[$scriptName]   hostname       : $(hostname)"
 echo "[$scriptName]   whoami         : $(whoami)"; echo
 
-executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh '$BUILDNUMBER' '$BRANCH' '$ACTION'"
+executeExpression "$AUTOMATIONROOT/processor/buildPackage.sh \"$BUILDNUMBER\" \"$BRANCH\" \"$ACTION\""
 
 if [ -z "$defaultBranch" ]; then
 	defaultBranch='master'

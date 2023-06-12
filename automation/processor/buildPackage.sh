@@ -133,10 +133,6 @@ function executeIgnore {
 # Entry point for building projects and packaging solution. 
 scriptName='buildPackage.sh'
 
-echo; echo "[$scriptName] ===================================="
-echo "[$scriptName] Continuous Integration (CI) Starting"
-echo "[$scriptName] ===================================="
-
 # Processed out of order as needed for solution determination
 AUTOMATIONROOT="$5"
 if [ -z $AUTOMATIONROOT ]; then
@@ -171,13 +167,22 @@ while read -r line; do
 done < <(echo "$manifest")
 
 BUILDNUMBER="$1"
-if [[ $BUILDNUMBER == *'$'* ]]; then
-	BUILDNUMBER=$(eval echo $BUILDNUMBER)
-fi
 if [ -z $BUILDNUMBER ]; then
-	ERRMSG "[BUILDNULL] Build Number not passed!" 5921
+	# Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
+	if [ -f "${HOME}/buildnumber.counter" ]; then
+		let "BUILDNUMBER=$(cat ${HOME}/buildnumber.counter)"
+	else
+		let "BUILDNUMBER=0"
+	fi
+	if [ "$caseinsensitive" != "cdonly" ]; then
+		let "BUILDNUMBER=$BUILDNUMBER + 1"
+	fi
+	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
+	echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
+else
+	BUILDNUMBER=$(eval echo $BUILDNUMBER)
+	echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 fi
-echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 
 REVISION="$2"
 if [[ $REVISION == *'$'* ]]; then
@@ -517,7 +522,7 @@ fi
 
 # CDAF 1.7.0 Container Build process
 if [ ! -z "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
-	echo; echo "[$scriptName] Execute container build ${defaultCBProcess}..."
+	echo; echo "[$scriptName] Execute container build ${defaultCBProcess}..."; echo
 	executeExpression "$containerBuild"
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then

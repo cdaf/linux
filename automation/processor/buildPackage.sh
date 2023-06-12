@@ -448,10 +448,10 @@ else
 		else
 			test=$(docker --version 2>&1)
 			if [ $? -ne 0 ]; then
-				if [ ! -z $env:CDAF_DOCKER_REQUIRED ]; then
+				if [ ! -z $CDAF_DOCKER_REQUIRED ]; then
 					echo ; echo "[$scriptName] CDAF Container Features Set ..."
 					for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
-					ERRMSG "[DOCKEREQ] Docker service not installed, but `$env:CDAF_DOCKER_REQUIRED = ${env:CDAF_DOCKER_REQUIRED}, so halting!" 8911
+					ERRMSG "[DOCKER_NOT_INSTALLED] Docker service not installed, but CDAF_DOCKER_REQUIRED = ${CDAF_DOCKER_REQUIRED}, so halting!" 8911
 				else
 					loggingList+=("[$scriptName]   Docker                    : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively")
 					unset containerBuild
@@ -464,27 +464,25 @@ else
 				# Test Docker is running
 				test=$(docker images 2>&1)
 				if [ "$?" != "0" ]; then
-					if [ ! -z $env:CDAF_DOCKER_REQUIRED ]; then
-						loggingList+=("[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)")
-					else
+					loggingList+=("[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start")
+					if [ $(whoami) != 'root' ];then
+						elevate='sudo'
+					fi
+					executeExpression "$elevate service docker start"
+					executeExpression "$elevate service docker status"
+					docker images
+					exitCode=$?
+					if [ $exitCode -eq 0 ]; then
 						loggingList+=("[$scriptName]   Docker                    : ${ADDR[0]}")
-		
-
-						unset containerBuild
-						unset imageBuild
 					else
-						loggingList+=("[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start")
-						if [ $(whoami) != 'root' ];then
-							elevate='sudo'
-						fi
-						executeExpression "$elevate service docker start"
-						executeExpression "$elevate service docker status"
-						docker images
-						exitCode=$?
-						if [ $exitCode -ne 0 ]; then
+						if [ ! -z $CDAF_DOCKER_REQUIRED ]; then
 							echo ; echo "[$scriptName] CDAF Container Features Set ..."
 							for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
-							ERRMSG "[DOCKERSTART] Docker installed and running, but inaccessible. Halting.") $exitCode
+							ERRMSG "[DOCKER_NOT_STARTING] Docker service not installed but cannot be started, CDAF_DOCKER_REQUIRED = ${CDAF_DOCKER_REQUIRED}, so halting!" 8912
+						else
+							loggingList+=("[$scriptName]   Docker                    : ${ADDR[0]} (Docker service not installed but cannot be started, will attempt to run natively)")
+							unset containerBuild
+							unset imageBuild
 						fi
 					fi
 				fi

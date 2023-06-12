@@ -1,13 +1,32 @@
 #!/usr/bin/env bash
 
+
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
+function ERRMSG {
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][ERRMSG][WARN] $1"
+	else
+		echo; echo "[$scriptName][ERRMSG][ERROR] $1"
+	fi
+	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
+		echo "[$scriptName][ERRMSG]   Invoke custom diag CDAF_ERROR_DIAG = '$CDAF_ERROR_DIAG'"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName][ERRMSG] Exit with LASTEXITCODE = $2" ; echo
+		exit $2
+	fi
+}
+
 function executeExpression {
-	echo "$1"
-	eval $1
+	echo "[$scriptName] $1"
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
-		exit $exitCode
+		ERRMSG "$EXECUTABLESCRIPT returned $exitCode" $exitCode
 	fi
 }
 
@@ -114,10 +133,6 @@ function executeIgnore {
 # Entry point for building projects and packaging solution. 
 scriptName='buildPackage.sh'
 
-echo; echo "[$scriptName] ===================================="
-echo "[$scriptName] Continuous Integration (CI) Starting"
-echo "[$scriptName] ===================================="
-
 # Processed out of order as needed for solution determination
 AUTOMATIONROOT="$5"
 if [ -z $AUTOMATIONROOT ]; then
@@ -152,13 +167,22 @@ while read -r line; do
 done < <(echo "$manifest")
 
 BUILDNUMBER="$1"
-if [[ $BUILDNUMBER == *'$'* ]]; then
-	BUILDNUMBER=$(eval echo $BUILDNUMBER)
-fi
 if [ -z $BUILDNUMBER ]; then
-	echo "[$scriptName] Build Number not passed! Exiting with code 1"; exit 5921
+	# Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
+	if [ -f "${HOME}/buildnumber.counter" ]; then
+		let "BUILDNUMBER=$(cat ${HOME}/buildnumber.counter)"
+	else
+		let "BUILDNUMBER=0"
+	fi
+	if [ "$caseinsensitive" != "cdonly" ]; then
+		let "BUILDNUMBER=$BUILDNUMBER + 1"
+	fi
+	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
+	echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER (not passed, using local counterfile ${HOME}/buildnumber.counter)"
+else
+	BUILDNUMBER=$(eval echo $BUILDNUMBER)
+	echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 fi
-echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 
 REVISION="$2"
 if [[ $REVISION == *'$'* ]]; then
@@ -186,8 +210,7 @@ if [ -z $SOLUTION ]; then
 	SOLUTION=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
-		exit $exitCode
+		ERRMSG "[SOLUTIONFAILED] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode" $exitCode
 	fi
 	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 else
@@ -213,17 +236,12 @@ else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
 
-# 2.5.5 default error diagnostic command as solution property
-if [ -z "$CDAF_ERROR_DIAG" ]; then
-	export CDAF_ERROR_DIAG=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_ERROR_DIAG")
-	if [ -z "$CDAF_ERROR_DIAG" ]; then
-		echo "[$scriptName]   CDAF_ERROR_DIAG : (not set or defined in $SOLUTIONROOT/CDAF.solution)"
-	else
-		echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG (defined in $SOLUTIONROOT/CDAF.solution)"
-	fi
-else
-	echo "[$scriptName]   CDAF_ERROR_DIAG : $CDAF_ERROR_DIAG"
-fi
+export WORKSPACE="$(pwd)"
+echo "[$scriptName]   pwd             : ${WORKSPACE}"
+echo "[$scriptName]   hostname        : $(hostname)"
+echo "[$scriptName]   whoami          : $(whoami)"
+
+echo "[$scriptName]   CDAF Version    : $(${CDAF_CORE}/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
 
 printf "[$scriptName]   Pre-build Task  : "
 prebuildTasks="$SOLUTIONROOT/prebuild.tsk"
@@ -241,21 +259,12 @@ else
 	echo "none ($postbuild)"
 fi
 
-export WORKSPACE="$(pwd)"
-echo "[$scriptName]   pwd             : ${WORKSPACE}"
-echo "[$scriptName]   hostname        : $(hostname)"
-echo "[$scriptName]   whoami          : $(whoami)"
+#---------------------------------------------------------------------
+# Configuration Management transformation only if not within container
+#---------------------------------------------------------------------
+if [[ "$ACTION" != 'container_build' ]]; then
 
-echo "[$scriptName]   CDAF Version    : $(${CDAF_CORE}/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")"
-
-#--------------------------------------------------------------------------
-# Do not load and log containerBuild properties when executing in container
-#--------------------------------------------------------------------------
-
-if [[ "$ACTION" == 'container_build' ]]; then
-	echo; echo "[$scriptName] \$ACTION = $ACTION, Executing build in container..."; echo
-else
-
+	# Properties generator (added in release 1.7.8, extended to list in 1.8.11, moved from build to pre-process 1.8.14), added container tasks 2.4.0
 	configManagementList=$(find $SOLUTIONROOT -mindepth 1 -maxdepth 1 -type f -name "*.cm")
 	if [ -z "$configManagementList" ]; then
 		echo "[$scriptName]   CM Driver       : none ($SOLUTIONROOT/*.cm)"
@@ -273,121 +282,6 @@ else
 			echo "[$scriptName]   PV Driver       : $propertiesDriver"
 		done
 	fi
-
-	# 1.6.7 Do not load and log incompatible properties for Container Build process
-	containerBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
-
-	# Support for image as an environment variable, do not overwrite if already set
-	containerImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
-	if [ ! -z "$containerImage" ]; then
-		if [ -z $CONTAINER_IMAGE ]; then
-			export CONTAINER_IMAGE="$containerImage"
-			echo "[$scriptName]   CONTAINER_IMAGE : $CONTAINER_IMAGE (set to \$containerImage)"
-		else
-			echo "[$scriptName]   containerImage  : $containerImage"
-			echo "[$scriptName]   CONTAINER_IMAGE : $CONTAINER_IMAGE (not changed as already set)"
-		fi
-
-		# 2.6.1 default containerBuild process
-		if [ -z "$containerBuild" ]; then
-			containerBuild='"$AUTOMATIONROOT/processor/containerBuild.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"'
-			defaultCBProcess='(default) '
-		fi
-	else
-		echo "[$scriptName]   containerImage  : (not defined in $SOLUTIONROOT/CDAF.solution)"
-	fi
-
-	if [ -z "$containerBuild" ]; then
-		echo "[$scriptName]   containerBuild  : (not defined in $SOLUTIONROOT/CDAF.solution)"
-	else
-		echo "[$scriptName]   containerBuild  : $containerBuild $defaultCBProcess"
-	fi
-
-	# 2.2.0 Image Build as incorperated function
-	buildImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "buildImage")
-	imageBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "imageBuild")
-	if [ ! -z "$buildImage" ]; then
-		echo "[$scriptName]   buildImage      : $buildImage"
-		# 2.6.1 imageBuild mimimum configuration, with default process
-		if [ -z "$imageBuild" ]; then
-			imageBuild='"${CDAF_CORE}/imageBuild.sh" "${SOLUTION}_${REVISION}" "${BUILDNUMBER}" "${buildImage}" "${LOCAL_WORK_DIR}"'
-			defaultIBProcess='(default) '
-		fi
-	else
-		echo "[$scriptName]   buildImage      : (not defined in $SOLUTIONROOT/CDAF.solution)"
-	fi
-
-	if [ -z "$imageBuild" ]; then
-		echo "[$scriptName]   imageBuild      : (not defined in $SOLUTIONROOT/CDAF.solution)"
-	else
-		echo "[$scriptName]   imageBuild      : $imageBuild $defaultIBProcess"
-	fi
-
-	#---------------------------------------------------------------------
-	# Properties Loaded, perform container execution validation steps
-	#---------------------------------------------------------------------
-	if [ ! -z "$containerBuild" ] || [ ! -z "$imageBuild" ]; then
-		# 2.5.5 support conditional containerBuild based on environment variable
-		if [ ! -z $CDAF_SKIP_CONTAINER_BUILD ] || [[ "$ACTION" == 'skip_container_build' ]]; then
-			echo; echo "[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ..."; echo
-			unset containerBuild
-			unset imageBuild
-		else
-			test=$(docker --version 2>&1)
-			if [ $? -ne 0 ]; then
-				echo "[$scriptName]   Docker          : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively"
-				unset containerBuild
-				unset imageBuild
-			else
-				IFS=' ' read -ra ADDR <<< $test
-				IFS=',' read -ra ADDR <<< ${ADDR[2]}
-				echo "[$scriptName]   Docker          : ${ADDR[0]}"
-				# Test Docker is running
-				test=$(docker images 2>&1)
-				if [ "$?" != "0" ]; then
-					dockerRequiredProp=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
-					if [ -z "$CDAF_DOCKER_REQUIRED" ] && [ -z "$dockerRequiredProp" ]; then
-						echo "[$scriptName] Docker installed but not running, will attempt to execute natively (set CDAF_DOCKER_REQUIRED if docker is mandatory)"
-						unset containerBuild
-						unset imageBuild
-					else
-						echo "[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start"
-						if [ $(whoami) != 'root' ];then
-							elevate='sudo'
-						fi
-						executeExpression "$elevate service docker start"
-						executeExpression "$elevate service docker status"
-						docker images
-						exitCode=$?
-						if [ $exitCode -ne 0 ]; then
-							echo "[$scriptName] Docker installed and running, but inaccessible. Halting."
-							exit $exitCode
-						fi
-					fi
-				fi
-			fi
-		fi
-	fi
-fi
-
-#-------------------------------------------------------------------------------------
-# Property loading and logging complete, start Configuration Management transformation
-#-------------------------------------------------------------------------------------
-
-if [[ "$ACTION" != 'container_build' ]]; then
-	# Properties generator (added in release 1.7.8, extended to list in 1.8.11, moved from build to pre-process 1.8.14), added container tasks 2.4.0
-	echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-	for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
-		if [ -d  "${packageArtefact}" ]; then
-			echo "  removed ${packageArtefact}"
-			rm -rf ${packageArtefact}
-		else
-			if [ -f  "${packageArtefact}" ]; then
-				echo "  removed ${packageArtefact}"
-				rm -f ${packageArtefact}
-			fi
-		fi
-	done
 
 	# Process table with properties as fields and environments as rows, 2.4.0 extend for propertiesForContainerTasks
 	for propertiesDriver in $configManagementList; do
@@ -421,10 +315,194 @@ if [[ "$ACTION" != 'container_build' ]]; then
 			i+=1
 		done
 	done
+
+	echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+	for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
+		if [ -d  "${packageArtefact}" ]; then
+			echo "  removed ${packageArtefact}"
+			rm -rf ${packageArtefact}
+		else
+			if [ -f  "${packageArtefact}" ]; then
+				echo "  removed ${packageArtefact}"
+				rm -f ${packageArtefact}
+			fi
+		fi
+	done
 fi
 
 #--------------------------------------------------------------------------
-# Configuration Management transformation complete, now start build process
+# 2.6.2 Only log system variables if set
+#--------------------------------------------------------------------------
+loggingList=()
+
+# 2.5.5 default error diagnostic command as solution property
+if [ -z "$CDAF_ERROR_DIAG" ]; then
+	export CDAF_ERROR_DIAG=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_ERROR_DIAG")
+	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
+		loggingList+=("[$scriptName]   CDAF_ERROR_DIAG     : $CDAF_ERROR_DIAG (defined in $SOLUTIONROOT/CDAF.solution)")
+	fi
+else
+	loggingList+=("[$scriptName]   CDAF_ERROR_DIAG     : $CDAF_ERROR_DIAG")
+fi
+
+if [ -z "$CDAF_IGNORE_WARNING" ]; then
+	export CDAF_IGNORE_WARNING=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_IGNORE_WARNING")
+	if [ ! -z "$CDAF_IGNORE_WARNING" ]; then
+		loggingList+=("[$scriptName]   CDAF_IGNORE_WARNING : $CDAF_IGNORE_WARNING (defined in $SOLUTIONROOT/CDAF.solution)")
+	fi
+else
+	loggingList+=("[$scriptName]   CDAF_IGNORE_WARNING : $CDAF_IGNORE_WARNING")
+fi
+
+if [ -z "$CDAF_OVERRIDE_TOKEN" ]; then
+	export CDAF_OVERRIDE_TOKEN=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_OVERRIDE_TOKEN")
+	if [ ! -z "$CDAF_OVERRIDE_TOKEN" ]; then
+		loggingList+=("[$scriptName]   CDAF_OVERRIDE_TOKEN : $CDAF_OVERRIDE_TOKEN (defined in $SOLUTIONROOT/CDAF.solution)")
+	fi
+else
+	loggingList+=("[$scriptName]   CDAF_OVERRIDE_TOKEN : $CDAF_OVERRIDE_TOKEN")
+fi
+
+if [ ! -z "$loggingList" ];then
+	echo; echo "[$scriptName] CDAF System Variables Set ..."
+	for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
+fi
+
+#--------------------------------------------------------------------------
+# Do not load and log containerBuild properties when executing in container
+#--------------------------------------------------------------------------
+if [[ "$ACTION" == 'container_build' ]]; then
+
+	echo ; echo "[$scriptName] ACTION = $ACTION, Executing build in container..."
+
+else
+
+	#--------------------------------------------------------------------------
+	# 2.6.2 Only log container properties if set
+	#--------------------------------------------------------------------------
+	loggingList=()
+
+	if [ -z "$CDAF_SKIP_CONTAINER_BUILD" ]; then
+		export CDAF_SKIP_CONTAINER_BUILD=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_SKIP_CONTAINER_BUILD")
+		if [ ! -z "$CDAF_SKIP_CONTAINER_BUILD" ]; then
+			loggingList+=("[$scriptName]   CDAF_SKIP_CONTAINER_BUILD : $CDAF_SKIP_CONTAINER_BUILD (defined in $SOLUTIONROOT/CDAF.solution)")
+		fi
+	else
+		loggingList+=("[$scriptName]   CDAF_SKIP_CONTAINER_BUILD : $CDAF_SKIP_CONTAINER_BUILD")
+	fi
+
+	if [ -z "$CDAF_DOCKER_REQUIRED" ]; then
+		export CDAF_DOCKER_REQUIRED=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
+		if [ ! -z "$CDAF_DOCKER_REQUIRED" ]; then
+			loggingList+=("[$scriptName]   CDAF_DOCKER_REQUIRED      : $CDAF_DOCKER_REQUIRED (defined in $SOLUTIONROOT/CDAF.solution)")
+		fi
+	else
+		loggingList+=("[$scriptName]   CDAF_DOCKER_REQUIRED      : $CDAF_DOCKER_REQUIRED")
+	fi
+
+	# 1.6.7 Do not load and log incompatible properties for Container Build process
+	containerBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerBuild")
+
+	# Support for image as an environment variable, do not overwrite if already set
+	containerImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "containerImage")
+	if [ ! -z "$containerImage" ]; then
+		if [ -z $CONTAINER_IMAGE ]; then
+			export CONTAINER_IMAGE="$containerImage"
+			loggingList+=("[$scriptName]   CONTAINER_IMAGE           : $CONTAINER_IMAGE (set to \$containerImage)")
+		else
+			loggingList+=("[$scriptName]   containerImage            : $containerImage")
+			loggingList+=("[$scriptName]   CONTAINER_IMAGE           : $CONTAINER_IMAGE (not changed as already set)")
+		fi
+
+		# 2.6.1 default containerBuild process
+		if [ -z "$containerBuild" ]; then
+			containerBuild='"$AUTOMATIONROOT/processor/containerBuild.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"'
+			defaultCBProcess='(default) '
+		fi
+	fi
+
+	if [ ! -z "$containerBuild" ]; then
+		loggingList+=("[$scriptName]   containerBuild            : $containerBuild $defaultCBProcess")
+	fi
+
+	# 2.2.0 Image Build as incorperated function
+	buildImage=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "buildImage")
+	imageBuild=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "imageBuild")
+	if [ ! -z "$buildImage" ]; then
+		loggingList+=("[$scriptName]   buildImage                : $buildImage")
+		# 2.6.1 imageBuild mimimum configuration, with default process
+		if [ -z "$imageBuild" ]; then
+			imageBuild='"${CDAF_CORE}/imageBuild.sh" "${SOLUTION}_${REVISION}" "${BUILDNUMBER}" "${buildImage}" "${LOCAL_WORK_DIR}"'
+			defaultIBProcess='(default) '
+		fi
+	fi
+
+	if [ ! -z "$imageBuild" ]; then
+		loggingList+=("[$scriptName]   imageBuild                : $imageBuild $defaultIBProcess")
+	fi
+
+	#---------------------------------------------------------------------
+	# Properties Loaded, perform container execution validation steps
+	#---------------------------------------------------------------------
+	if [ ! -z "$containerBuild" ] || [ ! -z "$imageBuild" ]; then
+		# 2.5.5 support conditional containerBuild based on environment variable
+		if [ ! -z $CDAF_SKIP_CONTAINER_BUILD ] || [[ "$ACTION" == 'skip_container_build' ]]; then
+			loggingList+=("[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ...")
+			unset containerBuild
+			unset imageBuild
+		else
+			test=$(docker --version 2>&1)
+			if [ $? -ne 0 ]; then
+				if [ ! -z $CDAF_DOCKER_REQUIRED ]; then
+					echo ; echo "[$scriptName] CDAF Container Features Set ..."
+					for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
+					ERRMSG "[DOCKER_NOT_INSTALLED] Docker service not installed, but CDAF_DOCKER_REQUIRED = ${CDAF_DOCKER_REQUIRED}, so halting!" 8911
+				else
+					loggingList+=("[$scriptName]   Docker                    : containerBuild defined in $SOLUTIONROOT/CDAF.solution, but Docker not installed, will attempt to execute natively")
+					unset containerBuild
+					unset imageBuild
+				fi
+			else
+				IFS=' ' read -ra ADDR <<< $test
+				IFS=',' read -ra ADDR <<< ${ADDR[2]}
+				loggingList+=("[$scriptName]   Docker                    : ${ADDR[0]}")
+				# Test Docker is running
+				test=$(docker images 2>&1)
+				if [ "$?" != "0" ]; then
+					loggingList+=("[$scriptName] Docker installed but not running, CDAF_DOCKER_REQUIRED is set so will try and start")
+					if [ $(whoami) != 'root' ];then
+						elevate='sudo'
+					fi
+					executeExpression "$elevate service docker start"
+					executeExpression "$elevate service docker status"
+					docker images
+					exitCode=$?
+					if [ $exitCode -eq 0 ]; then
+						loggingList+=("[$scriptName]   Docker                    : ${ADDR[0]}")
+					else
+						if [ ! -z $CDAF_DOCKER_REQUIRED ]; then
+							echo ; echo "[$scriptName] CDAF Container Features Set ..."
+							for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
+							ERRMSG "[DOCKER_NOT_STARTING] Docker service not installed but cannot be started, CDAF_DOCKER_REQUIRED = ${CDAF_DOCKER_REQUIRED}, so halting!" 8912
+						else
+							loggingList+=("[$scriptName]   Docker                    : ${ADDR[0]} (Docker service not installed but cannot be started, will attempt to run natively)")
+							unset containerBuild
+							unset imageBuild
+						fi
+					fi
+				fi
+			fi
+		fi
+	fi
+
+	if [ ! -z "$loggingList" ];then
+		echo; echo "[$scriptName] CDAF Container Features Set ..."
+		for ((i = 0; i < ${#loggingList[@]}; ++i)); do echo "${loggingList[$i]}"; done
+	fi
+fi
+
+#--------------------------------------------------------------------------
+# Start build process
 #--------------------------------------------------------------------------
 
 # 2.4.4 Pre-Build Tasks, exclude from container_build to avoid performing twice
@@ -438,14 +516,13 @@ if [ -f $prebuildTasks ] && [ "$ACTION" != 'container_build' ]; then
 	${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
-		echo "[$scriptName] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
-		exit $exitCode
+		ERRMSG "[PREBUILD_FAILURE] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
 	fi
 fi
 
 # CDAF 1.7.0 Container Build process
 if [ ! -z "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
-	echo; echo "[$scriptName] Execute container build ${defaultCBProcess}..."
+	echo; echo "[$scriptName] Execute container build ${defaultCBProcess}..."; echo
 	executeExpression "$containerBuild"
 else
 	if [ "$caseinsensitive" == "packageonly" ]; then
@@ -454,9 +531,7 @@ else
 		$AUTOMATIONROOT/buildandpackage/buildProjects.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo
-			echo "[$scriptName] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\". Halt with exit code = $exitCode. "
-			exit $exitCode
+			ERRMSG "[BUILD_PROJECT] Project(s) Build Failed! $AUTOMATIONROOT/buildandpackage/buildProjects.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$ACTION\"." $exitCode
 		fi
 	fi
 
@@ -472,8 +547,7 @@ else
 		${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
-			exit $exitCode
+			ERRMSG "[POSTBUILD_FAIL] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
 		fi
 	fi
 
@@ -493,9 +567,7 @@ else
 		$AUTOMATIONROOT/buildandpackage/package.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo
-			echo "[$scriptName] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\". Halt with exit code = $exitCode."
-			exit $exitCode
+			ERRMSG "[PACKAGE_FAIL] Solution Package Failed! $AUTOMATIONROOT/buildandpackage/package.sh \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$REMOTE_WORK_DIR\" \"$ACTION\"." $exitCode
 		fi
 	fi
 fi

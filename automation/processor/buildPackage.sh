@@ -283,6 +283,19 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		done
 	fi
 
+	echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+	for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
+		if [ -d  "${packageArtefact}" ]; then
+			echo "  removed ${packageArtefact}"
+			rm -rf ${packageArtefact}
+		else
+			if [ -f  "${packageArtefact}" ]; then
+				echo "  removed ${packageArtefact}"
+				rm -f ${packageArtefact}
+			fi
+		fi
+	done
+
 	# Process table with properties as fields and environments as rows, 2.4.0 extend for propertiesForContainerTasks
 	for propertiesDriver in $configManagementList; do
 		echo; echo "[$scriptName] Generating properties files from ${propertiesDriver}"
@@ -314,19 +327,6 @@ if [[ "$ACTION" != 'container_build' ]]; then
 			fi
 			i+=1
 		done
-	done
-
-	echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
-	for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
-		if [ -d  "${packageArtefact}" ]; then
-			echo "  removed ${packageArtefact}"
-			rm -rf ${packageArtefact}
-		else
-			if [ -f  "${packageArtefact}" ]; then
-				echo "  removed ${packageArtefact}"
-				rm -f ${packageArtefact}
-			fi
-		fi
 	done
 fi
 

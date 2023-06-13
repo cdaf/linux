@@ -63,8 +63,7 @@ fi
 # 2.6.0 CDAF Solution property support, with environment variable override.
 registryTags=$3
 if [ ! -z "$registryTags" ]; then
-	registryTags='latest'
-    echo "[$scriptName] registryTags    : $registryTags (default, supports space separated list)"
+    echo "[$scriptName] registryTags    : $registryTags"
 else
 	if [ ! -z "$CDAF_PUSH_REGISTRY_TAG" ]; then
 		registryTags="$CDAF_PUSH_REGISTRY_TAG"

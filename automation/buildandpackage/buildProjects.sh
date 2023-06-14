@@ -21,7 +21,7 @@ else
 	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
-REVISION="$3"
+export REVISION="$3"
 if [ -z "$REVISION" ]; then
 	REVISION="Revision"
 	echo "[$scriptName]   REVISION       : $REVISION (default)"
@@ -49,28 +49,33 @@ else
 fi
 
 # Look for automation root definition
-AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
-echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
-
-AUTOMATIONHELPER="$AUTOMATIONROOT/remote"
+if [ ! -z "$AUTOMATIONROOT" ]; then
+	echo "$AUTOMATIONROOT (environment variable)"
+else
+	export AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
+	echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
-for directoryName in $(find $(pwd) -mindepth 1 -maxdepth 1 -type d); do
-	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
-		SOLUTIONROOT="$directoryName"
-	fi
-done
-
-if [ -z ${SOLUTIONROOT+x} ]; then
-	SOLUTIONROOT="$AUTOMATIONROOT/solution"
-	echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
+if [ ! -z "$SOLUTIONROOT" ]; then
+	echo "$SOLUTIONROOT (environment variable)"
 else
-	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
+	for directoryName in $(find $(pwd) -mindepth 1 -maxdepth 1 -type d); do
+		if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
+			export SOLUTIONROOT="$directoryName"
+		fi
+	done
+	if [ -z ${SOLUTIONROOT+x} ]; then
+		export SOLUTIONROOT="$AUTOMATIONROOT/solution"
+		echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
+	else
+		echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
+	fi
 fi
 
 if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
-	propertiesList=$($AUTOMATIONHELPER/transform.sh "$SOLUTIONROOT/CDAF.solution")
+	propertiesList=$("$CDAF_CORE/transform.sh" "$SOLUTIONROOT/CDAF.solution")
 	echo; echo "$propertiesList"
 	eval $propertiesList
 else
@@ -79,11 +84,6 @@ fi
 
 if [ -f "build.sh" ]; then
 	echo; echo "[$scriptName] build.sh found in solution root, executing in $(pwd)"; echo
-	# Additional properties that are not passed as arguments, but loaded by execute automatically
-	echo "PROJECT=$PROJECT" > ./solution.properties
-	echo "REVISION=$REVISION" >> ./solution.properties
-	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
-	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
 	./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
@@ -95,15 +95,10 @@ fi
 if [ -f "build.tsk" ]; then
 
 	echo; echo "[$scriptName] build.tsk found in solution root, executing in $(pwd)"; echo
-	# Additional properties that are not passed as arguments, explicit load is required
-	echo "PROJECT=$PROJECT" > ./solution.properties
-	echo "REVISION=$REVISION" >> ./solution.properties
-	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ./solution.properties
-	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
-	$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
+	"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
+		echo "[$scriptName] Linear deployment activity ($CDAF_CORE/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi
@@ -141,10 +136,8 @@ else
 			exit $exitCode
 		fi
 
-		# Additional properties that are not passed as arguments, but loaded by execute automatically, to use in build.sh, explicit load is required		
-		echo "PROJECT=${projectName}" >> ../build.properties
-		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
-		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
+		# Additional properties that are not passed as arguments, but loaded as environment variables		
+		export PROJECT="${projectName}"
 
 		if [ -f "build.sh" ]; then
 		
@@ -157,11 +150,10 @@ else
 			
 		else
 						
-			echo "REVISION=$REVISION" >> ../build.properties
-			$AUTOMATIONHELPER/execute.sh "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
+			"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 			exitCode=$?
 			if [ $exitCode -ne 0 ]; then
-				echo "[$scriptName] Linear deployment activity ($AUTOMATIONHELPER/execute.sh $SOLUTION $BUILDNUMBER $projectName build.tsk) failed! Returned $exitCode"
+				echo "[$scriptName] Linear deployment activity ($CDAF_CORE/execute.sh $SOLUTION $BUILDNUMBER $projectName build.tsk) failed! Returned $exitCode"
 				exit $exitCode
 			fi
 		fi

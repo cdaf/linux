@@ -4,3 +4,4 @@ productName=My Product Using Container Build
 solutionName=cb-custom-image
 containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 containerImage=ubuntu:20.04
+CDAF_DOCKER_REQUIRED=yes

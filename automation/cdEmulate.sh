@@ -146,7 +146,10 @@ if [ -z "$solutionName" ]; then
 fi
 
 if [ "$caseinsensitive" != "cdonly" ]; then
-	$ciProcess "$buildNumber" "$revision" "$ACTION"
+
+echo; echo "[$scriptName] Starting ${ciProcess}..."
+echo "[$scriptName] ------------------------------------------------------------"
+	"$ciProcess" "$buildNumber" "$revision" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		ERRMSG "[CI_FAILURE] CI Failed with exit code $exitCode! $ciProcess \"$buildNumber\" \"$revision\" \"$ACTION\"" $exitCode

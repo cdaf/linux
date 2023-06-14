@@ -15,36 +15,41 @@ scriptName='build.sh'
 echo;echo "[$scriptName] --- start ---"
 SOLUTION=$1
 if [ -z "$SOLUTION" ]; then
-	echo "[$scriptName] SOLUTION not supplied, exit with code 1."
+	echo "[$scriptName]   SOLUTION not supplied, exit with code 1."
 	exit 1
 else
-	echo "[$scriptName] SOLUTION      : $SOLUTION"
+	echo "[$scriptName]   SOLUTION       : $SOLUTION"
 fi
 
 BUILDNUMBER=$2
 if [ -z "$BUILDNUMBER" ]; then
-	echo "[$scriptName] BUILDNUMBER not supplied, exit with code 2."
+	echo "[$scriptName]   BUILDNUMBER not supplied, exit with code 2."
 	exit 2
 else
-	echo "[$scriptName] BUILDNUMBER   : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 REVISION=$3
 if [ -z "$REVISION" ]; then
-	echo "[$scriptName] REVISION      : (not supplied)"
+	echo "[$scriptName]   REVISION       : (not supplied)"
 else
-	echo "[$scriptName] REVISION      : $REVISION"
+	echo "[$scriptName]   REVISION       : $REVISION"
 fi
 
 ACTION=$4
 if [ -z "$ACTION" ]; then
-	echo "[$scriptName] ACTION        : (not supplied)"
+	echo "[$scriptName]   ACTION         : (not supplied)"
 else
-	echo "[$scriptName] ACTION        : $ACTION"
+	echo "[$scriptName]   ACTION         : $ACTION"
 fi
 
-echo; echo 'Disadvantage of a custom script is that the default variables, e.g. $AUTOMATIONROOT & $SOLUTIONROOT are not loaded,'
-echo 'Consider calling a custom script from a build.tsk and pass these as variables.'
+echo; echo 'List Environment Variables'
+echo "[$scriptName]   REVISION       = $REVISION"
+echo "[$scriptName]   PROJECT        = $PROJECT"
+echo "[$scriptName]   SOLUTIONROOT   = $SOLUTIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT = $AUTOMATIONROOT"
+echo "[$scriptName]   CDAF_CORE      = $CDAF_CORE"
+
 echo; echo 'Use executeExpression to replicate the build.tsk logging and exception handling'
 
 executeExpression 'echo "#!/usr/bin/env bash" > binary.sh'

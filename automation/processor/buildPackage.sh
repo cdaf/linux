@@ -141,6 +141,7 @@ if [ -z $AUTOMATIONROOT ]; then
 else
 	rootLogging="$AUTOMATIONROOT (passed)"
 fi
+export AUTOMATIONROOT="$AUTOMATIONROOT"
 export CDAF_AUTOMATION_ROOT="$AUTOMATIONROOT"
 export CDAF_CORE="${AUTOMATIONROOT}/remote"
 
@@ -159,12 +160,7 @@ else
 fi
 echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
 
-# Seed the global properties file, catering for files without a closing linefeed
-truncate -s 0 build.properties
 manifest=$(cat ${SOLUTIONROOT}/CDAF.solution)
-while read -r line; do
-   echo ${line} >> build.properties
-done < <(echo "$manifest")
 
 BUILDNUMBER="$1"
 if [ -z $BUILDNUMBER ]; then
@@ -508,9 +504,6 @@ fi
 # 2.4.4 Pre-Build Tasks, exclude from container_build to avoid performing twice
 if [ -f $prebuildTasks ] && [ "$ACTION" != 'container_build' ]; then
 	# Set properties for execution engine
-	echo "PROJECT=${projectName}" >> ../build.properties
-	echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
-	echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
 
 	echo; echo "Process Pre-Build Tasks ..."
 	${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prebuildTasks" "$ACTION" 2>&1
@@ -538,21 +531,12 @@ else
 	# 2.4.4 Process optional post build, pre-packaging tasks
 	if [ -f $postbuild ]; then
 
-		# Set properties for execution engine
-		echo "PROJECT=${projectName}" >> ../build.properties
-		echo "AUTOMATIONROOT=$AUTOMATIONROOT" >> ../build.properties
-		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ../build.properties
-
 		echo; echo "Process Post-Build Tasks ..."
 		${CDAF_CORE}/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postbuild" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 			ERRMSG "[POSTBUILD_FAIL] Linear deployment activity (${CDAF_CORE}/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode" $exitCode
 		fi
-	fi
-
-	if [ -f "build.properties" ]; then
-		executeExpression "rm -f build.properties"
 	fi
 
 	# 2.6.1 Process optional post build, pre-packaging process
@@ -656,6 +640,7 @@ if [ "$ACTION" != 'container_build' ]; then
 		fi
 	fi
 
+	echo; echo "[$scriptName] Clean Workspace..."
 	# CDAF 2.1.0 Self-extracting Script Artifact
 	if [ ! -z $artifactPrefix ]; then
 		executeIgnore "rm -rf TasksLocal"
@@ -665,7 +650,6 @@ if [ "$ACTION" != 'container_build' ]; then
 		done
 	fi
 
-	echo; echo "[$scriptName] Clean Workspace..."
 	executeIgnore "rm -rf propertiesForLocalTasks"
 	if [ -d "TasksRemote" ]; then
 		executeIgnore "rm -rf TasksRemote"
@@ -691,6 +675,7 @@ if [ "$ACTION" != 'container_build' ]; then
 	fi
 fi
 
+echo
 if [ -z $artifactPrefix ]; then
 	echo "[$scriptName] Continuous Integration (CI) Finished, use ./TasksLocal/delivery.sh <env> to perform deployment."
 else

@@ -368,42 +368,16 @@ fi
 TMPDIR=/tmp
 echo "[$scriptName]   TMPDIR      : $TMPDIR"
 
-# If this is a CI process, load temporary file as variables (implicit parameter passing) 
-# this is not required in the PowerShell version as variables are global
-if [ -f "../build.properties" ] ;then
-	echo; echo "[$scriptName] Load ../build.properties"; echo
-	propertiesList=$("${CDAF_CORE}/transform.sh" ../build.properties)
+# If this is a CI process, load temporary file as variables (implicit parameter passing) this is not required in the PowerShell version as variables are global
+if [ -f "predeploy.properties" ]; then
+	echo; echo "Load predeploy.properties ... "
+	propertiesList=$("${CDAF_CORE}/transform.sh" "predeploy.properties")
 	printf "$propertiesList"
 	eval $propertiesList
-	echo; echo
 else
-	# If not build, is it a package process?
-	if [ -f "./solution.properties" ] ;then
-		echo; echo "[$scriptName] Load ./solution.properties"; echo
-		eval $(cat ./solution.properties)
-		propertiesList=$("${CDAF_CORE}/transform.sh" ./solution.properties)
-		printf "$propertiesList"
-		eval $propertiesList
-		echo
-		rm ./solution.properties
-	else
-		# Neither build nor package, load target properties, i.e. it's either local or remote
-		if [ -f "predeploy.properties" ]; then
-			echo; echo "Load predeploy.properties ... "
-			propertiesList=$("${CDAF_CORE}/transform.sh" "predeploy.properties")
-			printf "$propertiesList"
-			eval $propertiesList
-		else
-			echo "[$scriptName]   predeploy   : (predeploy.properties not found, skipping)"
-		fi
-		echo
-		echo "Load Target (${TARGET}) Properties ..."
-		propertiesList=$("${CDAF_CORE}/transform.sh" "$TARGET")
-		printf "$propertiesList"
-		eval $propertiesList
-	fi
-	echo; echo
+	echo "[$scriptName]   predeploy   : (predeploy.properties not found, skipping)"
 fi
+echo
 
 # Process Task Execution
 executionList=$(< $TASKLIST)

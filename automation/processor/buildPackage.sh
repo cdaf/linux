@@ -193,6 +193,7 @@ if [ -z $REVISION ]; then
 else
 	echo "[$scriptName]   REVISION        : $REVISION"
 fi
+export REVISION="$REVISION"
 
 ACTION="$3"
 echo "[$scriptName]   ACTION          : $ACTION"

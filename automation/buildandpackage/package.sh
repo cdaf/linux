@@ -159,9 +159,7 @@ else
 
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then
-		echo; echo "Process Pre-Package Tasks ..."; echo
-		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./solution.properties
-		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
+		echo; echo "Process Pre-Package Tasks ..."
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
@@ -202,9 +200,7 @@ else
 
 	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
 	if [ -f $postpackageTasks ]; then
-		echo; echo "Process Post-Package Tasks ..."; echo
-		echo "AUTOMATIONROOT=$AUTOMATIONROOT" > ./solution.properties
-		echo "SOLUTIONROOT=$SOLUTIONROOT" >> ./solution.properties
+		echo; echo "Process Post-Package Tasks ..."
 		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then

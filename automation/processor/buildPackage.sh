@@ -190,6 +190,9 @@ else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
 
+# Use passed argument to determine if a value was passed or if a default was set and used above
+echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT"
+
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	directoryName=${i%%/}
@@ -220,9 +223,6 @@ if [ -z "$SOLUTION" ]; then
 	ERRMSG "[SOLUTION_NAME_NOT_SET] solutionName not found in $SOLUTIONROOT/CDAF.solution!" 1030
 fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
-
-# Use passed argument to determine if a value was passed or if a default was set and used above
-echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT"
 
 export WORKSPACE="$(pwd)"
 echo "[$scriptName]   pwd             : ${WORKSPACE}"
@@ -271,7 +271,7 @@ if [[ "$ACTION" != 'container_build' ]]; then
 		done
 	fi
 
-	echo; echo "[$scriptName] Remove working directories"; echo # perform explicit removal as rm -rfv is too verbose
+	echo; echo "[$scriptName] Remove Build Process Temporary files and directories"; echo # perform explicit removal as rm -rfv is too verbose
 	for packageArtefact in $(echo "manifest.txt ./propertiesForRemoteTasks ./propertiesForLocalTasks ./propertiesForContainerTasks"); do
 		if [ -d  "${packageArtefact}" ]; then
 			echo "  removed ${packageArtefact}"

@@ -49,8 +49,12 @@ fi
 echo; echo "[$scriptName] --------------------"
 echo "[$scriptName] Initialise Emulation"
 echo "[$scriptName] --------------------"
-echo "[$scriptName]   ACTION         : $ACTION"
-caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
+if [ -z "${CDAF_BRANCH_NAME}" ]; then
+	echo "[$scriptName]   ACTION         : (not supplied, options cionly, buildonly, packageonly or cdonly)"
+else
+	echo "[$scriptName]   ACTION         : $ACTION"
+	caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
+fi
 
 # Use a simple text file (${HOME}/BUILDNUMBER.counter) for incremental build number
 if [ -f "${HOME}/BUILDNUMBER.counter" ]; then
@@ -75,8 +79,9 @@ workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
 
 # Framework structure
-export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
+AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+CDAF_CORE="${AUTOMATIONROOT}/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
@@ -90,6 +95,16 @@ if [ -z "$SOLUTIONROOT" ]; then
 else
 	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
 fi
+
+SOLUTION=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "solutionName")
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	ERRMSG "[SOLUTION_NOT_FOUND] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed!" $exitCode
+fi
+if [ -z "$SOLUTION" ]; then
+	ERRMSG "[SOLUTION_NAME_NOT_SET] solutionName not found in $SOLUTIONROOT/CDAF.solution!" 1030
+fi
+echo "[$scriptName]   SOLUTION       : $SOLUTION (from CDAF.solution)"
 
 # If not set as an environment variablem, delivery properties Lookup values
 if [ -z "${CDAF_DELIVERY}" ]; then
@@ -110,7 +125,7 @@ if [ -f "$SOLUTIONROOT/buildPackage.sh" ]; then
 	cdProcess="$SOLUTIONROOT/buildPackage.sh"
 	echo "$ciProcess (override)"
 else
-	ciProcess="$AUTOMATIONROOT/processor/buildPackage.sh"
+	ciProcess="$AUTOMATIONROOT/ci.sh"
 	echo "$ciProcess (default)"
 fi
 
@@ -120,7 +135,7 @@ if [ -f "$SOLUTIONROOT/delivery.sh" ]; then
 	cdProcess="$SOLUTIONROOT/delivery.sh"
 	echo "$cdProcess (override)"
 else
-	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
+	artifactPrefix=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
 	if [ -z $artifactPrefix ]; then
 		cdProcess="$workDirLocal/delivery.sh"
 		echo "$cdProcess (default)"
@@ -130,24 +145,7 @@ else
 	fi
 fi
 
-# If a solution properties file exists, load the properties
-if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
-	echo
-	echo "[$scriptName] Load Solution Properties $SOLUTIONROOT/CDAF.solution"
-	propertiesList=$($AUTOMATIONROOT/remote/transform.sh "$SOLUTIONROOT/CDAF.solution")
-	echo "$propertiesList"
-	eval $propertiesList
-fi
-
-# If the Solution is not defined in the CDAF.solution file, do not attempt to derive, instead, throw error.
-if [ -z "$solutionName" ]; then
-	echo; echo "[$scriptName] solutionName not defined in $SOLUTIONROOT/CDAF.solution, exiting with code 3"; exit 3
-fi
-
 if [ "$caseinsensitive" != "cdonly" ]; then
-
-echo; echo "[$scriptName] Starting ${ciProcess}..."
-echo "[$scriptName] ------------------------------------------------------------"
 	"$ciProcess" "$BUILDNUMBER" "$REVISION" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then

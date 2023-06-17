@@ -56,9 +56,8 @@ workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
 
 # Framework structure
-automationRoot="$( cd "$(dirname "$0")" && pwd )"
-echo "[$scriptName]   automationRoot : $automationRoot"
-export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
+export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   solutionRoot   : "
@@ -111,7 +110,7 @@ if [ -f "$solutionRoot/buildPackage.sh" ]; then
 	cdProcess="$solutionRoot/buildPackage.sh"
 	echo "$ciProcess (override)"
 else
-	ciProcess="$automationRoot/processor/buildPackage.sh"
+	ciProcess="$AUTOMATIONROOT/processor/buildPackage.sh"
 	echo "$ciProcess (default)"
 fi
 
@@ -121,7 +120,7 @@ if [ -f "$solutionRoot/delivery.sh" ]; then
 	cdProcess="$solutionRoot/delivery.sh"
 	echo "$cdProcess (override)"
 else
-	artifactPrefix=$($automationRoot/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
+	artifactPrefix=$($AUTOMATIONROOT/remote/getProperty.sh "$solutionRoot/CDAF.solution" "artifactPrefix")
 	if [ -z $artifactPrefix ]; then
 		cdProcess="$workDirLocal/delivery.sh"
 		echo "$cdProcess (default)"
@@ -135,7 +134,7 @@ fi
 if [ -f "$solutionRoot/CDAF.solution" ]; then
 	echo
 	echo "[$scriptName] Load Solution Properties $solutionRoot/CDAF.solution"
-	propertiesList=$($automationRoot/remote/transform.sh "$solutionRoot/CDAF.solution")
+	propertiesList=$($AUTOMATIONROOT/remote/transform.sh "$solutionRoot/CDAF.solution")
 	echo "$propertiesList"
 	eval $propertiesList
 fi

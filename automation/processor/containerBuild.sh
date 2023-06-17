@@ -65,18 +65,18 @@ fi
 
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
-	if [[ "$CDAF_AUTOMATION_ROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
+	if [[ "$AUTOMATIONROOT" != "$absolute" ]]; then
+		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT}"
 	fi
 else
-	if [[ $CDAF_AUTOMATION_ROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT      : ${CDAF_AUTOMATION_ROOT} (copy to .\automation in workspace for docker)"
+	if [[ $AUTOMATIONROOT != $absolute ]]; then
+		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT     : ${CDAF_AUTOMATION_ROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT     : ${AUTOMATIONROOT}"
 	fi
 fi
 
@@ -88,13 +88,13 @@ if [ ! -z "$imageName" ]; then
 		fi
 	done
 	if [ -z $SOLUTIONROOT ]; then
-		SOLUTIONROOT="${CDAF_AUTOMATION_ROOT}/solution"
+		SOLUTIONROOT="${AUTOMATIONROOT}/solution"
 		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT (CDAF.solution not found, so using default)"
 	else
 		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT"
 	fi
 
-	SOLUTION=$($CDAF_AUTOMATION_ROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
+	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
@@ -114,7 +114,7 @@ if [ ! -z "$imageName" ]; then
 
 	if [ $cleanupCDAF == 'yes' ]; then
 		executeExpression "    rm -rf ./automation"
-		executeExpression "    cp -a $CDAF_AUTOMATION_ROOT ./automation"
+		executeExpression "    cp -a $AUTOMATIONROOT ./automation"
 	fi
 
 	imageTag=0

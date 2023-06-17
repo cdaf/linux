@@ -43,8 +43,7 @@ function ERRMSG {
 scriptName='entry.sh'
 
 echo; echo "[$scriptName] ---------- start ----------"
-AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
-export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
+export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 
 BUILDNUMBER="$1"
 if [ -z "$BUILDNUMBER" ]; then

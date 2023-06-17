@@ -57,15 +57,15 @@ else
 	fi
 fi
 
-if [ -z "$CDAF_AUTOMATION_ROOT" ]; then
-	CDAF_AUTOMATION_ROOT='./automation'
-	if [ ! -d "${CDAF_AUTOMATION_ROOT}" ]; then
-		CDAF_AUTOMATION_ROOT='../automation'
+if [ -z "$AUTOMATIONROOT" ]; then
+	AUTOMATIONROOT='./automation'
+	if [ ! -d "${AUTOMATIONROOT}" ]; then
+		AUTOMATIONROOT='../automation'
 	else
-		echo "[$scriptName]  CDAF_AUTOMATION_ROOT = $CDAF_AUTOMATION_ROOT (not set, using relative path)"
+		echo "[$scriptName]  AUTOMATIONROOT = $AUTOMATIONROOT (not set, using relative path)"
 	fi
 else
-	echo "[$scriptName]  CDAF_AUTOMATION_ROOT = $CDAF_AUTOMATION_ROOT"
+	echo "[$scriptName]  AUTOMATIONROOT = $AUTOMATIONROOT"
 fi
 
 # 2.6.0 Push Private Registry
@@ -175,10 +175,10 @@ else
 			echo "   ${image##*/}"
 			echo "------------------------"; echo
 			executeExpression "rm -rf ${transient}/**"
-			if [ -d "$CDAF_AUTOMATION_ROOT" ]; then
-				executeExpression "cp -r $CDAF_AUTOMATION_ROOT ${transient}"
+			if [ -d "$AUTOMATIONROOT" ]; then
+				executeExpression "cp -r $AUTOMATIONROOT ${transient}"
 			else
-				echo "[WARN] CDAF not found in $CDAF_AUTOMATION_ROOT"
+				echo "[WARN] CDAF not found in $AUTOMATIONROOT"
 			fi
 
 			executeExpression "cp -r ${image}/** ${transient}"

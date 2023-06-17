@@ -142,7 +142,6 @@ else
 	rootLogging="$AUTOMATIONROOT (passed)"
 fi
 export AUTOMATIONROOT="$AUTOMATIONROOT"
-export CDAF_AUTOMATION_ROOT="$AUTOMATIONROOT"
 export CDAF_CORE="${AUTOMATIONROOT}/remote"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
@@ -159,7 +158,7 @@ else
 	solutionMessage="$SOLUTIONROOT ($SOLUTIONROOT/CDAF.solution found)"
 fi
 echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
-
+export SOLUTIONROOT="$SOLUTIONROOT"
 manifest=$(cat ${SOLUTIONROOT}/CDAF.solution)
 
 BUILDNUMBER="$1"

@@ -6,8 +6,7 @@ scriptName='ci.sh'
 echo; echo "[     $scriptName     ] ============================================"
 echo "[     $scriptName     ] Continuous Integration (CI) Process Starting"
 echo "[     $scriptName     ] ============================================"
-AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
-export CDAF_AUTOMATION_ROOT=$AUTOMATIONROOT
+export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 
 BUILDNUMBER="$1"
 BRANCH="$2"

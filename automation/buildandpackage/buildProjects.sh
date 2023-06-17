@@ -49,17 +49,18 @@ else
 fi
 
 # Look for automation root definition
+printf "[$scriptName]   AUTOMATIONROOT : "
 if [ ! -z "$AUTOMATIONROOT" ]; then
-	echo "$AUTOMATIONROOT (environment variable)"
+	echo "$AUTOMATIONROOT (global variable)"
 else
 	export AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
-	echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+	echo "$AUTOMATIONROOT"
 fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
 if [ ! -z "$SOLUTIONROOT" ]; then
-	echo "$SOLUTIONROOT (environment variable)"
+	echo "$SOLUTIONROOT (global variable)"
 else
 	for directoryName in $(find $(pwd) -mindepth 1 -maxdepth 1 -type d); do
 		if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then

@@ -416,6 +416,7 @@ while read LINE; do
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
 		propldAction="${exprArray[2]}"
+                propFile=$(eval "echo \"$propFile\"")
 		if [ ! -f "$propFile" ]; then
 			ERRMSG "Properties file $propFile not found!" 3342
 		else

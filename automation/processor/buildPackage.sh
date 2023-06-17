@@ -134,32 +134,8 @@ function executeIgnore {
 scriptName='buildPackage.sh'
 
 # Processed out of order as needed for solution determination
-AUTOMATIONROOT="$5"
-if [ -z $AUTOMATIONROOT ]; then
-	AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
-	rootLogging="$AUTOMATIONROOT (derived from script path)"
-else
-	rootLogging="$AUTOMATIONROOT (passed)"
-fi
-export AUTOMATIONROOT="$AUTOMATIONROOT"
+export AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
 export CDAF_CORE="${AUTOMATIONROOT}/remote"
-
-# Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
-	directoryName=${i%%/}
-	if [ -f "$directoryName/CDAF.solution" ]; then
-		export SOLUTIONROOT="$directoryName"
-	fi
-done
-if [ -z "$SOLUTIONROOT" ]; then
-	export SOLUTIONROOT="$AUTOMATIONROOT/solution"
-	solutionMessage="$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
-else
-	solutionMessage="$SOLUTIONROOT ($SOLUTIONROOT/CDAF.solution found)"
-fi
-echo "[$scriptName]   SOLUTIONROOT    : $solutionMessage"
-export SOLUTIONROOT="$SOLUTIONROOT"
-manifest=$(cat ${SOLUTIONROOT}/CDAF.solution)
 
 BUILDNUMBER="$1"
 if [ -z $BUILDNUMBER ]; then
@@ -198,25 +174,7 @@ ACTION="$3"
 echo "[$scriptName]   ACTION          : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
-SOLUTION="$4"
-if [[ $SOLUTION == *'$'* ]]; then
-	SOLUTION=$(eval echo $SOLUTION)
-fi
-if [ -z $SOLUTION ]; then
-	SOLUTION=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
-	exitCode=$?
-	if [ "$exitCode" != "0" ]; then
-		ERRMSG "[SOLUTIONFAILED] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode" $exitCode
-	fi
-	echo "[$scriptName]   SOLUTION        : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
-else
-	echo "[$scriptName]   SOLUTION        : $SOLUTION"
-fi 
-
-# Use passed argument to determine if a value was passed or if a default was set and used above
-echo "[$scriptName]   AUTOMATIONROOT  : $rootLogging"
-
-LOCAL_WORK_DIR="$6"
+LOCAL_WORK_DIR="$4"
 if [ -z $LOCAL_WORK_DIR ]; then
 	LOCAL_WORK_DIR='TasksLocal'
 	echo "[$scriptName]   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR (default)"
@@ -224,13 +182,47 @@ else
 	echo "[$scriptName]   LOCAL_WORK_DIR  : $LOCAL_WORK_DIR"
 fi
 
-REMOTE_WORK_DIR="$7"
+REMOTE_WORK_DIR="$5"
 if [ -z $REMOTE_WORK_DIR ]; then
 	REMOTE_WORK_DIR='TasksRemote'
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR (default)"
 else
 	echo "[$scriptName]   REMOTE_WORK_DIR : $REMOTE_WORK_DIR"
 fi
+
+# Check for user defined solution folder, i.e. outside of automation root, if found override solution root
+for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
+	directoryName=${i%%/}
+	if [ -f "$directoryName/CDAF.solution" ]; then
+		export SOLUTIONROOT="$directoryName"
+	fi
+done
+if [ -z "$SOLUTIONROOT" ]; then
+	SOLUTIONROOT="$AUTOMATIONROOT/solution"
+	solutionMessage="(default, project directory containing CDAF.solution not found)"
+else
+	if [[ $SOLUTION == *'$'* ]]; then
+		SOLUTIONROOT=$(eval echo $SOLUTIONROOT)
+		solutionMessage="(found and evaluated from CDAF.solution)"
+	else
+		solutionMessage="(found CDAF.solution)"
+	fi
+fi
+export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
+echo "[$scriptName]   SOLUTIONROOT    : $SOLUTIONROOT $solutionMessage"
+
+export SOLUTION=$(${CDAF_CORE}/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
+exitCode=$?
+if [ "$exitCode" != "0" ]; then
+	ERRMSG "[SOLUTION_NOT_FOUND] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed!" $exitCode
+fi
+if [ -z "$SOLUTION" ]; then
+	ERRMSG "[SOLUTION_NAME_NOT_SET] solutionName not found in $SOLUTIONROOT/CDAF.solution!" 1030
+fi
+echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
+
+# Use passed argument to determine if a value was passed or if a default was set and used above
+echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT"
 
 export WORKSPACE="$(pwd)"
 echo "[$scriptName]   pwd             : ${WORKSPACE}"

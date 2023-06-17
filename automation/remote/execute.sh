@@ -44,7 +44,7 @@ function ERRMSG {
 		echo; echo "[$scriptName][ERRMSG][ERROR] $1"
 	fi
 	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
-		echo "[$scriptName][ERRMSG]   Invoke custom diag CDAF_ERROR_DIAG = '$CDAF_ERROR_DIAG'"; echo
+		echo; echo "[$scriptName][ERRMSG]   Invoke custom diag CDAF_ERROR_DIAG = '$CDAF_ERROR_DIAG'"; echo
 		eval "$CDAF_ERROR_DIAG"
 	fi
 	if [ ! -z "$2" ]; then
@@ -416,31 +416,35 @@ while read LINE; do
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
 		propldAction="${exprArray[2]}"
-		execute="'${CDAF_CORE}/transform.sh' $propFile"
-		propertiesList=$(eval $execute)
-		IFS=$'\n'
-		if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then
-			echo "PROPLD $propldAction variables defined within $propFile"; echo
-			revealed=()
-			for nameContent in $propertiesList; do
-				echo "  $nameContent"
-				IFS='=' read -r name content <<< "$nameContent"
-				IFS=$DEFAULT_IFS
-				resolved=$(eval resolveContent $content)
-				revealed+=("  $name = '$resolved'")
-				eval "$name='$resolved'"
-			done
-			if [[ "$propldAction" == "reveal" ]]; then
-				echo; printf '%s\n' "${revealed[@]}"
-			fi
+		if [ ! -f "$propFile" ]; then
+			ERRMSG "Properties file $propFile not found!" 3342
 		else
-			echo "PROPLD variables defined within $propFile"; echo
-			for nameContent in $propertiesList; do
-				echo "  $nameContent"
-			done
-			eval $propertiesList
+			execute="'${CDAF_CORE}/transform.sh' $propFile"
+			propertiesList=$(eval $execute)
+			IFS=$'\n'
+			if [[ "$propldAction" == "resolve" || "$propldAction" == "reveal" ]]; then
+				echo "PROPLD $propldAction variables defined within $propFile"; echo
+				revealed=()
+				for nameContent in $propertiesList; do
+					echo "  $nameContent"
+					IFS='=' read -r name content <<< "$nameContent"
+					IFS=$DEFAULT_IFS
+					resolved=$(eval resolveContent $content)
+					revealed+=("  $name = '$resolved'")
+					eval "$name='$resolved'"
+				done
+				if [[ "$propldAction" == "reveal" ]]; then
+					echo; printf '%s\n' "${revealed[@]}"
+				fi
+			else
+				echo "PROPLD variables defined within $propFile"; echo
+				for nameContent in $propertiesList; do
+					echo "  $nameContent"
+				done
+				eval $propertiesList
+			fi
+			IFS=$DEFAULT_IFS
 		fi
-		IFS=$DEFAULT_IFS
 	fi
 
 	# Set a variable, PowerShell format, start as position 8 to strip the $ for Linux

@@ -176,15 +176,15 @@ function DETOKN {
 		ERRMSG "Token file not supplied!" 3523
 	fi
 	if [ -z "$2" ]; then
-		propertyFile=$TARGET
+		propertyFile="$TARGET"
 	else
-		propertyFile=$2
+		propertyFile="$2"
 	fi
 	if [ ! -z "$3" ]; then
 		if [[ "$3" == "resolve" || "$3" == "reveal" ]]; then
-			export propldAction=$3
+			export propldAction="$3"
 		else
-			gpg=$3
+			gpg="$3"
 		fi
 	fi
 
@@ -368,14 +368,17 @@ fi
 TMPDIR=/tmp
 echo "[$scriptName]   TMPDIR      : $TMPDIR"
 
-# If this is a CI process, load temporary file as variables (implicit parameter passing) this is not required in the PowerShell version as variables are global
-if [ -f "predeploy.properties" ]; then
-	echo; echo "Load predeploy.properties ... "
-	propertiesList=$("${CDAF_CORE}/transform.sh" "predeploy.properties")
+if [ ! -z "$PROJECT" ]; then
+	echo "[$scriptName]   PROJECT     : $PROJECT"
+fi
+
+# Load the target properties
+if [ -f "$TARGET" ]; then
+	echo ; echo "PROPFILE  : $TARGET"
+	propertiesList=$("${CDAF_CORE}/transform.sh" "$TARGET")
 	printf "$propertiesList"
 	eval $propertiesList
-else
-	echo "[$scriptName]   predeploy   : (predeploy.properties not found, skipping)"
+	echo
 fi
 echo
 

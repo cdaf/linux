@@ -383,7 +383,7 @@ fi
 echo
 
 # Process Task Execution
-executionList=$(< $TASKLIST)
+executionList=$(< "$TASKLIST")
 while read LINE; do
 	if [[ $LINE == *"REMOVE"* ]] || [[ $LINE == *"REFRSH"* ]] || [[ $LINE == *"VECOPY"* ]]; then
 		set -f # disable globbing, i.e. do not preprocess definitions containing wildcards

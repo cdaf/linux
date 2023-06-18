@@ -6,7 +6,7 @@ artifactPrefix=0.1
 
 constructor=TasksLocal
 runtimeImage=docker.io/library/nginx:latest
-imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+imageBuild="$AUTOMATIONROOT/remote/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
 CDAF_DOCKER_REQUIRED=yes
 
 # Base Image from Private Registry

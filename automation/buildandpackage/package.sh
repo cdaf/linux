@@ -125,10 +125,10 @@ echo "[$scriptName]   pwd                      : $(pwd)"
 echo "[$scriptName]   hostname                 : $(hostname)"
 echo "[$scriptName]   whoami                   : $(whoami)"
 
-cdafVersion=$($AUTOMATIONROOT/remote/getProperty.sh "$AUTOMATIONROOT/CDAF.linux" "productVersion")
+cdafVersion=$("$AUTOMATIONROOT/remote/getProperty.sh" "$AUTOMATIONROOT/CDAF.linux" "productVersion")
 echo "[$scriptName]   CDAF Version             : $cdafVersion"
 
-packageFeatures=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "packageFeatures")
+packageFeatures=$("$AUTOMATIONROOT/remote/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "packageFeatures")
 if [ -z "$4" ]; then
 	echo "[$scriptName]   packageFeatures          : (optional property not set, option minimal)"
 else

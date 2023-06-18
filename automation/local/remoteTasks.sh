@@ -63,15 +63,18 @@ echo "[$scriptName]   pwd              : $(pwd)"
 
 if [ -d "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 
-	taskList=$(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT*" | sort)
+	taskList=()
+	while IFS=  read -r -d $'\0'; do
+		taskList+=("$REPLY")
+	done < <(find ./propertiesForRemoteTasks -name "$ENVIRONMENT"* -print0 | sort)
 	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
-		for DEPLOY_TARGET in $taskList; do
+		for DEPLOY_TARGET in "${taskList[@]}"; do
 			echo "  ${DEPLOY_TARGET##*/}"
 		done
 		echo
 
-		for DEPLOY_TARGET in $taskList; do
+		for DEPLOY_TARGET in "${taskList[@]}"; do
 			DEPLOY_TARGET=${DEPLOY_TARGET##*/}		
 			./$WORK_DIR_DEFAULT/remoteDeployTarget.sh "$ENVIRONMENT" "$BUILDNUMBER" "$SOLUTION" "$DEPLOY_TARGET" "$WORK_DIR_DEFAULT" "$OPT_ARG"
 			exitCode=$?

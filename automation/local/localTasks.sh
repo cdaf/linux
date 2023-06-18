@@ -72,14 +72,17 @@ echo "[$scriptName]   pwd              : $(pwd)"
 
 if [ -d "./propertiesForLocalTasks" ]; then
 
-	taskList=$(find ./propertiesForLocalTasks -name "$ENVIRONMENT*" | sort)
+	taskList=()
+	while IFS=  read -r -d $'\0'; do
+		taskList+=("$REPLY")
+	done < <(find ./propertiesForLocalTasks -name "$ENVIRONMENT"* -print0 | sort)
 	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
-		for LOCAL_TASK_TARGET in $taskList; do
+		for LOCAL_TASK_TARGET in "${taskList[@]}"; do
 			echo "  ${LOCAL_TASK_TARGET##*/}"
 		done
 				
-		for LOCAL_TASK_TARGET in $taskList; do
+		for LOCAL_TASK_TARGET in "${taskList[@]}"; do
 			LOCAL_TASK_TARGET=${LOCAL_TASK_TARGET##*/}
 			echo
 			echo "[$scriptName]   LOCAL_TASK_TARGET    : $LOCAL_TASK_TARGET"

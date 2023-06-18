@@ -62,10 +62,10 @@ if [ -z "$AUTOMATIONROOT" ]; then
 	if [ ! -d "${AUTOMATIONROOT}" ]; then
 		AUTOMATIONROOT='../automation'
 	else
-		echo "[$scriptName]  AUTOMATIONROOT = $AUTOMATIONROOT (not set, using relative path)"
+		echo "[$scriptName]  AUTOMATIONROOT       = $AUTOMATIONROOT (not set, using relative path)"
 	fi
 else
-	echo "[$scriptName]  AUTOMATIONROOT = $AUTOMATIONROOT"
+	echo "[$scriptName]  AUTOMATIONROOT       = $AUTOMATIONROOT"
 fi
 
 # 2.6.0 Push Private Registry
@@ -162,7 +162,7 @@ else
 		if [ -d "${transient}" ]; then
 			echo "Build directory ${transient} already exists"
 		else
-			executeExpression "mkdir -p ${transient}"
+			executeExpression "mkdir -p '${transient}'"
 		fi
 
 		if [ -z "$constructor" ]; then
@@ -174,15 +174,15 @@ else
 			echo; echo "------------------------"
 			echo "   ${image##*/}"
 			echo "------------------------"; echo
-			executeExpression "rm -rf ${transient}/**"
+			executeExpression "rm -rf \"${transient}\"/**"
 			if [ -d "$AUTOMATIONROOT" ]; then
-				executeExpression "cp -r $AUTOMATIONROOT ${transient}"
+				executeExpression "cp -r '$AUTOMATIONROOT' ${transient}"
 			else
 				echo "[WARN] CDAF not found in $AUTOMATIONROOT"
 			fi
 
-			executeExpression "cp -r ${image}/** ${transient}"
-			executeExpression "cd ${transient}"
+			executeExpression "cp -r \"${image}\"/** ${transient}"
+			executeExpression "cd '${transient}'"
 
 			# 2.6.2 Check and remove default dockerfile, i.e. after previously failed build
 			if [[ $(cat './Dockerfile' 2> /dev/null | grep 'CDAF Default Dockerfile') ]]; then
@@ -214,8 +214,8 @@ else
 			echo; echo "--- Dockerfile ---"     ; echo
 
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
-			executeExpression "${CDAF_CORE}/dockerBuild.sh ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
-			executeExpression "cd $imagebuild_workspace"
+			executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
+			executeExpression "cd '$imagebuild_workspace'"
 		done
 
 		pushFeatureBranch=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "pushFeatureBranch")")

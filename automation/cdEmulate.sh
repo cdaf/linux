@@ -113,9 +113,14 @@ if [ -z "${CDAF_DELIVERY}" ]; then
 		echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (using override $SOLUTIONROOT/deliveryEnv.sh)"
 	else
 		if [ ! $CDAF_DELIVERY ]; then
-			CDAF_DELIVERY="LINUX"
+			if [ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]; then
+				CDAF_DELIVERY="WSL"
+				echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (default, found file /proc/sys/fs/binfmt_misc/WSLInterop)"
+			else
+				CDAF_DELIVERY="LINUX"
+				echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (default)"
+			fi
 		fi
-		echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (override $SOLUTIONROOT/deliveryEnv.sh not found)"
 	fi
 fi
 

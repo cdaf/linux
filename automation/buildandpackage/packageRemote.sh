@@ -68,7 +68,7 @@ mkdir -v "$WORK_DIR_DEFAULT"
 cp -v manifest.txt "$WORK_DIR_DEFAULT"
 cp -v "$AUTOMATIONROOT/CDAF.linux" "$WORK_DIR_DEFAULT/CDAF.properties"
 echo
-cp -avR "$AUTOMATIONROOT/remote/*" "$WORK_DIR_DEFAULT"
+cp -avR "$AUTOMATIONROOT/remote/"* "$WORK_DIR_DEFAULT"
 
 # Merge Remote tasks with general tasks, remote first
 if [ -f  "$SOLUTIONROOT/tasksRunRemote.tsk" ]; then

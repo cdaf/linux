@@ -131,19 +131,19 @@ if [ "$packageFeatures" == 'minimal' ]; then
 else
 
 	# Copy all local script helpers, flat set to true to copy to root, not sub directory
-	cp -avR "$AUTOMATIONROOT/local/*" "$WORK_DIR_DEFAULT"
+	cp -avR "$AUTOMATIONROOT/local/"* "$WORK_DIR_DEFAULT"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] cp -av \"$AUTOMATIONROOT/local/*.sh\" \"$WORK_DIR_DEFAULT\" failed! Exit code = $exitCode."
+		echo "[$scriptName] cp -av \"$AUTOMATIONROOT/local/*\" \"$WORK_DIR_DEFAULT\" failed! Exit code = $exitCode."
 		exit $exitCode
 	fi
 
 	# Copy all remote script helpers, flat set to true to copy to root, not sub directory
 	echo; echo "[$scriptName] Copy all helper scripts from remote to local : "; echo
-	cp -av "$AUTOMATIONROOT/remote/*.sh" "$WORK_DIR_DEFAULT"
+	cp -av "$AUTOMATIONROOT/remote/"*.sh "$WORK_DIR_DEFAULT"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] cp -av \"$AUTOMATIONROOT/remote/*.sh\" \"$WORK_DIR_DEFAULT\" failed! Exit code = $exitCode."
+		echo "[$scriptName] cp -av \"$AUTOMATIONROOT/remote/*\"*.sh \"$WORK_DIR_DEFAULT\" failed! Exit code = $exitCode."
 		exit $exitCode
 	fi
 fi

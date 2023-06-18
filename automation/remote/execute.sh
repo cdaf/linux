@@ -101,7 +101,7 @@ function VECOPY {
 		if [ ! -d "$parentDir" ]; then
 			MAKDIR $parentDir
 		fi
-		executeFunction="cp -vR '$1' '$2'"
+		executeFunction="cp -vR \"$1\" \"$2\""
 		echo "$executeFunction"
 		set +f # enable globbing for copy operation
 		eval "$executeFunction"

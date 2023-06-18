@@ -200,7 +200,7 @@ EOF
 
 	for envVar in $(env | grep CDAF_CB_); do
 		envVar=$(echo ${envVar//CDAF_CB_})
-		buildCommand+=" --env ${envVar}"
+		buildCommand+=" --env \"${envVar}\""
 	done
 
 	prefix=$(echo "$SOLUTION" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
@@ -208,7 +208,7 @@ EOF
 	env | grep "CDAF_${prefix}_CB_"
 	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
 		envVar=$(echo ${envVar//CDAF_${prefix}_CB_})
-		buildCommand+=" --env ${envVar}"
+		buildCommand+=" --env \"${envVar}\""
 	done
 
 	# :Z flag sets Podman to label the volume content as "private unshared" with SELinux. This label allows the container to write to the volume. https://www.tutorialworks.com/podman-rootless-volumes/
@@ -227,9 +227,9 @@ EOF
 
 	executeExpression "export MSYS_NO_PATHCONV=1"
 	if [ -z "$mountHome" ] ; then
-		executeExpression "docker run --tty --user $containerUser --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $containerUser --volume \"${workspace}:/solution/workspace${volumeOpt}\" ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	else
-		executeExpression "docker run --tty --user $containerUser --volume '${mountHome}:/solution/home${volumeOpt}' --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $containerUser --volume \"${mountHome}:/solution/home${volumeOpt}\" --volume \"${workspace}:/solution/workspace${volumeOpt}\" ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	fi
 
 	echo "[$scriptName] List and remove all stopped containers"

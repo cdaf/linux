@@ -90,7 +90,10 @@ echo "[$scriptName]   pwd              : $WORK_DIR_DEFAULT"
 
 if [ -d "./propertiesForContainerTasks" ]; then
 
-	propertiesFilter=$(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}"* | sort)
+	propertiesFilter=()
+	while IFS=  read -r -d $'\0'; do
+		propertiesFilter+=("$REPLY")
+	done < <(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}"* -print0 | sort)
 	if [ -z "$propertiesFilter" ]; then
 		echo "[$scriptName][INFO] Properties directory ($propertiesFilter) not found, alter processSequence property to skip."
 	else
@@ -174,12 +177,12 @@ if [ -d "./propertiesForContainerTasks" ]; then
 
 		# 2.5.0 Process all containerDeploy environments based on prefix pattern (align with localTasks and remoteTasks)
 		echo; echo "[$scriptName] Preparing to process deploy targets :"
-		for propFile in $propertiesFilter; do
+		for propFile in "${propertiesFilter[@]}"; do
 			echo "[$scriptName]   $(basename "$propFile")"
 		done
 		echo
-	
-		for propFile in $propertiesFilter; do
+
+		for propFile in "${propertiesFilter[@]}"; do
 			TARGET=$(basename "$propFile")
 			echo "[$scriptName] Processing \$TARGET = $TARGET..."; echo
 			executeExpression "$containerDeploy"

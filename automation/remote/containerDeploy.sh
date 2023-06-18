@@ -122,20 +122,20 @@ executeExpression "cd $imageDir"
 echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
-executeExpression "${WORKSPACE}/dockerRun.sh ${id}"
+executeExpression "'${WORKSPACE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT=$TARGET
-executeExpression "${WORKSPACE}/dockerBuild.sh ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
-executeExpression "${WORKSPACE}/dockerClean.sh ${id} ${BUILDNUMBER}"
+executeExpression "'${WORKSPACE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
+executeExpression "'${WORKSPACE}/dockerClean.sh' ${id} ${BUILDNUMBER}"
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
-	buildCommand+=" --env ${envVar}"
+	buildCommand+=" --env \"${envVar}\""
 done
 
 prefix=$(echo "${SOLUTION//-/_}" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
 for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	envVar=$(echo ${envVar//CDAF_${prefix}_CD_})
-	buildCommand+=" --env ${envVar}"
+	buildCommand+=" --env \"${envVar}\""
 done
 
 # If a build number is not passed, use the CDAF emulator
@@ -145,10 +145,10 @@ if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then
 	echo "[$scriptName] \$HOME            = $HOME"
 	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 else
-	executeExpression "docker run --tty --user $(id -u) --volume ${HOME}:/solution/home ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
+	executeExpression "docker run --tty --user $(id -u) --volume \"${HOME}:/solution/home\" ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 fi
 
 echo
-executeExpression "${WORKSPACE}/dockerRun.sh ${id}"
+executeExpression "'${WORKSPACE}/dockerRun.sh' ${id}"
 
 echo; echo "[$scriptName] --- end ---"

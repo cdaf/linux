@@ -1,5 +1,6 @@
 context  target     deployTaskOverride
 local    LINUX      compose.tsk
+local    WSL        compose.tsk
 local    DOCKER     compose.tsk
 
 local    SERVER     containerRun.tsk

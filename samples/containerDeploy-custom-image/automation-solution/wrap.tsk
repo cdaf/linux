@@ -1,1 +1,1 @@
-VECOPY $AUTOMATIONROOT/provisioning/base.sh TasksLocal/containerDeploy
+VECOPY "$AUTOMATIONROOT/provisioning/base.sh" TasksLocal/containerDeploy

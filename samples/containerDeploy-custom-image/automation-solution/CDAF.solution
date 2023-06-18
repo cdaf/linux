@@ -1,5 +1,5 @@
 productName=Container Deployment
-solutionName=container-deploy
+solutionName=containerDeploy-custom-image
 artifactPrefix=0.0
 
 # Container image used for both containerBuild and containerDeploy if runtimeImage not specified

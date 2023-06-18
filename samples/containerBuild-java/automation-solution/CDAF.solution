@@ -2,6 +2,6 @@
 artifactPrefix=0.1
 productName=My Product Using Container Build
 solutionName=cb-java
-containerBuild=$AUTOMATIONROOT/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
+containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
 containerImage=ubuntu:20.04
 CDAF_DOCKER_REQUIRED=yes

@@ -10,28 +10,28 @@ if [ -z "$1" ]; then
 	echo "[$scriptName] Solution not passed. HALT!"
 	exit 1
 else
-	SOLUTION=$1
+	SOLUTION="$1"
 fi
 
 if [ -z "$2" ]; then
 	echo "[$scriptName] Version not passed. HALT!"
 	exit 2
 else
-	BUILDNUMBER=$2
+	BUILDNUMBER="$2"
 fi
 
 if [ -z "$3" ]; then
 	echo "[$scriptName] Target not passed. HALT!"
 	exit 3
 else
-	TARGET=$3
+	TARGET="$3"
 fi
 
 if [ -z "$4" ]; then
 	echo "[$scriptName] Execution Definition file (.tsk) not passed. HALT!"
 	exit 4
 else
-	TASKLIST=$4
+	TASKLIST="$4"
 fi
 
 # Consolidated Error processing function
@@ -90,7 +90,7 @@ function REMOVE {
 
 # Verbose Copy
 function VECOPY {
-	if [ -f $1 ] && [ -f $2 ]; then
+	if [ -f "$1" ] && [ -f "$2" ]; then
 		absFrom="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 		absTo="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 		if [ "$absFrom" == "$absTo" ]; then
@@ -101,7 +101,7 @@ function VECOPY {
 		if [ ! -d "$parentDir" ]; then
 			MAKDIR $parentDir
 		fi
-		executeFunction="cp -vR $1 $2"
+		executeFunction="cp -vR '$1' '$2'"
 		echo "$executeFunction"
 		set +f # enable globbing for copy operation
 		eval "$executeFunction"
@@ -115,11 +115,11 @@ function VECOPY {
 # Refresh Directory Contents
 # If single argument clear directory, if two arguments, copy source to clean destination
 function REFRSH {
-	if [ -z $2 ]; then
-		destination=$1
+	if [ -z "$2" ]; then
+		destination="$1"
 	else
-		destination=$2
-		source=$1
+		destination="$2"
+		source="$1"
 	fi
 	MAKDIR "$destination"
 	exitCode=$?

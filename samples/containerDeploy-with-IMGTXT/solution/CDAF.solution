@@ -1,5 +1,5 @@
 productName=Log Image as Text using containerDeploy
-solutionName=log-image
+solutionName=containerDeploy-with-imgtxt
 artifactPrefix=0.0
 defaultEnvironment=LINUX
 

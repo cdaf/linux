@@ -3,7 +3,7 @@ scriptName='containerTasks.sh'
 
 function executeExpression {
 	echo "$1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
@@ -32,14 +32,14 @@ function ERRMSG {
 }
 
 function getProp {
-	propValue=$($WORK_DIR_DEFAULT/getProperty.sh "$1" "$2")
+	propValue=$("$CDAF_CORE/getProperty.sh" "$1" "$2")
 	echo $propValue
 }
 
 echo; echo "[$scriptName] +-------------------------+"
 echo "[$scriptName] | Process Container Tasks |"
 echo "[$scriptName] +-------------------------+"
-ENVIRONMENT=$1
+ENVIRONMENT="$1"
 if [ -z "$ENVIRONMENT" ]; then
 	echo "$scriptName ENVIRONMENT Argument not passed. HALT!"
 	exit 1331
@@ -48,7 +48,7 @@ else
 	echo "[$scriptName]   ENVIRONMENT      : $ENVIRONMENT"
 fi
 
-RELEASE=$2
+RELEASE="$2"
 if [ -z "$RELEASE" ]; then
 	echo "$scriptName RELEASE Argument not passed. HALT!"
 	exit 1332
@@ -56,7 +56,7 @@ else
 	echo "[$scriptName]   RELEASE          : $RELEASE"
 fi
 
-BUILDNUMBER=$3
+BUILDNUMBER="$3"
 if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName Build Number not passed. HALT!"
 	exit 1333
@@ -64,7 +64,7 @@ else
 	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER"
 fi
 
-SOLUTION=$4
+SOLUTION="$4"
 if [ -z "$3" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
 	exit 1334
@@ -72,7 +72,7 @@ else
 	echo "[$scriptName]   SOLUTION         : $SOLUTION"
 fi
 
-WORK_DIR_DEFAULT=$5
+WORK_DIR_DEFAULT="$5"
 echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 
 # Capture landing directory, then change to Default Working Directory and resolve to absolute path
@@ -80,7 +80,7 @@ CDAF_WORKSPACE=$(pwd)
 cd $WORK_DIR_DEFAULT
 WORK_DIR_DEFAULT=$(pwd)
 
-OPT_ARG=$6
+OPT_ARG="$6"
 echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 
 echo "[$scriptName]   CDAF Version     : $(getProp "CDAF.properties" "productVersion")"
@@ -134,7 +134,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 	
 		# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.sh to support 2.4.0 functionality
 		if [ -z "${containerDeploy}" ]; then
-			containerDeploy='${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"'
+			containerDeploy='"${CDAF_CORE}/containerDeploy.sh" "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"'
 			echo "[$scriptName]   containerDeploy  : $containerDeploy (Default)"
 		else
 			echo "[$scriptName]   containerDeploy  : $containerDeploy"

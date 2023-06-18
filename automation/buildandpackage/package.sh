@@ -5,35 +5,35 @@ if [ -z "$1" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
 	exit 1
 else
-	SOLUTION=$1
+	SOLUTION="$1"
 fi
 
 if [ -z "$2" ]; then
 	echo "[$scriptName] Build Identifier not supplied. HALT!"
 	exit 2
 else
-	BUILDNUMBER=$2
+	BUILDNUMBER="$2"
 fi
 
 if [ -z "$3" ]; then
 	echo "[$scriptName] Source Control System Revision ID not supplied. HALT!"
 	exit 3
 else
-	REVISION=$3
+	REVISION="$3"
 fi
 
 if [ -z "$4" ]; then
 	echo "[$scriptName] Local Working Directory not supplied. HALT!"
 	exit 4
 else
-	LOCAL_WORK_DIR=$4
+	LOCAL_WORK_DIR="$4"
 fi
 
 if [ -z "$4" ]; then
 	echo "[$scriptName] Local Working Directory not supplied. HALT!"
 	exit 4
 else
-	REMOTE_WORK_DIR=$5
+	REMOTE_WORK_DIR="$5"
 fi
 
 # Action is optional
@@ -50,11 +50,14 @@ echo "[$scriptName]   REMOTE_WORK_DIR          : $REMOTE_WORK_DIR"
 echo "[$scriptName]   ACTION                   : $ACTION"
 
 # Look for automation root definition, if not found, default
-AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
+if [ -z "$AUTOMATIONROOT" ]; then
+	export AUTOMATIONROOT="$(dirname "$( cd "$(dirname "$0")" && pwd )")"
+fi
 echo "[$scriptName]   AUTOMATIONROOT           : $AUTOMATIONROOT"
 
-# Process all entry values
-automationHelper="$AUTOMATIONROOT/remote"
+if [ -z "$CDAF_CORE" ]; then
+	export CDAF_CORE="${AUTOMATIONROOT}/remote"
+fi
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT             : "
@@ -160,10 +163,10 @@ else
 	# Process optional pre-packaging tasks (Task driver support added in release 0.7.2)
 	if [ -f $prepackageTasks ]; then
 		echo; echo "Process Pre-Package Tasks ..."
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
+		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$prepackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$prepackageTasks\" \"$ACTION\") failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi
@@ -171,7 +174,7 @@ else
 	# Process solution properties if defined
 	if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 		echo; echo "[$scriptName] CDAF.solution file found in directory \"$SOLUTIONROOT\", load solution properties"
-		propertiesList=$($automationHelper/transform.sh "$SOLUTIONROOT/CDAF.solution")
+		propertiesList=$("$CDAF_CORE/transform.sh" "$SOLUTIONROOT/CDAF.solution")
 		echo; echo "$propertiesList"
 		cat $SOLUTIONROOT/CDAF.solution >> manifest.txt	
 	fi
@@ -179,10 +182,10 @@ else
 	while read line; do echo "  $line"; done < manifest.txt
 	
 	echo; echo "[$scriptName] Always create local artefacts, even if all tasks are remote"; echo
-	$AUTOMATIONROOT/buildandpackage/packageLocal.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
+	"$AUTOMATIONROOT/buildandpackage/packageLocal.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] ./packageLocal.sh failed! Exit code = $exitCode."
+		echo "[$scriptName] \"$AUTOMATIONROOT/buildandpackage/packageLocal.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$LOCAL_WORK_DIR\" \"$SOLUTIONROOT\" \"$AUTOMATIONROOT\" failed! Exit code = $exitCode."
 		exit $exitCode
 	fi
 
@@ -190,10 +193,10 @@ else
 	# create the remote package (even if there are no target files within it)
 	# 2.4.0 create remote package for use in container deployment
 	if [ -d  "$containerPropertiesDir" ] || [ -d  "$remotePropertiesDir" ] || [ -f "$remoteArtifactListFile" ] || [ -f "$genericArtifactListFile" ]; then
-		$AUTOMATIONROOT/buildandpackage/packageRemote.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
+		"$AUTOMATIONROOT/buildandpackage/packageRemote.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$REMOTE_WORK_DIR" "$SOLUTIONROOT" "$AUTOMATIONROOT"
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
-			echo "[$scriptName] ./packageRemote.sh failed! Exit code = $exitCode."
+			echo "[$scriptName] \"$AUTOMATIONROOT/buildandpackage/packageRemote.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$REMOTE_WORK_DIR\" \"$SOLUTIONROOT\" \"$AUTOMATIONROOT\" failed! Exit code = $exitCode."
 			exit $exitCode
 		fi
 	fi
@@ -201,10 +204,10 @@ else
 	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
 	if [ -f $postpackageTasks ]; then
 		echo; echo "Process Post-Package Tasks ..."
-		$automationHelper/execute.sh "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
+		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Linear deployment activity ($automationHelper/execute.sh $SOLUTION $BUILDNUMBER package $SOLUTIONROOT/package.tsk) failed! Returned $exitCode"
+			echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$postpackageTasks\" \"$ACTION\") failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi

@@ -53,7 +53,7 @@ printf "[$scriptName]   AUTOMATIONROOT : "
 if [ ! -z "$AUTOMATIONROOT" ]; then
 	echo "$AUTOMATIONROOT (global variable)"
 else
-	export AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" && pwd ))"
+	export AUTOMATIONROOT="$(dirname "$( cd "$(dirname "$0")" && pwd )")"
 	echo "$AUTOMATIONROOT"
 fi
 
@@ -67,7 +67,7 @@ else
 			export SOLUTIONROOT="$directoryName"
 		fi
 	done
-	if [ -z ${SOLUTIONROOT+x} ]; then
+	if [ -z "$SOLUTIONROOT" ]; then
 		export SOLUTIONROOT="$AUTOMATIONROOT/solution"
 		echo "$SOLUTIONROOT (default, project directory containing CDAF.solution not found)"
 	else
@@ -85,7 +85,7 @@ fi
 
 if [ -f "build.sh" ]; then
 	echo; echo "[$scriptName] build.sh found in solution root, executing in $(pwd)"; echo
-	./build.sh "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
+	"./build.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$BUILDENV" "$ACTION"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
 		echo "[$scriptName] $PROJECT Build Failed, exit code = $exitCode."
@@ -99,7 +99,7 @@ if [ -f "build.tsk" ]; then
 	"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$BUILDENV" "build.tsk" "$ACTION" 2>&1
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		echo "[$scriptName] Linear deployment activity ($CDAF_CORE/execute.sh $SOLUTION $BUILDNUMBER $PROJECT build.tsk) failed! Returned $exitCode"
+		echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$BUILDENV\" \"build.tsk\" \"$ACTION\") failed! Returned $exitCode"
 		exit $exitCode
 	fi
 fi

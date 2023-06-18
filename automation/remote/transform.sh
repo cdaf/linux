@@ -24,7 +24,7 @@ if [ -z "$1" ]; then
 	echo "$scriptName Properties File not passed. HALT!"
 	exit 101
 else
-	PROPERTIES=$1
+	PROPERTIES="$1"
 	if [ ! -f "$PROPERTIES" ]; then
 		echo "$scriptName Properties File ($PROPERTIES) not found. HALT!"
 		exit 102
@@ -32,7 +32,7 @@ else
 fi
 
 if [ ! -z "$2" ]; then
-	TOKENISED=$2
+	TOKENISED="$2"
 	if [ ! -f "$TOKENISED" ]; then
 		echo "$scriptName Tokenised File ($TOKENISED) not found. HALT!"
 		exit 103
@@ -41,9 +41,9 @@ fi
 
 if [ -z "$3" ]; then
 	#deleting lines starting with # ,blank lines ,lines with only spaces
-	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' $PROPERTIES)
+	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' "$PROPERTIES")
 else
-	decryptedFileInMemory=$(gpg --decrypt --batch --passphrase $3 ${PROPERTIES})
+	decryptedFileInMemory=$(gpg --decrypt --batch --passphrase $3 "$PROPERTIES")
 	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $decryptedFileInMemory)
 fi
 
@@ -76,9 +76,9 @@ while read -r LINE; do
 			
 			# Mac OSX sed 
 			if [[ "$OSTYPE" == "darwin"* ]]; then
-				sed -i '' -- "s•${name}•${value}•g" ${TOKENISED}
+				sed -i '' -- "sï¿½${name}ï¿½${value}ï¿½g" ${TOKENISED}
 			else
-				sed -i -- "s•${name}•${value}•g" ${TOKENISED}
+				sed -i -- "sï¿½${name}ï¿½${value}ï¿½g" ${TOKENISED}
 			fi
 		else
 			( exit 0 )

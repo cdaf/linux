@@ -16,12 +16,13 @@ test=$(podman --version 2>&1); if [ $? -eq 0 ]; then prefix='localhost/'; echo $
 echo "Build all images, i.e. directories"
 cd compose
 ../imageBuild.sh ${id} ${BUILDNUMBER} ${containerImage}
-for image in $(ls -A .); do $WORKSPACE/dockerClean.sh ${id}_${image} ${BUILDNUMBER}; done
 cd ..
 
 echo "Clean-up old images and transient directory Created by imageBuild.sh"
 export TARGET_TAG="${prefix}${id}_taskslocal"
+"$WORKSPACE/dockerClean.sh" ${TARGET_TAG} ${BUILDNUMBER}
 export TEST_TAG="${prefix}${id}_test"
+"$WORKSPACE/dockerClean.sh" ${TEST_TAG} ${BUILDNUMBER}
 REMOVE /tmp/${SOLUTION}
 
 echo "Do not run in workspace to avoid file locks"
@@ -41,14 +42,14 @@ echo "Deploy to target $TARGET_TAG"
 docker-compose up -d target
 
 containerID=$(docker ps -aq --filter "ancestor=$TARGET_TAG")
-$WORKSPACE/dockerLog.sh $containerID 'Running server ...'
+"$WORKSPACE/dockerLog.sh" $containerID 'Running server ...'
 
 echo "Execute tests $TEST_TAG (allow 2 minutes to complete)"
 docker-compose up -d test
 containerID=$(docker ps -aq --filter "ancestor=$TEST_TAG")
-$WORKSPACE/dockerLog.sh $containerID 'Automated Test Execution Completed Successfully.' 120
+"$WORKSPACE/dockerLog.sh" $containerID 'Automated Test Execution Completed Successfully.' 120
 
 echo "Retain or teardown based on environment variable COMPOSE_KEEP ($COMPOSE_KEEP)"
 if [ -z "$COMPOSE_KEEP" ]; then docker-compose down ; else docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) ; fi
 
-cd $WORKSPACE
+cd "$WORKSPACE"

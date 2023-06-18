@@ -81,7 +81,7 @@ if [ -d "./propertiesForLocalTasks" ]; then
 		for LOCAL_TASK_TARGET in "${taskList[@]}"; do
 			echo "  ${LOCAL_TASK_TARGET##*/}"
 		done
-				
+
 		for LOCAL_TASK_TARGET in "${taskList[@]}"; do
 			LOCAL_TASK_TARGET=${LOCAL_TASK_TARGET##*/}
 			echo

@@ -166,10 +166,13 @@ else
 		fi
 
 		if [ -z "$constructor" ]; then
-			constructor=$(find . -mindepth 1 -maxdepth 1 -type d)
+			constructor=()
+			while IFS=  read -r -d $'\0'; do
+				constructor+=("$REPLY")
+			done < <(find . -mindepth 1 -maxdepth 1 -type d -print0 | sort)
 		fi
 
-		for image in $constructor; do
+		for image in "${constructor[@]}"; do
 
 			echo; echo "------------------------"
 			echo "   ${image##*/}"

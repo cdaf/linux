@@ -114,11 +114,11 @@ else
 	else
 
 		# If an explicit image is not defined, perform implicit cascading load
-		baseImage=$(eval "echo $(${getProp} "${manifest}" "runtimeImage")")
+		baseImage=$(eval "echo $("${getProp}" "${manifest}" "runtimeImage")")
 		if [ ! -z "$baseImage" ]; then
 			echo "[$scriptName]  baseImage                : $baseImage (not supplied, using runtimeImage property)"
 		else
-			baseImage=$(eval "echo $(${getProp} "${manifest}" "containerImage")")
+			baseImage=$(eval "echo $("${getProp}" "${manifest}" "containerImage")")
 			if [ ! -z "$runtimeImage" ]; then
 				echo "[$scriptName]  baseImage                : $baseImage (not supplied, using containerImage property)"
 			else
@@ -132,7 +132,7 @@ if [ ! -z "$CDAF_PULL_REGISTRY_URL" ]; then
 	registryPullURL="$CDAF_PULL_REGISTRY_URL"
 	echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $registryPullURL (loaded from manifest.txt)"
 else
-	registryPullURL=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_URL")")
+	registryPullURL=$(eval "echo $("${getProp}" "${manifest}" "CDAF_PULL_REGISTRY_URL")")
 	if [ ! -z "$registryPullURL" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_URL   = $registryPullURL (loaded from manifest.txt)"
 	else
@@ -144,7 +144,7 @@ if [ ! -z "$CDAF_PULL_REGISTRY_USER" ]; then
 	registryPullUser="$CDAF_PULL_REGISTRY_USER"
 	echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $registryPullUser (using environment variable)"
 else
-	registryPullUser=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_USER")")
+	registryPullUser=$(eval "echo $("${getProp}" "${manifest}" "CDAF_PULL_REGISTRY_USER")")
 	if [ ! -z "$registryPullUser" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_USER  = $registryPullUser (loaded from manifest.txt)"
 	else
@@ -157,7 +157,7 @@ if [ ! -z "$CDAF_PULL_REGISTRY_TOKEN" ]; then
 	registryPullToken="$CDAF_PULL_REGISTRY_TOKEN"
 	echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${registryPullToken}) (from environment variable)"
 else
-	registryPullToken=$(eval "echo $(${getProp} "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
+	registryPullToken=$(eval "echo $("${getProp}" "${manifest}" "CDAF_PULL_REGISTRY_TOKEN")")
 	if [ ! -z "$registryPullToken" ]; then
 		echo "[$scriptName]  CDAF_PULL_REGISTRY_TOKEN = $(MASKED ${registryPullToken}) (loaded from manifest.txt)"
 	else
@@ -169,7 +169,7 @@ if [ ! -z "$CDAF_SKIP_PULL" ]; then
 	skipPull="$CDAF_SKIP_PULL"
 	echo "[$scriptName]  CDAF_SKIP_PULL           = $skipPull"
 else
-	skipPull=$(eval "echo $(${getProp} "${manifest}" "CDAF_SKIP_PULL")")
+	skipPull=$(eval "echo $("${getProp}" "${manifest}" "CDAF_SKIP_PULL")")
 	if [ ! -z "$skipPull" ]; then
 		echo "[$scriptName]  CDAF_SKIP_PULL           = $skipPull (loaded from manifest.txt)"
 	else

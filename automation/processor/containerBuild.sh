@@ -17,11 +17,11 @@ function executeExpression {
 scriptName=${0##*/}
 
 echo "[$scriptName] --- start ---"
-imageName=$1
+imageName="$1"
 if [ ! -z "$imageName" ]; then
 	echo "[$scriptName]   imageName           : $imageName"
 
-	BUILDNUMBER=$2
+	BUILDNUMBER="$2"
 	if [ -z "$BUILDNUMBER" ]; then
 		echo "[$scriptName]   BUILDNUMBER not supplied, exit with code 2."
 		exit 2
@@ -29,7 +29,7 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName]   BUILDNUMBER         : $BUILDNUMBER"
 	fi
 	
-	REVISION=$3
+	REVISION="$3"
 	if [ -z "$REVISION" ]; then
 		REVISION='container_build'
 		echo "[$scriptName]   REVISION            : $REVISION (not supplied, set to default)"
@@ -37,14 +37,14 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName]   REVISION            : $REVISION"
 	fi
 	
-	ACTION=$4
+	ACTION="$4"
 	if [ -z "$ACTION" ]; then
 		echo "[$scriptName]   ACTION              : (not supplied)"
 	else
 		echo "[$scriptName]   ACTION              : $ACTION"
 	fi
 	
-	rebuildImage=$5
+	rebuildImage="$5"
 	if [ -z "$rebuildImage" ]; then
 		rebuildImage='no'
 		echo "[$scriptName]   rebuildImage        : $rebuildImage (not supplied, set to default)"
@@ -53,7 +53,7 @@ if [ ! -z "$imageName" ]; then
 	fi
 	
 	# backward compatibility
-	cdafVersion=$6
+	cdafVersion="$6"
 	if [ -z "$cdafVersion" ]; then
 		echo "[$scriptName]   cdafVersion         : (not supplied, pass dockerfile if your version of docker does not support label argument)"
 	else
@@ -94,7 +94,7 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT"
 	fi
 
-	SOLUTION=$($AUTOMATIONROOT/remote/getProperty.sh "$SOLUTIONROOT/CDAF.solution" "solutionName")
+	SOLUTION=$("$AUTOMATIONROOT/remote/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "solutionName")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
@@ -114,7 +114,7 @@ if [ ! -z "$imageName" ]; then
 
 	if [ $cleanupCDAF == 'yes' ]; then
 		executeExpression "    rm -rf ./automation"
-		executeExpression "    cp -a $AUTOMATIONROOT ./automation"
+		executeExpression "    cp -a '$AUTOMATIONROOT' ./automation"
 	fi
 
 	imageTag=0
@@ -227,9 +227,9 @@ EOF
 
 	executeExpression "export MSYS_NO_PATHCONV=1"
 	if [ -z "$mountHome" ] ; then
-		executeExpression "docker run --tty --user $containerUser --volume ${workspace}:/solution/workspace${volumeOpt} ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $containerUser --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	else
-		executeExpression "docker run --tty --user $containerUser --volume ${mountHome}:/solution/home${volumeOpt} --volume ${workspace}:/solution/workspace${volumeOpt} ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
+		executeExpression "docker run --tty --user $containerUser --volume '${mountHome}:/solution/home${volumeOpt}' --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh $BUILDNUMBER $REVISION container_build"
 	fi
 
 	echo "[$scriptName] List and remove all stopped containers"

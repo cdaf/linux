@@ -57,7 +57,7 @@ if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
 if [ -z "$SOLUTION" ]; then
-	SOLUTION=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "SOLUTION")
+	SOLUTION=$("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/manifest.txt" "SOLUTION")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Read of SOLUTION from ${CDAF_CORE}/manifest.txt failed! Returned $exitCode"
@@ -73,7 +73,7 @@ if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi
 if [ -z "$BUILDNUMBER" ]; then
-	BUILDNUMBER=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "BUILDNUMBER")
+	BUILDNUMBER=$("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/manifest.txt" "BUILDNUMBER")
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Read of BUILDNUMBER from ${CDAF_CORE}/manifest.txt failed! Returned $exitCode"
@@ -90,11 +90,11 @@ export WORKSPACE="${WORK_SPACE}\${WORK_DIR_DEFAULT}"
 echo "[$scriptName]   pwd              : ${WORK_SPACE}"
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
-echo "[$scriptName]   CDAF Version     : $(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/CDAF.properties" "productVersion")"
+echo "[$scriptName]   CDAF Version     : $("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/CDAF.properties" "productVersion")"
 
 # 2.5.5 default error diagnostic command as solution property
 if [ -z "$CDAF_ERROR_DIAG" ]; then
-	export CDAF_ERROR_DIAG=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "CDAF_ERROR_DIAG")
+	export CDAF_ERROR_DIAG=$("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/manifest.txt" "CDAF_ERROR_DIAG")
 	if [ -z "$CDAF_ERROR_DIAG" ]; then
 		echo "[$scriptName]   CDAF_ERROR_DIAG  : (not set or defined in ${CDAF_CORE}/manifest.txt)"
 	else
@@ -104,7 +104,7 @@ else
 	echo "[$scriptName]   CDAF_ERROR_DIAG  : $CDAF_ERROR_DIAG"
 fi
 
-processSequence=$(${CDAF_CORE}/getProperty.sh "${CDAF_CORE}/manifest.txt" "processSequence")
+processSequence=$("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/manifest.txt" "processSequence")
 if [ -z "$processSequence" ]; then
 	processSequence='remoteTasks.sh localTasks.sh containerTasks.sh'
 else
@@ -113,7 +113,7 @@ fi
 
 for step in $processSequence; do
 	echo
-	executeExpression "${CDAF_CORE}/${step} '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
+	executeExpression "'${CDAF_CORE}/${step}' '$ENVIRONMENT' '$RELEASE' '$BUILDNUMBER' '$SOLUTION' '$WORK_DIR_DEFAULT' '$OPT_ARG'"
 done
 
 

@@ -49,7 +49,7 @@ fi
 echo; echo "[$scriptName] --------------------"
 echo "[$scriptName] Initialise Emulation"
 echo "[$scriptName] --------------------"
-if [ -z "${CDAF_BRANCH_NAME}" ]; then
+if [ -z "${ACTION}" ]; then
 	echo "[$scriptName]   ACTION         : (not supplied, options cionly, buildonly, packageonly or cdonly)"
 else
 	echo "[$scriptName]   ACTION         : $ACTION"

@@ -24,6 +24,15 @@ timeout(time: 6, unit: 'HOURS') {
         '''
       }
 
+      stage ('Regression Test Samples') {
+        sh '''
+          echo "Regression Test Samples"
+          cd samples
+          ./executeSamples.sh
+          cd ..
+        '''
+      }
+
       stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
         sh '''
           echo "Test the CDAF sample on Ubuntu 18.04 LTS"

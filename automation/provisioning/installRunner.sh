@@ -43,9 +43,9 @@ fi
 tags="$3"
 if [ -z "$tags" ]; then
 	tag=$(hostname)
-	echo "[$scriptName]   tags     : $tags (default)"
+	echo "[$scriptName]   tags     : $tags (default, information only)"
 else
-	echo "[$scriptName]   tags     : $tags"
+	echo "[$scriptName]   tags     : $tags (information only)"
 fi
 
 name="$4"
@@ -176,9 +176,9 @@ else
 		if [[ -z "$execsuffix" ]]; then
 			execsuffix='ubuntu:latest'
 		fi
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix --docker-image $execsuffix --tag-list '$tags'"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix --docker-image $execsuffix"
 	else	
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix --tag-list '$tags'"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix"
 	fi
 fi
 

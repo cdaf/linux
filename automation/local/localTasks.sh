@@ -75,7 +75,7 @@ if [ -d "./propertiesForLocalTasks" ]; then
 	taskList=()
 	while IFS=  read -r -d $'\0'; do
 		taskList+=("$REPLY")
-	done < <(find ./propertiesForLocalTasks -name "$ENVIRONMENT"* -print0 | sort)
+	done < <(find ./propertiesForLocalTasks -name "${ENVIRONMENT}*" -print0 | sort)
 	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
 		for LOCAL_TASK_TARGET in "${taskList[@]}"; do

@@ -66,7 +66,7 @@ if [ -d "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 	taskList=()
 	while IFS=  read -r -d $'\0'; do
 		taskList+=("$REPLY")
-	done < <(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "$ENVIRONMENT"* -print0 | sort)
+	done < <(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "${ENVIRONMENT}*" -print0 | sort)
 	if [ ! -z "$taskList" ]; then
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
 		for DEPLOY_TARGET in "${taskList[@]}"; do

@@ -93,7 +93,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 	propertiesFilter=()
 	while IFS=  read -r -d $'\0'; do
 		propertiesFilter+=("$REPLY")
-	done < <(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}"* -print0 | sort)
+	done < <(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}*" -print0 | sort)
 	if [ -z "$propertiesFilter" ]; then
 		echo "[$scriptName][INFO] Properties directory ($propertiesFilter) not found, alter processSequence property to skip."
 	else

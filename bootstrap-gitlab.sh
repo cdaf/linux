@@ -53,6 +53,14 @@ else
 	echo "[$scriptName]   executor     : $executor"
 fi
 
+nopass="$4"
+if [ -z "$executor" ]; then
+	nopass='yes'
+	echo "[$scriptName]   nopass       : $executor (default)"
+else
+	echo "[$scriptName]   nopass       : $executor"
+fi
+
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami       : $(whoami)"
@@ -76,6 +84,9 @@ echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
 
 executeExpression "$elevate ./automation/provisioning/installRunner.sh $GITLAB_URL \$GITLAB_TOKEN $executor"
+if [ "$nopass" == 'yes' ]; then
+	executeExpression "$elevate ./automation/provisioning/setNoPassSUDO.sh gitlab-runner"
+fi
 
 executeExpression "$elevate ./automation/provisioning/installDocker.sh"
 

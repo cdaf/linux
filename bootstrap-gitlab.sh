@@ -75,4 +75,6 @@ executeExpression "$elevate ./automation/provisioning/base.sh curl" # ensure cur
 
 executeExpression "$elevate ./automation/provisioning/installRunner.sh $GITLAB_URL \$GITLAB_TOKEN $executor"
 
+executeExpression "$elevate ./automation/provisioning/installDocker"
+
 echo "[$scriptName] --- end ---"

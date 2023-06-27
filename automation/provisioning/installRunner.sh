@@ -23,6 +23,14 @@ function executeRetry {
 	done
 }  
 
+function MASKED {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | sha256sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
+}
+
 scriptName='installRunner.sh'
 
 echo "[$scriptName] --- start ---"
@@ -37,26 +45,10 @@ pat="$2"
 if [ -z "$pat" ]; then
 	echo "[$scriptName]   pat      : (not supplied, registration will not be attempted)"
 else
-	echo "[$scriptName]   pat      : \$pat"
+	echo "[$scriptName]   pat      : $(MASKED $pat) (SHA256 Mask"
 fi
 
-tags="$3"
-if [ -z "$tags" ]; then
-	tag=$(hostname)
-	echo "[$scriptName]   tags     : $tags (default, information only)"
-else
-	echo "[$scriptName]   tags     : $tags (information only)"
-fi
-
-name="$4"
-if [ -z "$name" ]; then
-	name=$(hostname)
-	echo "[$scriptName]   name     : $name (default)"
-else
-	echo "[$scriptName]   name     : $name"
-fi
-
-executor="$5"
+executor="$3"
 if [ -z "$executor" ]; then
 	executor='shell'
 	echo "[$scriptName]   executor : $executor (default)"
@@ -64,14 +56,14 @@ else
 	echo "[$scriptName]   executor : $executor"
 fi
 
-runas="$6"
+runas="$4"
 if [ -z "$runas" ]; then
 	echo "[$scriptName]   runas    : (not supplied, will use default)"
 else
 	echo "[$scriptName]   runas    : $runas"
 fi
 
-version="$7"
+version="$5"
 if [ -z "$version" ]; then
 	echo "[$scriptName]   version  : (not supplied, will use default)"
 else
@@ -176,9 +168,9 @@ else
 		if [[ -z "$execsuffix" ]]; then
 			execsuffix='ubuntu:latest'
 		fi
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix --docker-image $execsuffix"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --executor $execprefix --docker-image $execsuffix"
 	else	
-		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --name $name --executor $execprefix"
+		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --executor $execprefix"
 	fi
 fi
 

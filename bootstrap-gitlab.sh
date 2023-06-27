@@ -87,6 +87,7 @@ executeExpression "$elevate ./automation/provisioning/installRunner.sh $GITLAB_U
 if [ "$nopass" == 'yes' ]; then
 	executeExpression "$elevate ./automation/provisioning/setNoPassSUDO.sh gitlab-runner"
 fi
+executeExpression "$elevate usermod -a -G docker gitlab-runner"
 
 executeExpression "$elevate ./automation/provisioning/installDocker.sh"
 

@@ -77,6 +77,6 @@ executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsa
 
 executeExpression "$elevate ./automation/provisioning/installRunner.sh $GITLAB_URL \$GITLAB_TOKEN $executor"
 
-executeExpression "$elevate ./automation/provisioning/installDocker"
+executeExpression "$elevate ./automation/provisioning/installDocker.sh"
 
 echo "[$scriptName] --- end ---"

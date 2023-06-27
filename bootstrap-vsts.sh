@@ -58,46 +58,24 @@ else
 	echo "[$scriptName]   whoami         : $(whoami) (elevation not required)"
 fi
 
+
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
-if [ -f './automation/provisioning/CDAF.linux' ]; then
-	atomicPath='./automation'
-	echo "[$scriptName] Provisioning directory found in workspace"
+if [ -d './automation' ]; then
+	echo "[$scriptName] ./automation exists, assuming this contains CDAF..."
 else
-	echo "[$scriptName] Provisioning directory not found in workspace, looking for alternative ..."
-	if [ -f '/vagrant/automation/CDAF.linux' ]; then
-		atomicPath='/vagrant/automation'
-		echo "[$scriptName] Provisioning directory found in default Vagrant mount ($atomicPath)"
-	else
-		if [[ $stable == 'no' ]]; then # to use the unpublished installer, requires unzip to extract download from GitHub
-			echo "[$scriptName] Provisioning directory not found default Vagrant mount, download latest from GitHub (\$stable = $stable)"
-			if [ -d "linux-master" ]; then
-				executeExpression "rm -rf linux-master/*"
-			else
-				executeExpression "mkdir -pv linux-master"
-			fi
-			executeExpression "curl -s -L https://github.com/cdaf/linux/tarball/master --output linux-master.tar.gz"
-			executeExpression "tar -xzf linux-master.tar.gz -C ./linux-master --strip 1"
-			atomicPath='./linux-master/automation'
-		else
-			echo "[$scriptName] Provisioning directory not found default Vagrant mount, download latest from cdaf.io (\$stable = $stable)"
-			if [ -d "linux-published" ]; then
-				executeExpression "rm -rf linux-published/*"
-			else
-				executeExpression "mkdir -pv linux-published"
-			fi
-			executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-			executeExpression "tar -xzf LU-CDAF.tar.gz -C ./linux-published"
-			atomicPath='./linux-published/automation'
-		fi
-	fi
+	echo "[$scriptName] ./automation does not exist, download CDAF..."
+	executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
 fi
 
-echo "[$scriptName] \$atomicPath = $atomicPath"
-
 echo; echo "[$scriptName] Create agent user and register"
-executeExpression "$elevate ${atomicPath}/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
-executeExpression "$elevate ${atomicPath}/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
+executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent docker yes" # VSTS Agent with sudoer access
+executeExpression "$elevate ./automation/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
 
-executeExpression "$elevate ${atomicPath}/provisioning/installAgent.sh $url \$pat $pool $agentName"
+executeExpression "$elevate ./automation/provisioning/installAgent.sh $url \$pat $pool $agentName"
+
+executeExpression "$elevate ./automation/provisioning/installDocker.sh"
+
+echo "Restart to apply permissions"
+executeExpression "$elevate shutdown -r now"
 
 echo "[$scriptName] --- end ---"

@@ -69,9 +69,11 @@ else
 	executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
 fi
 
+echo "GitLab runner does not provide a Git binary"
+executeExpression "$elevate ./automation/provisioning/base.sh git" # this will also ensure apt-get is unlocked
+
 echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent vstsagent yes" # VSTS Agent with sudoer access
-executeExpression "$elevate ./automation/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
 
 executeExpression "$elevate ./automation/provisioning/installRunner.sh $GITLAB_URL \$GITLAB_TOKEN $executor"
 

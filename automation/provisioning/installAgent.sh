@@ -164,18 +164,17 @@ fi
 echo "[$scriptName] Strip the hard-coded system name"
 executeExpression "$elevate sed -i '/systemd-escape/d' /opt/vso/svc.sh"
 
-echo "[$scriptName] Trim hyphen and underscore from organisation name and register service"
 org=$(echo ${url##*/})
 org=$(echo ${org//-/})
 org=$(echo ${org//_/})
-serviceName="vsts.agent.${org}"
+serviceName="vsts.agent.${org}.service"
 echo "[$scriptName] Trim hyphen and underscore from organisation name and register service ${serviceName}"
-export SVC_NAME="\`systemd-escape --path \"${serviceName}\""
+export SVC_NAME="${serviceName}"
 
 executeExpression "$elevate ./svc.sh install $srvAccount"
 
-executeExpression "sudo systemctl start $serviceName"
-executeExpression "sudo systemctl status $serviceName --no-pager"
+executeExpression "$elevate systemctl start $serviceName"
+executeExpression "$elevate systemctl status $serviceName --no-pager"
 
 echo "[$scriptName] --- end ---"
 exit 0

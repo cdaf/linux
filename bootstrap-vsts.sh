@@ -29,10 +29,10 @@ echo "[$scriptName] --- start ---"
 		echo "VSTS_URL not passed, HALT!"
 		exit 101
 	else
-		echo "[$scriptName]   VSTS_URL  : $VSTS_URL"
+		echo "[$scriptName]   VSTS_URL   : $VSTS_URL"
 	fi
 else
-	echo "[$scriptName]   VSTS_URL  : $VSTS_URL (using environment variable)"
+	echo "[$scriptName]   VSTS_URL   : $VSTS_URL (using environment variable)"
 fi
 
 if [ -z "$VSTS_TOKEN" ]; then
@@ -87,7 +87,7 @@ fi
 
 echo; echo "[$scriptName] Create agent user and register"
 executeExpression "$elevate ./automation/provisioning/addUser.sh vstsagent docker yes" # VSTS Agent with sudoer access
-executeExpression "$elevate ./automation/provisioning/base.sh curl" # ensure curl is installed, this will also ensure apt-get is unlocked
+executeExpression "$elevate ./automation/provisioning/base.sh 'curl git'"
 
 executeExpression "$elevate ./automation/provisioning/installAgent.sh $VSTS_URL \$VSTS_TOKEN $pool $agentName"
 

@@ -8,7 +8,16 @@ function executeExpression {
 		echo "[$scriptName][ERROR] $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-}  
+}
+
+function MASKED {
+	CURRENT_IFS=$IFS
+	IFS=$DEFAULT_IFS
+	read -ra array <<< $(echo -n $1 | sha256sum)
+	echo "${array[0]}" | tr '[:lower:]' '[:upper:]'
+	IFS=$CURRENT_IFS
+}
+
 scriptName='installAgent.sh'
 
 echo "[$scriptName] --- start ---"
@@ -23,7 +32,7 @@ else
 		echo "pat not passed, HALT!"
 		exit 102
 	else
-		echo "[$scriptName]   pat            : \$pat"
+		echo "[$scriptName]   pat            : $(MASKED $pat) (SHA256 Mask)"
 	fi
 	
 	pool="$3"
@@ -152,9 +161,19 @@ if [ "$exitCode" != "0" ]; then
 	echo "[$scriptName][WARNING] Installing as $(whoami) returned exit code ${exitCode}, proceeding ..."
 fi
 
+echo "[$scriptName] Strip the hard-coded system name"
+executeExpression "$elevate sed -i '/systemd-escape/d' /opt/vso/svc.sh"
+
+echo "[$scriptName] Trim hyphen and underscore from organisation name and register service"
+org=$(echo ${url##*/})
+org=$(echo ${org//-/})
+org=$(echo ${org//_/})
+serviceName="vsts.agent.${org}"
+echo "[$scriptName] Trim hyphen and underscore from organisation name and register service ${serviceName}"
+export SVC_NAME="\`systemd-escape --path \"${serviceName}\""
+
 executeExpression "$elevate ./svc.sh install $srvAccount"
 
-serviceName=($(systemctl list-unit-files | grep 'vsts.'))
 executeExpression "sudo systemctl start $serviceName"
 executeExpression "sudo systemctl status $serviceName --no-pager"
 

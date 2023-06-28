@@ -31,7 +31,7 @@ if [ -z "$GITLAB_TOKEN" ]; then
 		echo "[$scriptName]   GITLAB_TOKEN : \$GITLAB_TOKEN"
 	fi
 else
-	echo "[$scriptName]   GITLAB_TOKEN : \$GITLAB_TOKEN"
+	echo "[$scriptName]   GITLAB_TOKEN : \$GITLAB_TOKEN (using environment variable)"
 fi
 
 if [ -z "$GITLAB_URL" ]; then

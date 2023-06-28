@@ -45,7 +45,7 @@ pat="$2"
 if [ -z "$pat" ]; then
 	echo "[$scriptName]   pat      : (not supplied, registration will not be attempted)"
 else
-	echo "[$scriptName]   pat      : $(MASKED $pat) (SHA256 Mask"
+	echo "[$scriptName]   pat      : $(MASKED $pat) (SHA256 Mask)"
 fi
 
 executor="$3"

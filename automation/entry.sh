@@ -95,19 +95,19 @@ fi
 ACTION="$3"
 echo "[$scriptName]   ACTION         : $ACTION"
 
-echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT (derived from invocation)"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
-		SOLUTIONROOT="$( cd "$directoryName" && pwd )"
+		export SOLUTIONROOT="$( cd "$directoryName" && pwd )"
 	fi
 done
 if [ -z "$SOLUTIONROOT" ]; then
 	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurance of this file." 7610
 else
-	echo "$SOLUTIONROOT"
+	echo "$SOLUTIONROOT (CDAF.solution found)"
 fi
 
 echo; echo "[$scriptName] Load Solution Properties $SOLUTIONROOT/CDAF.solution"

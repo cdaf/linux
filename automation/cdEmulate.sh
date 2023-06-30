@@ -79,21 +79,21 @@ workDirLocal="TasksLocal"
 workDirRemote="TasksRemote"
 
 # Framework structure
-AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
-echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT"
+export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
+echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT (derived from invocation)"
 CDAF_CORE="${AUTOMATIONROOT}/remote"
 
-# Check for user defined solution folder, i.e. outside of automation root, if found override solution root
 printf "[$scriptName]   SOLUTIONROOT   : "
 for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
 	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
 		SOLUTIONROOT="$directoryName"
 	fi
 done
-if [ -z "$SOLUTIONROOT" ]; then
-	ERRMSG "[NO_SOLUTION_ROOT] No directory found containing CDAF.solution, please create a single occurrence of this file." 7611
+if [ ! -z "$SOLUTIONROOT" ]; then
+	export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
+	echo "$SOLUTIONROOT (CDAF.solution found)"
 else
-	echo "$SOLUTIONROOT (override $SOLUTIONROOT/CDAF.solution found)"
+	ERRMSG "[SOLUTION_NOT_FOUND] No directory found containing CDAF.solution, please create a single occurance of this file." 7612
 fi
 
 SOLUTION=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "solutionName")
@@ -130,7 +130,7 @@ if [ -f "$SOLUTIONROOT/buildPackage.sh" ]; then
 	cdProcess="$SOLUTIONROOT/buildPackage.sh"
 	echo "$ciProcess (override)"
 else
-	ciProcess="$AUTOMATIONROOT/ci.sh"
+	ciProcess="$AUTOMATIONROOT/processor/buildPackage.sh"
 	echo "$ciProcess (default)"
 fi
 

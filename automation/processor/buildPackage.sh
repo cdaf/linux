@@ -136,8 +136,15 @@ scriptName='buildPackage.sh'
 # Processed out of order as needed for solution determination
 if [ -z "$AUTOMATIONROOT" ]; then
 	export AUTOMATIONROOT="$(dirname "$( cd "$(dirname "$0")" && pwd )")"
+	autoMessage='(not supplied, derived from invocation)'
 fi
 export CDAF_CORE="${AUTOMATIONROOT}/remote"
+
+if [ -z "$CDAF_COMMAND_SHELL" ]; then
+	echo; echo "[$scriptName] ============================================"
+	echo "[$scriptName] Continuous Integration (CI) Process Starting"
+	echo "[$scriptName] ============================================"
+fi
 
 BUILDNUMBER="$1"
 if [ -z $BUILDNUMBER ]; then
@@ -193,28 +200,26 @@ else
 fi
 
 # Use passed argument to determine if a value was passed or if a default was set and used above
-echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT"
+echo "[$scriptName]   AUTOMATIONROOT  : $AUTOMATIONROOT $autoMessage"
 
 # Check for user defined solution folder, i.e. outside of automation root, if found override solution root
-for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
-	directoryName=${i%%/}
-	if [ -f "$directoryName/CDAF.solution" ]; then
-		export SOLUTIONROOT="$directoryName"
-	fi
-done
+printf "[$scriptName]   SOLUTIONROOT    : "
 if [ -z "$SOLUTIONROOT" ]; then
-	SOLUTIONROOT="$AUTOMATIONROOT/solution"
-	solutionMessage="(default, project directory containing CDAF.solution not found)"
-else
-	if [[ $SOLUTION == *'$'* ]]; then
-		SOLUTIONROOT=$(eval echo $SOLUTIONROOT)
-		solutionMessage="(found and evaluated from CDAF.solution)"
+	for i in $(find . -mindepth 1 -maxdepth 1 -type d); do
+		directoryName=${i%%/}
+		if [ -f "$directoryName/CDAF.solution" ]; then
+			SOLUTIONROOT="$directoryName"
+		fi
+	done
+	if [ ! -z "$SOLUTIONROOT" ]; then
+		export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
+		echo "$SOLUTIONROOT (CDAF.solution found)"
 	else
-		solutionMessage="(found CDAF.solution)"
+		ERRMSG "[SOLUTION_NOT_FOUND] No directory found containing CDAF.solution, please create a single occurance of this file." 7612
 	fi
+else
+	echo "$SOLUTIONROOT"
 fi
-export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
-echo "[$scriptName]   SOLUTIONROOT    : $SOLUTIONROOT $solutionMessage"
 
 export SOLUTION=$("${CDAF_CORE}/getProperty.sh" "${SOLUTIONROOT}/CDAF.solution" "solutionName")
 exitCode=$?

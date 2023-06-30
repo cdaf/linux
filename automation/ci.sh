@@ -6,6 +6,7 @@ scriptName='ci.sh'
 echo; echo "[     $scriptName     ] ============================================"
 echo "[     $scriptName     ] Continuous Integration (CI) Process Starting"
 echo "[     $scriptName     ] ============================================"
+export CDAF_COMMAND_SHELL='yes'
 export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 
 BUILDNUMBER="$1"

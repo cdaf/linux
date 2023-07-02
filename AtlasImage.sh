@@ -276,19 +276,11 @@ else
 		if [ "$fedora" ]; then
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
 
-
-			if [ $distro -gt 7 ]; then
-				echo;writeLog "After Release 7, dkms is not available."
-				executeExpression "sudo dnf update"
-				executeExpression "sudo dnf install epel-release"
-				executeExpression "sudo dnf install gcc make perl kernel-devel kernel-headers bzip2 dkms"
-				executeExpression 'sudo dnf update kernel-*'
-			else
-				echo;writeLog "Release 7, supports dkms. Note: this is not supported in subsequent releases."
-				executeExpression "sudo yum install -y gcc make bzip2 perl dkms"
-				executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
-				executeExpression "sudo yum install -y kernel-headers"
-			fi
+			echo;writeLog "After Release 7, dkms is not available."
+			executeExpression "sudo dnf update"
+			executeExpression "sudo dnf install -y epel-release"
+			executeExpression "sudo dnf install -y gcc make perl kernel-devel kernel-headers bzip2 dkms"
+			executeExpression 'sudo dnf update -y kernel-*'
 
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
@@ -298,9 +290,7 @@ else
 
 			executeExpression "lsmod | grep vboxguest"
 
-			executeExpression "sudo yum remove -y kernel-headers"
-			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"
-			executeExpression "sudo yum remove -y gcc dkms make bzip2 perl"
+			executeExpression "sudo dnf remove -y gcc make perl kernel-devel kernel-headers bzip2 dkms"
 			executeExpression "sudo yum groupremove -y 'Development Tools'"
 		else # Ubuntu
 			if [[ "$distro" == *"16.04"* ]]; then

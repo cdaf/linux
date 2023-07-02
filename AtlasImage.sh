@@ -108,12 +108,12 @@ fi
 
 if [ -f '/etc/centos-release' ]; then
 	distro=$(cat "/etc/centos-release")
-	echo "[$scriptName]   distro   : $distro"
+	writeLog "  distro   : $distro"
 	fedora='yes'
 else
 	if [ -f '/etc/redhat-release' ]; then
 		distro=$(cat "/etc/redhat-release")
-		echo "[$scriptName]   distro   : $distro"
+		writeLog "  distro   : $distro"
 		fedora='yes'
 	else
 		debian='yes'
@@ -121,17 +121,17 @@ else
 		if [[ "$test" == *"not found"* ]]; then
 			if [ -f "/etc/issue" ]; then
 				distro=$(cat "/etc/issue")
-				echo "[$scriptName]   distro   : $distro"
+				writeLog "  distro   : $distro"
 			else
 				distro=$(uname -a)
-				echo "[$scriptName]   distro   : $distro"
+				writeLog "  distro   : $distro"
 			fi
 		else
 			while IFS= read -r line; do
 				if [[ "$line" == *"Description"* ]]; then
 					IFS=' ' read -ra ADDR <<< $line
 					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
-					echo "[$scriptName]   distro   : $distro"
+					writeLog "  distro   : $distro"
 				fi
 			done <<< "$test"
 			if [ -z "$distro" ]; then

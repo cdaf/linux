@@ -200,13 +200,11 @@ if [ "$fedora" ]; then
 		echo;writeLog "Release 7, uses 'network' service name. Note: this changes to NetworkManager in subsequent releases."
 		networkService='network'
 	fi
-
-	systemctl restart NetworkManager.service
-	service NetworkManager status
 	
 	executeExpression "sudo service ${networkService} restart"
 	executeExpression "sudo chkconfig ${networkService} on"
 	executeExpression "sudo systemctl restart ${networkService}"
+	executeExpression "sudo service ${networkService} status --no-pager"
 
 	echo;writeLog "Upgrade System"
 	executeExpression "sudo yum update -y"

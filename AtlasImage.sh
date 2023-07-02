@@ -274,7 +274,16 @@ else
 		echo;writeLog "Install VirtualBox Guest Additions"
 		if [ "$fedora" ]; then
 			executeExpression "sudo yum groupinstall -y 'Development Tools'"
-			executeExpression "sudo yum install -y gcc dkms make bzip2 perl"
+
+
+			if [ $distro -gt 7 ]; then
+				echo;writeLog "After Release 7, dkms is not available."
+			else
+				echo;writeLog "Release 7, supports dkms. Note: this is not supported in subsequent releases."
+				dynamicKernel='dkms'
+			fi
+
+			executeExpression "sudo yum install -y gcc make bzip2 perl ${dynamicKernel}"
 			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
 			executeExpression "sudo yum install -y kernel-headers"
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"

@@ -42,6 +42,7 @@ function executeIgnore {
 function installVBox {
 	curlOpt="$1"
 	vbadd="$2"
+	ignoreExitCode="$2"
 	echo;writeLog "Download and install VirtualBox Guest Additions version $vbadd"; echo
 	executeExpression "curl $curlOpt --silent -O http://download.virtualbox.org/virtualbox/${vbadd}/VBoxGuestAdditions_${vbadd}.iso"
 
@@ -56,10 +57,10 @@ function installVBox {
 
 	echo;writeLog "This is normal for server install ..."
 	writeLog "  Could not find the X.Org or XFree86 Window System, skipping."; echo
-	if [ -z "$3" ]; then
-		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run"
+	if [ -z "$ignoreExitCode" ]; then
+		executeExpression "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run --nox11"
 	else
-		executeIgnore "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run" $3
+		executeIgnore "sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run --nox11" $ignoreExitCode
 	fi
 	executeExpression "rm VBoxGuestAdditions_${vbadd}.iso"
 	executeExpression "sudo umount /media/VBoxGuestAdditions"
@@ -278,19 +279,24 @@ else
 
 			if [ $distro -gt 7 ]; then
 				echo;writeLog "After Release 7, dkms is not available."
+				executeExpression "sudo dnf update"
+				executeExpression "sudo dnf install epel-release"
+				executeExpression "sudo dnf install gcc make perl kernel-devel kernel-headers bzip2 dkms"
+				executeExpression 'sudo dnf update kernel-*'
 			else
 				echo;writeLog "Release 7, supports dkms. Note: this is not supported in subsequent releases."
-				dynamicKernel='dkms'
+				executeExpression "sudo yum install -y gcc make bzip2 perl dkms"
+				executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
+				executeExpression "sudo yum install -y kernel-headers"
 			fi
 
-			executeExpression "sudo yum install -y gcc make bzip2 perl ${dynamicKernel}"
-			executeExpression "sudo yum install -y kernel-devel-$(uname -r)"
-			executeExpression "sudo yum install -y kernel-headers"
 			executeExpression "KERN_DIR=/usr/src/kernels/$(uname -r)"
 			executeExpression "export KERN_DIR"
 			executeExpression "ls $KERN_DIR"
 
 			installVBox "$curlOpt" "$vbadd"
+
+			executeExpression "lsmod | grep vboxguest"
 
 			executeExpression "sudo yum remove -y kernel-headers"
 			executeExpression "sudo yum remove -y kernel-devel-$(uname -r)"

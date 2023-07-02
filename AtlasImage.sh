@@ -193,7 +193,7 @@ if [ "$fedora" ]; then
 	executeIgnore "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
 	executeIgnore "sudo yum -y remove avahi-autoipd avahi-libs avahi"
 
-	if [ $distro -gt 7 ]; then echo 'yes'; fi
+	if [ $distro -gt 7 ]; then
 		echo;writeLog "After Release 7, network service changed to NetworkManager."
 		networkService='NetworkManager'
 	else

@@ -315,7 +315,15 @@ if [ "$fedora" ]; then
 	writeLog "Cleanup Fedora"
 	# https://medium.com/@gevorggalstyan/creating-own-custom-vagrant-box-ae7e94043a4e
 	executeExpression "sudo yum -y install yum-utils"
-	executeExpression "sudo package-cleanup -y --oldkernels --count=1"
+
+	if [ $distro -gt 7 ]; then
+		echo;writeLog "After Release 7, use DNF to remove old kernel packages."
+		executeExpression "sudo dnf remove --oldinstallonly --setopt installonly_limit=2 kernel"
+	else
+		echo;writeLog "Release 7, uses 'package-cleanup' to remove old kernel packages. Note: this changes to DNF in subsequent releases."
+		executeExpression "sudo package-cleanup -y --oldkernels --count=1"
+	fi
+	
 	executeExpression "sudo yum -y autoremove"
 	executeExpression "sudo yum -y remove yum-utils"
 

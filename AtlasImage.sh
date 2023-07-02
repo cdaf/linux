@@ -318,7 +318,7 @@ if [ "$fedora" ]; then
 
 	if [ $distro -gt 7 ]; then
 		echo;writeLog "After Release 7, use DNF to remove old kernel packages."
-		executeExpression "sudo dnf remove --oldinstallonly --setopt installonly_limit=2 kernel"
+		executeIgnore "sudo dnf remove --oldinstallonly --setopt installonly_limit=2 kernel"
 	else
 		echo;writeLog "Release 7, uses 'package-cleanup' to remove old kernel packages. Note: this changes to DNF in subsequent releases."
 		executeExpression "sudo package-cleanup -y --oldkernels --count=1"

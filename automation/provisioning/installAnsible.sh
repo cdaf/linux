@@ -67,10 +67,10 @@ echo "[$scriptName] --- start ---"
 systemWide=$1
 if [ -z "$systemWide" ]; then
 	systemWide='yes'
-	echo "[$scriptName]   systemWide   : $systemWide (default)"
+	echo "[$scriptName]   systemWide : $systemWide (default)"
 else
 	if [ "$systemWide" == 'yes' ] || [ "$systemWide" == 'no' ]; then
-		echo "[$scriptName]   systemWide   : $systemWide"
+		echo "[$scriptName]   systemWide : $systemWide"
 	else
 		echo "[$scriptName] Expecting yes or no, exiting with error code 1"; exit 1
 	fi
@@ -78,31 +78,58 @@ fi
 
 version=$2
 if [ -z "$version" ]; then
-	echo "[$scriptName]   version      : Not supplied, will use default"
+	echo "[$scriptName]   version    : Not supplied, will use default"
 else
-	echo "[$scriptName]   version      : $version"
+	echo "[$scriptName]   version    : $version"
 	export ansibleVersion="-${version}"
 fi
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
-	echo "[$scriptName]   whoami       : $(whoami)"
+	echo "[$scriptName]   whoami     : $(whoami)"
 else
-	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
+	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-test="`yum --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
-else
+if [ -f '/etc/centos-release' ]; then
+	distro=$(cat "/etc/centos-release")
+	echo "[$scriptName]   distro     : $distro"
 	fedora='yes'
-	centos=$(cat /etc/redhat-release | grep CentOS)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux"
+else
+	if [ -f '/etc/redhat-release' ]; then
+		distro=$(cat "/etc/redhat-release")
+		echo "[$scriptName]   distro     : $distro"
+		fedora='yes'
 	else
-		echo "[$scriptName] CentOS Linux"
+		debian='yes'
+		test=$(lsb_release --all 2>&1)
+		if [[ "$test" == *"not found"* ]]; then
+			if [ -f "/etc/issue" ]; then
+				distro=$(cat "/etc/issue")
+				echo "[$scriptName]   distro     : $distro"
+			else
+				distro=$(uname -a)
+				echo "[$scriptName]   distro     : $distro"
+			fi
+		else
+			while IFS= read -r line; do
+				if [[ "$line" == *"Description"* ]]; then
+					IFS=' ' read -ra ADDR <<< $line
+					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
+					echo "[$scriptName]   distro     : $distro"
+				fi
+			done <<< "$test"
+			if [ -z "$distro" ]; then
+				echo "[$scriptName] HALT! Unable to determine distribution!"; exit 774
+			fi
+		fi	
 	fi
 fi
 echo
+
+if [ "$fedora" == 'yes' ]; then
+	IFS='.' read -ra ADDR <<< $distro
+	distro=$(echo "${ADDR[0]##* }")
+fi
 
 if [ -z "$fedora" ]; then
 	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
@@ -152,21 +179,28 @@ if [ -z "$fedora" ]; then
 	fi
 	
 else
-	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	executeYumCheck "$elevate yum check-update"
-	executeRetry "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
-	if [ "$systemWide" == 'yes' ]; then
-		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-			echo "[$scriptName] Red Hat Enterprise Linux"
-			version=$(cat /etc/redhat-release)
-			IFS='.' read -ra arr <<< $version
-			IFS=' ' read -ra arr <<< ${arr[0]}
-			epelversion=$(echo ${arr[${#arr[@]} - 1]})
-		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
-		else
-			executeRetry "$elevate yum install -y epel-release"
+	if [ $distro -gt 7 ]; then
+		echo "[$scriptName] CentOS/RHEL, update repositories using DNF"
+		executeRetry "$elevate dnf update"
+		executeRetry "$elevate dnf install -y epel-release"
+		executeRetry "$elevate dnf install -y ansible"
+	else
+		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+		executeYumCheck "$elevate yum check-update"
+		executeRetry "$elevate yum install -y gcc openssl-devel libffi-devel python-devel"
+		if [ "$systemWide" == 'yes' ]; then
+			if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+				echo "[$scriptName] Red Hat Enterprise Linux"
+				version=$(cat /etc/redhat-release)
+				IFS='.' read -ra arr <<< $version
+				IFS=' ' read -ra arr <<< ${arr[0]}
+				epelversion=$(echo ${arr[${#arr[@]} - 1]})
+			    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
+			else
+				executeRetry "$elevate yum install -y epel-release"
+			fi
+			executeRetry "$elevate yum install -y ansible"
 		fi
-		executeRetry "$elevate yum install -y ansible"
 	fi
 fi
 

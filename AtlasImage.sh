@@ -107,12 +107,12 @@ else
 fi
 
 if [ -f '/etc/centos-release' ]; then
-	distro=$(cat /etc/centos-release)
+	distro=$(cat "/etc/centos-release")
 	echo "[$scriptName]   distro   : $distro"
 	fedora='yes'
 else
 	if [ -f '/etc/redhat-release' ]; then
-		distro=$(cat /etc/redhat-release)
+		distro=$(cat "/etc/redhat-release")
 		echo "[$scriptName]   distro   : $distro"
 		fedora='yes'
 	else
@@ -140,6 +140,12 @@ else
 		fi	
 	fi
 fi
+
+if [ "$fedora" == 'yes' ]; then
+	IFS='.' read -ra ADDR <<< $distro
+	distro=$(echo "${ADDR[0]##* }")
+fi
+
 
 writeLog "As Vagrant user, trust the public key"
 if [ -d "$HOME/.ssh" ]; then
@@ -186,9 +192,21 @@ if [ "$fedora" ]; then
 	executeIgnore "sudo systemctl stop avahi-daemon.socket avahi-daemon.service"
 	executeIgnore "sudo systemctl disable avahi-daemon.socket avahi-daemon.service"
 	executeIgnore "sudo yum -y remove avahi-autoipd avahi-libs avahi"
-	executeExpression "sudo service network restart"
-	executeExpression "sudo chkconfig network on"
-	executeExpression "sudo systemctl restart network"
+
+	if [ $distro -gt 7 ]; then echo 'yes'; fi
+		echo;writeLog "After Release 7, network service changed to NetworkManager."
+		networkService='NetworkManager'
+	else
+		echo;writeLog "Release 7, uses 'network' service name. Note: this changes to NetworkManager in subsequent releases."
+		networkService='network'
+	fi
+
+	systemctl restart NetworkManager.service
+	service NetworkManager status
+	
+	executeExpression "sudo service ${networkService} restart"
+	executeExpression "sudo chkconfig ${networkService} on"
+	executeExpression "sudo systemctl restart ${networkService}"
 
 	echo;writeLog "Upgrade System"
 	executeExpression "sudo yum update -y"

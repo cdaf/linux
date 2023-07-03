@@ -181,7 +181,7 @@ if [ -z "$fedora" ]; then
 else
 	if [ $distro -gt 7 ]; then
 		echo "[$scriptName] CentOS/RHEL, update repositories using DNF"
-		executeRetry "$elevate dnf update"
+		executeRetry "$elevate dnf update -y"
 		executeRetry "$elevate dnf install -y epel-release"
 		executeRetry "$elevate dnf install -y ansible"
 	else

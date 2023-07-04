@@ -76,7 +76,6 @@ WORK_DIR_DEFAULT="$5"
 echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 
 # Capture landing directory, then change to Default Working Directory and resolve to absolute path
-CDAF_WORKSPACE=$(pwd)
 cd $WORK_DIR_DEFAULT
 WORK_DIR_DEFAULT=$(pwd)
 
@@ -93,7 +92,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 	propertiesFilter=()
 	while IFS=  read -r -d $'\0'; do
 		propertiesFilter+=("$REPLY")
-	done < <(find "${WORK_DIR_DEFAULT}/propertiesForContainerTasks/${ENVIRONMENT}*" -print0 | sort)
+	done < <(find ./propertiesForContainerTasks -name "${ENVIRONMENT}*" -print0 | sort)
 	if [ -z "$propertiesFilter" ]; then
 		echo "[$scriptName][INFO] Properties directory ($propertiesFilter) not found, alter processSequence property to skip."
 	else

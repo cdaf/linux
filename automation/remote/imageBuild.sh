@@ -169,7 +169,16 @@ else
 			constructor=()
 			while IFS=  read -r -d $'\0'; do
 				constructor+=("$REPLY")
-			done < <(find . -mindepth 1 -maxdepth 1 -type d -print0 | sort)
+			done < <(find . -mindepth 1 -maxdepth 1 -type d -print0)
+		fi
+
+		if [ ! -z "$constructor" ]; then
+			IFS=$'\n' constructor=($(sort <<<"${constructor[*]}"))
+			unset IFS
+			echo; echo "[$scriptName] Preparing to process constructors : "; echo		 
+			for image in "${constructor[@]}"; do
+				echo "  ${image##*/}"
+			done
 		fi
 
 		for image in "${constructor[@]}"; do

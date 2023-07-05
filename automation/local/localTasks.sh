@@ -71,13 +71,14 @@ echo "[$scriptName]   hostname         : $(hostname)"
 echo "[$scriptName]   pwd              : $(pwd)"
 
 if [ -d "./propertiesForLocalTasks" ]; then
-
 	taskList=()
 	while IFS=  read -r -d $'\0'; do
 		taskList+=("$REPLY")
-	done < <(find ./propertiesForLocalTasks -name "${ENVIRONMENT}*" -print0 | sort)
+	done < <(find ./propertiesForLocalTasks -name "${ENVIRONMENT}*" -print0)
 	if [ ! -z "$taskList" ]; then
-		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
+		IFS=$'\n' taskList=($(sort <<<"${taskList[*]}"))
+		unset IFS
+		echo; echo "[$scriptName] Preparing to process targets : "; echo
 		for LOCAL_TASK_TARGET in "${taskList[@]}"; do
 			echo "  ${LOCAL_TASK_TARGET##*/}"
 		done
@@ -122,10 +123,8 @@ if [ -d "./propertiesForLocalTasks" ]; then
 		cd ..
 	
 	else
-		echo
-		echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
+		echo; echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 	fi
 else
-	echo
-	echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) not found, no action taken."
+	echo; echo "[$scriptName]   Properties directory (./propertiesForLocalTasks) not found, no action taken."
 fi

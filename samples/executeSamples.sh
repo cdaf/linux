@@ -28,6 +28,8 @@ for dirname in $dirlist; do
 done
 
 echo "Sample test complete for:"
-echo $dirlist
+for dirname in $dirlist; do
+	echo "  $dirname"
+done
 
 echo; echo "--- Completed Samples Test ---"

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+source /C/Users/jules/.basheditor/remote-debugging-v2.sh localhost 33333 #BASHEDITOR-TMP-REMOTE-DEBUGGING-END|Origin line:#!/usr/bin/env bash
 set -e
 scriptName=${0##*/}
 
@@ -66,8 +66,10 @@ if [ -d "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 	taskList=()
 	while IFS=  read -r -d $'\0'; do
 		taskList+=("$REPLY")
-	done < <(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "${ENVIRONMENT}*" -print0 | sort)
+	done < <(find ./$WORK_DIR_DEFAULT/propertiesForRemoteTasks -name "${ENVIRONMENT}*" -print0)
 	if [ ! -z "$taskList" ]; then
+		IFS=$'\n' taskList=($(sort <<<"${taskList[*]}"))
+		unset IFS
 		echo; echo "[$scriptName] Preparing to process targets : "; echo		 
 		for DEPLOY_TARGET in "${taskList[@]}"; do
 			echo "  ${DEPLOY_TARGET##*/}"
@@ -82,9 +84,9 @@ if [ -d "./$WORK_DIR_DEFAULT/propertiesForRemoteTasks" ]; then
 				echo "[$scriptName] ./$WORK_DIR_DEFAULT/remoteDeployTarget.sh $ENVIRONMENT $RELEASE $BUILDNUMBER $SOLUTION $DEPLOY_TARGET $WORK_DIR_DEFAULT $OPT_ARG failed! Returned $exitCode"
 				exit $exitCode
 			fi
-		
+
 			lastTarget=$(echo $DEPLOY_TARGET)
-		
+
 		done				
 	else
 		echo; echo "[$scriptName]   Properties directory (./$WORK_DIR_DEFAULT/propertiesForRemoteTasks/) exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."

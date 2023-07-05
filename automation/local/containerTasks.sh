@@ -89,13 +89,11 @@ echo "[$scriptName]   pwd              : $WORK_DIR_DEFAULT"
 
 if [ -d "./propertiesForContainerTasks" ]; then
 
-	propertiesFilter=()
+	taskList=()
 	while IFS=  read -r -d $'\0'; do
-		propertiesFilter+=("$REPLY")
-	done < <(find ./propertiesForContainerTasks -name "${ENVIRONMENT}*" -print0 | sort)
-	if [ -z "$propertiesFilter" ]; then
-		echo "[$scriptName][INFO] Properties directory ($propertiesFilter) not found, alter processSequence property to skip."
-	else
+		taskList+=("$REPLY")
+	done < <(find ./propertiesForContainerTasks -name "${ENVIRONMENT}*" -print0)
+	if [ ! -z "$taskList" ]; then
 		# Verify docker available
 		test=$(docker --version 2>&1)
 		if [ $? -ne 0 ]; then
@@ -176,19 +174,22 @@ if [ -d "./propertiesForContainerTasks" ]; then
 
 		# 2.5.0 Process all containerDeploy environments based on prefix pattern (align with localTasks and remoteTasks)
 		echo; echo "[$scriptName] Preparing to process deploy targets :"
-		for propFile in "${propertiesFilter[@]}"; do
+		IFS=$'\n' taskList=($(sort <<<"${taskList[*]}"))
+		unset IFS
+		for propFile in "${taskList[@]}"; do
 			echo "[$scriptName]   $(basename "$propFile")"
 		done
 		echo
 
-		for propFile in "${propertiesFilter[@]}"; do
+		for propFile in "${taskList[@]}"; do
 			TARGET=$(basename "$propFile")
 			echo "[$scriptName] Processing \$TARGET = $TARGET..."; echo
 			executeExpression "$containerDeploy"
 			executeExpression "cd '$WORK_DIR_DEFAULT'" # Return to Landing Directory in case a custom containerTask has been used, e.g. containerRemote
 		done
+	else
+		echo; echo "[$scriptName][INFO] Properties directory (./propertiesForContainerTasks) found exists but contains no files, no action taken. Check that properties file exists with prefix of $ENVIRONMENT."
 	fi
 else
-	echo
-	echo "[$scriptName]   Properties directory (./propertiesForContainerTasks) not found, no action taken."
+	echo; echo "[$scriptName]   Properties directory (./propertiesForContainerTasks) not found, no action taken."
 fi

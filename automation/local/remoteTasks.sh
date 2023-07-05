@@ -1,4 +1,4 @@
-source /C/Users/jules/.basheditor/remote-debugging-v2.sh localhost 33333 #BASHEDITOR-TMP-REMOTE-DEBUGGING-END|Origin line:#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -e
 scriptName=${0##*/}
 

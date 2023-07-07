@@ -1,10 +1,17 @@
-echo "Same example CDAF task execution engine cases"
+echo "Minimum function checklist"
+VARCHK 
 
+echo "Load a property file to memory"
 PROPLD manifest.txt
 
-ASSIGN $productVersion+='.'
-ASSIGN $productVersion+=$BUILDNUMBER
+echo "Display a resolved variable"
+ASSIGN $username = "$var_load"
 
-EXCREM whoami
+echo "Detokenise a setting file"
+DETOKN example.yaml
 
-EXCREM ./capabilities.sh test nocheck
+echo "Detokenise setting file using environment variable"
+REPLAC example.yaml @secret@ $HOME
+
+echo "In a real pipeline, can rely on secret masking"
+cat example.yaml

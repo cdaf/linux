@@ -1,17 +1,62 @@
-echo "Minimum function checklist"
+echo "12-factor approach uses environment variables, these would be set by the CI/CD tooling"
+
+ASSIGN $EXAMPLE_SECRET_1 = 'Shhh,Passw0Rd!'
+ASSIGN $EXAMPLE_SECRET_2 = 'Shhh,secret'
+
+echo "Variable checklist"
+
 VARCHK 
 
 echo "Load a property file to memory"
+
 PROPLD manifest.txt
 
-echo "Display a resolved variable"
-ASSIGN $username = "$var_load"
+echo "Reveal values when assigning to variable"
+echo "  var_load         = $var_load"
+echo "  EXAMPLE_SECRET_2 = $EXAMPLE_SECRET_2"
+echo "  list             = $list"
+echo "  empty_var        = $empty_var"
+echo "  null_var         = $null_var"
+echo "  null             = $null"
+
+ASSIGN $resolvedVarInVar = $var_load
+ASSIGN $resolvedStringInVar = $list
+ASSIGN $resolvedEmptyInVar = $empty_var
+ASSIGN $resolvedNullInVar = $null_var
+ASSIGN $resolvedNullVar = $null
 
 echo "Detokenise a setting file"
+
 DETOKN example.yaml
 
-echo "Detokenise setting file using environment variable"
-REPLAC example.yaml @secret@ $HOME
+echo "empty_var token is preserved because no match will be found, while null_var contains a reference to ''"
 
-echo "In a real pipeline, can rely on secret masking"
 cat example.yaml
+
+echo "Detokenise setting file using ad-hoc environment variable, only using where variable manipulation is required."
+
+REPLAC example.yaml @secret@ $EXAMPLE_SECRET_1
+cat example.yaml
+
+echo "Detokenise setting file using environment variable as defined in CM, this is the recommended method for applying secrets."
+
+export CDAF_OVERRIDE_TOKEN='@'
+DETOKN example.yaml $TARGET resolve
+
+echo "empty_var token is preserved because no match will be found, while null_var will result in an empty property"
+
+cat example.yaml
+
+echo "Detokenise setting file, revealing resolved property list = $list, csv = $csv"
+
+export CDAF_OVERRIDE_TOKEN='!'
+DETOKN example.yaml $TARGET reveal
+
+echo "empty_var token is preserved because no match will be found, while null_var will result in an empty property"
+
+cat example.yaml
+
+echo "Process a comma separated list as array"
+echo "  csv = $csv"
+IFS=',' read -ra list <<< "$csv"
+for item in "${list[@]}"; do echo "  [ $item ]"; done

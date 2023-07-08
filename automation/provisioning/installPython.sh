@@ -72,10 +72,6 @@ else
 	echo "[$scriptName]   version : $version (choices 2 or 3)"
 fi
 
-if [ "$version" != "2" ]; then
-	pyVer=$version
-fi
-
 install=$2
 if [ -z "$install" ]; then
 	echo "[$scriptName]   install : (PiP install list not supplied, no additional action will be attempted)"
@@ -90,25 +86,48 @@ else
 	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
-test="`yum --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] yum not found, assuming Debian/Ubuntu, using apt-get"
-else
+if [ -f '/etc/centos-release' ]; then
+	distro=$(cat "/etc/centos-release")
+	echo "[$scriptName]   distro  : $distro"
 	fedora='yes'
-	test=$(rpm --query redhat-release 2>&1)
-	if [ $? -eq 0 ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux $test"
+else
+	if [ -f '/etc/redhat-release' ]; then
+		distro=$(cat "/etc/redhat-release")
+		echo "[$scriptName]   distro  : $distro"
+		fedora='yes'
 	else
-		centos=$(rpm --query centos-release)
-		echo "[$scriptName] CentOS Linux $centos"
-		
+		debian='yes'
+		test=$(lsb_release --all 2>&1)
+		if [[ "$test" == *"not found"* ]]; then
+			if [ -f "/etc/issue" ]; then
+				distro=$(cat "/etc/issue")
+				echo "[$scriptName]   distro  : $distro"
+			else
+				distro=$(uname -a)
+				echo "[$scriptName]   distro  : $distro"
+			fi
+		else
+			while IFS= read -r line; do
+				if [[ "$line" == *"Description"* ]]; then
+					IFS=' ' read -ra ADDR <<< $line
+					distro=$(echo "${ADDR[1]} ${ADDR[2]}")
+					echo "[$scriptName]   distro  : $distro"
+				fi
+			done <<< "$test"
+			if [ -z "$distro" ]; then
+				echo "[$scriptName] HALT! Unable to determine distribution!"; exit 774
+			fi
+		fi	
 	fi
+fi
+if [ "$fedora" == 'yes' ]; then
+	IFS='.' read -ra ADDR <<< $distro
+	distro=$(echo "${ADDR[0]##* }")
 fi
 echo
 
 if [ -z "$fedora" ]; then
-	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
-	echo
+	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"; 	echo
 	echo "[$scriptName] Check that APT is available"
 	dailyUpdate=$(ps -ef | grep  /usr/lib/apt/apt.systemd.daily | grep -v grep)
 	if [ ! -z "${dailyUpdate}" ]; then
@@ -120,8 +139,7 @@ if [ -z "$fedora" ]; then
 		executeRetry "sleep 5"
 	fi	
 	
-	echo "[$scriptName] $elevate apt-get update"
-	echo
+	echo "[$scriptName] $elevate apt-get update"; echo
 	timeout=3
 	count=0
 	while [ ${count} -lt ${timeout} ]; do
@@ -141,36 +159,44 @@ if [ -z "$fedora" ]; then
 	fi
 
 	executeRetry "$elevate apt-get update -y"
-	executeRetry "$elevate apt-get install -y python${pyVer}-pip"
+	executeRetry "$elevate apt-get install -y python${version}-pip"
 
 else
 
-	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	centos='yes'
-	executeYumCheck "$elevate yum check-update"
-
-	echo
-	if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-		echo "[$scriptName] Red Hat Enterprise Linux"
-		version=$(cat /etc/redhat-release)
-		IFS='.' read -ra arr <<< $version
-		IFS=' ' read -ra arr <<< ${arr[0]}
-		epelversion=$(echo ${arr[${#arr[@]} - 1]})
-	    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
+	# 2.6.7 Python 2 install for Rocky
+	if [ $distro -gt 7 ]; then
+		echo "[$scriptName] Release 8 or later, use DNF"
+		executeRetry "$elevate dnf update -y"
+		executeRetry "$elevate dnf install -y python2"
 	else
-		executeRetry "$elevate yum install -y epel-release"
+
+		echo "[$scriptName] CentOS/RHEL, update repositories using yum"
+		centos='yes'
+		executeYumCheck "$elevate yum check-update"
+	
+		echo
+		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
+			echo "[$scriptName] Red Hat Enterprise Linux"
+			rhelVersion=$(cat /etc/redhat-release)
+			IFS='.' read -ra arr <<< $rhelVersion
+			IFS=' ' read -ra arr <<< ${arr[0]}
+			epelversion=$(echo ${arr[${#arr[@]} - 1]})
+		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
+		else
+			executeRetry "$elevate yum install -y epel-release"
+		fi
+		executeYumCheck "$elevate yum check-update"
+		executeRetry "$elevate yum install -y python${version}-pip"
 	fi
-	executeYumCheck "$elevate yum check-update"
-	executeRetry "$elevate yum install -y python${pyVer}-pip"
 fi
 
 echo "[$scriptName] List version details..."
 
-executeRetry "python${pyVer} --version"
-executeRetry "pip${pyVer} --version"
+executeRetry "python${version} --version"
+executeRetry "pip${version} --version"
 
 if [ ! -z "$install" ]; then
-	executeRetry "$elevate pip${pyVer} install $install"
+	executeRetry "$elevate pip${version} install $install"
 fi
 
 echo "[$scriptName] --- end ---"

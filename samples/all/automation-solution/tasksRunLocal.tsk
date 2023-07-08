@@ -1,7 +1,7 @@
 echo "12-factor approach uses environment variables, these would be set by the CI/CD tooling"
 
-ASSIGN $EXAMPLE_SECRET_1 = 'Shhh,Passw0Rd!'
-ASSIGN $EXAMPLE_SECRET_2 = 'Shhh,secret'
+export EXAMPLE_SECRET_1='Shhh,Passw0Rd!'
+export EXAMPLE_SECRET_2='Shhh,secret'
 
 echo "Variable checklist"
 

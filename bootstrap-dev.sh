@@ -83,13 +83,13 @@ executeExpression "$elevate ${atomicPath}/base.sh 'wget gnupg2 apt-transport-htt
 
 executeExpression "wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | $elevate apt-key add -"
 executeExpression "echo \"deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main\" | $elevate tee /etc/apt/sources.list.d/adoptium.list"
-executeExpression "$elevate ${atomicPath}/provisioning/base.sh 'temurin-$1-$2'"
+executeExpression "$elevate ${atomicPath}/base.sh 'temurin-$1-$2'"
 
 if [[ "$2" == 'jdk' ]]; then
 	javaCompiler=$(which javac)
 	javaBin=$(dirname $(readlink -f $javaCompiler))
 	javaHome=${javaBin%/*}
-	executeExpression "/opt/cdaf/provisioning/setenv.sh JAVA_HOME $javaHome"
+	executeExpression "$elevate ${atomicPath}/setenv.sh JAVA_HOME $javaHome"
 fi
 
 echo "[$scriptName] The base command refreshes the repositories"; echo

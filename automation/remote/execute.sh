@@ -520,9 +520,11 @@ while read LINE; do
 		fileName=${stringarray[1]}
 		targetDir=${stringarray[2]}
 		if [ -z "$targetDir" ]; then
-			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz"
+			REFRSH ${fileName}
+			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz --directory ${fileName} --strip-components=1"
 		else
-			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz --directory ${targetDir}"
+			REFRSH ${targetDir}
+			EXECUTABLESCRIPT="tar -zxvf ./${fileName}.tar.gz --directory ${targetDir} --strip-components=1"
 		fi
 	fi
 

@@ -42,7 +42,7 @@ echo "[$scriptName] --- start ---"
 user_name=$(whoami)
 if [ "$user_name" == 'root' ]; then
 	echo "[$scriptName]   whoami : ${user_name}"
-then
+else
 	echo "[$scriptName]   whoami : ${user_name} (use sudo to elevate)"
 	elevate='sudo'
 fi

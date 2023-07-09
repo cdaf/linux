@@ -46,15 +46,22 @@ else
 		atomicPath='/vagrant/automation/provisioning'
 	else
 		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-		if [ -d 'linux-master' ]; then
-			executeExpression "rm -rf linux-master"
-		fi
-		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
-		executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-		executeExpression "tar -xzf LU-CDAF.tar.gz"
+		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
 		atomicPath='./automation/provisioning'
 	fi
 fi
+
+echo; echo "[$scriptName] Install Google Chrome"; echo
+chromePackage='./google-chrome-stable_current_amd64.deb'	
+if [ -f "${chromePackage}" ]; then
+	executeExpression "rm -f ${chromePackage}"
+fi
+
+executeExpression "wget --quiet https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+
+executeExpression "$elevate apt-get install -y ${chromePackage}"
+executeExpression "google-chrome -version"
+executeExpression "rm -f ${chromePackage}"
 
 executeExpression "${atomicPath}/base.sh 'virtualbox vagrant'"
 

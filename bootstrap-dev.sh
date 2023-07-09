@@ -39,6 +39,10 @@ function executeYumCheck {
 
 scriptName='bootstrap-dev.sh'
 echo "[$scriptName] --- start ---"
+user_name=$(whoami)
+if [ "$user_name" == 'root' ]; then
+	elevate='sudo'
+fi
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
 if [ -f './automation/CDAF.linux' ]; then
@@ -66,21 +70,20 @@ executeExpression "$elevate apt-get install -y ${chromePackage}"
 executeExpression "google-chrome -version"
 executeExpression "rm -f ${chromePackage}"
 
-executeExpression "${atomicPath}/base.sh 'virtualbox vagrant'"
+executeExpression "$elevate ${atomicPath}/base.sh 'virtualbox vagrant'"
 
-echo "[$scriptName] The base command refreshes the repositories"
-echo
+echo "[$scriptName] The base command refreshes the repositories"; echo
 echo "[$scriptName] From https://code.visualstudio.com/docs/setup/linux"
 test="`yum --version 2>&1`"
 if [[ "$test" == *"not found"* ]]; then
 	echo "[$scriptName] Debian/Ubuntu"
-	executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg"
+	executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc | $elevate gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg"
 	executeExpression "sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main\" > /etc/apt/sources.list.d/vscode.list'"
-	executeExpression "apt-get update"
-	executeExpression "sudo apt-get install -y code"
+	executeExpression "$elevate apt-get update"
+	executeExpression "$elevate apt-get install -y code"
 fi
 
 executeExpression "${atomicPath}/installDocker.sh" # Docker and Compose
-executeExpression "${atomicPath}/installOracleJava.sh jdk" # Docker and Compose
+# executeExpression "${atomicPath}/installOracleJava.sh jdk" # Docker and Compose
 
 echo "[$scriptName] --- end ---"

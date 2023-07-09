@@ -41,6 +41,9 @@ scriptName='bootstrap-dev.sh'
 echo "[$scriptName] --- start ---"
 user_name=$(whoami)
 if [ "$user_name" == 'root' ]; then
+	echo "[$scriptName]   whoami : ${user_name}"
+then
+	echo "[$scriptName]   whoami : ${user_name} (use sudo to elevate)"
 	elevate='sudo'
 fi
 
@@ -52,10 +55,12 @@ else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then
 		atomicPath='/vagrant/automation/provisioning'
+		echo "[$scriptName] atomicPath = $atomicPath ..."
 	else
 		echo "[$scriptName] $atomicPath not found for Vagrant, download latest from GitHub"
 		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -"
 		atomicPath='./automation/provisioning'
+		echo "[$scriptName] atomicPath = $atomicPath ..."
 	fi
 fi
 

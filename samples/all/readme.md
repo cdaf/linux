@@ -1,6 +1,10 @@
-# Comprehensive Features
+# All CDAF Core Features
 
-This executes remote deployment using local host, to provision
+To avoid execution of Remote Tasks
+
+    export CDAF_DELIVERY='WSL'
+
+To executs Remote Tasks, configure remote loop-back access to teh localhost.
 
     ../../automation/provisioning/addUser.sh deployer deployer no Password!
     ../../automation/provisioning/agent.sh deployer@localhost

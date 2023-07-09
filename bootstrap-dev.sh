@@ -47,6 +47,7 @@ fi
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
 if [ -f './automation/CDAF.linux' ]; then
 	atomicPath='./automation/provisioning'
+	echo "[$scriptName] atomicPath = $atomicPath ..."
 else
 	echo "[$scriptName] Provisioning directory ($atomicPath) not found in workspace, looking for alternative ..."
 	if [ -f '/vagrant/automation/CDAF.linux' ]; then

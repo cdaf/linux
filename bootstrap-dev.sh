@@ -78,7 +78,7 @@ executeExpression "rm -f ${chromePackage}"
 
 executeExpression "$elevate ${atomicPath}/base.sh 'virtualbox vagrant'"
 
-executeExpression "$elevate ${atomicPath}/provisioning/base.sh 'wget gnupg2 apt-transport-https ca-certificates'"
+executeExpression "$elevate ${atomicPath}/base.sh 'wget gnupg2 apt-transport-https ca-certificates'"
 
 executeExpression "wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | $elevate apt-key add -"
 executeExpression "echo \"deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main\" | $elevate tee /etc/apt/sources.list.d/adoptium.list"

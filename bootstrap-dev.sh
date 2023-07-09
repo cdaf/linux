@@ -46,6 +46,7 @@ else
 	echo "[$scriptName]   whoami : ${user_name} (use sudo to elevate)"
 	elevate='sudo'
 fi
+echo
 
 # First check for CDAF in current directory, then check for a Vagrant VM, if not Vagrant
 if [ -f './automation/CDAF.linux' ]; then

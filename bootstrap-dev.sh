@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Install is for Ubuntu only
+# curl -s https://raw.githubusercontent.com/cdaf/linux/master/bootstrap-dev.sh | bash -
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval $1

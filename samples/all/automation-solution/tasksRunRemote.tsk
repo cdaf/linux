@@ -1,10 +1,20 @@
-echo "Same example CDAF task execution engine cases"
+echo "Create a temp directory & copy content to it, then add another file"
 
-PROPLD manifest.txt
+REFRSH manifest.txt .cdaf-regression-temp-dir
+VECOPY example.yaml .cdaf-regression-temp-dir
 
-ASSIGN $productVersion+='.'
-ASSIGN $productVersion+=$BUILDNUMBER
+echo "Create a zip file from the directory, then extract it to directory with the same name"
 
-echo "Perform example activity, file copy"
-REMOVE $TMPDIR/manifest.txt
-VECOPY manifest.txt $TMPDIR
+CMPRSS zipPackage .cdaf-regression-temp-dir
+DCMPRS zipPackage
+
+echo "Remove the temp directory"
+
+REMOVE .cdaf-regression-temp-dir
+
+echo "List host capabilities"
+
+$CDAF_CORE/capabilities.sh
+
+#$key = Get-Content ./crypt/WINDOWS_PASSWORD
+#DECRYP ./crypt/properties.aes $key

@@ -475,7 +475,7 @@ else
 						elevate='sudo'
 					fi
 					executeExpression "$elevate service docker start"
-					executeExpression "$elevate service docker status"
+					executeExpression "$elevate systemctl --no-pager status"
 					docker images
 					exitCode=$?
 					if [ $exitCode -eq 0 ]; then

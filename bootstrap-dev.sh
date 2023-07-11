@@ -91,6 +91,7 @@ if [[ "$2" == 'jdk' ]]; then
 	javaHome=${javaBin%/*}
 	executeExpression "$elevate ${atomicPath}/setenv.sh JAVA_HOME $javaHome"
 fi
+executeExpression "$elevate sudo snap install --classic eclipse"
 
 echo "[$scriptName] The base command refreshes the repositories"; echo
 echo "[$scriptName] From https://code.visualstudio.com/docs/setup/linux"
@@ -102,14 +103,8 @@ executeExpression "$elevate sh -c 'echo \"deb [arch=amd64,arm64,armhf signed-by=
 executeExpression "rm -f packages.microsoft.gpg"
 executeExpression "$elevate apt install apt-transport-https"
 executeExpression "$elevate sudo apt update"
-executeExpression "$elevate apt install code # or code-insiders"
-
-executeExpression "curl https://packages.microsoft.com/keys/microsoft.asc | $elevate gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg"
-executeExpression "sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main\" > /etc/apt/sources.list.d/vscode.list'"
-executeExpression "$elevate apt-get update"
-executeExpression "$elevate apt-get install -y code"
+executeExpression "$elevate apt install -y code"
 
 executeExpression "${atomicPath}/installDocker.sh" # Docker and Compose
-# executeExpression "${atomicPath}/installOracleJava.sh jdk" # Docker and Compose
 
 echo "[$scriptName] --- end ---"

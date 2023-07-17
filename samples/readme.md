@@ -1,5 +1,7 @@
 # CDAF Samples
 
+> following is not applicable to Windows Subsystem for Linux (WSL).
+
 To execute samples that perform remote tasks, provision a loopback connection to your localhost. Replace Password! appropriately.
 
 ```

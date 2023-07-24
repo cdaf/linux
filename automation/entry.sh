@@ -137,8 +137,8 @@ else
 	echo "[$scriptName]   SOLUTION       : $SOLUTION"
 fi
 
-workspace=$(pwd)
-echo "[$scriptName]   pwd            : $workspace"
+export WORKSPACE_ROOT=$(pwd)
+echo "[$scriptName]   WORKSPACE_ROOT : $WORKSPACE_ROOT"
 echo "[$scriptName]   hostname       : $(hostname)"
 echo "[$scriptName]   whoami         : $(whoami)"; echo
 
@@ -312,7 +312,7 @@ else
 				done
 
 				if [ ! -z "${usingCache}" ]; then
-					executeExpression "cd $workspace"
+					executeExpression "cd $WORKSPACE_ROOT"
 				fi
 
 				if [ ! -z "${headAttached}" ]; then

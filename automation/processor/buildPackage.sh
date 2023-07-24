@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Consolidated Error processing function
 #  required : error message
 #  optional : exit code, if not supplied only error message is written
@@ -231,8 +230,8 @@ if [ -z "$SOLUTION" ]; then
 fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
 
-export WORKSPACE="$(pwd)"
-echo "[$scriptName]   pwd             : ${WORKSPACE}"
+export WORKSPACE_ROOT="$(pwd)"
+echo "[$scriptName]   WORKSPACE_ROOT  : ${WORKSPACE_ROOT}"
 echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"
 

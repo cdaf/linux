@@ -16,8 +16,7 @@ function executeExpression {
 
 scriptName=${0##*/}
 
-echo
-echo "[$scriptName] ================================="
+echo; echo "[$scriptName] ================================="
 echo "[$scriptName] Continuous Delivery (CD) Starting"
 echo "[$scriptName] ================================="
 

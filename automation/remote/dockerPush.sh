@@ -136,13 +136,11 @@ if [ ! -z $registryToken ]; then
 	if [ ! -z $registryURL ]; then
 		registryContext="${registryURL}/${registryContext}"
 	fi
-	
-	for tag in $registryTags; do
-		executeExpression "docker tag ${imageTag} ${registryContext}:$tag"
-		executeExpression "docker push ${registryContext}:$tag"
-	done
-else
-	echo "[$scriptName] registryToken not supplied, so push not attempted."
 fi
+
+for tag in $registryTags; do
+	executeExpression "docker tag ${imageTag} ${registryContext}:$tag"
+	executeExpression "docker push ${registryContext}:$tag"
+done
 
 echo; echo "[$scriptName] --- end ---"

@@ -83,6 +83,7 @@ else
 	echo "[$scriptName]   whoami         = $(whoami) (elevation not required)"
 fi
 
+export DEBIAN_FRONTEND=noninteractive
 media="vsts-agent-linux-x64-${version}.tar.gz"
 
 if [ -d './vso' ]; then

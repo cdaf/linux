@@ -68,7 +68,7 @@ fi
 
 version="$6"
 if [ -z "$version" ]; then
-	version='2.217.2'
+	version='3.220.5'
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"

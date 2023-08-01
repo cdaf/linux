@@ -231,7 +231,7 @@ fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
 
 export WORKSPACE_ROOT="$(pwd)"
-export WORKSPACE="$(pwd)"
+export WORKSPACE="$WORKSPACE_ROOT"
 echo "[$scriptName]   WORKSPACE_ROOT  : ${WORKSPACE_ROOT}"
 echo "[$scriptName]   hostname        : $(hostname)"
 echo "[$scriptName]   whoami          : $(whoami)"

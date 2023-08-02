@@ -9,8 +9,7 @@ cdaf-ci:
 
   # To use native container runner with CDAF pre-installed
   image: cdaf/linux
-  script: /solution/automation/entry.sh ${CI_BUILD_ID} ${CI_BUILD_REF_NAME}
-
+  script: /solution/automation/entry.sh ${CI_PIPELINE_IID} ${CI_COMMIT_BRANCH}
   # Self-hosted Runner
   # tags:
   #   - bash

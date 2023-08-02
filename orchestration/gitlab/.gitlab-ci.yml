@@ -45,7 +45,7 @@ test:
   tags:
     - bash
   script: "./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}"
-  environment: staging
+  environment: "${CI_JOB_STAGE}"
   dependencies:
     - cdaf-ci
   only:
@@ -57,7 +57,7 @@ production:
     - bash
   script: "./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}"
   when: manual
-  environment: live
+  environment: "${CI_JOB_STAGE}"
   needs: 
     - test
     - cdaf-ci

@@ -13,21 +13,20 @@ pipelines:
         #   - linux.shell
 
         script:
-        
-          ## CDAF Install is not required because pre-instlled in cdaf/linux:latest, following samples are for use in images without CDAF
-          - entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
           
           # Use Latest Stable
           # - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
           # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
 
           # Using CDAF Edge
-          # - curl -s https://codeload.github.com/cdaf/linux/zip/refs/heads/master -o linux-master.zip
-          # - unzip linux-master.zip
-          # - ./linux-master/automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+          # - curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+          # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
 
           # CDAF installed in repo
           # - ./automation/entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+        
+          ## CDAF Install is not required because pre-instlled in cdaf/linux:latest, following samples are for use in images without CDAF
+          - entry.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
 
   branches:
     'master':

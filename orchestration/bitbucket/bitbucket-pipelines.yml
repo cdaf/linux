@@ -5,9 +5,12 @@ pipelines:
     - step:
         name: Build and Test
 
+        # If not using docker-in-docker, remove this declaration and add the following to the script 
+        # - export DOCKER_HOST=unix:///var/run/docker.sock
         services:
           - docker
 
+        # To run natively, remove image: and services: declaration
         # runs-on:
         #   - self.hosted
         #   - linux.shell
@@ -41,10 +44,9 @@ pipelines:
           #   - linux.shell
 
           script:
-            - curl -s https://cdaf.io/static/app/downloads/cdaf.sh | bash -
-            - ./automation/ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
+            - ci.sh $BITBUCKET_BUILD_NUMBER $BITBUCKET_BRANCH
           artifacts:
-            - "release.sh"
+            - release.sh
 
           # Legacy artefacts
           # artifacts:

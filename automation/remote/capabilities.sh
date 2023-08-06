@@ -2,12 +2,22 @@
 
 scriptName='capabilities.sh'
 
-echo; echo "[$scriptName] --- start ---"
+version="$1"
+if [ "$version" != 'cdaf' ]; then
+	echo; echo "[$scriptName] --- start ---"
+fi
+
 AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
 if [ -f "$AUTOMATIONROOT/CDAF.linux" ]; then
 	productVersion=$(cat "$AUTOMATIONROOT/CDAF.linux" | grep productVersion)
 	IFS='=' read -ra ADDR <<< $productVersion
-	echo "[$scriptName]   CDAF     : ${ADDR[1]}"
+	cdaf_version=${ADDR[1]}
+	if [ "$version" == 'cdaf' ]; then
+		echo "$cdaf_version"
+		exit 0
+	else
+		echo "[$scriptName]   CDAF     : $cdaf_version"
+	fi
 fi
 
 test="`hostname -f 2>&1`"
@@ -287,6 +297,15 @@ if [ -z "$test" ]; then
 	echo "  helmsman         : (not installed)"
 else
 	echo "  helmsman         : ${test##*v}"
+fi
+
+test=$(az version --output tsv 2>/dev/null)
+unset IFS
+read -ra ADDR <<< $test
+if [ -z "$test" ]; then
+	echo "  Azure CLI        : (not installed)"
+else
+	echo "  Azure CLI        : ${ADDR[0]}"
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

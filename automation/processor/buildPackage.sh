@@ -162,6 +162,7 @@ else
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 	echo "[$scriptName]   BUILDNUMBER     : $BUILDNUMBER"
 fi
+export BUILDNUMBER=${BUILDNUMBER}
 
 REVISION="$2"
 if [[ $REVISION == *'$'* ]]; then
@@ -178,7 +179,7 @@ else
 fi
 export REVISION="$REVISION"
 
-ACTION="$3"
+export ACTION="$3"
 echo "[$scriptName]   ACTION          : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 

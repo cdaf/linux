@@ -20,7 +20,7 @@ echo; echo "[$scriptName] ================================="
 echo "[$scriptName] Continuous Delivery (CD) Starting"
 echo "[$scriptName] ================================="
 
-ENVIRONMENT="$1"
+export ENVIRONMENT="$1"
 if [[ $ENVIRONMENT == *'$'* ]]; then
 	ENVIRONMENT=$(eval echo $ENVIRONMENT)
 fi
@@ -29,7 +29,7 @@ if [ -z "$ENVIRONMENT" ]; then
 fi 
 echo "[$scriptName]   ENVIRONMENT      : $ENVIRONMENT"
 
-RELEASE="$2"
+export RELEASE="$2"
 if [[ $RELEASE == *'$'* ]]; then
 	RELEASE=$(eval echo $RELEASE)
 fi
@@ -40,10 +40,10 @@ else
 	echo "[$scriptName]   RELEASE          : $RELEASE"
 fi 
 
-OPT_ARG="$3"
+export OPT_ARG="$3"
 echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 
-WORK_DIR_DEFAULT="$4"
+export WORK_DIR_DEFAULT="$4"
 if [ -z "$WORK_DIR_DEFAULT" ]; then
 	WORK_DIR_DEFAULT='TasksLocal'
 fi 
@@ -51,7 +51,7 @@ echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 export CDAF_CORE="$(pwd)/${WORK_DIR_DEFAULT}"
 echo "[$scriptName]   CDAF_CORE        : $CDAF_CORE"
 
-SOLUTION="$5"
+export SOLUTION="$5"
 if [[ $SOLUTION == *'$'* ]]; then
 	SOLUTION=$(eval echo $SOLUTION)
 fi
@@ -67,7 +67,7 @@ else
 	echo "[$scriptName]   SOLUTION         : $SOLUTION"
 fi 
 
-BUILDNUMBER="$6"
+export BUILDNUMBER="$6"
 if [[ $BUILDNUMBER == *'$'* ]]; then
 	BUILDNUMBER=$(eval echo $BUILDNUMBER)
 fi

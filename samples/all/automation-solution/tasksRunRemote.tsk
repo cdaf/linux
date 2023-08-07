@@ -1,3 +1,5 @@
+echo "CDAF Version : $($CDAF_CORE/capabilities.sh cdaf)"
+
 echo "Create a temp directory & copy content to it, then add another file"
 
 REFRSH manifest.txt .cdaf-regression-temp-dir

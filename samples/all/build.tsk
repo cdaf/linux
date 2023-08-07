@@ -1,3 +1,5 @@
+echo "CDAF Version : $($CDAF_CORE/capabilities.sh cdaf)"
+
 echo "Variable validation based on properties.varchk in SOLUTIONROOT ($SOLUTIONROOT)"
 export PASS='Password1'
 

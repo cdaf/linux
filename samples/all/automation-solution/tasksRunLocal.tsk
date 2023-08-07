@@ -1,3 +1,5 @@
+echo "CDAF Version : $($CDAF_CORE/capabilities.sh cdaf)"
+
 echo "12-factor approach uses environment variables, these would be set by the CI/CD tooling"
 
 export EXAMPLE_SECRET_1='Shhh,Passw0Rd!'

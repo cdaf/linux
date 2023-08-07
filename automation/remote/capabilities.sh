@@ -3,13 +3,28 @@
 scriptName='capabilities.sh'
 
 version="$1"
-if [ "$version" != 'cdaf' ]; then
+if [[ "$version" != 'cdaf' ]]; then
 	echo; echo "[$scriptName] --- start ---"
 fi
 
 AUTOMATIONROOT="$(dirname $( cd "$(dirname "$0")" ; pwd -P ))"
 if [ -f "$AUTOMATIONROOT/CDAF.linux" ]; then
-	productVersion=$(cat "$AUTOMATIONROOT/CDAF.linux" | grep productVersion)
+	check_file="$AUTOMATIONROOT/CDAF.linux"
+else
+	if [ -f "$CDAF_CORE/CDAF.properties" ]; then
+		check_file="$CDAF_CORE/CDAF.properties"
+	else
+		if [ "$version" == 'cdaf' ]; then
+			echo 'cannot determine'
+			exit 0
+		else
+			echo "[$scriptName]   CDAF     : (cannot determine)"
+		fi
+	fi
+fi
+
+if [ ! -z "$check_file" ]; then
+	productVersion=$(cat "$check_file" | grep productVersion)
 	IFS='=' read -ra ADDR <<< $productVersion
 	cdaf_version=${ADDR[1]}
 	if [ "$version" == 'cdaf' ]; then

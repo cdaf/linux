@@ -179,7 +179,7 @@ else
 fi
 export REVISION="$REVISION"
 
-export ACTION="$3"
+ACTION="$3"
 echo "[$scriptName]   ACTION          : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 

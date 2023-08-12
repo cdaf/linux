@@ -135,31 +135,31 @@ else
 	IFS=' ' read -ra ADDR <<< $test
 	IFS='"' read -ra ADDR <<< ${ADDR[2]}
 	echo "  java             : $(echo -e "${ADDR[@]}" | tr -d '[[:space:]]')"
-fi
 
-test="`javac -version 2>&1`"
-if [ $? -ne 0 ]; then
-	echo "  javac            : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  javac            : ${ADDR[1]}"
-fi
-
-# Ant version lists to standard error
-test="`ant -version 2>&1`"
-if [ $? -ne 0 ]; then
-	echo "  ant              : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  ant              : ${ADDR[3]}"
-fi
-
-test=$(mvn -version 2>&1)
-if [ $? -ne 0 ]; then
-	echo "  mvn              : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  mvn              : ${ADDR[2]}"
+	test="`javac -version 2>&1`"
+	if [ $? -ne 0 ]; then
+		echo "    javac          : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "    javac          : ${ADDR[1]}"
+	fi
+	
+	# Ant version lists to standard error
+	test="`ant -version 2>&1`"
+	if [ $? -ne 0 ]; then
+		echo "    ant            : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "    ant            : ${ADDR[3]}"
+	fi
+	
+	test=$(mvn -version 2>&1)
+	if [ $? -ne 0 ]; then
+		echo "    mvn            : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "    mvn            : ${ADDR[2]}"
+	fi
 fi
 
 test=$(docker --version 2>&1)
@@ -169,15 +169,15 @@ else
 	IFS=' ' read -ra ADDR <<< $test
 	IFS=',' read -ra ADDR <<< ${ADDR[2]}
 	echo "  docker           : ${ADDR[0]}"
-fi
 
-test=$(docker-compose --version 2>&1)
-if [ $? -ne 0 ]; then
-	echo "  docker-compose   : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	IFS=',' read -ra ADDR <<< ${ADDR[2]}
-	echo "  docker-compose   : ${ADDR[0]}"
+	test=$(docker-compose --version 2>&1)
+	if [ $? -ne 0 ]; then
+		echo "    docker-compose : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		IFS=',' read -ra ADDR <<< ${ADDR[2]}
+		echo "    docker-compose : ${ADDR[0]}"
+	fi
 fi
 
 test=$(terraform --version 2>&1)
@@ -214,15 +214,15 @@ if [ $? -ne 0 ]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "  python3          : ${ADDR[1]}"
-fi
 
-# PIP version lists to standard error
-test="`pip3 --version 2>&1`"
-if [ $? -ne 0 ]; then
-	echo "  pip3             : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  pip3             : ${ADDR[1]}"
+	# PIP version lists to standard error
+	test="`pip3 --version 2>&1`"
+	if [ $? -ne 0 ]; then
+		echo "    pip3           : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "    pip3           : ${ADDR[1]}"
+	fi
 fi
 
 # Ansible components
@@ -257,30 +257,30 @@ if [ -z "$test" ]; then
 	echo "  NodeJS           : (not installed)"
 else
 	echo "  NodeJS           : ${test##*v}"
-fi
 
-# Node Package Manager
-test=$(npm -version 2>/dev/null)
-if [ -z "$test" ]; then
-	echo "  npm              : (not installed)"
-else
-	echo "  npm              : $test"
-fi
+	# Node Package Manager
+	test=$(npm -version 2>/dev/null)
+	if [ -z "$test" ]; then
+		echo "      npm          : (not installed)"
+	else
+		echo "      npm          : $test"
+	fi
 
-# process manager for Node.js
-test=$(pm2 --version 2>/dev/null)
-if [ -z "$test" ]; then
-	echo "  pm2              : (not installed)"
-else
-	echo "  pm2              : $test"
-fi
+	# process manager for Node.js
+	test=$(pm2 --version 2>/dev/null)
+	if [ -z "$test" ]; then
+		echo "    pm2            : (not installed)"
+	else
+		echo "    pm2            : $test"
+	fi
 
-# process manager for Node.js "nodemon reload, automatically"
-test=$(nodemon --version 2>/dev/null)
-if [ -z "$test" ]; then
-	echo "  nodemon          : (not installed)"
-else
-	echo "  nodemon          : $test"
+	# process manager for Node.js "nodemon reload, automatically"
+	test=$(nodemon --version 2>/dev/null)
+	if [ -z "$test" ]; then
+		echo "    nodemon        : (not installed)"
+	else
+		echo "    nodemon        : $test"
+	fi
 fi
 
 # dotnet core
@@ -297,21 +297,21 @@ if [ -z "$test" ]; then
 	echo "  kubectl          : (not installed)"
 else
 	echo "  kubectl          : ${test##*v}"
-fi
 
-test=$(helm version --short 2>/dev/null)
-if [ -z "$test" ]; then
-	echo "  helm             : (not installed)"
-else
-	test="${test##*v}"
-	echo "  helm             : ${test%+*}"
-fi
-
-test=$(helmsman -v 2>/dev/null)
-if [ -z "$test" ]; then
-	echo "  helmsman         : (not installed)"
-else
-	echo "  helmsman         : ${test##*v}"
+	test=$(helm version --short 2>/dev/null)
+	if [ -z "$test" ]; then
+		echo "    helm           : (not installed)"
+	else
+		test="${test##*v}"
+		echo "    helm           : ${test%+*}"
+	fi
+	
+	test=$(helmsman -v 2>/dev/null)
+	if [ -z "$test" ]; then
+		echo "    helmsman       : (not installed)"
+	else
+		echo "    helmsman       : ${test##*v}"
+	fi
 fi
 
 test=$(az version --output tsv 2>/dev/null)

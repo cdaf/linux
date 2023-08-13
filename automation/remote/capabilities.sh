@@ -274,17 +274,13 @@ else
 
 	# process manager for Node.js
 	test=$(pm2 --version 2>/dev/null)
-	if [ -z "$test" ]; then
-		echo "    pm2            : (not installed)"
-	else
+	if [ ! -z "$test" ]; then
 		echo "    pm2            : $test"
 	fi
 
 	# process manager for Node.js "nodemon reload, automatically"
 	test=$(nodemon --version 2>/dev/null)
-	if [ -z "$test" ]; then
-		echo "    nodemon        : (not installed)"
-	else
+	if [ ! -z "$test" ]; then
 		echo "    nodemon        : $test"
 	fi
 fi

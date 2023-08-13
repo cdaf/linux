@@ -340,8 +340,16 @@ test=$(google-chrome -version 2>/dev/null)
 if [ -z "$test" ]; then
 	echo "  Chrome Browser   : (not installed)"
 else
-	IFS=' ' read -ra ADDR <<< $test
+	read -ra ADDR <<< $test
 	echo "  Chrome Browser   : ${ADDR[2]}"
+fi
+
+test=$(jp2a --version 2>&1)
+if [ -z "$test" ]; then
+	echo "  jp2a JPG 2 ASCII : (not installed)"
+else
+	read -ra ADDR <<< $test
+	echo "  jp2a JPG 2 ASCII : ${ADDR[1]}"
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

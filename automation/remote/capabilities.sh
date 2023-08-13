@@ -174,9 +174,15 @@ else
 	if [ $? -ne 0 ]; then
 		echo "    docker-compose : (not installed)"
 	else
-		IFS=' ' read -ra ADDR <<< $test
-		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "    docker-compose : ${ADDR[0]}"
+		unset IFS
+		read -ra ADDR <<< $test
+		echo $test | grep , > /dev/null
+		if [ $? -eq 0 ]; then
+			IFS=',' read -ra ADDR <<< ${ADDR[2]}
+			echo "    docker-compose : ${ADDR[0]}"
+		else
+			echo "    docker-compose : ${ADDR[3]}"
+		fi
 	fi
 fi
 
@@ -321,6 +327,21 @@ if [ -z "$test" ]; then
 	echo "  Azure CLI        : (not installed)"
 else
 	echo "  Azure CLI        : ${ADDR[0]}"
+
+	test=$(az extension show --name azure-devops --output tsv 2>/dev/null)
+	if [ ! -z "$test" ]; then
+		unset IFS
+		read -ra ADDR <<< $test
+		echo "    ADO Extension  : ${ADDR[3]}"
+	fi
+fi
+
+test=$(google-chrome -version 2>/dev/null)
+if [ -z "$test" ]; then
+	echo "  Chrome Browser   : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	echo "  Chrome Browser   : ${ADDR[2]}"
 fi
 
 echo; echo "[$scriptName] --- end ---"; echo

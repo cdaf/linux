@@ -267,9 +267,21 @@ else
 	# Node Package Manager
 	test=$(npm -version 2>/dev/null)
 	if [ -z "$test" ]; then
-		echo "    npm            : (not installed)"
+		echo "    NPM            : (not installed)"
 	else
-		echo "    npm            : $test"
+		echo "    NPM            : $test"
+	fi
+
+	# Postman CLI Collection Execution
+	test=$(newman --version 2>/dev/null)
+	if [ ! -z "$test" ]; then
+		echo "    newman         : $test"
+	fi
+
+	# CloudFlare CLI
+	test=$(wrangler -v 2>/dev/null)
+	if [ ! -z "$test" ]; then
+		echo "    wrangler       : $test"
 	fi
 
 	# process manager for Node.js

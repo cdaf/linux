@@ -164,11 +164,6 @@ if [ -d "$localPropertiesDir" ]; then
 		mkdir -v "$WORK_DIR_DEFAULT/${localPropertiesDir##*/}"
 		cp -avR $localPropertiesDir/* "$WORK_DIR_DEFAULT/${localPropertiesDir##*/}"
 		cp -avR $localPropertiesDir/* "$WORK_DIR_DEFAULT/"
-
-		# Include remote tasks should they be required for re-use as local tasks
-		if [ -f "$SOLUTIONROOT/tasksRunRemote.tsk" ]; then
-			cp -av $SOLUTIONROOT/tasksRunRemote.tsk "$WORK_DIR_DEFAULT"
-		fi				
 	else
 		echo; echo "[$scriptName]   Properties directory ($localPropertiesDir) for local tasks exists but contains no files, no action taken."; echo
 	fi
@@ -186,12 +181,24 @@ if [ -d "$localGenPropDir" ]; then
 		cat ${generatedPropertyPath} >> "$WORK_DIR_DEFAULT/${localPropertiesDir##*/}/${generatedPropertyFile}"
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> "$WORK_DIR_DEFAULT/${generatedPropertyFile}"
+		localGenEmpty='no'
 	done
+	if [ -z "$localGenEmpty" ]; then
+		echo "[$scriptName][WARNING] $WORK_DIR_DEFAULT/${localPropertiesDir##*/} is empty, perhaps you have a definition without a property?"
+	fi
 fi
 
-# Merge Local tasks with general tasks, local first
-if [ -f "$SOLUTIONROOT/tasksRunLocal.tsk" ]; then
-	cp -av "$SOLUTIONROOT/tasksRunLocal.tsk" "$WORK_DIR_DEFAULT"
+# Copy local and remote defintions
+echo; echo "[$scriptName] Copy local and remote definitions"; echo
+listOfTaskFile="tasksRunLocal.tsk tasksRunRemote.tsk"
+for file in $listOfTaskFile; do
+	if [ -f "$SOLUTIONROOT/$file" ]; then
+		cp -av "$SOLUTIONROOT/$file" "$WORK_DIR_DEFAULT"
+		customTasks='True'
+	fi
+done
+if [ -z "$customTasks" ]; then
+	echo "No files found for $listOfTaskFile"
 fi
 
 # 1.7.8 Merge generic tasks into explicit tasks
@@ -221,7 +228,7 @@ fi
 
 # Copy custom scripts to root
 if [ -d "$localCustomDir" ]; then
-	printf "[$scriptName]   Local custom scripts  : "	
+	echo; printf "[$scriptName]   Local custom scripts  : "	
 	cp -avR $localCustomDir/* "$WORK_DIR_DEFAULT/"
 fi
 
@@ -247,7 +254,11 @@ if [ -d "$remoteGenPropDir" ]; then
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> "$WORK_DIR_DEFAULT/${remotePropertiesDir##*/}/${generatedPropertyFile}"
+		remoteGenEmpty='no'
 	done
+	if [ -z "$remoteGenEmpty" ]; then
+		echo; echo "[$scriptName][WARNING] $WORK_DIR_DEFAULT/${remotePropertiesDir##*/} is empty, perhaps you have a definition without a property?"
+	fi
 fi
 
 # 2.4.0 extend for container properties, processed locally, but using remote artefacts for execution
@@ -260,7 +271,11 @@ if [ -d "$containerGenPropDir" ]; then
 		generatedPropertyFile=$(basename ${generatedPropertyPath})
 		echo "'${generatedPropertyPath}' -> '$WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}'"
 		cat ${generatedPropertyPath} >> "$WORK_DIR_DEFAULT/${containerPropertiesDir##*/}/${generatedPropertyFile}"
+		containerGenEmpty='no'
 	done
+	if [ -z "$containerGenEmpty" ]; then
+		echo; echo "[$scriptName][WARNING] $WORK_DIR_DEFAULT/${remotePropertiesDir##*/} is empty, perhaps you have a definition without a property?"
+	fi
 fi
 
 # Process Specific Local artifacts

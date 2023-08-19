@@ -68,7 +68,14 @@ fi
 
 version="$6"
 if [ -z "$version" ]; then
-	version='3.220.5'
+	# from https://github.com/microsoft/azure-pipelines-agent/issues/3522	
+	assets_url=$(curl -s "https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest" | grep assets_url)
+	assets_url=$(echo "${assets_url#*:}")
+	assets_url=$(echo "${assets_url%,}")
+	assets_url=$(echo "${assets_url//\"/}")
+	browser_download_url=$(curl -s $assets_url | grep browser_download_url)
+	browser_download_url=$(echo "${browser_download_url#*v}")
+	version=$(echo "${browser_download_url%/*}")
 	echo "[$scriptName]   version        : $version (default)"
 else
 	echo "[$scriptName]   version        : $version"

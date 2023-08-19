@@ -350,6 +350,13 @@ if [ -z "$test" ]; then
 else
 	read -ra ADDR <<< $test
 	echo "  Chrome Browser   : ${ADDR[2]}"
+
+	test=$(chromedriver -v 2>/dev/null)
+	if [ ! -z "$test" ]; then
+		unset IFS
+		read -ra ADDR <<< $test
+		echo "    Chrome Driver  : ${ADDR[1]}"
+	fi
 fi
 
 test=$(jp2a --version 2>&1)

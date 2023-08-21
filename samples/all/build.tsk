@@ -18,3 +18,6 @@ DETOKN tokenised.file properties.file resolve
 REPLAC tokenised.file @token@ value2
 
 cat tokenised.file
+
+echo "Robust URL Check"
+EXERTY "curl --silent -w '%{http_code}' google.com -o /dev/null"

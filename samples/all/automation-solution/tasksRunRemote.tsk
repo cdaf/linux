@@ -25,3 +25,6 @@ export AES_KEY='8b778ff3fd80def90161e40b9c54527e'
 echo "Capture output to file or it will simply be logged and discarded"
 DECRYP ./crypt/secrets.crypt $AES_KEY > secrets
 cat secrets
+
+echo "Robust URL Check"
+EXERTY "curl --silent -L -w '%{http_code}' google.com -o /dev/null"

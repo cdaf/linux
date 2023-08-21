@@ -2,8 +2,8 @@
 
 scriptName='capabilities.sh'
 
-version="$1"
-if [[ "$version" != 'cdaf' ]]; then
+versionScript="$1"
+if [ -z "$versionScript" ]; then
 	echo; echo "[$scriptName] --- start ---"
 fi
 
@@ -13,28 +13,41 @@ if [ -f "$AUTOMATIONROOT/CDAF.linux" ]; then
 else
 	if [ -f "$CDAF_CORE/CDAF.properties" ]; then
 		check_file="$CDAF_CORE/CDAF.properties"
-	else
-		if [ "$version" == 'cdaf' ]; then
-			echo 'cannot determine'
-			exit 0
-		else
-			echo "[$scriptName]   CDAF     : (cannot determine)"
-		fi
 	fi
 fi
-
 if [ ! -z "$check_file" ]; then
 	productVersion=$(cat "$check_file" | grep productVersion)
 	IFS='=' read -ra ADDR <<< $productVersion
 	cdaf_version=${ADDR[1]}
-	if [ "$version" == 'cdaf' ]; then
+else
+	cdaf_version='(cannot determine)'
+fi
+
+test=$(google-chrome -version 2>/dev/null)
+if [ ! -z "$test" ]; then
+	read -ra ADDR <<< $test
+	chromeVersion="${ADDR[2]}"
+fi
+
+if [ ! -z "$versionScript" ]; then
+	if [ "$versionScript" == 'cdaf' ]; then
 		echo "$cdaf_version"
 		exit 0
+	elif [ "$versionScript" == 'chrome' ]; then
+		if [ ! -z "$chromeVersion" ]; then
+			echo "$chromeVersion"
+			exit 0
+		else
+			echo 'chrome not installed'
+			exit 6821
+		fi
 	else
-		echo "[$scriptName]   CDAF     : $cdaf_version"
+		echo "Application check $versionScript not sdupported!"
+		exit 6820
 	fi
 fi
 
+echo "[$scriptName]   CDAF     : $cdaf_version"
 test="`hostname -f 2>&1`"
 if [ $? -ne 0 ]; then
 	echo "[$scriptName]   hostname : $(hostname)"
@@ -344,12 +357,10 @@ else
 	fi
 fi
 
-test=$(google-chrome -version 2>/dev/null)
-if [ -z "$test" ]; then
+if [ -z "$chromeVersion" ]; then
 	echo "  Chrome Browser   : (not installed)"
 else
-	read -ra ADDR <<< $test
-	echo "  Chrome Browser   : ${ADDR[2]}"
+	echo "  Chrome Browser   : $chromeVersion"
 
 	test=$(chromedriver -v 2>/dev/null)
 	if [ ! -z "$test" ]; then

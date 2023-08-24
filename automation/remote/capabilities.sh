@@ -27,6 +27,12 @@ test=$(google-chrome -version 2>/dev/null)
 if [ ! -z "$test" ]; then
 	read -ra ADDR <<< $test
 	chromeVersion="${ADDR[2]}"
+	test=$(chromedriver -v 2>/dev/null)
+	if [ ! -z "$test" ]; then
+		read -ra ADDR <<< $test
+		chromeDriverVersion=${ADDR[1]}
+	fi
+
 fi
 
 if [ ! -z "$versionScript" ]; then
@@ -35,8 +41,21 @@ if [ ! -z "$versionScript" ]; then
 		exit 0
 	elif [ "$versionScript" == 'chrome' ]; then
 		if [ ! -z "$chromeVersion" ]; then
-			echo "$chromeVersion"
-			exit 0
+			IFS='.' read -ra ADDR <<< $chromeVersion
+			chromeVersion="${ADDR[0]}"
+			if [ ! -z "$chromeDriverVersion" ]; then
+				IFS='.' read -ra ADDR <<< $chromeDriverVersion
+				chromeDriverVersion="${ADDR[0]}"
+			else
+				chromeDriverVersion='0'
+			fi
+			if [ "$chromeVersion" == "$chromeDriverVersion" ]; then
+				echo "$chromeVersion"
+				exit 0
+			else
+				echo "Chrome version $chromeVersion mismatch Chrome Driver version $chromeDriverVersion"
+				exit 6822
+			fi
 		else
 			echo 'chrome not installed'
 			exit 6821
@@ -362,11 +381,8 @@ if [ -z "$chromeVersion" ]; then
 else
 	echo "  Chrome Browser   : $chromeVersion"
 
-	test=$(chromedriver -v 2>/dev/null)
-	if [ ! -z "$test" ]; then
-		unset IFS
-		read -ra ADDR <<< $test
-		echo "    Chrome Driver  : ${ADDR[1]}"
+	if [ ! -z "$chromeDriverVersion" ]; then
+		echo "    Chrome Driver  : $chromeDriverVersion"
 	fi
 fi
 

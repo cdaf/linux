@@ -339,10 +339,21 @@ fi
 
 # Kubectl is required for Helm
 test=$(kubectl version --short=true --client=true 2>/dev/null)
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
+	test=$(kubectl version --client=true 2>/dev/null)
+	if [ $? -eq 0 ]; then
+		kubetest=$(echo ${test#*v})
+		kubetest=$(echo ${kubetest%% *})
+	fi
+else
+	kubetest=$(echo ${test#*v})
+	kubetest=$(echo ${kubetest%% *})
+fi
+
+if [ -z "$kubetest" ]; then
 	echo "  kubectl          : (not installed)"
 else
-	echo "  kubectl          : ${test##*v}"
+	echo "  kubectl          : $kubetest"
 
 	test=$(helm version --short 2>/dev/null)
 	if [ -z "$test" ]; then

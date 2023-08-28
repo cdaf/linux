@@ -91,7 +91,7 @@ else
 		if [ ! -z "$registryToken" ]; then
 			echo "[$scriptName] registryToken   :  $(MASKED ${registryToken}) (loaded from manifest.txt)"
 		else
-			echo "[$scriptName] registryToken   :  (not supplied, login and push will not be attempted)"
+			echo "[$scriptName] registryToken   :  (not supplied, login will not be attempted)"
 		fi
 	fi
 fi
@@ -139,6 +139,9 @@ if [ ! -z $registryToken ]; then
 fi
 
 for tag in $registryTags; do
+	if [ ! -z $registryURL ]; then
+		registryContext="${registryURL}/${registryContext}"
+	fi
 	executeExpression "docker tag ${imageTag} ${registryContext}:$tag"
 	executeExpression "docker push ${registryContext}:$tag"
 done

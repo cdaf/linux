@@ -14,3 +14,5 @@ processSequence=containerTasks.sh
 # Do not perform a volume to user home direcotry
 # CDAF_HOME_MOUNT=no
 CDAF_DOCKER_REQUIRED=yes
+
+runtimeFiles=$WORKSPACE_ROOT/release.sh

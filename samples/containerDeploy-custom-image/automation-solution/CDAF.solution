@@ -4,7 +4,7 @@ artifactPrefix=0.0
 
 # Container image used for both containerBuild and containerDeploy if runtimeImage not specified
 # containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
-runtimeImage=ubuntu:20.04
+runtimeImage=cdaf/linux
 
 processSequence=containerTasks.sh
 
@@ -14,3 +14,6 @@ processSequence=containerTasks.sh
 # Do not perform a volume to user home direcotry
 # CDAF_HOME_MOUNT=no
 CDAF_DOCKER_REQUIRED=yes
+
+runtimeFiles=$WORKSPACE_ROOT/release.sh
+# runtimeRetain=yes

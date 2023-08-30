@@ -64,12 +64,35 @@ else
 	echo "[$scriptName]   imageDir    : $imageDir"
 fi
 
-export WORKSPACE=$(pwd)
 echo "[$scriptName]   pwd         : $WORKSPACE"
 
+manifest="${CDAF_CORE}/manifest.txt"
+if [ ! -f "$manifest" ]; then
+	manifest="${SOLUTIONROOT}/CDAF.solution"
+	if [ ! -f "$manifest" ]; then
+		echo "[$scriptName] Properties not found in ${CDAF_CORE}\manifest.txt or ${manifest}!"
+		exit 5343
+	fi
+fi
+
+runtimeFiles=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeFiles")
+
 # 2.6.1 Prepare the image build directory and Dockerfile
-if [ ! -d "$imageDir" ]; then
+if [ -d "$imageDir" ]; then
+
+	# 2.7.1 Copy the declared list of files into build root
+	for fileName in $runtimeFiles; do
+		executeExpression "cp -v \"$fileName\" \"$imageDir\""
+	done
+
+else
 	echo; echo "[$scriptName] $imageDir does not exist, creating $(mkdir $imageDir), with default Dockerfile"; echo
+
+	# 2.7.1 Copy the declared list of files into build root
+	for fileName in $runtimeFiles; do
+		executeExpression "cp -v \"$fileName\" \"$imageDir\""
+	done
+	echo
 
 # Cannot indent heredoc
 (
@@ -99,12 +122,21 @@ RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	chown \$userName -R /solution
 
 USER \$userName
-
-# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run
-CMD ["./deploy.sh", "\${ENVIRONMENT}"]
 EOF
 ) | tee $imageDir/Dockerfile
 
+	# 2.7.1 Copy the declared list of files into build root
+	for fileName in $runtimeFiles; do
+		fileName=${fileName##*/}
+		echo "COPY $fileName /solution/deploy/"
+		echo "COPY $fileName /solution/deploy/" >> $imageDir/Dockerfile
+	done
+
+	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run"
+	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run" >> $imageDir/Dockerfile
+	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]'
+	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]' >> $imageDir/Dockerfile
+	echo
 fi
 
 if [ -d "automation" ]; then
@@ -122,10 +154,9 @@ executeExpression "cd $imageDir"
 echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
-executeExpression "'${WORKSPACE}/dockerRun.sh' ${id}"
+executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT=$TARGET
-executeExpression "'${WORKSPACE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
-executeExpression "'${WORKSPACE}/dockerClean.sh' ${id} ${BUILDNUMBER}"
+executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
@@ -148,7 +179,15 @@ else
 	executeExpression "docker run --tty --user $(id -u) --volume \"${HOME}:/solution/home\" ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
 fi
 
-echo
-executeExpression "'${WORKSPACE}/dockerRun.sh' ${id}"
+echo; echo "[$scriptName] Shutdown containers based on '${id}'"; echo
+executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 
-echo; echo "[$scriptName] --- end ---"
+runtimeRetain=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeRetain")
+if [ "$runtimeRetain" == 'yes' ]; then
+	echo; echo "[$scriptName] runtimeRetain = '${runtimeRetain}', no image clean performed for '${id}:${BUILDNUMBER}'"
+else
+	echo; echo "[$scriptName] Clean images based on '${id}:${BUILDNUMBER}'"; echo
+	executeExpression "'${CDAF_CORE}/dockerClean.sh' ${id} ${BUILDNUMBER}"
+fi
+
+echo; echo "[$scriptName] --- end ---"; echo

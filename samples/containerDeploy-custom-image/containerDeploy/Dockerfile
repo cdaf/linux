@@ -17,5 +17,7 @@ COPY properties/* /solution/deploy/
 WORKDIR /solution/deploy
 ADD deploy.tar.gz .
 
+COPY release.sh /solution/deploy/
+
 # Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run
 CMD ["./deploy.sh", "${ENVIRONMENT}"]

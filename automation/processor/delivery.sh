@@ -84,9 +84,9 @@ else
 fi 
 
 # Load TargetlessCD environment variable
-export WORK_SPACE=$(pwd)
-export WORKSPACE="${WORK_SPACE}\${WORK_DIR_DEFAULT}"
-echo "[$scriptName]   pwd              : ${WORK_SPACE}"
+export WORKSPACE_ROOT="$(pwd)"
+export WORKSPACE="${WORKSPACE_ROOT}\${WORK_DIR_DEFAULT}"
+echo "[$scriptName]   WORKSPACE_ROOT   : ${WORKSPACE_ROOT}"
 echo "[$scriptName]   whoami           : $(whoami)"
 echo "[$scriptName]   hostname         : $(hostname)"
 echo "[$scriptName]   CDAF Version     : $("${CDAF_CORE}/getProperty.sh" "${CDAF_CORE}/CDAF.properties" "productVersion")"

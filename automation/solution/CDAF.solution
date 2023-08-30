@@ -4,14 +4,15 @@ solutionName=myproduct
 # Global Error handling additional diagnostics
 # CDAF_ERROR_DIAG=df
 
-# Build process within a container
-# containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+# containerBuild minimum configuration
+# containerImage=cdaf/linux
+
+# containerBuild default process
 # containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
 
 # Immutable image based on the build artefacts
 # constructor=TasksLocal
-# runtimeImage=ubuntu:20.04@sha256:31dfb10d52ce76c5ca0aa19d10b3e6424b830729e32a89a7c6eee2cda2be67a5
-# imageBuild="$AUTOMATIONROOT/remote/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+
 # CDAF_REGISTRY_URL=${CI_REGISTRY}
 # CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER
 # CDAF_REGISTRY_USER=${CI_REGISTRY_USER}
@@ -20,6 +21,13 @@ solutionName=myproduct
 artifactPrefix=0.0
 # productVersion=2.0.0
 # packageFeatures=minimal
+
+# imageBuild minimum configuration
+# buildImage=cdaf/linux
+
+# imageBuild default process
+# imageBuild="$AUTOMATIONROOT/remote/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+# CDAF_DOCKER_REQUIRED=yes
 
 # defaultBranch=main
 # defaultEnvironment=DESKTOP
@@ -31,5 +39,13 @@ artifactPrefix=0.0
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
+# containerDeploy minimal config
+# runtimeImage=cdaf/linux
+
+# containerDeploy default process
 # containerDeploy="${CDAF_CORE}/containerDeploy.sh" "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"
 # CDAF_HOME_MOUNT=no
+
+# containerDeploy including additional files in image, and retain the resulting image
+# runtimeFiles=$WORKSPACE_ROOT/release.sh $CDAF_CORE/sendCrypt.sh
+# runtimeRetain=yes

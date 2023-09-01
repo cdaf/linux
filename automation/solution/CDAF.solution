@@ -4,7 +4,7 @@ solutionName=myproduct
 # Global Error handling additional diagnostics
 # CDAF_ERROR_DIAG=df
 
-# containerBuild minimum configuration
+# containerBuild minimum configuration, if a Dockerfile is not found, a default file will be used
 # containerImage=cdaf/linux
 
 # containerBuild default process
@@ -22,7 +22,7 @@ artifactPrefix=0.0
 # productVersion=2.0.0
 # packageFeatures=minimal
 
-# imageBuild minimum configuration
+# imageBuild minimum configuration, if a Dockerfile is not found, a default file will be created
 # buildImage=cdaf/linux
 
 # imageBuild default process
@@ -39,7 +39,7 @@ artifactPrefix=0.0
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
-# containerDeploy minimal config
+# containerDeploy minimal config, if directory containerDeploy is found, a customer image build will be attempted
 # runtimeImage=cdaf/linux
 
 # containerDeploy default process

@@ -4,6 +4,7 @@ artifactPrefix=0.0
 
 # Container image used for both containerBuild and containerDeploy if runtimeImage not specified
 # containerImage=ubuntu:18.04@sha256:05a58ded9a2c792598e8f4aa8ffe300318eac6f294bf4f49a7abae7544918592
+# containerDeploy minimal config, if directory containerDeploy is found, a customer image build will be attempted
 runtimeImage=cdaf/linux
 
 processSequence=containerTasks.sh

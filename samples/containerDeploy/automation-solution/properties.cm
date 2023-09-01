@@ -1,7 +1,7 @@
-context    target  deployTaskOverride
-container  LINUX   deploy.tsk
-container  WSL     deploy.tsk
-container  DOCKER  deploy.tsk
+context    target  deployTaskOverride  filename                 uri
+container  LINUX   deploy.tsk          JPEG_example_flower.jpg  https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg
+container  WSL     deploy.tsk          JPEG_example_flower.jpg  https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg
+container  DOCKER  deploy.tsk          JPEG_example_flower.jpg  https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg
 
-container  TEST    deploy.tsk
-container  PROD    deploy.tsk
+container  TEST    deploy.tsk          JPEG_example_flower.jpg  https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg
+container  PROD    deploy.tsk          JPEG_example_flower.jpg  https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg

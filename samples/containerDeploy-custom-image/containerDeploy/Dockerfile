@@ -6,6 +6,17 @@ FROM ${CONTAINER_IMAGE}
 # Copy solution, provision and then build
 WORKDIR /solution
 
+# Prepare for non-root deploy
+ARG userName
+ARG userID
+
+RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
+if [ ! -z "$user" ]; then \
+userdel -f $user ; \
+fi ;  \
+adduser $userName --uid $userID --disabled-password --gecos "" ; \
+chown $userName -R /solution
+
 # Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
 COPY *.sh ./
 

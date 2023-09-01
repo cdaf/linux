@@ -33,39 +33,8 @@ else
 	echo "[$scriptName]   whoami  : $(whoami) (elevation not required)"
 fi
 
-echo; echo "[$scriptName] JSON deserialising tool ..."
-executeExpression "$elevate ./base.sh jq"
+echo; echo "[$scriptName] Required tools, e.g. AWS CLI, Azure CLI, Terraform, Helm"
 
-echo
-test="`curl --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] curl not installed, required to download Terraform binary, install using package manager ..."
-	executeExpression "./base.sh curl"
-	executeExpression "curl --version"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] curl : $test"
-fi	
+executeExpression "npm install -g anypoint-cli-v4"
 
-test="`unzip --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] unzip not installed, required to extract Terraform & AWS CLI 2 binary, install using package manager ..."
-	executeExpression "./base.sh unzip"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] unzip : $test"
-fi	
-
-echo
-echo "[$scriptName] Required tools, e.g. AWS CLI, Azure CLI, Terraform, Helm"
-#version='0.12.26'
-#echo "[$scriptName] Install Terraform ${version}"
-#executeExpression "curl -s -O https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip"
-#executeExpression "unzip terraform_${version}_linux_amd64.zip"
-#executeExpression "$elevate mv terraform /usr/bin/"
-#executeExpression "terraform --version"
-
-echo
-echo "[$scriptName] --- end ---"
+echo; echo "[$scriptName] --- end ---"

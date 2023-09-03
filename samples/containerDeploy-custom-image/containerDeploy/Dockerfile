@@ -6,6 +6,9 @@ FROM ${CONTAINER_IMAGE}
 # Copy solution, provision and then build
 WORKDIR /solution
 
+# Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
+COPY *.sh ./
+
 # Prepare for non-root deploy
 ARG userName
 ARG userID
@@ -17,9 +20,6 @@ fi ;  \
 adduser $userName --uid $userID --disabled-password --gecos "" ; \
 chown $userName -R /solution
 USER ${userName}
-
-# Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
-COPY *.sh ./
 
 # Provision Build Dependancies
 RUN ./bootstrapAgent.sh

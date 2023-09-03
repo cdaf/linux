@@ -9,6 +9,16 @@ WORKDIR /solution
 # Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
 COPY *.sh ./
 
+# Provision Build Dependancies
+RUN ./bootstrapAgent.sh
+
+# Import CDAF package into immutable machine
+COPY properties/* /solution/deploy/
+WORKDIR /solution/deploy
+ADD deploy.tar.gz .
+
+COPY release.sh /solution/deploy/
+
 # Prepare for non-root deploy
 ARG userName
 ARG userID
@@ -20,16 +30,6 @@ fi ;  \
 adduser $userName --uid $userID --disabled-password --gecos "" ; \
 chown $userName -R /solution
 USER ${userName}
-
-# Provision Build Dependancies
-RUN ./bootstrapAgent.sh
-
-# Import CDAF package into immutable machine
-COPY properties/* /solution/deploy/
-WORKDIR /solution/deploy
-ADD deploy.tar.gz .
-
-COPY release.sh /solution/deploy/
 
 # Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run
 CMD ["./deploy.sh", "${ENVIRONMENT}"]

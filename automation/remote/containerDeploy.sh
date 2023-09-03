@@ -77,6 +77,11 @@ fi
 
 runtimeFiles=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeFiles")
 
+if [ -f "$imageDir" ]; then
+	echo "Found a file instead of directory in workspace, removing $imageDir ..."
+	executeExpression "rm -v \"$imageDir\""
+fi
+
 # 2.6.1 Prepare the image build directory and Dockerfile
 if [ -d "$imageDir" ]; then
 
@@ -86,7 +91,8 @@ if [ -d "$imageDir" ]; then
 	done
 
 else
-	echo; echo "[$scriptName] $imageDir does not exist, creating $(mkdir $imageDir), with default Dockerfile"; echo
+	echo; echo "[$scriptName] $imageDir does not exist, creating ${}imageDir}, with default Dockerfile"; echo
+	executeExpression "mkdir -pv $imageDir"
 
 	# 2.7.1 Copy the declared list of files into build root
 	for fileName in $runtimeFiles; do

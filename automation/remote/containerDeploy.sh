@@ -91,8 +91,8 @@ if [ -d "$imageDir" ]; then
 	done
 
 else
-	echo; echo "[$scriptName] $imageDir does not exist, creating ${}imageDir}, with default Dockerfile"; echo
-	executeExpression "mkdir -pv $imageDir"
+	echo; echo "[$scriptName] $imageDir does not exist, creating ${imageDir}, with default Dockerfile"; echo
+	executeExpression "mkdir -pv ${imageDir}"
 
 	# 2.7.1 Copy the declared list of files into build root
 	for fileName in $runtimeFiles; do

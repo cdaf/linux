@@ -16,6 +16,7 @@ userdel -f $user ; \
 fi ;  \
 adduser $userName --uid $userID --disabled-password --gecos "" ; \
 chown $userName -R /solution
+USER ${userName}
 
 # Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
 COPY *.sh ./

@@ -91,11 +91,11 @@ fi
 getProp="${CDAF_CORE}/getProperty.sh"
 
 # 2.6.0 Image from Private Registry
-manifest="${WORKSPACE}/manifest.txt"
+manifest="${CDAF_CORE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
 	manifest="${SOLUTIONROOT}/CDAF.solution"
 	if [ ! -f "$manifest" ]; then
-		echo "[$scriptName] Properties not found in ${WORKSPACE}\manifest.txt or ${manifest}!"
+		echo "[$scriptName] Properties not found in ${CDAF_CORE}/manifest.txt or ${manifest}!"
 		exit 1114
 	fi
 fi

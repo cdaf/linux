@@ -69,11 +69,11 @@ else
 fi
 
 # 2.6.0 Push Private Registry
-manifest="${WORKSPACE}/manifest.txt"
+manifest="${CDAF_CORE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
 	manifest="${SOLUTIONROOT}/CDAF.solution"
 	if [ ! -f "$manifest" ]; then
-		echo "[$scriptName] Properties not found in ${WORKSPACE}\manifest.txt or ${manifest}!"
+		echo "[$scriptName] Properties not found in ${CDAF_CORE}/manifest.txt or ${manifest}!"
 		exit 5343
 	fi
 fi

@@ -10,7 +10,7 @@ function executeExpression {
 		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
 		exit $exitCode
 	fi
-}  
+}
 
 echo
 echo "[$scriptName] +-------------------------+"
@@ -28,7 +28,7 @@ if [ -z "$2" ]; then
 	echo "$scriptName RELEASE Number not passed. HALT!"
 	exit 1342
 else
-	RELEASE=$2
+	export RELEASE=$2
 	echo "[$scriptName]   RELEASE     : $RELEASE"
 fi
 
@@ -163,6 +163,12 @@ id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be low
 executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT=$TARGET
 executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
+
+buildCommand+="--env RELEASE"
+
+if [ ! -z "$OPT_ARG" ]; then
+	buildCommand+=" --env OPT_ARG"
+fi
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})

@@ -1,6 +1,8 @@
 echo "Here we execute the CLI or REST deployment steps, or perhaps exeute tests."
 echo "Note: the user home is mounted to deployment container."
 
+echo "RELEASE = $RELEASE"
+
 echo "cURL = $(IFS=' ' read -ra ADDR <<< $(curl --version 2>&1); echo ${ADDR[1]})"
 
 echo "Download an image"

@@ -79,7 +79,7 @@ echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 cd $WORK_DIR_DEFAULT
 WORK_DIR_DEFAULT=$(pwd)
 
-OPT_ARG="$6"
+export OPT_ARG="$6"
 echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 
 echo "[$scriptName]   CDAF Version     : $(getProp "CDAF.properties" "productVersion")"
@@ -104,7 +104,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 			dockerRun="${ADDR[0]}"
 			echo "[$scriptName]   Docker           : $dockerRun"
 		fi
-	
+
 		# Test Docker is running
 		imageLIst=$(docker images)
 		if [ "$?" != "0" ]; then
@@ -127,11 +127,11 @@ if [ -d "./propertiesForContainerTasks" ]; then
 				fi
 			fi
 		fi
-	
+
 		# 2.4.0 Introduce containerDeploy as a prescriptive "remote" process, changed in 2.5.0 to allow re-use of compose assets
 		containerDeploy=$(getProp 'manifest.txt' 'containerDeploy')
 		REVISION=$(getProp 'manifest.txt' 'REVISION')
-	
+
 		# 2.5.0 Provide default containerDeploy execution, replacing "remote" process with "local" process, but retaining containerRemote.sh to support 2.4.0 functionality
 		if [ -z "${containerDeploy}" ]; then
 			containerDeploy='"${CDAF_CORE}/containerDeploy.sh" "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"'
@@ -139,7 +139,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 		else
 			echo "[$scriptName]   containerDeploy  : $containerDeploy"
 		fi
-	
+
 		deployImage=$(getProp 'manifest.txt' 'deployImage')
 		if [ ! -z "${deployImage}" ]; then
 			export CONTAINER_IMAGE=$deployImage
@@ -168,7 +168,7 @@ if [ -d "./propertiesForContainerTasks" ]; then
 			export CDAF_HOME_MOUNT=$homeMount
 			echo "[$scriptName]   CDAF_HOME_MOUNT  : ${CDAF_HOME_MOUNT} (solution override)"
 		fi
-	
+
 		echo; echo "[$scriptName] List all current images"
 		echo "$imageLIst"; echo
 

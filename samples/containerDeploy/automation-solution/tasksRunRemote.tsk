@@ -1,4 +1,4 @@
-echo "Here we execute the CLI or REST deployment steps, or perhaps exeute tests."
+echo "Here we execute the CLI or REST deployment steps, or perhaps execute tests."
 echo "Note: the user home is mounted to deployment container."
 
 echo "RELEASE = $RELEASE"

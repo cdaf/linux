@@ -148,9 +148,9 @@ fi
 
 echo
 echo "[$scriptName] --- Transferring control to $deployUser@$deployHost for $DEPLOY_TARGET ---"
-ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" "$OPT_ARG" < /dev/null
+ssh -p $deployPort -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh "$DEPLOY_TARGET" "$deployLand/$SOLUTION-$BUILDNUMBER" "$RELEASE" "$OPT_ARG" < /dev/null
 exitCode=$?
 if [ "$exitCode" != "0" ]; then
-	echo "[$scriptName] ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER $OPT_ARG failed! Returned $exitCode"
+	echo "[$scriptName] ssh $deployUser@$deployHost $deployLand/$SOLUTION-$BUILDNUMBER/deploy.sh $DEPLOY_TARGET $deployLand/$SOLUTION-$BUILDNUMBER $RELEASE $OPT_ARG failed! Returned $exitCode"
 	exit $exitCode
 fi

@@ -164,12 +164,6 @@ executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT="$ENVIRONMENT"
 executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
 
-buildCommand+="--env RELEASE"
-
-if [ ! -z "$OPT_ARG" ]; then
-	export CDAF_CD_OPT_ARG="$OPT_ARG"
-fi
-
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
 	buildCommand+=" --env \"${envVar}\""
@@ -186,9 +180,9 @@ executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then
 	echo "[$scriptName] \$CDAF_HOME_MOUNT = $CDAF_HOME_MOUNT"
 	echo "[$scriptName] \$HOME            = $HOME"
-	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
+	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET} . ${RELEASE} ${OPT_ARG}"
 else
-	executeExpression "docker run --tty --user $(id -u) --volume \"${HOME}:/solution/home\" ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET}"
+	executeExpression "docker run --tty --user $(id -u) --volume \"${HOME}:/solution/home\" ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET} . ${RELEASE} ${OPT_ARG}"
 fi
 
 echo; echo "[$scriptName] Shutdown containers based on '${id}'"; echo

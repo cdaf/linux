@@ -384,11 +384,12 @@ function EXITIF {
 	exitValue="${ADDR[2]}"
 
 	if [ -z "$exitValue" ]; then
-		EXECUTABLESCRIPT="if [ ! -z \"${exitVar}\" ]; then exit 0; fi"
+		echo "$LINE ==> if [ ! -z \"${exitVar}\" ]; then exit 0; fi"
+		EXECUTABLESCRIPT="if [ ! -z \"${exitVar}\" ]; then echo;echo;echo '~~~~~ controlled exit due to criteria met ~~~~~~';echo; exit 0; fi"
 	else
-		EXECUTABLESCRIPT="if [[ \"${exitVar}\" == '$exitValue' ]]; then exit 0; fi"
+		echo "$LINE ==> if [[ \"${exitVar}\" == '$exitValue' ]]; then exit 0; fi"
+		EXECUTABLESCRIPT="if [[ \"${exitVar}\" == '$exitValue' ]]; then echo;echo;echo '~~~~~ controlled exit due to criteria met ~~~~~~';echo; exit 0; fi"
 	fi
-	echo "$LINE ==> $EXECUTABLESCRIPT"
 	eval "$EXECUTABLESCRIPT"
 }
 

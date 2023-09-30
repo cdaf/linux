@@ -397,22 +397,19 @@ echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
 echo "[$scriptName]   TARGET      : $TARGET"
 echo "[$scriptName]   TASKLIST    : $TASKLIST"
+if [ -z "$5" ]; then
+        echo "[$scriptName]   OPT_ARG     : $OPT_ARG"
+else
+        # case insensitive by forcing to uppercase
+        testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
+        if [ "$testForClean" == "CLEAN" ]; then
+                ACTION=$5
+                echo "[$scriptName]   ACTION      : $ACTION (set from OPT_ARG)"
+        fi
+fi
+
 export WORKSPACE=$(pwd)
 echo "[$scriptName]   WORKSPACE   : $WORKSPACE"
-
-if [ -z "$5" ]; then
-	echo "[$scriptName]   OPT_ARG     : (not passed)"
-else
-	# case insensitive by forcing to uppercase
-	testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
-	if [ "$testForClean" == "CLEAN" ]; then
-		ACTION=$5
-		echo "[$scriptName]   ACTION      : $ACTION"
-	else
-		OPT_ARG=$5
-		echo "[$scriptName]   OPT_ARG     : $OPT_ARG"
-	fi
-fi
 
 # Set the temporary directory (system wide)
 TMPDIR=/tmp

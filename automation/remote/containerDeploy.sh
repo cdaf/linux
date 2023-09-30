@@ -161,13 +161,13 @@ echo;echo "[$scriptName] Remove any remaining deploy containers from previous (f
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
 executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
-export CDAF_CD_ENVIRONMENT=$TARGET
+export CDAF_CD_ENVIRONMENT="$ENVIRONMENT"
 executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
 
 buildCommand+="--env RELEASE"
 
 if [ ! -z "$OPT_ARG" ]; then
-	buildCommand+=" --env OPT_ARG"
+	export CDAF_CD_OPT_ARG="$OPT_ARG"
 fi
 
 for envVar in $(env | grep CDAF_CD_); do

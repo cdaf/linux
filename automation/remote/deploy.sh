@@ -14,9 +14,6 @@ fi
 # Optional, i.e. normally only supplied by automated trigger
 WORK_DIR_DEFAULT=$2
 
-# Optional, generic argument
-OPT_ARG=$3
-
 echo
 echo "[$scriptName]   DEPLOY_TARGET        : $DEPLOY_TARGET"
 # If passed, change to the working directory, if not passed, execute in current directory
@@ -36,11 +33,11 @@ echo "[$scriptName]   SOLUTION             : $SOLUTION"
 BUILDNUMBER=$("${CDAF_CORE}/getProperty.sh" "./manifest.txt" "BUILDNUMBER")
 echo "[$scriptName]   BUILDNUMBER          : $BUILDNUMBER"
 
-if [ "$OPT_ARG" ]; then
-	echo "[$scriptName]   OPT_ARG              : $OPT_ARG"
-else
-	echo "[$scriptName]   OPT_ARG              : (not passed)"
+# Optional, generic argument
+if [ ! -z "$3" ]; then
+	OPT_ARG=$3
 fi
+echo "[$scriptName]   OPT_ARG              : $OPT_ARG"
 
 echo "[$scriptName]   whoami               : $(whoami)"
 echo "[$scriptName]   hostname             : $(hostname)"

@@ -18,7 +18,6 @@ echo "List host capabilities"
 
 $CDAF_CORE/capabilities.sh
 
-
 echo "Supply by pipeline as an environment variable, see provisioning/encrypt.sh to create file"
 export AES_KEY='8b778ff3fd80def90161e40b9c54527e'
 

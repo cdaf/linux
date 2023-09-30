@@ -240,11 +240,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"sï¿½${token}ï¿½${value}ï¿½g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//ï¿½/â€¢}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else
@@ -375,6 +375,23 @@ function IMGTXT {
 	jp2a $1
 }
 
+# Controlled Exit
+#  required : variable
+#  optional : exit value, if not supplied, will exit if variable is populated
+function EXITIF {
+	IFS=' ' read -ra ADDR <<< $LINE
+	exitVar="${ADDR[1]}"
+	exitValue="${ADDR[2]}"
+
+	if [ -z "$exitValue" ]; then
+		EXECUTABLESCRIPT="if [ ! -z \"${exitVar}\" ]; then exit 0; fi"
+	else
+		EXECUTABLESCRIPT="if [[ \"${exitVar}\" == '$exitValue' ]]; then exit 0; fi"
+	fi
+	echo "$LINE ==> $EXECUTABLESCRIPT"
+	eval "$EXECUTABLESCRIPT"
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
@@ -429,26 +446,7 @@ while read LINE; do
 	feature=$(echo "${exprArray[0]}" | tr '[a-z]' '[A-Z]')
 	arguments=$(echo "${exprArray[@]:1}")
 
-	# Exit argument set
-	if [ "$feature" == "EXITIF" ]; then
-		IFS=' ' read -ra ADDR <<< $LINE
-		exitVar="${ADDR[1]}"
-		condition="${ADDR[2]}"
-		echo $exitVar
-		echo $condition
-
-		if [ -z "$condition" ]; then
-			printf "$LINE ==> if [ ${exitVar} ]; then exit"
-			EXECUTABLESCRIPT="if [ ${exitVar} ]; then "
-			EXECUTABLESCRIPT+="echo \". Controlled exit due to \$exitVar being set\";exit;fi"
-		else
-			printf "$LINE ==> if [[ ${exitVar} == '$condition' ]]; then exit"
-			EXECUTABLESCRIPT="if [[ ${exitVar} == '$condition' ]]; then "
-			EXECUTABLESCRIPT+="echo \". Controlled exit due to $exitVar = $condition\";exit;fi"
-		fi
-	fi
-
-	# Exit argument set
+	# Property Loading as feature because cannot load in a function as they will go out of scope
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
 		propldAction="${exprArray[2]}"

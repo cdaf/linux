@@ -10,3 +10,12 @@ curl -s -O "$uri"
 
 echo "Write image to Log"
 IMGTXT $filename
+
+echo "Do not exit as variable not set"
+EXITIF $NOT_SET
+
+echo "Controlled Exit"
+EXITIF $RELEASE Release
+
+echo "THIS LINE SHOULD NOT EXECUTE"
+exit 666

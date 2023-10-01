@@ -164,8 +164,6 @@ executeExpression "unzip terraform.zip"
 executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
 
-executeExpression "${elevation} usermod -aG vboxusers $USER"
-
 writeLog "Office 365 support in Evolution"
 executeExpression "${elevation} yum install -y evolution evolution-ews"
 
@@ -189,6 +187,8 @@ executeExpression "${elevation} rpm --import oracle_vbox.asc"
 
 executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
 executeExpression "${elevation} dnf install -y VirtualBox-6.0"
+
+executeExpression "${elevation} usermod -aG vboxusers $USER"
 
 writeLog "--- end ---"
 exit 0

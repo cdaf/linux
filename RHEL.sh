@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# curl -s https://raw.githubusercontent.com/cdaf/linux/master/RHEL.sh | bash -
 scriptName='RHEL.sh'
 
 function writeLog {

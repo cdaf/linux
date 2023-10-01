@@ -163,19 +163,7 @@ executeExpression "unzip terraform.zip"
 executeExpression "${elevation} mv -f terraform /usr/bin/"
 executeExpression "terraform --version"
 
-writeLog "VirtualBox for Vagrant"
-executeExpression "${elevation} dnf -y install wget"
-executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"
-executeExpression "${elevation} mv virtualbox.repo /etc/yum.repos.d/"
-
-executeExpression "wget -q https://www.virtualbox.org/download/oracle_vbox.asc"
-executeExpression "${elevation} rpm --import oracle_vbox.asc"
-
-executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
-executeExpression "${elevation} dnf install -y VirtualBox-6.0"
-
 executeExpression "${elevation} usermod -aG vboxusers $USER"
-
 
 writeLog "Office 365 support in Evolution"
 executeExpression "${elevation} yum install -y evolution evolution-ews"
@@ -189,6 +177,17 @@ executeExpression "${elevation} snap install helm --classic"
 executeExpression "curl -L https://github.com/Praqma/helmsman/releases/download/v3.11.0/helmsman_3.11.0_linux_amd64.tar.gz | tar zx"
 executeExpression "${elevation} mv helmsman /usr/sbin"
 executeExpression "helmsman"
+
+writeLog "VirtualBox for Vagrant"
+executeExpression "${elevation} dnf -y install wget"
+executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"
+executeExpression "${elevation} mv virtualbox.repo /etc/yum.repos.d/"
+
+executeExpression "wget -q https://www.virtualbox.org/download/oracle_vbox.asc"
+executeExpression "${elevation} rpm --import oracle_vbox.asc"
+
+executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
+executeExpression "${elevation} dnf install -y VirtualBox-6.0"
 
 writeLog "--- end ---"
 exit 0

@@ -375,27 +375,42 @@ function IMGTXT {
 	jp2a $1
 }
 
+# Controlled Exit
+#  required : variable
+#  optional : exit value, if not supplied, will exit if variable is populated
+function EXITIF {
+	IFS=' ' read -ra ADDR <<< $LINE
+	exitVar="${ADDR[1]}"
+	exitValue="${ADDR[2]}"
+
+	if [ -z "$exitValue" ]; then
+		echo "$LINE ==> if [ ! -z \"${exitVar}\" ]; then exit 0; fi"
+		EXECUTABLESCRIPT="if [ ! -z \"${exitVar}\" ]; then echo;echo;echo '~~~~~ controlled exit due to criteria met ~~~~~~';echo; exit 0; fi"
+	else
+		echo "$LINE ==> if [[ \"${exitVar}\" == '$exitValue' ]]; then exit 0; fi"
+		EXECUTABLESCRIPT="if [[ \"${exitVar}\" == '$exitValue' ]]; then echo;echo;echo '~~~~~ controlled exit due to criteria met ~~~~~~';echo; exit 0; fi"
+	fi
+	eval "$EXECUTABLESCRIPT"
+}
+
 echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
 echo "[$scriptName]   TARGET      : $TARGET"
 echo "[$scriptName]   TASKLIST    : $TASKLIST"
+if [ -z "$5" ]; then
+        echo "[$scriptName]   OPT_ARG     : $OPT_ARG"
+else
+        # case insensitive by forcing to uppercase
+        testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
+        if [ "$testForClean" == "CLEAN" ]; then
+                ACTION=$5
+                echo "[$scriptName]   ACTION      : $ACTION (set from OPT_ARG)"
+        fi
+fi
+
 export WORKSPACE=$(pwd)
 echo "[$scriptName]   WORKSPACE   : $WORKSPACE"
-
-if [ -z "$5" ]; then
-	echo "[$scriptName]   OPT_ARG     : (not passed)"
-else
-	# case insensitive by forcing to uppercase
-	testForClean=$(echo "$5" | tr '[a-z]' '[A-Z]')
-	if [ "$testForClean" == "CLEAN" ]; then
-		ACTION=$5
-		echo "[$scriptName]   ACTION      : $ACTION"
-	else
-		OPT_ARG=$5
-		echo "[$scriptName]   OPT_ARG     : $OPT_ARG"
-	fi
-fi
 
 # Set the temporary directory (system wide)
 TMPDIR=/tmp
@@ -429,32 +444,13 @@ while read LINE; do
 	feature=$(echo "${exprArray[0]}" | tr '[a-z]' '[A-Z]')
 	arguments=$(echo "${exprArray[@]:1}")
 
-	# Exit argument set
-	if [ "$feature" == "EXITIF" ]; then
-		IFS=' ' read -ra ADDR <<< $LINE
-		exitVar="${ADDR[1]}"
-		condition="${ADDR[2]}"
-		echo $exitVar
-		echo $condition
-
-		if [ -z "$condition" ]; then
-			printf "$LINE ==> if [ ${exitVar} ]; then exit"
-			EXECUTABLESCRIPT="if [ ${exitVar} ]; then "
-			EXECUTABLESCRIPT+="echo \". Controlled exit due to \$exitVar being set\";exit;fi"
-		else
-			printf "$LINE ==> if [[ ${exitVar} == '$condition' ]]; then exit"
-			EXECUTABLESCRIPT="if [[ ${exitVar} == '$condition' ]]; then "
-			EXECUTABLESCRIPT+="echo \". Controlled exit due to $exitVar = $condition\";exit;fi"
-		fi
-	fi
-
-	# Exit argument set
+	# Property Loading as feature because cannot load in a function as they will go out of scope
 	if [ "$feature" == "PROPLD" ]; then
 		propFile="${exprArray[1]}"
 		propldAction="${exprArray[2]}"
                 propFile=$(eval "echo \"$propFile\"")
 		if [ ! -f "$propFile" ]; then
-			ERRMSG "Properties file $propFile not found!" 3342
+		ERRMSG "Properties file $propFile not found!" 3342
 		else
 			execute="'${CDAF_CORE}/transform.sh' $propFile"
 			propertiesList=$(eval $execute)

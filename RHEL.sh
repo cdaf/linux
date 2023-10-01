@@ -77,12 +77,15 @@ function executeRetry {
 }
 
 echo; echo "--- start ---"
+virtualisation="$1"
+echo "  virtualisation : $virtualisation"
+
 current_user=$(whoami)
 if [[ $current_user != 'root' ]]; then
 	elevation='sudo'
 fi
 
-echo "  whoami       : $current_user"
+echo "  whoami         : $current_user"
 
 if [ ! -z "$HTTP_PROXY" ]; then
 	echo "  HTTP_PROXY   : $HTTP_PROXY"
@@ -177,18 +180,20 @@ executeExpression "curl -L https://github.com/Praqma/helmsman/releases/download/
 executeExpression "${elevation} mv helmsman /usr/sbin"
 executeExpression "helmsman"
 
-writeLog "VirtualBox for Vagrant"
-executeExpression "${elevation} dnf -y install wget"
-executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"
-executeExpression "${elevation} mv virtualbox.repo /etc/yum.repos.d/"
-
-executeExpression "wget -q https://www.virtualbox.org/download/oracle_vbox.asc"
-executeExpression "${elevation} rpm --import oracle_vbox.asc"
-
-executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
-executeExpression "${elevation} dnf install -y VirtualBox-6.0"
-
-executeExpression "${elevation} usermod -aG vboxusers $USER"
+if [ "$virtualisation" -eq "virtualbox" ]; then
+	writeLog "VirtualBox"
+	executeExpression "${elevation} dnf -y install wget"
+	executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"
+	executeExpression "${elevation} mv virtualbox.repo /etc/yum.repos.d/"
+	
+	executeExpression "wget -q https://www.virtualbox.org/download/oracle_vbox.asc"
+	executeExpression "${elevation} rpm --import oracle_vbox.asc"
+	
+	executeExpression "${elevation} dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms"
+	executeExpression "${elevation} dnf install -y VirtualBox-6.0"
+	
+	executeExpression "${elevation} usermod -aG vboxusers $USER"
+fi
 
 writeLog "--- end ---"
 exit 0

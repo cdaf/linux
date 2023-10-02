@@ -189,7 +189,7 @@ executeExpression "curl -L https://github.com/Praqma/helmsman/releases/download/
 executeExpression "${elevation} mv helmsman /usr/sbin"
 executeExpression "helmsman -v"
 
-if [ "$virtualisation" -eq "virtualbox" ]; then
+if [ "$virtualisation" == "virtualbox" ]; then
 	writeLog "VirtualBox"
 	executeExpression "${elevation} dnf -y install wget"
 	executeExpression "wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo"

@@ -161,8 +161,13 @@ writeLog "dotnet core"
 executeExpression "${elevation} dnf install -y dotnet-sdk-6.0"
 
 writeLog "Buildah & Podman"
-executeExpression "${elevation} yum install -y podman-docker"
+executeExpression "${elevation} yum install -y podman-docker pip"
 executeExpression "${elevation} touch /etc/containers/nodocker"
+
+executeExpression "${elevation} pip3 install podman-compose"
+if [ ! -f "/usr/local/bin/docker-compose" ]; then
+	executeExpression "${elevation} ln -s ~/.local/bin/podman-compose /usr/local/bin/docker-compose"
+fi
 
 writeLog "Terraform for KOT, align with cdaf/linux image"
 executeExpression "curl --silent -l https://releases.hashicorp.com/terraform/1.2.2/terraform_1.2.2_linux_amd64.zip --output terraform.zip"

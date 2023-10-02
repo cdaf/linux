@@ -113,7 +113,11 @@ fi
 writeLog "To enable classic snap support, en"
 executeExpression "${elevation} ln -s /var/lib/snapd/snap /snap"
 
-# executeRetry "${elevation} snap install --classic eclipse"
+executeRetry "${elevation} snap install --classic eclipse"
+if [ ! -f "$HOME/Desktop/Eclipse" ]; then
+	executeExpression "ln -s /snap/eclipse/current/eclipse $HOME/Desktop/Eclipse"
+fi
+
 # executeExpression "${elevation} snap install powershell --classic"
  
 writeLog "Download Chrome RPM and install using Dandified YUM"

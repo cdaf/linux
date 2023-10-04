@@ -117,8 +117,13 @@ if [ -d "./propertiesForContainerTasks" ]; then
 				if [ $(whoami) != 'root' ];then
 					elevate='sudo'
 				fi
-				executeExpression "$elevate service docker start"
-				executeExpression "$elevate service docker status"
+				proceed="$elevate service docker start"
+				echo "[$scriptName] $proceed"
+				eval "$proceed"
+				proceed="$elevate systemctl --no-pager status"
+				echo "[$scriptName] $proceed"
+				eval "$proceed"
+				echo "[$scriptName] docker images"
 				docker images
 				exitCode=$?
 				if [ $exitCode -ne 0 ]; then

@@ -475,8 +475,13 @@ else
 					if [ $(whoami) != 'root' ];then
 						elevate='sudo'
 					fi
-					executeExpression "$elevate service docker start"
-					executeExpression "$elevate systemctl --no-pager status"
+					proceed="$elevate service docker start"
+					echo "[$scriptName] $proceed"
+					eval "$proceed"
+					proceed="$elevate systemctl --no-pager status"
+					echo "[$scriptName] $proceed"
+					eval "$proceed"
+					echo "[$scriptName] docker images"
 					docker images
 					exitCode=$?
 					if [ $exitCode -eq 0 ]; then

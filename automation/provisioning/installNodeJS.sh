@@ -162,28 +162,10 @@ scriptName='installNodeJS.sh'
 echo; echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	echo "[$scriptName]   version    : (not supplied, will install canonical)"
+	version="21"
+	echo "[$scriptName]   version    : $version (default to latest)"
 else
 	echo "[$scriptName]   version    : $version"
-	systemWide=$2
-	if [ -z "$systemWide" ]; then
-		systemWide='yes'
-		echo "[$scriptName]   systemWide : $systemWide (default)"
-	else
-		if [ "$systemWide" == 'yes' ] || [ "$systemWide" == 'no' ]; then
-			echo "[$scriptName]   systemWide : $systemWide"
-		else
-			echo "[$scriptName] Expecting yes or no, exiting with error code 1"; exit 1
-		fi
-	fi
-
-	mediaCache="$3"
-	if [ -z "$mediaCache" ]; then
-		mediaCache='/.provision'
-		echo "[$scriptName]   mediaCache : $mediaCache (default)"
-	else
-		echo "[$scriptName]   mediaCache : $mediaCache"
-	fi
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -193,122 +175,50 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-test="`yum --version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	apt='yes'
-	export DEBIAN_FRONTEND=noninteractive
-	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"; echo
-	echo "[$scriptName] Check that APT is available"
-	executeAptCheck
-
-	echo "[$scriptName] $elevate apt-get update"; echo
-		executeAptCheck "$elevate apt-get update"
-	echo
+if [ -f '/etc/centos-release' ]; then
+	echo "[$scriptName]   distro     : $(cat /etc/centos-release)"
+	centos='yes'
 else
-	fedora='yes'
-	centos=$(cat /etc/redhat-release | grep CentOS)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Red Hat Enterprise Linux"
+	if [ -f '/etc/redhat-release' ]; then
+		echo "[$scriptName]   distro     : $(cat /etc/redhat-release)"
 	else
-		echo "[$scriptName] CentOS Linux"
-	fi
-	echo "[$scriptName] CentOS/RHEL, update repositories using yum"
-	executeYumCheck "$elevate yum check-update"
-fi
-
-if [ -z "$fedora" ]; then # Debian
-
-	if [ -z "$version" ]; then
-		executeAptCheck "$elevate apt-get install -y --fix-missing curl nodejs npm"
-		
-		test="`node -v 2>&1`"
-		if [[ "$test" == *"not found"* ]]; then
-			echo "[$scriptName] Node not found, create symlink to NodeJS."
-			executeRetry "ln -s /usr/bin/nodejs /usr/bin/node"
-			test="`node -v 2>&1`"
-			if [[ "$test" == *"not found"* ]]; then
-				echo "[$scriptName] Install Error! Node verification failed."
-				exit 939
+		apt='yes'
+		test="`lsb_release --all 2>&1`"
+		if [ $? -ne 0 ]; then
+			if [ -f /etc/issue ]; then
+				dist=$(cat /etc/issue)
+				echo "[$scriptName]   distro     : ${dist%%\\*}"
+			else
+				echo "[$scriptName]   distro     : $(uname -a)"
 			fi
-		fi
-	else
-		executeAptCheck "$elevate apt-get install -y --fix-missing curl"
-	fi
-
-else # Fedora
-
-	if [ "$systemWide" == 'yes' ]; then
-		
-		if [ -z "$centos" ]; then # Red Hat Enterprise Linux (RHEL)
-			echo "[$scriptName] Red Hat Enterprise Linux"
-			version=$(cat /etc/redhat-release)
-			IFS='.' read -ra arr <<< $version
-			IFS=' ' read -ra arr <<< ${arr[0]}
-			epelversion=$(echo ${arr[${#arr[@]} - 1]})
-		    executeIgnore "$elevate yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${epelversion}.noarch.rpm" # Ignore if already installed
 		else
-			executeRetry "$elevate yum install -y epel-release"
-		fi
+			while IFS= read -r line; do
+				if [[ "$line" == *"Description"* ]]; then
+					IFS=' ' read -ra ADDR <<< $line
+					echo "[$scriptName]   distro     : ${ADDR[1]} ${ADDR[2]}"
+				fi
+			done <<< "$test"
+		fi	
 	fi
-
-	echo
-	if [ -z "$version" ]; then
-		executeRetry "$elevate yum install -y curl sudo gcc-c++ make"
-		echo;echo "[$scriptName] Aligning to Ubuntu 16.04 canonical version, i.e. v4"
-		executeRetry "curl --silent --location https://rpm.nodesource.com/setup_4.x | $elevate bash -"
-		executeRetry "$elevate yum install -y nodejs"
-	else
-		executeRetry "$elevate yum install -y curl"
-	fi
-
 fi
 
-if [ ! -z "$version" ]; then
+if [[ "$apt" == 'yes' ]]; then
+	export DEBIAN_FRONTEND=noninteractive
+	executeAptCheck "$elevate apt-get update"
+	executeAptCheck "$elevate apt-get install -y --fix-missing ca-certificates curl gnupg"
 
-	test="`curl --version 2>&1`"
-	if [[ "$test" == *"not found"* ]]; then
-		echo; echo "[$scriptName] Install Error! curl verification failed."
-		exit 934
-	fi	
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] curl : $test"
-	
-	if [ -z "$fedora" ]; then # Debian
-		echo
-		if [ -z $elevate ]; then
-			executeRetry "curl -sL https://deb.nodesource.com/setup_${version}.x | bash -"
-		else
-			executeRetry "curl -sL https://deb.nodesource.com/setup_${version}.x | $elevate -E bash -"
-		fi
-		executeAptCheck "$elevate apt-get install -y --fix-missing nodejs"
-	else # Red Hat
-		executeRetry "$elevate yum install -y gcc-c++ make"
-		if [ -z $elevate ]; then
-			executeRetry "curl -sL https://rpm.nodesource.com/setup_${version}.x | bash -"
-		else
-			executeRetry "curl -sL https://rpm.nodesource.com/setup_${version}.x | $elevate -E bash -"
-		fi
-		executeRetry "$elevate yum install -y nodejs"
-		
-	fi
-		
-	# NodeJS components
-	test=$(node --version 2>/dev/null)
-	if [ -z "$test" ]; then
-		echo "[$scriptName] NodeJS           : (not installed)"
-	else
-		echo "[$scriptName] NodeJS           : $test"
-	fi	
-	
-	# Node Package Manager
-	test=$(npm -version 2>/dev/null)
-	if [ -z "$test" ]; then
-		echo "[$scriptName] NPM              : (not installed)"
-	else
-		echo "[$scriptName] NPM              : $test"
-	fi	
+	executeExpression "$elevate mkdir -p /etc/apt/keyrings"
+	executeExpression "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | $elevate gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg"
 
+	executeExpression "echo \"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${version}.x nodistro main\" | $elevate tee /etc/apt/sources.list.d/nodesource.list"
+
+	executeAptCheck "$elevate apt-get update"
+	executeAptCheck "$elevate apt-get -y install nodejs"
+else
+	executeYumCheck "$elevate yum check-update"
+	executeRetry "$elevate yum install -y gcc-c++ make"
+	executeExpression "$elevate yum install https://rpm.nodesource.com/pub_${version}.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y"
+	executeExpression "$elevate yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1"
 fi
 
 echo; echo "[$scriptName] Verify Node version"

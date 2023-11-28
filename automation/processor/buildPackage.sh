@@ -33,7 +33,7 @@ function executeWarnRetry {
 	counter=1
 	max=3
 	success='no'
-	while [ "$success" != 'yes' ]; do
+	while [[ "$success" != 'yes' ]]; do
 		echo "[$scriptName][$counter] $1"
 		output=$(eval "$1 2>&1")
 		exitCode=$?
@@ -153,7 +153,7 @@ if [ -z $BUILDNUMBER ]; then
 	else
 		let "BUILDNUMBER=0"
 	fi
-	if [ "$caseinsensitive" != "cdonly" ]; then
+	if [[ "$caseinsensitive" != "cdonly" ]]; then
 		let "BUILDNUMBER=$BUILDNUMBER + 1"
 	fi
 	echo $BUILDNUMBER > ${HOME}/buildnumber.counter
@@ -513,7 +513,7 @@ fi
 #--------------------------------------------------------------------------
 
 # 2.4.4 Pre-Build Tasks, exclude from container_build to avoid performing twice
-if [ -f "$prebuildTasks" ] && [ "$ACTION" != 'container_build' ]; then
+if [ -f "$prebuildTasks" ] && [[ "$ACTION" != 'container_build' ]]; then
 	# Set properties for execution engine
 
 	echo; echo "Process Pre-Build Tasks ..."
@@ -525,11 +525,11 @@ if [ -f "$prebuildTasks" ] && [ "$ACTION" != 'container_build' ]; then
 fi
 
 # CDAF 1.7.0 Container Build process
-if [ ! -z "$containerBuild" ] && [ "$caseinsensitive" != "clean" ] && [ "$caseinsensitive" != "packageonly" ]; then
+if [ ! -z "$containerBuild" ] && [[ "$caseinsensitive" != "clean" ]] && [[ "$caseinsensitive" != "packageonly" ]]; then
 	echo; echo "[$scriptName] Execute container build ${defaultCBProcess}..."; echo
 	executeExpression "$containerBuild"
 else
-	if [ "$caseinsensitive" == "packageonly" ]; then
+	if [[ "$caseinsensitive" == "packageonly" ]]; then
 		echo; echo "[$scriptName] action is ${ACTION}, do not perform build."
 	else
 		"$AUTOMATIONROOT/buildandpackage/buildProjects.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$ACTION"
@@ -556,7 +556,7 @@ else
 		executeExpression "$postBuild"
 	fi
 	
-	if [ "$caseinsensitive" == "buildonly" ]; then
+	if [[ "$caseinsensitive" == "buildonly" ]]; then
 		echo "[$scriptName] action is ${ACTION}, do not perform package."
 	else
 		"$AUTOMATIONROOT/buildandpackage/package.sh" "$SOLUTION" "$BUILDNUMBER" "$REVISION" "$LOCAL_WORK_DIR" "$REMOTE_WORK_DIR" "$ACTION"
@@ -571,7 +571,7 @@ fi
 # Build process complete, start image and file packaging
 #-------------------------------------------------------
 
-if [ "$ACTION" != 'container_build' ]; then
+if [[ "$ACTION" != 'container_build' ]]; then
 
 	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
 	if [ ! -z "$imageBuild" ]; then
@@ -609,45 +609,48 @@ if [ "$ACTION" != 'container_build' ]; then
 	fi
 
 	# CDAF 2.1.0 Self-extracting Script Artifact
-	artifactPrefix=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
-	if [ ! -z $artifactPrefix ]; then
-		artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
-		echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
-		if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
-			executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz"
-		else
-			executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/"
-		fi
+	if [[ "$caseinsensitive" != "buildonly" ]]; then
 
-		echo "[$scriptName]   Create single script artefact release.sh"
-		echo '#!/usr/bin/env bash' > release.sh
-		echo 'ENVIRONMENT="$1"' >> release.sh
-		echo 'RELEASE="$2"' >> release.sh
-		echo 'OPT_ARG="$3"' >> release.sh
-		echo "SOLUTION=$SOLUTION" >> release.sh
-		echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
-		echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
-		echo 'for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do rm $packageFile; done' >> release.sh
-		echo "base64 -d << EOF | tar -xzf -" >> release.sh
-		base64 $artifactID.tar.gz >> release.sh
-		echo 'EOF' >> release.sh
-		echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
-		echo "[$scriptName]   Set resulting package file executable"
-		executeExpression "chmod +x release.sh"
-	fi
-
-	if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix
-		IFS='@' read -ra arr <<< $ACTION
-		if [ ! -d "${arr[1]}" ]; then
-			executeExpression "mkdir -p '${arr[1]}'"
+		artifactPrefix=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "artifactPrefix")
+		if [ ! -z $artifactPrefix ]; then
+			artifactID="${SOLUTION}-${artifactPrefix}.${BUILDNUMBER}"
+			echo; echo "[$scriptName] artifactPrefix = $artifactID, generate single file artefact ..."
+			if [ -f "${SOLUTION}-${BUILDNUMBER}.tar.gz" ]; then
+				executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/ ${SOLUTION}-${BUILDNUMBER}.tar.gz"
+			else
+				executeWarnRetry "tar -czf $artifactID.tar.gz TasksLocal/"
+			fi
+	
+			echo "[$scriptName]   Create single script artefact release.sh"
+			echo '#!/usr/bin/env bash' > release.sh
+			echo 'ENVIRONMENT="$1"' >> release.sh
+			echo 'RELEASE="$2"' >> release.sh
+			echo 'OPT_ARG="$3"' >> release.sh
+			echo "SOLUTION=$SOLUTION" >> release.sh
+			echo "echo; echo 'Launching release.sh (${artifactPrefix}.${BUILDNUMBER}) ...'" >> release.sh
+			echo 'if [ -d "TasksLocal" ]; then rm -rf "TasksLocal"; fi' >> release.sh
+			echo 'for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do rm $packageFile; done' >> release.sh
+			echo "base64 -d << EOF | tar -xzf -" >> release.sh
+			base64 $artifactID.tar.gz >> release.sh
+			echo 'EOF' >> release.sh
+			echo './TasksLocal/delivery.sh "$ENVIRONMENT" "$RELEASE" "$OPT_ARG"' >> release.sh
+			echo "[$scriptName]   Set resulting package file executable"
+			executeExpression "chmod +x release.sh"
 		fi
-		if [ -z $artifactPrefix ]; then
-			executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
-			for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
-				executeExpression "cp -f '${packageFile}' '${arr[1]}'"
-			done
-		else
-			executeExpression "cp -f 'release.sh' '${arr[1]}'"
+	
+		if [[ "$ACTION" == "staging@"* ]]; then # Primarily for Microsoft ADO & IBM BlueMix
+			IFS='@' read -ra arr <<< $ACTION
+			if [ ! -d "${arr[1]}" ]; then
+				executeExpression "mkdir -p '${arr[1]}'"
+			fi
+			if [ -z $artifactPrefix ]; then
+				executeExpression "cp -rf './TasksLocal/' '${arr[1]}'"
+				for packageFile in $(find . -maxdepth 1 -type f -name "${SOLUTION}-*.gz"); do
+					executeExpression "cp -f '${packageFile}' '${arr[1]}'"
+				done
+			else
+				executeExpression "cp -f 'release.sh' '${arr[1]}'"
+			fi
 		fi
 	fi
 

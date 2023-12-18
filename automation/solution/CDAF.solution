@@ -39,7 +39,7 @@ artifactPrefix=0.0
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
-# containerDeploy minimal config
+# containerDeploy minimal config, if directory containerDeploy is found, a customer image build will be attempted
 # runtimeImage=cdaf/linux
 
 # containerDeploy default process

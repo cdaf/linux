@@ -27,6 +27,11 @@ ASSIGN $resolvedEmptyInVar = $empty_var
 ASSIGN $resolvedNullInVar = $null_var
 ASSIGN $resolvedNullVar = $null
 
+echo "Retain Tokenised file for later"
+
+MAKDIR check
+VECOPY example.yaml check
+
 echo "Detokenise a setting file"
 
 DETOKN example.yaml
@@ -62,3 +67,7 @@ echo "Process a comma separated list as array"
 echo "  csv = $csv"
 IFS=',' read -ra list <<< "$csv"
 for item in "${list[@]}"; do echo "  [ $item ]"; done
+
+echo "Detokenise outside of workspace"
+cd check
+DETOKN example.yaml

@@ -180,7 +180,7 @@ function REFRSH {
 		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode
 	fi
 	if [ ! -z $source ]; then
-		for fileName in $(find "$destination" -name "*.sh"); do 
+		for fileName in $(find "$destination" -name "*.sh"); do
 			if [ ! -x "$fileName" ]; then
 				echo " +x -> '$fileName'"
 				chmod +x $fileName
@@ -209,7 +209,7 @@ function DETOKN {
 		ERRMSG "Token file not supplied!" 3523
 	fi
 	if [ -z "$2" ]; then
-		propertyFile="$TARGET"
+		propertyFile="$WORKSPACE/$TARGET"
 	else
 		propertyFile="$2"
 	fi

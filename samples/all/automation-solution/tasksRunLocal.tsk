@@ -62,3 +62,7 @@ echo "Process a comma separated list as array"
 echo "  csv = $csv"
 IFS=',' read -ra list <<< "$csv"
 for item in "${list[@]}"; do echo "  [ $item ]"; done
+
+echo "Execute outside of WORKSPACE"
+cd $TMPDIR
+PROPLD $WORKSPACE/manifest.txt

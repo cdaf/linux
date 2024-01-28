@@ -51,9 +51,9 @@ fi
 executor="$3"
 if [ -z "$executor" ]; then
 	executor='shell'
-	echo "[$scriptName]   executor : $executor (default)"
+	echo "[$scriptName]   executor : $executor (default, for docker, can supply with default image, e.g. 'docker>cdaf/linux:latest')"
 else
-	echo "[$scriptName]   executor : $executor"
+	echo "[$scriptName]   executor : $executor (for docker, can supply with default image, e.g. 'docker>cdaf/linux:latest')"
 fi
 
 runas="$4"
@@ -162,11 +162,11 @@ else
 	else
 		runnerBin='/usr/local/bin/gitlab-runner'
 	fi
-	execprefix=$(echo ${executor%/*})
+	execprefix=$(echo ${executor%>*})
 	if [[ "$execprefix" == 'docker' ]]; then
-		execsuffix=$(echo ${executor##*/})
+		execsuffix=$(echo ${executor##*>})
 		if [[ -z "$execsuffix" ]]; then
-			execsuffix='ubuntu:latest'
+			execsuffix='cdaf/linux:latest'
 		fi
 		executeRetry "$elevate $runnerBin register --non-interactive --url $url --token \$pat --executor $execprefix --docker-image $execsuffix"
 	else	

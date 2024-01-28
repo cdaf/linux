@@ -265,7 +265,7 @@ fi
 
 # Ansible components
 test=$(ansible-playbook --version 2>/dev/null)
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
 	echo "  ansible-playbook : (not installed)"
 else
 	IFS=' ' read -ra ADDR <<< $test
@@ -291,14 +291,14 @@ fi
 
 # NodeJS components
 test=$(node --version 2>/dev/null)
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
 	echo "  NodeJS           : (not installed)"
 else
 	echo "  NodeJS           : ${test##*v}"
 
 	# Node Package Manager
 	test=$(npm -version 2>/dev/null)
-	if [ -z "$test" ]; then
+	if [ $? -ne 0 ]; then
 		echo "    NPM            : (not installed)"
 	else
 		echo "    NPM            : $test"
@@ -331,7 +331,7 @@ fi
 
 # dotnet core
 test=$(dotnet --version 2>/dev/null)
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
 	echo "  dotnet           : (not installed)"
 else
 	echo "  dotnet           : $test"
@@ -356,7 +356,7 @@ else
 	echo "  kubectl          : $kubetest"
 
 	test=$(helm version --short 2>/dev/null)
-	if [ -z "$test" ]; then
+	if [ $? -ne 0 ]; then
 		echo "    helm           : (not installed)"
 	else
 		test="${test##*v}"
@@ -364,17 +364,24 @@ else
 	fi
 	
 	test=$(helmsman -v 2>/dev/null)
-	if [ -z "$test" ]; then
+	if [ $? -ne 0 ]; then
 		echo "    helmsman       : (not installed)"
 	else
 		echo "    helmsman       : ${test##*v}"
+	fi
+
+	test=$(helmfile --version 2>/dev/null)
+	if [ $? -ne 0 ]; then
+		echo "    helmfile       : (not installed)"
+	else
+		echo "    helmfile       : ${test##* }"
 	fi
 fi
 
 test=$(az version --output tsv 2>/dev/null)
 unset IFS
 read -ra ADDR <<< $test
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
 	echo "  Azure CLI        : (not installed)"
 else
 	echo "  Azure CLI        : ${ADDR[0]}"
@@ -398,7 +405,7 @@ else
 fi
 
 test=$(jp2a --version 2>&1)
-if [ -z "$test" ]; then
+if [ $? -ne 0 ]; then
 	echo "  jp2a JPG 2 ASCII : (not installed)"
 else
 	read -ra ADDR <<< $test

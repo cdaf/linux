@@ -209,7 +209,7 @@ function DETOKN {
 		ERRMSG "Token file not supplied!" 3523
 	fi
 	if [ -z "$2" ]; then
-		propertyFile="$TARGET"
+		propertyFile="$WORKSPACE/$TARGET"
 	else
 		propertyFile="$2"
 	fi

@@ -31,22 +31,12 @@ fi
 
 ACTION="$4"
 if [ -z "$ACTION" ]; then
-	echo "[$scriptName]   ACTION         : $ACTION"
-	BUILDENV='BUILDER'
-	echo "[$scriptName]   BUILDENV       : $BUILDENV (default because ACTION not supplied)"
+	echo "[$scriptName]   ACTION         : (not passed)"
 else
-	# case insensitive by forcing to uppercase
-	testForClean=$(echo "$ACTION" | tr '[a-z]' '[A-Z]')
-	if [ "$testForClean" == "CLEAN" ]; then
-		echo "[$scriptName]   ACTION         : $ACTION (Build Environment will be set to default)"
-		BUILDENV='BUILDER'
-		echo "[$scriptName]   BUILDENV       : $BUILDENV (default)"
-	else
-		BUILDENV="$ACTION"
-		echo "[$scriptName]   ACTION         : $ACTION"
-		echo "[$scriptName]   BUILDENV       : $BUILDENV (derived from action)"
-	fi
+	echo "[$scriptName]   ACTION         : $ACTION"
 fi
+
+echo "[$scriptName]   BUILDENV       : $BUILDENV"
 
 # Look for automation root definition
 printf "[$scriptName]   AUTOMATIONROOT : "

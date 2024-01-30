@@ -114,10 +114,10 @@ if [ -z "${CDAF_DELIVERY}" ]; then
 	else
 		if [ ! $CDAF_DELIVERY ]; then
 			if [ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]; then
-				CDAF_DELIVERY="WSL"
+				CDAF_DELIVERY='WSL'
 				echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (default, found file /proc/sys/fs/binfmt_misc/WSLInterop)"
 			else
-				CDAF_DELIVERY="LINUX"
+				CDAF_DELIVERY='LINUX'
 				echo "[$scriptName]   CDAF_DELIVERY  : $CDAF_DELIVERY (default)"
 			fi
 		fi

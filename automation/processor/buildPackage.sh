@@ -231,6 +231,19 @@ if [ -z "$SOLUTION" ]; then
 fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
 
+# Derive Build Environment, no longer implicit from ACTION
+if [ -z "$CDAF_BUILDENV" ]; then
+	if [ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]; then
+		export BUILDENV='WSL'
+		echo "[$scriptName]   BUILDENV        : $BUILDENV (derived from /proc/sys/fs/binfmt_misc/WSLIntero)"
+	else
+		export BUILDENV='BUILDER'
+		echo "[$scriptName]   BUILDENV        : $BUILDENV (default)"
+	fi
+else
+	echo "[$scriptName]   BUILDENV        : $BUILDENV (from environment variable CDAF_BUILDENV)"
+fi
+
 export WORKSPACE_ROOT="$(pwd)"
 export WORKSPACE="$WORKSPACE_ROOT"
 echo "[$scriptName]   WORKSPACE_ROOT  : ${WORKSPACE_ROOT}"
@@ -393,6 +406,12 @@ else
 		loggingList+=("[$scriptName]   CDAF_SKIP_CONTAINER_BUILD : $CDAF_SKIP_CONTAINER_BUILD")
 	fi
 
+	# 2.7.5 Conditional containerBuild
+	defaultContainerBuild=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "defaultContainerBuild")
+	if [ ! -z "$defaultContainerBuild" ]; then
+		loggingList+=("[$scriptName]   defaultContainerBuild     : $defaultContainerBuild (defined in $SOLUTIONROOT/CDAF.solution)")
+	fi
+
 	if [ -z "$CDAF_DOCKER_REQUIRED" ]; then
 		export CDAF_DOCKER_REQUIRED=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
 		if [ ! -z "$CDAF_DOCKER_REQUIRED" ]; then
@@ -448,10 +467,14 @@ else
 	#---------------------------------------------------------------------
 	if [ ! -z "$containerBuild" ] || [ ! -z "$imageBuild" ]; then
 		# 2.5.5 support conditional containerBuild based on environment variable
-		if [ ! -z $CDAF_SKIP_CONTAINER_BUILD ] || [[ "$ACTION" == 'skip_container_build' ]]; then
+		if [ ! -z "$CDAF_SKIP_CONTAINER_BUILD" ] || [[ "$ACTION" == 'skip_container_build' ]]; then
 			loggingList+=("[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ...")
 			unset containerBuild
 			unset imageBuild
+		elif [ ! -z "$defaultContainerBuild" ]; then # 2.7.5 conditional container build for docker-in-docker build server
+			if [[ "$defaultContainerBuild" != "$BUILDENV" ]]; then
+				unset containerBuild
+			fi
 		else
 			test=$(docker --version 2>&1)
 			if [ $? -ne 0 ]; then

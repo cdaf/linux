@@ -77,8 +77,11 @@ if [ -z "$version" ]; then
 	executeExpression "mv * ${installPath}"
 	executeExpression "cd ../.. && rm -rf linux-master"
 else
+	if [ -d "automation" ]; then
+		executeExpression "rm -rf automation"
+	fi
 	executeExpression "curl -s http://cdaf.io/static/app/downloads/LU-CDAF-${version}.tar.gz | tar -xz"
-	if [ -z "$CDAF_INSTALL_PATH" ]; then
+	if [ ! -z "$CDAF_INSTALL_PATH" ]; then
 		executeExpression "cd automation"
 		executeExpression "mv * ${installPath}"
 		executeExpression "cd .. && rm -rf automation"

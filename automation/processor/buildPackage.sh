@@ -232,7 +232,7 @@ fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
 
 # Derive Build Environment, no longer implicit from ACTION
-if [ -z "$CDAF_BUILDENV" ]; then
+if [ -z "$CDAF_BUILD_ENV" ]; then
 	if [ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]; then
 		export BUILDENV='WSL'
 		echo "[$scriptName]   BUILDENV        : $BUILDENV (derived from /proc/sys/fs/binfmt_misc/WSLIntero)"
@@ -241,7 +241,7 @@ if [ -z "$CDAF_BUILDENV" ]; then
 		echo "[$scriptName]   BUILDENV        : $BUILDENV (default)"
 	fi
 else
-	echo "[$scriptName]   BUILDENV        : $BUILDENV (from environment variable CDAF_BUILDENV)"
+	echo "[$scriptName]   BUILDENV        : $BUILDENV (from environment variable CDAF_BUILD_ENV)"
 fi
 
 export WORKSPACE_ROOT="$(pwd)"

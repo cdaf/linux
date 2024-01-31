@@ -241,6 +241,7 @@ if [ -z "$CDAF_BUILD_ENV" ]; then
 		echo "[$scriptName]   BUILDENV        : $BUILDENV (default)"
 	fi
 else
+	export BUILDENV="$CDAF_BUILD_ENV"
 	echo "[$scriptName]   BUILDENV        : $BUILDENV (from environment variable CDAF_BUILD_ENV)"
 fi
 

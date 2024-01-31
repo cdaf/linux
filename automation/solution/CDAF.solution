@@ -10,9 +10,6 @@ solutionName=myproduct
 # containerBuild default process
 # containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
 
-# To limit container build to a particular environment
-# defaultContainerBuild=WSL
-
 # Immutable image based on the build artefacts
 # constructor=TasksLocal
 

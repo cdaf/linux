@@ -237,7 +237,7 @@ if [ -z "$CDAF_BUILD_ENV" ]; then
 		export BUILDENV='WSL'
 		echo "[$scriptName]   BUILDENV        : $BUILDENV (derived from /proc/sys/fs/binfmt_misc/WSLIntero)"
 	else
-		export BUILDENV='BUILDER'
+		export BUILDENV='LINUX'
 		echo "[$scriptName]   BUILDENV        : $BUILDENV (default)"
 	fi
 else
@@ -406,12 +406,6 @@ else
 		loggingList+=("[$scriptName]   CDAF_SKIP_CONTAINER_BUILD : $CDAF_SKIP_CONTAINER_BUILD")
 	fi
 
-	# 2.7.5 Conditional containerBuild
-	defaultContainerBuild=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "defaultContainerBuild")
-	if [ ! -z "$defaultContainerBuild" ]; then
-		loggingList+=("[$scriptName]   defaultContainerBuild     : $defaultContainerBuild (defined in $SOLUTIONROOT/CDAF.solution)")
-	fi
-
 	if [ -z "$CDAF_DOCKER_REQUIRED" ]; then
 		export CDAF_DOCKER_REQUIRED=$("${CDAF_CORE}/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "CDAF_DOCKER_REQUIRED")
 		if [ ! -z "$CDAF_DOCKER_REQUIRED" ]; then
@@ -471,10 +465,6 @@ else
 			loggingList+=("[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ...")
 			unset containerBuild
 			unset imageBuild
-		elif [ ! -z "$defaultContainerBuild" ]; then # 2.7.5 conditional container build for docker-in-docker build server
-			if [[ "$defaultContainerBuild" != "$BUILDENV" ]]; then
-				unset containerBuild
-			fi
 		else
 			test=$(docker --version 2>&1)
 			if [ $? -ne 0 ]; then

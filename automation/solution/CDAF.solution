@@ -26,7 +26,7 @@ artifactPrefix=0.0
 # buildImage=cdaf/linux
 
 # imageBuild default process
-# imageBuild="$AUTOMATIONROOT/remote/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+# imageBuild="$CDAF_CORE/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
 # CDAF_DOCKER_REQUIRED=yes
 
 # defaultBranch=main

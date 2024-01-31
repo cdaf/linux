@@ -20,7 +20,16 @@ scriptName='install.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	echo "[$scriptName]   version           : (not passed, use edge from GitHub)"
+	if [ -z "$CDAF_DISTRIBUTION" ]; then
+		echo "[$scriptName]   version           : (not passed, use edge from GitHub)"
+	else
+		if [[ "$CDAF_DISTRIBUTION" == 'Edge' ]]; then
+			echo "[$scriptName]   version           : (using edge from GitHub based on CDAF_DISTRIBUTION)"
+		else
+			version="$CDAF_DISTRIBUTION"
+			echo "[$scriptName]   version           : $version (based on CDAF_DISTRIBUTION)"
+		fi
+	fi
 else
 	echo "[$scriptName]   version           : $version (use published version from cdaf.io)"
 fi

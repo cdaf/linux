@@ -24,9 +24,8 @@ jobs:
           cd ${env:GITHUB_WORKSPACE}
 
           # Using CDAF Edge
-          wget https://codeload.github.com/cdaf/linux/zip/refs/heads/master -O linux-master.zip
-          unzip linux-master.zip
-          ./linux-master/automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
+          curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+          ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}
 
           # CDAF installed in repo
           # ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}

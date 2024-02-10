@@ -1,6 +1,6 @@
 context  target     zero  integer  user_dir  user_password  deployHost          deployUser
 remote   VAGRANT       0        1  $HOME     $SHELL         linux-1.mshome.net  deployer
 local    LINUX         0        2  $HOME     $SHELL         localhost
-local    dev           0        3  $HOME     $SHELL         localhost
-local    test          0        4  $HOME     $SHELL         localhost
-local    prod          0        5  $HOME     $SHELL         localhost
+local    WSL           0        2  $HOME     $SHELL         localhost
+local    TEST          0        4  $HOME     $SHELL         localhost
+local    PROD          0        5  $HOME     $SHELL         localhost

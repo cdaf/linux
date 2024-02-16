@@ -13,7 +13,7 @@ scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	version='1.10.12'
+	version='1.10.13'
 	echo "[$scriptName]   version    : $version (default)"
 else
 	version="$1"
@@ -45,7 +45,7 @@ executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
 if [ ! -f ${mediaCache}/${antSource} ]; then
 	echo "[$scriptName] Media (${mediaCache}/${antSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${antSource} \"http://archive.apache.org/dist/ant/binaries/${antSource}\""
+	executeExpression "curl -s -o ${mediaCache}/${antSource} \"https://downloads.apache.org/ant/binaries/${antSource}\""
 fi
 
 executeExpression "cp \"${mediaCache}/${antSource}\" ."

@@ -64,9 +64,18 @@ executeExpression "sourceFile=\"$runTime-bin.tar.gz\""
 
 executeExpression "cp \"$mediaPath/${sourceFile}\" ."
 executeExpression "tar -xf $sourceFile"
+if [ -d "/opt/$runTime" ]; then
+	executeExpression "$elevate rm -rf '/opt/$runTime'"
+fi
 executeExpression "$elevate mv $runTime /opt/"
 
 # Configure to directory on the default PATH
+if [ -L "/usr/bin/mvn" ]; then
+	executeExpression "$elevate unlink /usr/bin/mvn"
+fi
+if [ -f "/usr/bin/mvn" ]; then
+	executeExpression "$elevate rm -f /usr/bin/mvn"
+fi
 executeExpression "$elevate ln -s /opt/$runTime/bin/mvn /usr/bin/mvn"
 
 echo "[$scriptName] Verify install (reload environment variables first)..."

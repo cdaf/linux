@@ -52,9 +52,18 @@ fi
 
 executeExpression "cp \"${mediaCache}/${antSource}\" ."
 executeExpression "tar -xf $antSource"
+if [ -d "/opt/$antVersion" ]; then
+	executeExpression "$elevate rm -rf '/opt/$antVersion'"
+fi
 executeExpression "$elevate mv $antVersion /opt/"
 
 # Configure to directory on the default PATH
+if [ -L "/usr/bin/ant" ]; then
+	executeExpression "$elevate unlink /usr/bin/ant"
+fi
+if [ -f "/usr/bin/ant" ]; then
+	executeExpression "$elevate rm -f /usr/bin/ant"
+fi
 executeExpression "$elevate ln -s /opt/$antVersion/bin/ant /usr/bin/ant"
 
 # Set environment (user default) variable

@@ -231,7 +231,7 @@ if [ -z "$SOLUTION" ]; then
 fi
 echo "[$scriptName]   SOLUTION        : $SOLUTION (from CDAF.solution)"
 
-# Derive Build Environment, no longer implicit from ACTION
+# 2.7.6 Derive Build Environment, no longer implicit from ACTION
 if [ -z "$CDAF_BUILD_ENV" ]; then
 	if [ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]; then
 		export BUILDENV='WSL'

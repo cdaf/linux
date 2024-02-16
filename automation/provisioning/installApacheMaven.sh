@@ -14,8 +14,10 @@ scriptName='installApacheMaven.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='3.6.1'
-	echo "[$scriptName]   version    : $version (default)"
+	version=$(curl -s https://maven.apache.org/download.cgi | grep 'Downloading Apache Maven')
+	version=${version//'<h1>Downloading Apache Maven '/}
+	version=${version//'</h1>'/}
+	echo "[$scriptName]   version    : $version (latest)"
 else
 	echo "[$scriptName]   version    : $version"
 fi

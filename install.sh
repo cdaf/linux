@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 # Download to named directory and add to path, without this, will simply download and extract in current directory
-# export CDAF_INSTALL_PATH=/opt/cdaf
 # curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+
+# Optional environment variables, alternative to downloading and passing arguments.
+# export CDAF_INSTALL_VERSION = '2.7.3'
+# export CDAF_INSTALL_PATH=/opt/cdaf
 
 function executeExpression {
 	echo "$1"
@@ -20,14 +23,14 @@ scriptName='install.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	if [ -z "$CDAF_DISTRIBUTION" ]; then
+	if [ -z "$CDAF_INSTALL_VERSION" ]; then
 		echo "[$scriptName]   version           : (not passed, use edge from GitHub)"
 	else
-		if [[ "$CDAF_DISTRIBUTION" == 'Edge' ]]; then
-			echo "[$scriptName]   version           : (using edge from GitHub based on CDAF_DISTRIBUTION)"
+		if [[ "$CDAF_INSTALL_VERSION" == 'Edge' ]]; then
+			echo "[$scriptName]   version           : (using edge from GitHub based on CDAF_INSTALL_VERSION)"
 		else
-			version="$CDAF_DISTRIBUTION"
-			echo "[$scriptName]   version           : $version (based on CDAF_DISTRIBUTION)"
+			version="$CDAF_INSTALL_VERSION"
+			echo "[$scriptName]   version           : $version (based on CDAF_INSTALL_VERSION)"
 		fi
 	fi
 else

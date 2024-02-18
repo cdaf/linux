@@ -10,28 +10,28 @@ if [ -z "$1" ]; then
 	echo "[$scriptName] Solution not passed. HALT!"
 	exit 1
 else
-	SOLUTION="$1"
+	export SOLUTION="$1"
 fi
 
 if [ -z "$2" ]; then
 	echo "[$scriptName] Version not passed. HALT!"
 	exit 2
 else
-	BUILDNUMBER="$2"
+	export BUILDNUMBER="$2"
 fi
 
 if [ -z "$3" ]; then
 	echo "[$scriptName] Target not passed. HALT!"
 	exit 3
 else
-	TARGET="$3"
+	export TARGET="$3"
 fi
 
 if [ -z "$4" ]; then
 	echo "[$scriptName] Execution Definition file (.tsk) not passed. HALT!"
 	exit 4
 else
-	TASKLIST="$4"
+	export TASK_NAME="$4"
 fi
 
 # Consolidated Error processing function
@@ -397,7 +397,7 @@ echo; echo "~~~~~~ Starting Execution Engine ~~~~~~~"; echo
 echo "[$scriptName]   SOLUTION    : $SOLUTION"
 echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
 echo "[$scriptName]   TARGET      : $TARGET"
-echo "[$scriptName]   TASKLIST    : $TASKLIST"
+echo "[$scriptName]   TASK_NAME   : $TASK_NAME"
 if [ -z "$5" ]; then
         echo "[$scriptName]   OPT_ARG     : $OPT_ARG"
 else
@@ -431,7 +431,7 @@ fi
 echo
 
 # Process Task Execution
-executionList=$(< "$TASKLIST")
+executionList=$(< "$TASK_NAME")
 while read LINE; do
 	if [[ $LINE == *"REMOVE"* ]] || [[ $LINE == *"REFRSH"* ]] || [[ $LINE == *"VECOPY"* ]]; then
 		set -f # disable globbing, i.e. do not preprocess definitions containing wildcards

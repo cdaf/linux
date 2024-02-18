@@ -79,7 +79,7 @@ runtimeFiles=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeFiles")
 
 if [ -f "$imageDir" ]; then
 	echo "Found a file instead of directory in workspace, removing $imageDir ..."
-	executeExpression "rm -v \"$imageDir\""
+	executeExpression "rm -v '$imageDir'"
 fi
 
 # 2.6.1 Prepare the image build directory and Dockerfile
@@ -87,7 +87,7 @@ if [ -d "$imageDir" ]; then
 
 	# 2.7.1 Copy the declared list of files into build root
 	for fileName in $runtimeFiles; do
-		executeExpression "cp -v \"$fileName\" \"$imageDir\""
+		executeExpression "cp -v '$fileName' '$imageDir'"
 	done
 
 else
@@ -96,7 +96,7 @@ else
 
 	# 2.7.1 Copy the declared list of files into build root
 	for fileName in $runtimeFiles; do
-		executeExpression "cp -v \"$fileName\" \"$imageDir\""
+		executeExpression "cp -v '$fileName' '$imageDir'"
 	done
 	echo
 
@@ -166,13 +166,13 @@ executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUM
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
-	buildCommand+=" --env \"${envVar}\""
+	buildCommand+=" --env '${envVar}'"
 done
 
 prefix=$(echo "${SOLUTION//-/_}" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
 for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	envVar=$(echo ${envVar//CDAF_${prefix}_CD_})
-	buildCommand+=" --env \"${envVar}\""
+	buildCommand+=" --env '${envVar}'"
 done
 
 # If a build number is not passed, use the CDAF emulator
@@ -180,9 +180,9 @@ executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then
 	echo "[$scriptName] \$CDAF_HOME_MOUNT = $CDAF_HOME_MOUNT"
 	echo "[$scriptName] \$HOME            = $HOME"
-	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET} . ${RELEASE} ${OPT_ARG}"
+	executeExpression "docker run --tty ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh '${TARGET}' '.' '${RELEASE}' '${OPT_ARG}'"
 else
-	executeExpression "docker run --tty --user $(id -u) --volume \"${HOME}:/solution/home\" ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh ${TARGET} . ${RELEASE} ${OPT_ARG}"
+	executeExpression "docker run --tty --user $(id -u) --volume '${HOME}:/solution/home' ${buildCommand} --label cdaf.${id}.container.instance=${BUILDNUMBER} --name ${id} ${id}:${BUILDNUMBER} ./deploy.sh '${TARGET}' '.' '${RELEASE}' '${OPT_ARG}'"
 fi
 
 echo; echo "[$scriptName] Shutdown containers based on '${id}'"; echo

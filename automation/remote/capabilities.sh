@@ -234,15 +234,15 @@ if [ $? -ne 0 ]; then
 else
 	IFS=' ' read -ra ADDR <<< $test
 	echo "  python           : ${ADDR[1]}"
-fi
 
-# PIP version lists to standard error
-test="`pip --version 2>&1`"
-if [ $? -ne 0 ]; then
-	echo "  pip              : (not installed)"
-else
-	IFS=' ' read -ra ADDR <<< $test
-	echo "  pip              : ${ADDR[1]}"
+	# PIP version lists to standard error
+	test="`pip --version 2>&1`"
+	if [ $? -ne 0 ]; then
+		echo "  pip              : (not installed)"
+	else
+		IFS=' ' read -ra ADDR <<< $test
+		echo "  pip              : ${ADDR[1]}"
+	fi
 fi
 
 # Python version lists to standard error
@@ -260,6 +260,14 @@ else
 	else
 		IFS=' ' read -ra ADDR <<< $test
 		echo "    pip3           : ${ADDR[1]}"
+	fi
+
+	# PIP version lists to standard error
+	test="`checkov --version 2>&1`"
+	if [ $? -ne 0 ]; then
+		echo "    checkov        : (not installed)"
+	else
+		echo "    checkov        : ${test}"
 	fi
 fi
 

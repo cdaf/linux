@@ -198,6 +198,10 @@ EOF
 		echo "[$scriptName] sestatus        : $test"
 	fi	
 
+	if [ ! -z "$CDAF_BUILD_ENV" ]; then
+		buildCommand+=" --env 'CDAF_BUILD_ENV=$CDAF_BUILD_ENV'"
+	fi
+
 	for envVar in $(env | grep CDAF_CB_); do
 		envVar=$(echo ${envVar//CDAF_CB_})
 		buildCommand+=" --env '${envVar}'"

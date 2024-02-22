@@ -12,9 +12,12 @@ processSequence=containerTasks.sh
 # Use non-default image build location, compose/test instead of containerDeploy
 # containerDeploy=${WORK_DIR_DEFAULT}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}" compose/target
 
-# Do not perform a volume to user home direcotry
+# Do not perform a volume to user home directory
 # CDAF_HOME_MOUNT=no
 CDAF_DOCKER_REQUIRED=yes
 
+# Required for custom image
 runtimeFiles=$WORKSPACE_ROOT/release.sh
+
+# Skip runtime image clean-up
 # runtimeRetain=yes

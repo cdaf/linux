@@ -41,6 +41,9 @@ else
 fi 
 
 export OPT_ARG="$3"
+if [[ $OPT_ARG == *'$'* ]]; then
+	OPT_ARG=$(eval echo $OPT_ARG)
+fi
 echo "[$scriptName]   OPT_ARG          : $OPT_ARG"
 
 export WORK_DIR_DEFAULT="$4"

@@ -9,6 +9,9 @@ if [ -z "$1" ]; then
 	exit 1
 else
 	TARGET=$1
+	if [[ $TARGET == *'$'* ]]; then
+		TARGET=$(eval echo $TARGET)
+	fi
 	echo
 	echo "[$scriptName]   TARGET               : $TARGET"
 fi
@@ -27,14 +30,22 @@ export CDAF_CORE="${WORK_DIR_DEFAULT}"
 if [ -z "$3" ]; then
 	echo "[$scriptName]   RELEASE              : (not supplied)"
 else
-	export RELEASE=$3
+	RELEASE=$3
+	if [[ $RELEASE == *'$'* ]]; then
+		RELEASE=$(eval echo $RELEASE)
+	fi
+	export RELEASE=$RELEASE
 	echo "[$scriptName]   RELEASE              : $RELEASE"
 fi
 
 if [ -z "$4" ]; then
 	echo "[$scriptName]   OPT_ARG              : (not supplied)"
 else
-	export OPT_ARG=$4
+	OPT_ARG=$4
+	if [[ $OPT_ARG == *'$'* ]]; then
+		OPT_ARG=$(eval echo $OPT_ARG)
+	fi
+	export OPT_ARG=$OPT_ARG
 	echo "[$scriptName]   OPT_ARG              : $OPT_ARG"
 fi
 

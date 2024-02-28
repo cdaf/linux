@@ -130,7 +130,7 @@ else
 	echo "[$scriptName]   environment    : $environment (from CDAF_DELIVERY environment variable)"
 fi
 
-if [ -z ${solutionName} ]; then
+if [ -z "$solutionName" ]; then
 	ERRMSG "[NO_SOLUTION_NAME]   solutionName not defined!" 7762 
 else
 	SOLUTION=$solutionName
@@ -178,9 +178,9 @@ else
 			fi
 		done
 		IFS=$DEFAULT_IFS
-		if [ -z $featureBranchProcess ]; then
+		if [ -z "$featureBranchProcess" ]; then
 			echo
-			if [ -z $defaultEnvironment ]; then
+			if [ -z "$defaultEnvironment" ]; then
 				echo "[$scriptName] No feature branches processed and defaultEnvironment not set, feature branch delivery not attempted."
 			else
 				echo "[$scriptName] Performing container test in CI for feature branch ($BRANCH), CD for default branch $defaultBranch"
@@ -286,7 +286,7 @@ else
 
 				echo; echo "$headAttached"; echo
 				echo "[$scriptName] Refresh Remote branches"; echo
-				if [ -z $userName ]; then
+				if [ -z "$userName" ]; then
 					executeExpression "git fetch --prune"
 					echo; echo "[$scriptName] Load Remote branches (git ls-remote --heads origin)"; echo
 					lsRemote=$(git ls-remote --heads origin)
@@ -328,7 +328,7 @@ else
 				fi
 
 				echo
-				if [ -z ${gitCustomCleanup} ]; then
+				if [ -z "$gitCustomCleanup" ]; then
 					echo "[$scriptName] gitCustomCleanup not defined in $SOLUTIONROOT/CDAF.solution, skipping ..."
 				else
 					argList="'${SOLUTION}'"

@@ -102,8 +102,7 @@ elif [ "$version" == '7' ]; then
 		packageName='dotnet-sdk-7.0'
 	else
 		packageName='aspnetcore-runtime-7.0'
-	fi	
-else
+	fi
 elif [ "$version" == '8' ]; then
 	if [ "$sdk" == 'yes' ]; then
 		packageName='dotnet-sdk-8.0'

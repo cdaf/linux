@@ -87,7 +87,7 @@ if [ ! -z "$imageName" ]; then
 			SOLUTIONROOT="$directoryName"
 		fi
 	done
-	if [ -z $SOLUTIONROOT ]; then
+	if [ -z "$SOLUTIONROOT" ]; then
 		SOLUTIONROOT="${AUTOMATIONROOT}/solution"
 		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT (CDAF.solution not found, so using default)"
 	else
@@ -112,7 +112,7 @@ if [ ! -z "$imageName" ]; then
 
 	echo; echo "[$scriptName] Prepare image..."
 
-	if [ $cleanupCDAF == 'yes' ]; then
+	if [ "$cleanupCDAF" == 'yes' ]; then
 		executeExpression "    rm -rf ./automation"
 		executeExpression "    cp -a '$AUTOMATIONROOT' ./automation"
 	fi

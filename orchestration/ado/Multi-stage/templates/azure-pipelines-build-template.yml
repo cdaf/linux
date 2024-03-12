@@ -3,8 +3,9 @@ jobs:
     displayName: "dotnet core build and NuGet"
     pool:
       vmImage: ubuntu-20.04
-#    pool:
-#      name: 'Self-hosted Pool Name'
+#    pool: # Self-hosted Pool
+#      name: Default
+#      demands: Agent.OS -equals Linux
     steps:
 
       - task: Bash@3

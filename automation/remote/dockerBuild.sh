@@ -233,6 +233,7 @@ fi
 
 # 2.6.1 Default Dockerfile for containerBuild
 if [ ! -f './Dockerfile' ]; then
+	temp_dockerfile='yes'
 	echo; echo "[$scriptName] .\Dockerfile not found, creating default"; echo
 
 # Cannot indent heredoc
@@ -253,6 +254,11 @@ fi
 echo
 export PROGRESS_NO_TRUNC='1'
 executeExpression "$buildCommand ."
+
+if [ "$temp_dockerfile" ]; then
+	echo; echo "[$scriptName] Clean-up default dockerfile"; echo
+	executeExpression "rm -f ./Dockerfile"
+fi
 
 echo; echo "[$scriptName] List Resulting images..."
 executeExpression "docker images -f label=cdaf.${imageName}.image.version"

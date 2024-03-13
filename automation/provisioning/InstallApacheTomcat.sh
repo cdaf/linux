@@ -16,7 +16,7 @@ echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
 	# Get latest version
-	latest=$(curl --silent https://tomcat.apache.org/download-90.cgi | grep '<a href="#')
+	latest=$(curl --silent https://tomcat.apache.org/download-10.cgi | grep '<a href="#')
 	IFS='#' read -ra arr <<< $latest
 	IFS='"' read -ra arr <<< ${arr[1]}
 	version=${arr[0]}

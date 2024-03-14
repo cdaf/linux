@@ -30,6 +30,8 @@ cdaf-ci:
   artifacts:
     paths:
       - release.sh
+    reports:
+      junit: "**/test-results/*.xml"
 
 cd:
   stage: targetlessCD

@@ -67,8 +67,11 @@ fi
 
 if [ -f "$SOLUTIONROOT/CDAF.solution" ]; then
 	propertiesList=$("$CDAF_CORE/transform.sh" "$SOLUTIONROOT/CDAF.solution")
-	echo; echo "$propertiesList"
-	eval $propertiesList
+	echo; echo "[$scriptName] Load properties from $SOLUTIONROOT/CDAF.solution"
+	while IFS= read -r propItem; do
+		echo "  export${propItem}"
+		eval "export ${propItem}"
+	done <<< "$propertiesList"
 else
 	echo; echo "[$scriptName] CDAF.solution file not found!"; exit 8823
 fi

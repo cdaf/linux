@@ -189,6 +189,17 @@ else
 		exit $exitCode
 	fi
 
+	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
+	if [ -f $postpackageTasks ]; then
+		echo; echo "Process Post-Package Tasks ..."
+		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
+		exitCode=$?
+		if [ "$exitCode" != "0" ]; then
+			echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$postpackageTasks\" \"$ACTION\") failed! Returned $exitCode"
+			exit $exitCode
+		fi
+	fi
+
 	# 1.7.8 Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists
 	# create the remote package (even if there are no target files within it)
 	# 2.4.0 create remote package for use in container deployment
@@ -197,17 +208,6 @@ else
 		exitCode=$?
 		if [ $exitCode -ne 0 ]; then
 			echo "[$scriptName] \"$AUTOMATIONROOT/buildandpackage/packageRemote.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$REVISION\" \"$REMOTE_WORK_DIR\" \"$SOLUTIONROOT\" \"$AUTOMATIONROOT\" failed! Exit code = $exitCode."
-			exit $exitCode
-		fi
-	fi
-
-	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
-	if [ -f $postpackageTasks ]; then
-		echo; echo "Process Post-Package Tasks ..."
-		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
-		exitCode=$?
-		if [ "$exitCode" != "0" ]; then
-			echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$postpackageTasks\" \"$ACTION\") failed! Returned $exitCode"
 			exit $exitCode
 		fi
 	fi

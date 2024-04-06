@@ -34,7 +34,7 @@ jobs:
           #     script: ls -al && env
 
           - task: Bash@3
-            displayName: Execute Loosely Coupled Deployment
+            displayName: CDAF Release Package
 #            env: 
 #              CONNECTION_STRING: $(CONNECTION_STRING)
 #              DATABASE_PASSWORD: $(DATABASE_PASSWORD)

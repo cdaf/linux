@@ -9,7 +9,7 @@ jobs:
     steps:
 
       - task: Bash@3
-        displayName: targetlessCD for Feature Branches
+        displayName: CDAF Release Build
 #        env: 
 #          GIT_USER: $(GIT_USER)
 #          GIT_PASS: $(GIT_PASS)

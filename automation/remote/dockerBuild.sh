@@ -88,6 +88,13 @@ else
 	echo "[$scriptName]  userID                   : $userID"
 fi
 
+optionalArgs=$7
+if [ -z "$userID" ]; then
+	echo "[$scriptName]  userID                   : (not supplied)"
+else
+	echo "[$scriptName]  userID                   : $userID"
+fi
+
 getProp="${CDAF_CORE}/getProperty.sh"
 
 # 2.6.0 Image from Private Registry

@@ -59,6 +59,10 @@ if [ ! -z "$imageName" ]; then
 	else
 		echo "[$scriptName]   cdafVersion         : $cdafVersion"
 	fi
+
+	if ( $CDAF_CB_ARGS ) {
+		echo "[$scriptName]   CDAF_CB_ARGS        : $CDAF_CB_ARGS"
+	}
 else
 	echo "[$scriptName]   imageName           : (not supplied, only process CDAF automation load)"
 fi
@@ -212,7 +216,7 @@ EOF
 	env | grep "CDAF_${prefix}_CB_"
 	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
 		envVar=$(echo ${envVar//CDAF_${prefix}_CB_})
-		buildCommand+=" --env '${envVar}'"
+		buildCommand+=" $CDAF_CB_ARGS --env '${envVar}'"
 	done
 
 	# :Z flag sets Podman to label the volume content as "private unshared" with SELinux. This label allows the container to write to the volume. https://www.tutorialworks.com/podman-rootless-volumes/

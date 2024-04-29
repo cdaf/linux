@@ -60,9 +60,9 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName]   cdafVersion         : $cdafVersion"
 	fi
 
-	if ( $CDAF_CB_ARGS ) {
+	if [ ! -z "$CDAF_CB_ARGS" ]; then
 		echo "[$scriptName]   CDAF_CB_ARGS        : $CDAF_CB_ARGS"
-	}
+	fi
 else
 	echo "[$scriptName]   imageName           : (not supplied, only process CDAF automation load)"
 fi

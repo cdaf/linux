@@ -388,7 +388,7 @@ else
 	fi
 fi
 
-test=(`aws --version`)
+test=(`aws --version 2> /dev/null`)
 if [ $? -ne 0 ]; then
 	echo "  AWS CLI          : (not installed)"
 else

@@ -402,6 +402,23 @@ else
 	fi
 fi
 
+test=(`aws --version`)
+if [ $? -ne 0 ]; then
+	echo "  AWS CLI          : (not installed)"
+else
+	echo "  AWS CLI          : ${test[0]##*/}"
+
+	test=(`sam --version`)
+	if [ $? -eq 0 ]; then
+		echo "    SAM Extension  : ${test[-1]}"
+	fi
+
+	test=(`cdk --version`)
+	if [ $? -eq 0 ]; then
+		echo "    CDK Extension  : ${test}"
+	fi
+fi
+
 if [ -z "$chromeVersion" ]; then
 	echo "  Chrome Browser   : (not installed)"
 else

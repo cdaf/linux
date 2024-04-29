@@ -203,9 +203,7 @@ else
 	echo "  docker           : ${ADDR[0]}"
 
 	test=$(docker-compose --version 2>&1)
-	if [ $? -ne 0 ]; then
-		echo "    docker-compose : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		unset IFS
 		read -ra ADDR <<< $test
 		echo $test | grep , > /dev/null
@@ -255,18 +253,14 @@ else
 
 	# PIP version lists to standard error
 	test="`pip3 --version 2>&1`"
-	if [ $? -ne 0 ]; then
-		echo "    pip3           : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		IFS=' ' read -ra ADDR <<< $test
 		echo "    pip3           : ${ADDR[1]}"
 	fi
 
 	# PIP version lists to standard error
 	test="`checkov --version 2>&1`"
-	if [ $? -ne 0 ]; then
-		echo "    checkov        : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		echo "    checkov        : ${test}"
 	fi
 fi
@@ -306,9 +300,7 @@ else
 
 	# Node Package Manager
 	test=$(npm -version 2>/dev/null)
-	if [ $? -ne 0 ]; then
-		echo "    NPM            : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		echo "    NPM            : $test"
 	fi
 
@@ -364,24 +356,18 @@ else
 	echo "  kubectl          : $kubetest"
 
 	test=$(helm version --short 2>/dev/null)
-	if [ $? -ne 0 ]; then
-		echo "    helm           : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		test="${test##*v}"
 		echo "    helm           : ${test%+*}"
 	fi
 	
 	test=$(helmsman -v 2>/dev/null)
-	if [ $? -ne 0 ]; then
-		echo "    helmsman       : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		echo "    helmsman       : ${test##*v}"
 	fi
 
 	test=$(helmfile --version 2>/dev/null)
-	if [ $? -ne 0 ]; then
-		echo "    helmfile       : (not installed)"
-	else
+	if [ $? -eq 0 ]; then
 		echo "    helmfile       : ${test##* }"
 	fi
 fi
@@ -408,12 +394,12 @@ if [ $? -ne 0 ]; then
 else
 	echo "  AWS CLI          : ${test[0]##*/}"
 
-	test=(`sam --version`)
+	test=(`sam --version 2> /dev/null`)
 	if [ $? -eq 0 ]; then
 		echo "    SAM Extension  : ${test[-1]}"
 	fi
 
-	test=(`cdk --version`)
+	test=(`cdk --version 2> /dev/null`)
 	if [ $? -eq 0 ]; then
 		echo "    CDK Extension  : ${test}"
 	fi

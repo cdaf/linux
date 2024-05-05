@@ -373,9 +373,9 @@ else
 fi
 
 test=$(az version --output tsv 2>/dev/null)
-unset IFS
-read -ra ADDR <<< $test
 if [ $? -ne 0 ]; then
+	unset IFS
+	read -ra ADDR <<< $test
 	echo "  Azure CLI        : (not installed)"
 else
 	echo "  Azure CLI        : ${ADDR[0]}"
@@ -393,16 +393,18 @@ if [ $? -ne 0 ]; then
 	echo "  AWS CLI          : (not installed)"
 else
 	echo "  AWS CLI          : ${test[0]##*/}"
+fi
 
-	test=(`sam --version 2> /dev/null`)
-	if [ $? -eq 0 ]; then
-		echo "    SAM Extension  : ${test[-1]}"
-	fi
+# AWS tools not dependent on AWS CLI
+test=(`sam --version 2> /dev/null`)
+if [ $? -eq 0 ]; then
+	echo "    SAM Extension  : ${test[-1]}"
+fi
 
-	test=(`cdk --version 2> /dev/null`)
-	if [ $? -eq 0 ]; then
-		echo "    CDK Extension  : ${test}"
-	fi
+export JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION=yes
+test=(`cdk --version 2> /dev/null`)
+if [ $? -eq 0 ]; then
+	echo "    CDK Extension  : ${test}"
 fi
 
 if [ -z "$chromeVersion" ]; then

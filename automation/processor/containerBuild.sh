@@ -19,49 +19,49 @@ scriptName=${0##*/}
 echo "[$scriptName] --- start ---"
 imageName="$1"
 if [ ! -z "$imageName" ]; then
-	echo "[$scriptName]   imageName           : $imageName"
+	echo "[$scriptName]   imageName            : $imageName"
 
 	BUILDNUMBER="$2"
 	if [ -z "$BUILDNUMBER" ]; then
 		echo "[$scriptName]   BUILDNUMBER not supplied, exit with code 2."
 		exit 2
 	else
-		echo "[$scriptName]   BUILDNUMBER         : $BUILDNUMBER"
+		echo "[$scriptName]   BUILDNUMBER          : $BUILDNUMBER"
 	fi
 	
 	REVISION="$3"
 	if [ -z "$REVISION" ]; then
 		REVISION='container_build'
-		echo "[$scriptName]   REVISION            : $REVISION (not supplied, set to default)"
+		echo "[$scriptName]   REVISION             : $REVISION (not supplied, set to default)"
 	else
-		echo "[$scriptName]   REVISION            : $REVISION"
+		echo "[$scriptName]   REVISION             : $REVISION"
 	fi
 	
 	ACTION="$4"
 	if [ -z "$ACTION" ]; then
-		echo "[$scriptName]   ACTION              : (not supplied)"
+		echo "[$scriptName]   ACTION               : (not supplied)"
 	else
-		echo "[$scriptName]   ACTION              : $ACTION"
+		echo "[$scriptName]   ACTION               : $ACTION"
 	fi
 	
 	rebuildImage="$5"
 	if [ -z "$rebuildImage" ]; then
 		rebuildImage='no'
-		echo "[$scriptName]   rebuildImage        : $rebuildImage (not supplied, set to default)"
+		echo "[$scriptName]   rebuildImage         : $rebuildImage (not supplied, set to default)"
 	else
-		echo "[$scriptName]   rebuildImage        : $rebuildImage"
+		echo "[$scriptName]   rebuildImage         : $rebuildImage"
 	fi
 	
 	# backward compatibility
 	cdafVersion="$6"
 	if [ -z "$cdafVersion" ]; then
-		echo "[$scriptName]   cdafVersion         : (not supplied, pass dockerfile if your version of docker does not support label argument)"
+		echo "[$scriptName]   cdafVersion          : (not supplied, pass dockerfile if your version of docker does not support label argument)"
 	else
-		echo "[$scriptName]   cdafVersion         : $cdafVersion"
+		echo "[$scriptName]   cdafVersion          : $cdafVersion"
 	fi
 
-	if [ ! -z "$CDAF_CB_ARGS" ]; then
-		echo "[$scriptName]   CDAF_CB_ARGS        : $CDAF_CB_ARGS"
+	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
 	fi
 else
 	echo "[$scriptName]   imageName           : (not supplied, only process CDAF automation load)"
@@ -70,17 +70,17 @@ fi
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$AUTOMATIONROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
 	fi
 else
 	if [[ $AUTOMATIONROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT      : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT     : ${AUTOMATIONROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
 	fi
 fi
 
@@ -93,9 +93,9 @@ if [ ! -z "$imageName" ]; then
 	done
 	if [ -z "$SOLUTIONROOT" ]; then
 		SOLUTIONROOT="${AUTOMATIONROOT}/solution"
-		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT (CDAF.solution not found, so using default)"
+		echo "[$scriptName]   SOLUTIONROOT         : $SOLUTIONROOT (CDAF.solution not found, so using default)"
 	else
-		echo "[$scriptName]   SOLUTIONROOT        : $SOLUTIONROOT"
+		echo "[$scriptName]   SOLUTIONROOT         : $SOLUTIONROOT"
 	fi
 
 	SOLUTION=$("$AUTOMATIONROOT/remote/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "solutionName")
@@ -104,15 +104,15 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
 		exit $exitCode
 	fi
-	echo "[$scriptName]   SOLUTION            : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
+	echo "[$scriptName]   SOLUTION             : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 
 	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
-	echo "[$scriptName]   buildImage          : $buildImage"
+	echo "[$scriptName]   buildImage           : $buildImage"
 
-	echo "[$scriptName]   DOCKER_HOST         : $DOCKER_HOST"
-	echo "[$scriptName]   pwd                 : $(pwd)"
-	echo "[$scriptName]   hostname            : $(hostname)"
-	echo "[$scriptName]   whoami              : $(whoami)"
+	echo "[$scriptName]   DOCKER_HOST          : $DOCKER_HOST"
+	echo "[$scriptName]   pwd                  : $(pwd)"
+	echo "[$scriptName]   hostname             : $(hostname)"
+	echo "[$scriptName]   whoami               : $(whoami)"
 
 	echo; echo "[$scriptName] Prepare image..."
 
@@ -130,9 +130,9 @@ if [ ! -z "$imageName" ]; then
 			fi
 		fi
 	done
-	echo "[$scriptName]    imageTag      : $imageTag"
+	echo "[$scriptName]    imageTag       : $imageTag"
 	newTag=$((${imageTag} + 1))
-	echo "[$scriptName]    newTag        : $newTag"
+	echo "[$scriptName]    newTag         : $newTag"
 
 	if [ -f './Dockerfile' ]; then
 		executeExpression "cat Dockerfile"
@@ -189,17 +189,17 @@ EOF
 	executeExpression "automation/remote/dockerClean.sh ${buildImage} $newTag"
 	
 	workspace=$(pwd)
-	echo "[$scriptName] \$newTag         : $newTag"
-	echo "[$scriptName] \$workspace      : $workspace"
+	echo "[$scriptName] \$newTag          : $newTag"
+	echo "[$scriptName] \$workspace       : $workspace"
 	
 	test="`sestatus 2>&1`"
 	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] sestatus        : (not installed)"
+		echo "[$scriptName] sestatus         : (not installed)"
 	else
 		test="`sestatus | grep 'SELinux status' 2>&1`"
 		IFS=' ' read -ra ADDR <<< $test
 		test=${ADDR[2]}
-		echo "[$scriptName] sestatus        : $test"
+		echo "[$scriptName] sestatus         : $test"
 	fi	
 
 	if [ ! -z "$CDAF_BUILD_ENV" ]; then
@@ -216,7 +216,7 @@ EOF
 	env | grep "CDAF_${prefix}_CB_"
 	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
 		envVar=$(echo ${envVar//CDAF_${prefix}_CB_})
-		buildCommand+=" $CDAF_CB_ARGS --env '${envVar}'"
+		buildCommand+=" $CDAF_DOCKER_RUN_ARGS --env '${envVar}'"
 	done
 
 	# :Z flag sets Podman to label the volume content as "private unshared" with SELinux. This label allows the container to write to the volume. https://www.tutorialworks.com/podman-rootless-volumes/

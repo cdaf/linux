@@ -372,19 +372,15 @@ else
 	fi
 fi
 
-test=$(az version --output tsv 2>/dev/null)
+test=(`az version --output tsv 2>/dev/null`)
 if [ $? -ne 0 ]; then
-	unset IFS
-	read -ra ADDR <<< $test
 	echo "  Azure CLI        : (not installed)"
 else
-	echo "  Azure CLI        : ${ADDR[0]}"
+	echo "  Azure CLI        : ${test[0]}"
 
-	test=$(az extension show --name azure-devops --output tsv 2>/dev/null)
+	test=(`az extension show --name azure-devops --output tsv 2>/dev/null`)
 	if [ ! -z "$test" ]; then
-		unset IFS
-		read -ra ADDR <<< $test
-		echo "    ADO Extension  : ${ADDR[3]}"
+		echo "    ADO Extension  : ${test[-1]}"
 	fi
 fi
 
@@ -398,18 +394,16 @@ fi
 # AWS tools not dependent on AWS CLI
 test=(`sam --version 2> /dev/null`)
 if [ $? -eq 0 ]; then
-	echo "    SAM Extension  : ${test[-1]}"
+	echo "    AWS SAM        : ${test[-1]}"
 fi
 
 export JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION=yes
 test=(`cdk --version 2> /dev/null`)
 if [ $? -eq 0 ]; then
-	echo "    CDK Extension  : ${test}"
+	echo "    AWS CDK        : ${test}"
 fi
 
-if [ -z "$chromeVersion" ]; then
-	echo "  Chrome Browser   : (not installed)"
-else
+if [ ! -z "$chromeVersion" ]; then
 	echo "  Chrome Browser   : $chromeVersion"
 
 	if [ ! -z "$chromeDriverVersion" ]; then

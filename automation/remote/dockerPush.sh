@@ -133,15 +133,14 @@ fi
 
 if [ ! -z $registryToken ]; then
 	executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
-	if [ ! -z $registryURL ]; then
-		registryContext="${registryURL}/${registryContext}"
-	fi
+fi
+
+# Dockerhub does not require URL to be set, i.e. if URL not supplied, Dockerhub is assumed.
+if [ ! -z $registryURL ]; then
+	registryContext="${registryURL}/${registryContext}"
 fi
 
 for tag in $registryTags; do
-	if [ ! -z $registryURL ]; then
-		registryContext="${registryURL}/${registryContext}"
-	fi
 	executeExpression "docker tag ${imageTag} ${registryContext}:$tag"
 	executeExpression "docker push ${registryContext}:$tag"
 done

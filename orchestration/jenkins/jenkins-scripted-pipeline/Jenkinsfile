@@ -14,96 +14,43 @@ node  {
   )
 }
 
+// Define as multi-branch build, or the BRANCH_NAME will not be set
 node {
 	try {
-		withEnv(["BRANCH_NAME=${env.BRANCH_NAME}"]) {
-			stage ('Synchronise with Source Control') {
-				checkout scm
-			}
-      stage ('Application Build and Unit Test') {
-        sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
-        sh "automation/ci.sh ${BUILD_NUMBER} ${BRANCH_NAME}"
+    stage ('CDAF') {
+
+      checkout scm
+
+      sh '''
+        curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+        ./automation/entry.sh ${BUILD_NUMBER} ${BRANCH_NAME}
+      '''
+    }
+
+    if ( env.BRANCH_NAME == 'master' ) {
+
+      stage ('DOCKER') {
+        sh "./release.sh DOCKER"
       }
-		}
+
+      stage ('Product Owner Approval') { input "Push to Registry?" }
+
+      withEnv(['CDAF_CD_USER=<user-nae>', 'CDAF_CD_MASK=<SHA256>']) {
+        withCredentials([ string( credentialsId: 'CDAF_CD_PASS', variable: 'CDAF_CD_PASS') ]) {
+          stage ('PuSH') {
+            sh "./release.sh PUSH"
+          }
+        }
+      }
+
+    }
+
 	} catch (e) {
 		currentBuild.result = "FAILED"
 		println currentBuild.result
 		notifyFailed()
 		throw e
 	}
-}
-
-if (env.BRANCH_NAME == 'master') {
-
-  node {
-    try {
-
-      stage ('Application Build and Test') {
-        checkout scm
-        sh "chcon -Rt svirt_sandbox_file_t \$(pwd)"
-        sh "automation/ci.sh ${BUILD_NUMBER} master"
-      }
-
-    } catch (e) {
-    
-      currentBuild.result = "FAILED"
-      println currentBuild.result
-      notifyFailed()
-      throw e
-    }
-  }
-
-  node {
-    try {
-      stage ('Packer Image') {
-        sh "TasksLocal/delivery.sh PACKER"
-      }
-
-      stage ('Tarraform Automated Test') {
-        sh "TasksLocal/delivery.sh CD"
-      }
-
-    } catch (e) {
-    
-      currentBuild.result = "FAILED"
-      println currentBuild.result
-      notifyFailed()
-      throw e
-    }
-  }
-
-  stage ('Test Manager Approval') { input "Deploy to Acceptence Test?" }
-
-  node {
-    try {
-      stage ('Tarraform Acceptance Test') {
-        sh "TasksLocal/delivery.sh TEST"
-      }
-
-    } catch (e) {
-      currentBuild.result = "FAILED"
-      println currentBuild.result
-      notifyFailed()
-      throw e
-    }
-  }
-
-  stage ('Product Owner Approval') { input "Deploy to Production?" }
-
-  node {
-    try {
-      stage ('Tarraform Production') {
-        sh "TasksLocal/delivery.sh PROD"
-      }
-
-    } catch (e) {
-      currentBuild.result = "FAILED"
-      println currentBuild.result
-      notifyFailed()
-      throw e
-    }
-  }
-
 }
 
 def notifyFailed() {

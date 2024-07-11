@@ -127,6 +127,7 @@ COPY properties/* /solution/deploy/
 WORKDIR /solution/deploy
 ADD deploy.tar.gz .
 
+RUN chown \$userName -R /solution/deploy
 USER \$userName
 EOF
 ) | tee $imageDir/Dockerfile

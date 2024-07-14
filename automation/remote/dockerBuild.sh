@@ -71,11 +71,11 @@ else
 	echo "[$scriptName]  userID                   : $userID"
 fi
 
-optionalArgs=$7
-if [ -z "$userID" ]; then
-	echo "[$scriptName]  userID                   : (not supplied)"
+optionalArgs=$6
+if [ -z "$optionalArgs" ]; then
+	echo "[$scriptName]  optionalArgs             : (not supplied)"
 else
-	echo "[$scriptName]  userID                   : $userID"
+	echo "[$scriptName]  optionalArgs             : $optionalArgs"
 fi
 
 getProp="${CDAF_CORE}/getProperty.sh"

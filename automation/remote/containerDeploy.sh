@@ -163,7 +163,7 @@ id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be low
 
 executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT="$ENVIRONMENT"
-executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u)"
+executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} no $(whoami) $(id -u)"
 
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})

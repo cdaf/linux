@@ -228,7 +228,7 @@ EOF
 		executeExpression "rm -rf $absolute"
 	fi
 
-	if [ "$dockerfile_name" == 'yes' ]; then
+	if [ "$dockerfile_name" == 'Dockerfile-cb-temp' ]; then
 		executeExpression "rm -f $dockerfile_name"
 	fi
 fi

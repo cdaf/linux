@@ -202,31 +202,9 @@ else
 				executeExpression "rm './Dockerfile'"
 			fi
 
-			# 2.6.1 Default Dockerfile for imageBuild
-			if [ ! -f './Dockerfile' ]; then
-				echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
-
-				echo '# DOCKER-VERSION 1.2.0' > ./Dockerfile
-				echo '# CDAF Default Dockerfile' > ./Dockerfile
-				echo 'ARG CONTAINER_IMAGE' >> ./Dockerfile
-				echo 'FROM ${CONTAINER_IMAGE}' >> ./Dockerfile
-				echo 'WORKDIR /solution' >> ./Dockerfile
-				echo 'COPY ./ ./TasksLocal/' >> ./Dockerfile
-				if [ -f 'delivery.sh' ]; then
-					echo 'RUN ./TasksLocal/delivery.sh IMMUTABLE' >> ./Dockerfile
-				fi
-				echo 'WORKDIR /solution/workspace' >> ./Dockerfile
-				if [ -f 'keepAlive.sh' ]; then
-					echo 'CMD ["../keepAlive.sh"]' >> ./Dockerfile
-				fi
-			fi
-
-			echo "--- Dockerfile ---"    ; echo
-			cat ./Dockerfile
-			echo; echo "--- Dockerfile ---"     ; echo
-
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
-			executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id}_${image##*/} ${BUILDNUMBER} ${BUILDNUMBER} no $(whoami) $(id -u) ${baseImage}"
+			export CONTAINER_IMAGE="${baseImage}"
+			executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id}_${image##*/} ${BUILDNUMBER} no $(whoami) $(id -u)"
 			executeExpression "cd '$imagebuild_workspace'"
 		done
 

@@ -122,43 +122,6 @@ if [ ! -z "$imageName" ]; then
 	echo "[$scriptName]    imageTag       : $imageTag"
 	newTag=$((${imageTag} + 1))
 	echo "[$scriptName]    newTag         : $newTag"
-
-	# 2.6.1 Default Dockerfile for containerBuild
-	if [ ! -f './Dockerfile' ]; then
-		dockerfile_name='Dockerfile-cb-temp'
-
-# Cannot indent heredoc
-(
-cat <<-EOF
-# DOCKER-VERSION 1.2.0
-ARG CONTAINER_IMAGE
-FROM \${CONTAINER_IMAGE}
-
-# Copy solution, provision and then build
-WORKDIR /solution
-
-# Prepare for non-root build
-ARG userName
-ARG userID
-
-RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
-	if [ ! -z "\$user" ]; then \\
-		userdel -f \$user ; \\
-	fi ;  \\
-	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
-	chown \$userName -R /solution
-
-USER \$userName
-
-# Move to subdirectory for build, i.e. /solution/workspace
-WORKDIR /solution/workspace
-
-CMD ["sleep", "infinity"]
-
-EOF
-) | tee $dockerfile_name
-
-	fi	
 	
 	executeExpression "'$CDAF_CORE/dockerBuild.sh' ${buildImage} $newTag $rebuildImage $(whoami) $(id -u)" 
 	
@@ -226,10 +189,6 @@ EOF
 
 	if [ "$cleanupCDAF" == 'yes' ]; then
 		executeExpression "rm -rf $absolute"
-	fi
-
-	if [ "$dockerfile_name" == 'Dockerfile-cb-temp' ]; then
-		executeExpression "rm -f $dockerfile_name"
 	fi
 fi
 

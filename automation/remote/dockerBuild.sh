@@ -221,33 +221,48 @@ buildCommand+=" --label=cdaf.${imageName}.image.version=${tag}"
 if [ -f './Dockerfile' ]; then
 	dockerfile_name='Dockerfile'
 	executeExpression "cat ./Dockerfile"
-elif [ -f './Dockerfile-cb-temp' ]; then # 2.6.1 Default Dockerfile for containerBuild, don't list content as containerBuild does
-	dockerfile_name='Dockerfile-cb-temp'
-else # 2.8.0 Neither user defined or containerBuild default image, so use a generic image
-	temp_dockerfile='yes'
-	dockerfile_name='Dockerfile-ib-temp'
+else # 2.8.0 default Dockerfilefile
+	dockerfile_name='Dockerfile-db-temp'
 	echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
 
 # Cannot indent heredoc
 (
 cat <<-EOF
 # DOCKER-VERSION 1.2.0
-# Allow override of image as environment variable
 ARG CONTAINER_IMAGE
 FROM \${CONTAINER_IMAGE}
 
+# Copy solution, provision and then build
+WORKDIR /solution
+
+# Prepare for non-root build
+ARG userName
+ARG userID
+
+RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
+	if [ ! -z "\$user" ]; then \\
+		userdel -f \$user ; \\
+	fi ;  \\
+	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
+	chown \$userName -R /solution
+
+USER \$userName
+
+# Move to subdirectory for build, i.e. /solution/workspace
 WORKDIR /solution/workspace
 
 CMD ["sleep", "infinity"]
+
 EOF
 ) | tee $dockerfile_name
-fi
+
+fi	
 
 echo
 export PROGRESS_NO_TRUNC='1'
 executeExpression "$buildCommand --file ${dockerfile_name} ."
 
-if [[ "$dockerfile_name" == 'Dockerfile-ib-temp' ]]; then
+if [[ "$dockerfile_name" == 'Dockerfile-db-temp' ]]; then
 	echo; echo "[$scriptName] Clean-up default dockerfile"; echo
 	executeExpression "rm -f $dockerfile_name"
 fi

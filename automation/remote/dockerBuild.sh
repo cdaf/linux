@@ -50,38 +50,21 @@ else
 	echo "[$scriptName]  tag                      : $tag"
 fi
 
-version=$3
-if [ -z "$version" ]; then
-	if [ ! -z "$tag" ]; then
-		version=$tag
-	    echo "[$scriptName]  version                  : $version (not supplied, defaulted to tag)"
-	else
-		version='0.0.0'
-	    echo "[$scriptName]  version                  : $version (not supplied, and tag not passed, set to 0.0.0)"
-	fi
-else
-	if [ "$version" == 'dockerfile' ]; then # Backward compatibility
-		echo "[$scriptName]  version                  : $version (please set label in Dockerfile cdaf.${imageName}.image.version)"
-	else
-		echo "[$scriptName]  version                  : $version"
-	fi
-fi
-
-rebuild=$4
+rebuild=$3
 if [ -z "$rebuild" ]; then
 	echo "[$scriptName]  rebuild                  : (not supplied)"
 else
 	echo "[$scriptName]  rebuild                  : $rebuild"
 fi
 
-userName=$5
+userName=$4
 if [ -z "$userName" ]; then
 	echo "[$scriptName]  userName                 : (not supplied)"
 else
 	echo "[$scriptName]  userName                 : $userName"
 fi
 
-userID=$6
+userID=$5
 if [ -z "$userID" ]; then
 	echo "[$scriptName]  userID                   : (not supplied)"
 else
@@ -233,15 +216,17 @@ for envVar in $(env | grep CDAF_IB_); do
 	buildCommand+=" --build-arg ${envVar}"
 done
 
-if [ "$version" != 'dockerfile' ]; then
-	# Apply required label for CDAF image management
-	buildCommand+=" --label=cdaf.${imageName}.image.version=${version}"
-fi
+buildCommand+=" --label=cdaf.${imageName}.image.version=${tag}"
 
-# 2.6.1 Default Dockerfile for containerBuild
-if [ ! -f './Dockerfile' ]; then
+if [ -f './Dockerfile' ]; then
+	dockerfile_name='Dockerfile'
+	executeExpression "cat ./Dockerfile"
+elif [ -f './Dockerfile-cb-temp' ]; then # 2.6.1 Default Dockerfile for containerBuild, don't list content as containerBuild does
+	dockerfile_name='Dockerfile-cb-temp'
+else # 2.8.0 Neither user defined or containerBuild default image, so use a generic image
 	temp_dockerfile='yes'
-	echo; echo "[$scriptName] .\Dockerfile not found, creating default"; echo
+	dockerfile_name='Dockerfile-ib-temp'
+	echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
 
 # Cannot indent heredoc
 (
@@ -255,16 +240,16 @@ WORKDIR /solution/workspace
 
 CMD ["sleep", "infinity"]
 EOF
-) | tee ./Dockerfile
+) | tee $dockerfile_name
 fi
 
 echo
 export PROGRESS_NO_TRUNC='1'
-executeExpression "$buildCommand ."
+executeExpression "$buildCommand --file ${dockerfile_name} ."
 
-if [ "$temp_dockerfile" ]; then
+if [[ "$dockerfile_name" == 'Dockerfile-ib-temp' ]]; then
 	echo; echo "[$scriptName] Clean-up default dockerfile"; echo
-	executeExpression "rm -f ./Dockerfile"
+	executeExpression "rm -f $dockerfile_name"
 fi
 
 echo; echo "[$scriptName] List Resulting images..."

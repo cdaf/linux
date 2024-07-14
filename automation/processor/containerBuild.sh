@@ -7,9 +7,6 @@ function executeExpression {
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
 		echo "[$scriptName] Exception! $EXECUTABLESCRIPT returned $exitCode"
-		if [ -f "Dockerfile.source" ]; then
-			mv -f Dockerfile.source Dockerfile
-		fi
 		exit $exitCode
 	fi
 }  
@@ -51,14 +48,6 @@ if [ ! -z "$imageName" ]; then
 	else
 		echo "[$scriptName]   rebuildImage         : $rebuildImage"
 	fi
-	
-	# backward compatibility
-	cdafVersion="$6"
-	if [ -z "$cdafVersion" ]; then
-		echo "[$scriptName]   cdafVersion          : (not supplied, pass dockerfile if your version of docker does not support label argument)"
-	else
-		echo "[$scriptName]   cdafVersion          : $cdafVersion"
-	fi
 
 	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
 		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
@@ -70,14 +59,14 @@ fi
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$AUTOMATIONROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
 	fi
 else
 	if [[ $AUTOMATIONROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to .\automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
 		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
@@ -134,10 +123,9 @@ if [ ! -z "$imageName" ]; then
 	newTag=$((${imageTag} + 1))
 	echo "[$scriptName]    newTag         : $newTag"
 
-	if [ -f './Dockerfile' ]; then
-		executeExpression "cat Dockerfile"
-	else
-		cleanDefaultDockerfile='yes'
+	# 2.6.1 Default Dockerfile for containerBuild
+	if [ ! -f './Dockerfile' ]; then
+		dockerfile_name='Dockerfile-cb-temp'
 
 # Cannot indent heredoc
 (
@@ -168,25 +156,14 @@ WORKDIR /solution/workspace
 CMD ["sleep", "infinity"]
 
 EOF
-) | tee ./Dockerfile
+) | tee $dockerfile_name
 
 	fi	
 	
-	if [ -z "$cdafVersion" ]; then
-		cdafVersion=$newTag
-	else
-		# CDAF Required Label
-		executeExpression "cp -f Dockerfile Dockerfile.source"
-		echo "LABEL	cdaf.dlan.image.version='$newTag'" >> Dockerfile
-	fi
-	executeExpression "automation/remote/dockerBuild.sh ${buildImage} $newTag $cdafVersion $rebuildImage $(whoami) $(id -u)" 
-	
-	if [ -f "Dockerfile.source" ]; then
-		executeExpression "mv -f Dockerfile.source Dockerfile"
-	fi
+	executeExpression "'$CDAF_CORE/dockerBuild.sh' ${buildImage} $newTag $rebuildImage $(whoami) $(id -u)" 
 	
 	# Remove any older images	
-	executeExpression "automation/remote/dockerClean.sh ${buildImage} $newTag"
+	executeExpression "'$CDAF_CORE/dockerClean.sh' ${buildImage} $newTag"
 	
 	workspace=$(pwd)
 	echo "[$scriptName] \$newTag          : $newTag"
@@ -251,8 +228,8 @@ EOF
 		executeExpression "rm -rf $absolute"
 	fi
 
-	if [ "$cleanDefaultDockerfile" == 'yes' ]; then
-		executeExpression "rm -f ./Dockerfile"
+	if [ "$dockerfile_name" == 'yes' ]; then
+		executeExpression "rm -f $dockerfile_name"
 	fi
 fi
 

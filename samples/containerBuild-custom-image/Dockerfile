@@ -6,10 +6,7 @@ FROM ${CONTAINER_IMAGE}
 # Copy solution, provision and then build
 WORKDIR /solution
 
-# Only copy the scripts required
-COPY automation automation
-COPY automation-solution/bootstrapAgent.sh .
-RUN ./bootstrapAgent.sh
+# Perform any custom provisioning steps here
 
 # Prepare for non-root build
 ARG userName
@@ -22,4 +19,4 @@ USER $userName
 # Move to subdirectory for build, i.e. /solution/workspace
 WORKDIR /solution/workspace
 
-CMD echo 'Usage: docker run --tty --volume ${workspace}:/solution/workspace ${buildImage}:${newTag} ./automation/ci.sh $buildNumber'
+CMD ["sleep", "infinity"]

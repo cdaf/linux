@@ -1,3 +1,5 @@
 echo "Here we execute the CLI or REST deployment steps"
 
 anypoint-cli-v4 --version
+
+anypoint-cli-v4

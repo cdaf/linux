@@ -7,6 +7,15 @@ FROM ${CONTAINER_IMAGE}
 WORKDIR /solution
 
 # Apply custom provisioning steps here
+RUN npm install -g anypoint-cli-v4 && \
+  anypoint-cli-v4 plugins:install anypoint-cli-account-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-exchange-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-api-mgr-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-cloudhub-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-governance-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-runtime-mgr-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-datagraph-plugin && \
+  anypoint-cli-v4 plugins:install anypoint-cli-designcenter-plugin
 
 # Prepare for non-root deploy
 ARG userName
@@ -26,7 +35,7 @@ ADD deploy.tar.gz .
 
 COPY release.sh /solution/deploy/
 
-RUN chown \$userName -R /solution/deploy
+RUN chown $userName -R /solution/deploy
 USER $userName
 
 # Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run

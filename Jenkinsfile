@@ -60,9 +60,9 @@ timeout(time: 6, unit: 'HOURS') {
         '''
       }
 
-      stage ('Test the CDAF sample on Ubuntu 20.22 LTS') {
+      stage ('Test the CDAF sample on Ubuntu 22.04 LTS') {
         sh '''
-          echo "Test the CDAF sample on Ubuntu 20.22 LTS"
+          echo "Test the CDAF sample on Ubuntu 22.04 LTS"
           vagrant destroy -f
           export OVERRIDE_IMAGE="cdaf/Ubuntu22"
           vagrant up

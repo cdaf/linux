@@ -17,6 +17,12 @@ echo; echo "--- Test all Samples ---"
 dirlist=$(find . -maxdepth 1 -type d -not -path "." | sort)
 
 echo
+echo "Sample test starting for:"
+for dirname in $dirlist; do
+	echo "  $dirname"
+done
+
+echo
 for dirname in $dirlist; do
 	echo;echo "---------------------"
 	echo "   $dirname"

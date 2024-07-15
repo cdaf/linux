@@ -19,8 +19,6 @@ timeout(time: 6, unit: 'HOURS') {
 
         sh '''
           cat Jenkinsfile
-          cat Vagrantfile
-          vagrant box list
         '''
       }
 
@@ -33,12 +31,21 @@ timeout(time: 6, unit: 'HOURS') {
         '''
       }
 
-      stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
+
+      stage ('Review Vagrant Settings') {
+
         sh '''
-          echo "Test the CDAF sample on Ubuntu 18.04 LTS"
+          cat Vagrantfile
+          vagrant box list
           if [ -d ./.vagrant ]; then
             vagrant destroy -f
           fi
+        '''
+      }
+
+      stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
+        sh '''
+          echo "Test the CDAF sample on Ubuntu 18.04 LTS"
           export OVERRIDE_IMAGE="cdaf/Ubuntu18"
           vagrant up
         '''
@@ -47,9 +54,7 @@ timeout(time: 6, unit: 'HOURS') {
       stage ('Test the CDAF sample on Ubuntu 20.04 LTS') {
         sh '''
           echo "Test the CDAF sample on Ubuntu 20.04 LTS"
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
+          vagrant destroy -f
           export OVERRIDE_IMAGE="cdaf/Ubuntu20"
           vagrant up
         '''
@@ -58,9 +63,7 @@ timeout(time: 6, unit: 'HOURS') {
       stage ('Test the CDAF sample on Ubuntu 20.22 LTS') {
         sh '''
           echo "Test the CDAF sample on Ubuntu 20.22 LTS"
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
+          vagrant destroy -f
           export OVERRIDE_IMAGE="cdaf/Ubuntu22"
           vagrant up
         '''
@@ -69,9 +72,7 @@ timeout(time: 6, unit: 'HOURS') {
       stage ('Test the CDAF sample on Ubuntu Latest') {
         sh '''
           echo "Test the CDAF sample on Ubuntu Latest"
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
+          vagrant destroy -f
           export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
           vagrant up
         '''

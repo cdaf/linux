@@ -1,0 +1,65 @@
+#!/bin/bash
+# More safety, by turning some bugs into errors.
+set -o errexit -o pipefail -o noclobber -o nounset
+
+usage() {
+    echo "Usage : cdaf -h|--help | cdaf [--docker-remote=remote docker repo] [--docker-user=remote docker user] [--docker-password=docker password] argument"
+    echo "--docker-remote = Docker remote host. If supplied, the image will be pushed to this repo. If authentication is required, then use docker-user and docker-pwd parameters."
+    echo "--docker-user = Docker remote user"
+    echo "--docker-password = Docker remote password, or DOCKER_PASSWORD from environment"
+}
+
+# ignore errexit with `&& true`
+getopt --test > /dev/null && true
+if [[ $? -ne 4 ]]; then
+    echo 'I’m sorry, `getopt --test` failed in this environment.'
+    exit 1
+fi
+
+# option --build-number/-b requires 1 argument
+LONGOPTS=help,build-number:,verbose
+OPTIONS=hb:v
+
+# -temporarily store output to be able to check for errors
+# -activate quoting/enhanced mode (e.g. by writing out "--options")
+# -pass arguments only via   -- "$@"   to separate them correctly
+# -if getopt fails, it complains itself to stdout
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@") || exit 2
+# read getopt's output this way to handle the quoting right:
+eval set -- "$PARSED"
+
+buildnumber=- verbose=n outFile=-
+# now enjoy the options in order and nicely split until we see --
+while true; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        -b|--build-number)
+            buildnumber="$2"
+            shift
+            ;;
+        -v|--verbose)
+            verbose=y
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Programming error"
+            exit 3
+            ;;
+    esac
+done
+
+# handle non-option arguments
+if [[ $# -ne 1 ]]; then
+    echo "$0: One argument is required."
+	usage
+    exit 4
+fi
+
+echo "buildnumber: $buildnumber, verbose: $verbose, in: $1"

@@ -176,6 +176,11 @@ for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	buildCommand+=" --env '${envVar}'"
 done
 
+for runOpt in $(env | grep CDAF_OPT_); do
+	runOpt=$(echo ${runOpt//CDAF_CD_})
+	buildCommand+=" '${runOpt}'"
+done
+
 # If a build number is not passed, use the CDAF emulator
 executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then

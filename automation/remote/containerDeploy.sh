@@ -178,9 +178,9 @@ for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	buildCommand+=" --env '${envVar}'"
 done
 
-# Use the complete contents of run options variables
+# Use the complete contents of run options environment variables without manipulation
 for runOpt in $(env | grep CDAF_OPT_); do
-	buildCommand+=" $(eval "echo ${runOpt}")"
+	buildCommand+=" $(echo ${runOpt#*=})"
 done
 
 # If a build number is not passed, use the CDAF emulator

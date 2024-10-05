@@ -1,4 +1,3 @@
-version: "3"
 services:
     target:
         image: "${TARGET_TAG}"

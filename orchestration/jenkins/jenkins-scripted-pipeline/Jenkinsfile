@@ -16,7 +16,7 @@ node  {
 
 // Define as multi-branch build, or the BRANCH_NAME will not be set
 node {
-	try {
+  try {
     stage ('CDAF') {
 
       checkout scm
@@ -42,15 +42,19 @@ node {
           }
         }
       }
-
     }
+  }
 
-	} catch (e) {
-		currentBuild.result = "FAILED"
-		println currentBuild.result
-		notifyFailed()
-		throw e
-	}
+  catch (e) {
+	currentBuild.result = "FAILED"
+	println currentBuild.result
+	notifyFailed()
+	throw e
+  }
+
+  finally {
+    junit '**/test-results/*.xml'
+  }
 }
 
 def notifyFailed() {

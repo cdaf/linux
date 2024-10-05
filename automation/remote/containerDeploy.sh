@@ -165,15 +165,22 @@ executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT="$ENVIRONMENT"
 executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} no $(whoami) $(id -u)"
 
+# Map run environment variables without prefix
 for envVar in $(env | grep CDAF_CD_); do
 	envVar=$(echo ${envVar//CDAF_CD_})
 	buildCommand+=" --env '${envVar}'"
 done
 
+# Map run environment variables without solution specific prefix
 prefix=$(echo "${SOLUTION//-/_}" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
 for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	envVar=$(echo ${envVar//CDAF_${prefix}_CD_})
 	buildCommand+=" --env '${envVar}'"
+done
+
+# Use the complete contents of run options environment variables without manipulation
+for runOpt in $(env | grep CDAF_OPT_); do
+	buildCommand+=" $(echo ${runOpt#*=})"
 done
 
 # If a build number is not passed, use the CDAF emulator

@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
-function executeExpression {
-	echo "[$scriptName] $1"
-	eval $1
-	exitCode=$?
-	# Check execution normal, anything other than 0 is an exception
-	if [ "$exitCode" != "0" ]; then
-		echo "$0 : Exception! $1 returned $exitCode"
-		exit $exitCode
+# Consolidated Error processing function
+#  required : error message
+#  optional : exit code, if not supplied only error message is written
+function ERRMSG {
+	if [ -z "$2" ]; then
+		echo; echo "[$scriptName][ERRMSG][WARN] $1"
+	else
+		echo; echo "[$scriptName][ERRMSG][ERROR] $1"
+	fi
+	if [ ! -z "$CDAF_ERROR_DIAG" ]; then
+		echo; echo "[$scriptName][ERRMSG]   Invoke custom diag CDAF_ERROR_DIAG = '$CDAF_ERROR_DIAG'"; echo
+		eval "$CDAF_ERROR_DIAG"
+	fi
+	if [ ! -z "$2" ]; then
+		echo; echo "[$scriptName][ERRMSG] Exit with LASTEXITCODE = $2" ; echo
+		exit $2
 	fi
 }
 
+function executeExpression {
+	echo "[$scriptName] $1"
+	eval "$1"
+	exitCode=$?
+	# Check execution normal, anything other than 0 is an exception
+	if [ "$exitCode" != "0" ]; then
+		ERRMSG "$EXECUTABLESCRIPT returned $exitCode" $exitCode
+	fi
+}
 scriptName='build.sh'
 
 echo;echo "[$scriptName] --- start ---"

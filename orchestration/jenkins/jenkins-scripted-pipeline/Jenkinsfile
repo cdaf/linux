@@ -53,6 +53,7 @@ node {
   }
 
   finally {
+    archiveArtifacts artifacts: 'release.sh', fingerprint: true
     junit '**/test-results/*.xml'
   }
 }

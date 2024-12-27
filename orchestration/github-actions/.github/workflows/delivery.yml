@@ -50,8 +50,25 @@ jobs:
           chmod +x release.sh
           ./release.sh DOCKER
 
-  # As at Jul 2021 there is no gating capability in GitHub Actions
-  deploy:
+#  # As at Jul 2021 there is no gating capability in GitHub Actions
+#  deploy:
+#    if: github.ref == 'refs/heads/master'
+#    name: Continuous Deploy
+#    needs: [build, test]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Download Artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: deploy
+#    
+#      - name: PROD
+#        run: |
+#          cd ${GITHUB_WORKSPACE}/deploy
+#          chmod +x release.sh
+#          ./release.sh PROD
+
+  push:
     if: github.ref == 'refs/heads/master'
     name: Continuous Deploy
     needs: [build, test]
@@ -62,8 +79,10 @@ jobs:
         with:
           name: deploy
     
-      - name: PROD
+      - name: PUSH
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ${GITHUB_WORKSPACE}/deploy
           chmod +x release.sh
-          ./release.sh PROD
+          ./release.sh PUSH

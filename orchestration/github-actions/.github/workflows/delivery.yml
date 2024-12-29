@@ -43,10 +43,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy
+          path: drop
     
       - name: DOCKER
         run: |
-          cd ${GITHUB_WORKSPACE}/deploy
+          cd ${GITHUB_WORKSPACE}/drop
           chmod +x release.sh
           ./release.sh DOCKER
 
@@ -61,6 +62,7 @@ jobs:
 #        uses: actions/download-artifact@v4
 #        with:
 #          name: deploy
+#          path: drop
 #    
 #      - name: PROD
 #        run: |
@@ -78,11 +80,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy
+          path: drop
     
       - name: PUSH
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ${GITHUB_WORKSPACE}/deploy
+          cd ${GITHUB_WORKSPACE}/drop
           chmod +x release.sh
           ./release.sh PUSH

@@ -126,7 +126,7 @@ else
 		if [ ! -z "$registryURL" ]; then
 			echo "[$scriptName] registryURL     : $registryURL (loaded from manifest.txt)"
 		else
-			echo "[$scriptName] registryURL     : (not supplied, do not set when pushing to Dockerhub)"
+			echo "[$scriptName] registryURL     : (not supplied, do not set when pushing to Dockerhub, do not include HTTPS:// prefix)"
 		fi
 	fi
 fi

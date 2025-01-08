@@ -21,7 +21,7 @@ if [ -z "$TARGET" ]; then
 	echo "$scriptName TARGET Argument not passed. HALT!"
 	exit 1341
 else
-	echo "[$scriptName]   TARGET      : $TARGET"
+	echo "[$scriptName]   TARGET         : $TARGET"
 fi
 
 if [ -z "$2" ]; then
@@ -29,7 +29,7 @@ if [ -z "$2" ]; then
 	exit 1342
 else
 	export RELEASE=$2
-	echo "[$scriptName]   RELEASE     : $RELEASE"
+	echo "[$scriptName]   RELEASE        : $RELEASE"
 fi
 
 SOLUTION=$3
@@ -37,7 +37,7 @@ if [ -z "$SOLUTION" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
 	exit 1343
 else
-	echo "[$scriptName]   SOLUTION    : $SOLUTION"
+	echo "[$scriptName]   SOLUTION       : $SOLUTION"
 fi
 
 BUILDNUMBER=$4
@@ -45,7 +45,7 @@ if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName Build Number not passed. HALT!"
 	exit 1344
 else
-	echo "[$scriptName]   BUILDNUMBER : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
 id=$5
@@ -53,18 +53,19 @@ if [ -z "$id" ]; then
 	echo "$scriptName id Number not passed. HALT!"
 	exit 1345
 else
-	echo "[$scriptName]   id          : $id"
+	echo "[$scriptName]   id             : $id"
 fi
 
 imageDir=$6
 if [ -z "$imageDir" ]; then
 	imageDir='containerDeploy'
-	echo "[$scriptName]   imageDir    : $imageDir (not supplied, default set)"
+	echo "[$scriptName]   imageDir       : $imageDir (not supplied, default set)"
 else
-	echo "[$scriptName]   imageDir    : $imageDir"
+	echo "[$scriptName]   imageDir       : $imageDir"
 fi
 
-echo "[$scriptName]   pwd         : $WORKSPACE"
+echo "[$scriptName]   pwd            : $(pwd)"
+echo "[$scriptName]   WORKSPACE_ROOT : $WORKSPACE_ROOT"
 
 manifest="${CDAF_CORE}/manifest.txt"
 if [ ! -f "$manifest" ]; then

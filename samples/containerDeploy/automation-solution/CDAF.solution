@@ -16,7 +16,7 @@ processSequence=containerTasks.sh
 
 CDAF_DOCKER_REQUIRED=yes
 
-# Not required for default image
+# Example of using release.sh within a task itself
 # runtimeFiles=$WORKSPACE_ROOT/release.sh
 
 # Skip runtime image clean-up

@@ -18,6 +18,14 @@ RUN ./bootstrapTest.sh
 # Place entry script
 COPY executeTest.sh .
 
+# Create external user in image
+ARG userName
+ARG userID
+RUN adduser $userName --uid $userID --disabled-password --gecos ""
+# RUN adduser $userName --uid $userID # CentOS
+RUN chown $userName:$userName -R /solution
+USER $userName
+
 # Move to (empty) subdirectory for mount
 WORKDIR /solution/workspace
 

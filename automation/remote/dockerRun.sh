@@ -70,7 +70,7 @@ else
 
 	dockerOpt=$7
 	if [ -z "$dockerOpt" ]; then
-		echo "[$scriptName] dockerOpt       : not passed"
+		echo "[$scriptName] dockerOpt       : not passed, e.g. --restart unless-stopped"
 	else
 		echo "[$scriptName] dockerOpt       : $dockerOpt"
 	fi

@@ -11,13 +11,13 @@ processSequence=containerTasks.sh
 # Use non-default image build location, compose/test instead of containerDeploy
 # containerDeploy=${CDAF_CORE}/containerDeploy.sh "${TARGET}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${REVISION}" compose/target
 
+# containerDeploy files, can be space separated list
+# runtimeFiles=$WORKSPACE_ROOT/release.sh
+
 # Do not perform a volume to user home directory, i.e. podman
 # CDAF_HOME_MOUNT=no
 
 CDAF_DOCKER_REQUIRED=yes
-
-# Example of using release.sh within a task itself
-# runtimeFiles=$WORKSPACE_ROOT/release.sh
 
 # Skip runtime image clean-up
 # runtimeRetain=yes

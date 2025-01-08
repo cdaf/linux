@@ -98,6 +98,7 @@ else
 
 	# 2.7.1 Copy the declared list of files into build root
 	for fileName in $runtimeFiles; do
+		fileName=$(eval "echo $fileName")
 		executeExpression "cp -v '$fileName' '$imageDir'"
 	done
 	echo

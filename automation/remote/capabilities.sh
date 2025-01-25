@@ -159,6 +159,14 @@ else
 	echo "  jq               : ${ADDR[1]}"
 fi
 
+test="`file --version 2>&1`"
+if [ $? -ne 0 ]; then
+	echo "  file             : (not installed)"
+else
+	IFS='-' read -ra ADDR <<< $test
+	echo "  file             : ${ADDR[1]}"
+fi
+
 # Java version lists to standard error
 test="`java -version 2>&1`"
 if [ $? -ne 0 ]; then

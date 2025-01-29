@@ -39,10 +39,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy
+          path: drop
     
       - name: Deploy
         run: |
-          cd ${GITHUB_WORKSPACE}/deploy
+          cd ${GITHUB_WORKSPACE}/drop
           chmod +x release.sh
           ./release.sh NO_PROP
 
@@ -56,9 +57,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy
+          path: drop
     
       - name: Deploy
         run: |
-          cd ${GITHUB_WORKSPACE}/deploy
+          cd ${GITHUB_WORKSPACE}/drop
           chmod +x release.sh
           ./release.sh LINUX

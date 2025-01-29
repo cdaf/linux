@@ -23,9 +23,8 @@ fi
 # No diagnostics or information can be echoed in this script as the echo is used as the return mechanism
 fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' "$PROP_FILE")
 while read -r LINE; do
-	IFS="\="
-	read -ra array <<< "$LINE"
-	if [ "${array[0]}" == "$PROP_NAME" ]; then
-		echo "${array[1]}"
-	fi
+    IFS='=' read -r key value <<< "$LINE"
+    if [ "$key" == "$PROP_NAME" ]; then
+        echo "$value"
+    fi
 done < <(echo "$fileWithoutComments")

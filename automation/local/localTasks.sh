@@ -3,7 +3,7 @@ scriptName=${0##*/}
 
 function executeExpression {
 	echo "$1"
-	eval $1
+	eval "$1"
 	exitCode=$?
 	# Check execution normal, anything other than 0 is an exception
 	if [ "$exitCode" != "0" ]; then
@@ -16,16 +16,16 @@ echo
 echo "[$scriptName] +--------------------------------+"
 echo "[$scriptName] | Process Locally Executed Tasks |"
 echo "[$scriptName] +--------------------------------+"
-ENVIRONMENT=$1
+ENVIRONMENT="$1"
 if [ -z "$ENVIRONMENT" ]; then
 	echo "$scriptName ENVIRONMENT Argument not passed. HALT!"
 	exit 1331
 else
-	ENVIRONMENT=$1
+	ENVIRONMENT="$1"
 	echo "[$scriptName]   ENVIRONMENT      : $ENVIRONMENT"
 fi
 
-RELEASE=$2
+RELEASE="$2"
 if [ -z "$RELEASE" ]; then
 	echo "$scriptName RELEASE Argument not passed. HALT!"
 	exit 1332
@@ -33,7 +33,7 @@ else
 	echo "[$scriptName]   RELEASE          : $RELEASE"
 fi
 
-BUILDNUMBER=$3
+BUILDNUMBER="$3"
 if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName Build Number not passed. HALT!"
 	exit 1333
@@ -41,7 +41,7 @@ else
 	echo "[$scriptName]   BUILDNUMBER      : $BUILDNUMBER"
 fi
 
-SOLUTION=$4
+SOLUTION="$4"
 if [ -z "$3" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
 	exit 1334
@@ -50,7 +50,7 @@ else
 fi
 
 landingDir=$(pwd)
-WORK_DIR_DEFAULT=$5
+WORK_DIR_DEFAULT="$5"
 if [ "$WORK_DIR_DEFAULT" ]; then
 	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT"
 	cd $WORK_DIR_DEFAULT
@@ -59,7 +59,7 @@ else
 	echo "[$scriptName]   WORK_DIR_DEFAULT : $WORK_DIR_DEFAULT (not passed, using landing directory)"
 fi
 
-OPT_ARG=$6
+OPT_ARG="$6"
 if [ -z "$OPT_ARG" ]; then
 	echo "[$scriptName]   OPT_ARG          : (Optional task argument not supplied)"
 else

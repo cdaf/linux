@@ -34,7 +34,7 @@ function MASKED {
 scriptName='dockerPush.sh'
 
 echo "[$scriptName] --- start ---"
-imageTag=$1
+imageTag=$(echo "$1" | tr '[:upper:]' '[:lower:]') # imageBuild processes in branches as lowercase
 if [ -z "$imageTag" ]; then
 	echo "[$scriptName] imageTag not supplied!"
 	exit 2501
@@ -132,7 +132,7 @@ else
 fi
 
 if [ ! -z $registryToken ]; then
-	executeExpression "echo $registryToken | docker login --username $registryUser --password-stdin $registryURL"
+	executeExpression "echo \$registryToken | docker login --username $registryUser --password-stdin $registryURL"
 fi
 
 # Dockerhub does not require URL to be set, i.e. if URL not supplied, Dockerhub is assumed.

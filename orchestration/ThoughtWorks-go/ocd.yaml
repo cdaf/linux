@@ -1,0 +1,36 @@
+format_version: 10
+pipelines:
+  CDAF:
+    group: CDAFGroup
+    lock_behavior: unlockWhenFinished
+    materials:
+      git_repo:
+        type: git
+        url: https://example.com/group/repo.git
+        username: git-reader
+        encrypted_password: AES:*******************=        
+    stages:
+      - build-and-package:
+          jobs:
+            cdaf:
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+                    run_if: passed
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./automation/entry.sh ${GO_PIPELINE_COUNTER} ${GO_REVISION}
+                    run_if: passed
+              artifacts:
+                - build:
+                    source: release.sh
+
+environments:
+  BUILD:
+    pipelines:
+      - CDAF

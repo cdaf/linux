@@ -34,7 +34,7 @@ jobs:
           #     script: ls -al && env
 
           - task: Bash@3
-            displayName: CDAF Release Package
+            displayName: ${{ parameters.environment }}
 #            env: 
 #              CONNECTION_STRING: $(CONNECTION_STRING)
 #              DATABASE_PASSWORD: $(DATABASE_PASSWORD)

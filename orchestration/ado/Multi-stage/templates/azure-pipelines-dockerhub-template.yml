@@ -18,7 +18,7 @@ jobs:
               artifactName: drop
 
           - task: Bash@3
-            displayName: CDAF Release Package
+            displayName: ${{ parameters.environment }}
             env: 
               DOCKERHUB_TOKEN: $(DOCKERHUB_TOKEN)
             inputs:

@@ -36,6 +36,6 @@ executeExpression "curl $url"
 
 echo "[$scriptName] Automated Test Execution Completed Successfully."
 
-echo 'Watch log to keep container alive' > /tmp/cdaf.log
-echo;echo "tail -1000f /tmp/cdaf.log";echo
-tail -1000f /tmp/cdaf.log
+echo; echo "[$scriptName] ---------- end ----------"
+
+tail -f /dev/null

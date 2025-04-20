@@ -233,6 +233,15 @@ else
 	echo "  terraform        : ${ADDR[1]}"
 fi
 
+test=$(hugo version 2>&1)
+if [ $? -ne 0 ]; then
+	echo "  hugo             : (not installed)"
+else
+	IFS=' ' read -ra ADDR <<< $test
+	IFS='v' read -ra ADDR <<< ${ADDR[1]}
+	echo "  hugo             : ${ADDR[1]}"
+fi
+
 # Python version lists to standard error
 test="`python --version 2>&1`"
 if [ $? -ne 0 ]; then

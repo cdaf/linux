@@ -7,8 +7,8 @@ services:
 
   test:
     image: "${TEST_TAG}"
-	volumes:
-	  - ${WORK_SPACE}:/solution/workspace
+    volumes:
+      - ${WORK_SPACE}:/solution/workspace
     depends_on:
       - target
 

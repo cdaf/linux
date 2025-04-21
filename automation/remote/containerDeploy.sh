@@ -180,7 +180,7 @@ for envVar in $(env | grep "CDAF_${prefix}_CD_"); do
 	buildCommand+=" --env '${envVar}'"
 done
 
-# Use the complete contents of run options environment variables without manipulation
+# 2.8.2 Use the complete contents of run options environment variables without manipulation
 for runOpt in $(env | grep CDAF_OPT_); do
 	buildCommand+=" $(echo ${runOpt#*=})"
 done

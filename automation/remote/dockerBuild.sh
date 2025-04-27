@@ -174,7 +174,7 @@ executeExpression "docker images -f label=cdaf.${imageName}.image.version"
 echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
 executeSuppress "docker system prune -f"
 
-buildCommand='docker build --progress plain'
+buildCommand='docker build'
 
 if [ ! -z "$tag" ]; then
 	buildCommand+=" --build-arg BUILD_TAG=${tag}"

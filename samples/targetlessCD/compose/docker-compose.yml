@@ -2,10 +2,13 @@ version: "3"
 services:
   target:
     image: "${TARGET_TAG}"
+	environment:
+	  - MICRO_LISTEN_PORT=${MICRO_LISTEN_PORT}
+
   test:
     image: "${TEST_TAG}"
-    links:
-      - target:target
+    volumes:
+      - ${WORK_SPACE}:/solution/workspace
     depends_on:
       - target
 

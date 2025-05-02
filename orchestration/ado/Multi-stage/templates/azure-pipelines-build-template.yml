@@ -1,6 +1,6 @@
 jobs:
   - job: 'Build'
-    displayName: "dotnet core build and NuGet"
+    displayName: ${{ parameters.displayName }}
     pool:
       vmImage: ubuntu-20.04
 #    pool: # Self-hosted Pool

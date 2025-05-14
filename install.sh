@@ -92,9 +92,11 @@ else
 fi
 
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
-	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}/provisioning"
-	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}/remote"
-	executeExpression "${installPath}/provisioning/addPath.sh ${installPath}"
+    executeExpression "curl -s -f https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/addPath.sh -o ${installPath}/addPath.sh"
+    executeExpression "chmod +x ${installPath}/addPath.sh"
+	executeExpression "${installPath}/addPath.sh ${installPath}/provisioning"
+	executeExpression "${installPath}/addPath.sh ${installPath}/remote"
+	executeExpression "${installPath}/addPath.sh ${installPath}"
 fi
 
 echo "${installPath}/remote/capabilities.sh"

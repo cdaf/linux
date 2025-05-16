@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-# Download to named directory and add to path, without this, will simply download and extract in current directory
+# Download to ./automation in current directory
 # curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -
+
+# Download specific version and add install directory (/opt/cdaf) to path 
+# curl -s https://raw.githubusercontent.com/cdaf/linux/master/install.sh | bash -s -- '2.7.3' '/opt/cdaf'
 
 # Optional environment variables, alternative to downloading and passing arguments.
 # export CDAF_INSTALL_VERSION = '2.7.3'
@@ -37,12 +40,18 @@ else
 	echo "[$scriptName]   version           : $version (use published version from cdaf.io)"
 fi
 
-if [ -z "$CDAF_INSTALL_PATH" ]; then
-	installPath='./automation'
-	echo "[$scriptName]   installPath       : $installPath (default)"
+installPath="$2"
+if [ -z "$installPath" ]; then
+	if [ -z "$CDAF_INSTALL_PATH" ]; then
+		installPath='./automation'
+		echo "[$scriptName]   installPath       : $installPath (default)"
+	else
+		installPath="$CDAF_INSTALL_PATH"
+		echo "[$scriptName]   installPath       : $installPath (from CDAF_INSTALL_PATH)"
+	fi
 else
-	installPath="$CDAF_INSTALL_PATH"
-	echo "[$scriptName]   installPath       : $installPath (from CDAF_INSTALL_PATH)"
+	CDAF_INSTALL_PATH="$installPath"
+	echo "[$scriptName]   installPath       : $installPath (install and add to PATH)"
 fi
 
 if [ -d "${installPath}" ]; then
@@ -94,9 +103,8 @@ fi
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
     executeExpression "curl -s -f https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/addPath.sh -o ${installPath}/addPath.sh"
     executeExpression "chmod +x ${installPath}/addPath.sh"
-	executeExpression "${installPath}/addPath.sh ${installPath}/provisioning"
-	executeExpression "${installPath}/addPath.sh ${installPath}/remote"
-	executeExpression "${installPath}/addPath.sh ${installPath}"
+    executeExpression "${installPath}/addPath.sh ${installPath}/remote"
+    executeExpression "${installPath}/addPath.sh ${installPath}"
 fi
 
 echo "${installPath}/remote/capabilities.sh"

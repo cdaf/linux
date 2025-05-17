@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -s -- 'deployer@localhost'
+# Install with defaults
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -
+
+# Install explicit version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -s -- '26.1.3'
 
 function executeRetry {
 	counter=1
@@ -60,6 +64,7 @@ fi
 if [ -z "$3" ]; then
 	version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name)
 	version=${version##*v}
+	version=${version%\"*}
 	echo "[$scriptName]   compose      : $version (latest)"
 else
 	echo "[$scriptName]   compose      : $version"
@@ -198,7 +203,7 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-executeRetry "${elevate} curl -sL 'https://github.com/docker/compose/releases/download/$version/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+executeRetry "${elevate} curl -f -sL 'https://github.com/docker/compose/releases/download/$version/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
 executeRetry "${elevate} chmod +x /usr/local/bin/docker-compose"
 
 if [ "$check" == 'yes' ] ; then

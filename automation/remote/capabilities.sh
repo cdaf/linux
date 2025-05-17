@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/automation/remote/capabilities.sh | bash -
+
 scriptName='capabilities.sh'
 
 versionScript="$1"
@@ -219,7 +221,7 @@ else
 			IFS=',' read -ra ADDR <<< ${ADDR[2]}
 			echo "    docker-compose : ${ADDR[0]}"
 		else
-			echo "    docker-compose : ${ADDR[3]}"
+			echo "    docker-compose : ${test##*v}"
 		fi
 	fi
 fi

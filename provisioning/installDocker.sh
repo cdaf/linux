@@ -212,20 +212,24 @@ if [ "$check" == 'yes' ] ; then
 	echo
 	test=$(docker --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Docker           : (not installed)"
+		echo "[$scriptName] Docker         : (not installed)"
 	else
 		IFS=' ' read -ra ADDR <<< $test
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "[$scriptName] Docker           : ${ADDR[0]}"
+		echo "[$scriptName] Docker         : ${ADDR[0]}"
 	fi
 	
 	test=$(docker-compose --version 2>&1)
-	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Docker compose   : (not installed)"
-	else
-		IFS=' ' read -ra ADDR <<< $test
-		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "[$scriptName] Docker compose   : ${ADDR[0]}"
+	if [ $? -eq 0 ]; then
+		unset IFS
+		read -ra ADDR <<< $test
+		echo $test | grep , > /dev/null
+		if [ $? -eq 0 ]; then
+			IFS=',' read -ra ADDR <<< ${ADDR[2]}
+			echo "[$scriptName] docker-compose : ${ADDR[0]}"
+		else
+			echo "[$scriptName] docker-compose : ${test##*v}"
+		fi
 	fi
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"

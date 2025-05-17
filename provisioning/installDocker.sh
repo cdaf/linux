@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -s -- 'deployer@localhost'
+
 function executeRetry {
 	counter=1
 	max=5
@@ -56,10 +58,11 @@ else
 fi
 
 if [ -z "$3" ]; then
-	compose='1.26.2'
-	echo "[$scriptName]   compose      : $compose (default)"
+	version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name)
+	version=${version##*v}
+	echo "[$scriptName]   compose      : $version (latest)"
 else
-	echo "[$scriptName]   compose      : $compose"
+	echo "[$scriptName]   compose      : $version"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -144,7 +147,7 @@ if [ -z "$package" ]; then
 				echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
 				yum check-update
 			fi
-			executeRetry "${elevate} yum install -y docker docker-compose"
+			executeRetry "${elevate} yum install -y docker"
 			executeRetry "${elevate} systemctl enable docker.service"
 			executeRetry "${elevate} systemctl start docker.service"
 			executeRetry "${elevate} systemctl status docker.service --no-pager"
@@ -175,7 +178,7 @@ if [ -z "$package" ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
 			executeRetry "${elevate} apt-get update"
-			executeRetry "${elevate} apt-get install -y docker.io docker-compose"
+			executeRetry "${elevate} apt-get install -y docker.io"
 
 		else # latest
 
@@ -195,7 +198,7 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-executeRetry "${elevate} curl -sL 'https://github.com/docker/compose/releases/download/${compose}/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+executeRetry "${elevate} curl -sL 'https://github.com/docker/compose/releases/download/$version/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
 executeRetry "${elevate} chmod +x /usr/local/bin/docker-compose"
 
 if [ "$check" == 'yes' ] ; then

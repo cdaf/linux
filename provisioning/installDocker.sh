@@ -73,6 +73,12 @@ fi
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami       : $(whoami)"
+	if [ -z "$4" ]; then
+		skipPermit='no'
+		echo "[$scriptName]   skipPermit   : ${skipPermit} (default)"
+	else
+		echo "[$scriptName]   whoami       : ${skipPermit}"
+	fi
 else
 	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
@@ -234,5 +240,12 @@ if [ "$check" == 'yes' ] ; then
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"
 fi
-echo 
-echo "[$scriptName] --- end ---"
+
+if [ "$skipPermit" == 'no' ]; then
+	echo "[$scriptName] Permit current user to use docker"
+	# Ignore groupadd failure if it already exists
+	executeRetry "${elevate} groupadd -f docker || ${elevate} usermod -aG docker $USER"
+	executeRetry "newgrp docker"
+fi
+
+echo ; echo "[$scriptName] --- end ---"

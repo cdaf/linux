@@ -65,9 +65,9 @@ if [ -z "$3" ]; then
 	version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name)
 	version=${version##*v}
 	version=${version%\"*}
-	echo "[$scriptName]   compose      : $version (latest)"
+	echo "[$scriptName]   compose      : ${version} (latest)"
 else
-	echo "[$scriptName]   compose      : $version"
+	echo "[$scriptName]   compose      : ${version}"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -203,7 +203,7 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-executeRetry "${elevate} curl -f -sL 'https://github.com/docker/compose/releases/download/$version/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+executeRetry "${elevate} curl -f -sL 'https://github.com/docker/compose/releases/download/v${version}/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
 executeRetry "${elevate} chmod +x /usr/local/bin/docker-compose"
 
 if [ "$check" == 'yes' ] ; then

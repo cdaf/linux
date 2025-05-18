@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Install unzip (the default package)
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -
+
+# Install cURL
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -s -- 'curl'
+
 function executeExpression {
 	echo "[executeExpression] $1"
 	eval "$1"

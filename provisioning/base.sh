@@ -3,8 +3,11 @@
 # Install unzip (the default package)
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -
 
-# Install cURL
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -s -- 'curl'
+# Install cURL and unzip
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -s -- 'curl unzip'
+
+# Install with optional arguments
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/base.sh | bash -s -- 'googlechrome' '-otherArgs' '--ignore-checksums'
 
 function executeExpression {
 	echo "[executeExpression] $1"

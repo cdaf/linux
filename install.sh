@@ -67,7 +67,7 @@ if [ -z "$version" ]; then
 	test="`unzip 2>&1`"
 	if [ $? -ne 0 ]; then
 		echo "unzip, not installed, installing"
-		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package is unzip
+		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning/base.sh | bash -" # default package is unzip
 		test="`unzip 2>&1`"
 		if [ $? -ne 0 ]; then
 			echo "Could not install unzip!"; exit 4624

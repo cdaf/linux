@@ -18,7 +18,7 @@ jobs:
       - name: CDAF
         run: |
           cd ${GITHUB_WORKSPACE}
-          cp -r automation/solution solution
+          cp -r samples/crypt/devops solution
           cat solution/CDAF.solution
 
           ./automation/entry.sh ${GITHUB_RUN_NUMBER} ${GITHUB_REF}

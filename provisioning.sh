@@ -63,7 +63,6 @@ executeExpression "mv * ${installPath}"
 executeExpression "cd ../.. && rm -rf linux-master"
 
 if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
-    executeExpression "${installPath}/addPath.sh ${installPath}/remote"
     executeExpression "${installPath}/addPath.sh ${installPath}"
 fi
 

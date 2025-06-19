@@ -71,22 +71,22 @@ Vagrant.configure(2) do |config|
       (1..MAX_SERVER_TARGETS).each do |s|
         override.vm.provision 'shell', path: './provisioning/addHOSTS.sh', args: "172.16.17.10#{s} linux-#{s}.mshome.net"
       end
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ buildonly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ packageonly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ cionly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ cdonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ buildonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ packageonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ cionly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ cdonly', privileged: false
     end
 
     # vagrant up build --provider hyperv
     build.vm.provider 'hyperv' do |hyperv, override|
       override.vm.hostname  = 'build'
       override.vm.synced_folder ".", "/vagrant", smb_username: "#{ENV['VAGRANT_SMB_USER']}", smb_password: "#{ENV['VAGRANT_SMB_PASS']}", type: "smb", mount_options: ["vers=2.1"]
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ buildonly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ packageonly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ cionly', privileged: false
-      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/automation/ cdonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ buildonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ packageonly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ cionly', privileged: false
+      override.vm.provision 'shell', path: './provisioning/CDAF.sh', args: '. /vagrant/samples/crypt/ cdonly', privileged: false
     end
   end
 

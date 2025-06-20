@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# Download to ./automation in current directory
+# Download to ./provisioning in current directory
 # curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh | bash -
 
-# Download specific version and add install directory (/opt/cdaf) to path 
-# curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh | bash -s -- '2.7.3' '/opt/cdaf'
+# Download and add install directory (/opt/provisioning) to path 
+# curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh | bash -s -- '/opt/provisioning'
 
 function executeExpression {
 	echo "$1"

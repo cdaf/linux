@@ -99,7 +99,8 @@ fi
 if [ -d '/opt/vso' ]; then
 	executeExpression "$elevate rm -rf '/opt/vso'"
 fi
-executeExpression "curl -s -O https://vstsagentpackage.azureedge.net/agent/${version}/${media}"
+
+executeExpression "curl -fsSL -O https://download.agent.dev.azure.com/agent/${version}/${media}"
 executeExpression "mkdir vso"
 executeExpression "tar zxf ${media} -C ./vso"
 executeExpression "$elevate cp -r vso /opt"

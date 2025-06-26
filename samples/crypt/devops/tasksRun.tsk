@@ -1,6 +1,3 @@
-echo "List available software"; echo
-./capabilities.sh
-
 echo "Some basic functions"; echo
 REFRSH . $TMPDIR/workspacecopy
 REMOVE TMPDIR/workspacecopy

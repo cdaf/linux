@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/automation/remote/capabilities.sh | bash -
-
+DEFAULT_IFS=$IFS
 scriptName='capabilities.sh'
 
 versionScript="$1"
@@ -378,6 +378,14 @@ else
 	if [ $? -eq 0 ]; then
 		test="${test##*v}"
 		echo "    helm           : ${test%+*}"
+		IFS=$'\n'
+		for line in $(helm plugin list); do
+		    IFS=$DEFAULT_IFS read -ra array <<< "$line"
+		    if [ "${array[0]}" != 'NAME' ]; then
+				echo "      $line"
+			fi
+		done
+		IFS=$DEFAULT_IFS
 	fi
 	
 	test=$(helmsman -v 2>/dev/null)

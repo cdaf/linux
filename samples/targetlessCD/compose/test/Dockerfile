@@ -12,8 +12,7 @@ COPY executeTest.sh .
 # Create external user in image
 ARG userName
 ARG userID
-RUN adduser $userName --uid $userID --disabled-password --gecos ""
-# RUN adduser $userName --uid $userID # CentOS
+RUN useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
 RUN chown $userName:$userName -R /solution
 USER $userName
 

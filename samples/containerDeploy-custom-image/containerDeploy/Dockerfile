@@ -25,7 +25,7 @@ RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
 if [ ! -z "$user" ]; then \
 userdel -f $user ; \
 fi ;  \
-adduser $userName --uid $userID --disabled-password --gecos "" ; \
+useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName ; \
 chown $userName -R /solution
 
 # Import CDAF package into immutable machine

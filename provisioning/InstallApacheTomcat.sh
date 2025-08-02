@@ -88,13 +88,8 @@ if [ ! -z "$(getent passwd $serviceAccount)" ]; then
 	echo "[$scriptName] Tomcat user ($serviceAccount) already exists, no action required."
 else
 	# Create and Configure Deployment user
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Create the runtime user ($serviceAccount) Ubuntu/Debian"
-		executeExpression "$elevate adduser --disabled-password --gecos \"\" $serviceAccount"
-	else
-		echo "[$scriptName] Create the runtime user ($serviceAccount) CentOS/RHEL"
-		executeExpression "$elevate adduser $serviceAccount"
-	fi
+	echo "[$scriptName] Create the runtime user ($serviceAccount)"
+	executeExpression "$elevate useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c '' $serviceAccount"
 fi
 
 echo; echo "[$scriptName] Create application root directory and change to runtime directory"

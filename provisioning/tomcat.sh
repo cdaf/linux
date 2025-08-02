@@ -35,14 +35,9 @@ echo "[$scriptName]   tomcat  : $tomcat"
 
 if [ -z "$(getent passwd tomcat)" ]; then
 	# Create and Configure Deployment user
-	centos=$(uname -a | grep el)
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Create the runtime user (tomcat) Ubuntu/Debian"
-		executeExpression "sudo adduser --disabled-password --gecos \"\" tomcat"
-	else
-		echo "[$scriptName] Create the runtime user (tomcat) CentOS/RHEL"
-		executeExpression "sudo adduser tomcat"
-	fi
+	# Create and Configure Deployment user
+	echo "[$scriptName] Create the runtime user ($serviceAccount)"
+	executeExpression "$elevate useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c '' tomcat"
 else
 	echo "[$scriptName] Tomcat user (tomcat) alrady exists, no action required."
 fi

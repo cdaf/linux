@@ -71,7 +71,7 @@ fi
 userExists=$(id -u $username 2> /dev/null )
 if [ -z "$userExists" ]; then # User does not exist, create the user in the group
 	if [[ "$test" == *"not found"* ]]; then
-		executeExpression "$elevate adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
+		executeExpression "$elevate useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c '' $userName -G $groupname"
 	else
 		executeExpression "$elevate adduser -g $groupname $username"
 	fi

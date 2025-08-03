@@ -63,7 +63,7 @@ fi
 
 userExists=$(id -u $username 2> /dev/null )
 if [ -z "$userExists" ]; then # User does not exist, create the user in the group
-	executeExpression "$elevate useradd -m -k /dev/null -s /usr/sbin/nologin -c '' $username -g $groupname"
+	executeExpression "$elevate useradd -m -k /dev/null -s /bin/bash -c '' $username -g $groupname"
 else # Just add the user to the group
 	echo "[$scriptName] username $username exists"
 	executeExpression "$elevate usermod -a -G $groupname $username"

@@ -37,7 +37,7 @@ if [ -z "$(getent passwd tomcat)" ]; then
 	# Create and Configure Deployment user
 	# Create and Configure Deployment user
 	echo "[$scriptName] Create the runtime user ($serviceAccount)"
-	executeExpression "$elevate useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c '' tomcat"
+	executeExpression "$elevate useradd -m -k /dev/null -s /usr/sbin/nologin -c '' tomcat"
 else
 	echo "[$scriptName] Tomcat user (tomcat) alrady exists, no action required."
 fi

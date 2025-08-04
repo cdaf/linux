@@ -89,7 +89,7 @@ if [ ! -z "$(getent passwd $serviceAccount)" ]; then
 else
 	# Create and Configure Deployment user
 	echo "[$scriptName] Create the runtime user ($serviceAccount)"
-	executeExpression "$elevate useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c '' $serviceAccount"
+	executeExpression "$elevate useradd -m -k /dev/null -s /usr/sbin/nologin -c '' $serviceAccount"
 fi
 
 echo; echo "[$scriptName] Create application root directory and change to runtime directory"

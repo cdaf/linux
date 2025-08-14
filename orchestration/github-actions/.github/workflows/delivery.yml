@@ -2,6 +2,12 @@ name: CDAF Targetless CD using hosted agent
 # This workflow is triggered on pushes to the repository.
 on: [push]
 
+#env:  # Global environment variables
+#  ANYPOINT_ORG_ID: ${{ vars.ANYPOINT_ORG_ID }}
+#  ANYPOINT_CLIENT_ID: ${{ vars.ANYPOINT_CLIENT_ID }}
+#  ANYPOINT_CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
+#  ANYPOINT_CLIENT_SHA: ${{ vars.ANYPOINT_CLIENT_SHA }}
+
 jobs:
   build:
     name: Build and Unit Test
@@ -14,6 +20,12 @@ jobs:
         run: |
           git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch --prune --unshallow
+
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '17'
 
       - name: CDAF
         run: |

@@ -16,42 +16,47 @@ scriptName=${0##*/}
 echo "[$scriptName] --- start ---"
 imageName="$1"
 if [ ! -z "$imageName" ]; then
-	echo "[$scriptName]   imageName            : $imageName"
+	echo "[$scriptName]   imageName              : $imageName"
 
 	BUILDNUMBER="$2"
 	if [ -z "$BUILDNUMBER" ]; then
 		echo "[$scriptName]   BUILDNUMBER not supplied, exit with code 2."
 		exit 2
 	else
-		echo "[$scriptName]   BUILDNUMBER          : $BUILDNUMBER"
+		echo "[$scriptName]   BUILDNUMBER            : $BUILDNUMBER"
 	fi
 	
 	REVISION="$3"
 	if [ -z "$REVISION" ]; then
 		REVISION='container_build'
-		echo "[$scriptName]   REVISION             : $REVISION (not supplied, set to default)"
+		echo "[$scriptName]   REVISION               : $REVISION (not supplied, set to default)"
 	else
-		echo "[$scriptName]   REVISION             : $REVISION"
+		echo "[$scriptName]   REVISION               : $REVISION"
 	fi
 	
 	ACTION="$4"
 	if [ -z "$ACTION" ]; then
-		echo "[$scriptName]   ACTION               : (not supplied)"
+		echo "[$scriptName]   ACTION                 : (not supplied)"
 	else
-		echo "[$scriptName]   ACTION               : $ACTION"
+		echo "[$scriptName]   ACTION                 : $ACTION"
 	fi
 	
 	rebuildImage="$5"
 	if [ -z "$rebuildImage" ]; then
 		rebuildImage='no'
-		echo "[$scriptName]   rebuildImage         : $rebuildImage (not supplied, set to default)"
+		echo "[$scriptName]   rebuildImage           : $rebuildImage (not supplied, set to default)"
 	else
-		echo "[$scriptName]   rebuildImage         : $rebuildImage"
+		echo "[$scriptName]   rebuildImage           : $rebuildImage"
 	fi
 
 	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
-		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
+		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS   : $CDAF_DOCKER_RUN_ARGS"
 	fi
+
+	if [ ! -z "$CDAF_DOCKER_BUILD_ARGS" ]; then
+		echo "[$scriptName]   CDAF_DOCKER_BUILD_ARGS : $CDAF_DOCKER_BUILD_ARGS"
+	fi
+
 else
 	echo "[$scriptName]   imageName           : (not supplied, only process CDAF automation load)"
 fi
@@ -59,17 +64,17 @@ fi
 absolute=$(echo "$(pwd)/automation")
 if [ -d "$absolute" ]; then
 	if [[ "$AUTOMATIONROOT" != "$absolute" ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT         : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT         : ${AUTOMATIONROOT}"
 	fi
 else
 	if [[ $AUTOMATIONROOT != $absolute ]]; then
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
+		echo "[$scriptName]   AUTOMATIONROOT         : ${AUTOMATIONROOT} (copy to ./automation in workspace for docker)"
 		cleanupCDAF='yes'
 	else
-		echo "[$scriptName]   AUTOMATIONROOT       : ${AUTOMATIONROOT}"
+		echo "[$scriptName]   AUTOMATIONROOT         : ${AUTOMATIONROOT}"
 	fi
 fi
 
@@ -82,9 +87,9 @@ if [ ! -z "$imageName" ]; then
 	done
 	if [ -z "$SOLUTIONROOT" ]; then
 		SOLUTIONROOT="${AUTOMATIONROOT}/solution"
-		echo "[$scriptName]   SOLUTIONROOT         : $SOLUTIONROOT (CDAF.solution not found, so using default)"
+		echo "[$scriptName]   SOLUTIONROOT           : $SOLUTIONROOT (CDAF.solution not found, so using default)"
 	else
-		echo "[$scriptName]   SOLUTIONROOT         : $SOLUTIONROOT"
+		echo "[$scriptName]   SOLUTIONROOT           : $SOLUTIONROOT"
 	fi
 
 	SOLUTION=$("$AUTOMATIONROOT/remote/getProperty.sh" "$SOLUTIONROOT/CDAF.solution" "solutionName")
@@ -93,15 +98,15 @@ if [ ! -z "$imageName" ]; then
 		echo "[$scriptName] Read of SOLUTION from $SOLUTIONROOT/CDAF.solution failed! Returned $exitCode"
 		exit $exitCode
 	fi
-	echo "[$scriptName]   SOLUTION             : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
+	echo "[$scriptName]   SOLUTION               : $SOLUTION (derived from $SOLUTIONROOT/CDAF.solution)"
 
 	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
-	echo "[$scriptName]   buildImage           : $buildImage"
+	echo "[$scriptName]   buildImage             : $buildImage"
 
-	echo "[$scriptName]   DOCKER_HOST          : $DOCKER_HOST"
-	echo "[$scriptName]   pwd                  : $(pwd)"
-	echo "[$scriptName]   hostname             : $(hostname)"
-	echo "[$scriptName]   whoami               : $(whoami)"
+	echo "[$scriptName]   DOCKER_HOST            : $DOCKER_HOST"
+	echo "[$scriptName]   pwd                    : $(pwd)"
+	echo "[$scriptName]   hostname               : $(hostname)"
+	echo "[$scriptName]   whoami                 : $(whoami)"
 
 	echo; echo "[$scriptName] Prepare image..."
 
@@ -123,8 +128,8 @@ if [ ! -z "$imageName" ]; then
 	newTag=$((${imageTag} + 1))
 	echo "[$scriptName]    newTag         : $newTag"
 	
-	executeExpression "'$CDAF_CORE/dockerBuild.sh' ${buildImage} $newTag $rebuildImage $(whoami) $(id -u)" 
-	
+	executeExpression "'$CDAF_CORE/dockerBuild.sh' ${buildImage} $newTag $rebuildImage $(whoami) $(id -u) ${CDAF_DOCKER_BUILD_ARGS}"
+
 	# Remove any older images	
 	executeExpression "'$CDAF_CORE/dockerClean.sh' ${buildImage} $newTag"
 	

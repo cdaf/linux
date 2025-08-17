@@ -192,6 +192,10 @@ if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
 fi
 
+if [ ! -z "$optionalArgs" ]; then
+	buildCommand+=" ${optionalArgs}"
+fi
+
 if [ ! -z "$tag" ]; then
 	buildCommand+=" --tag ${imageName}:${tag}"
 else

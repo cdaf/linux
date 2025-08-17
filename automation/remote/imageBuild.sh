@@ -30,31 +30,36 @@ imagebuild_workspace=$(pwd)
 echo; echo "[$scriptName] --- start ---"
 id=$1
 if [ -z $id ]; then
-	echo "[$scriptName]  id                   : (not supplied, login to Docker Registry only)"
+	echo "[$scriptName]  id                      : (not supplied, login to Docker Registry only)"
 else
 	SOLUTION=${id%%_*}  # Use solution name for temp directory name
-	echo "[$scriptName]  id                   : $id"
+	echo "[$scriptName]  id                      : $id"
 	BUILDNUMBER=$2
 	if [ -z $BUILDNUMBER ]; then
-		echo "[$scriptName]  BUILDNUMBER          : (not supplied, only push $id as latest)"
+		echo "[$scriptName]  BUILDNUMBER             : (not supplied, only push $id as latest)"
 	else
-		echo "[$scriptName]  BUILDNUMBER          : $BUILDNUMBER"
+		echo "[$scriptName]  BUILDNUMBER             : $BUILDNUMBER"
 
 		baseImage=$3
 		if [ -z "$baseImage" ]; then
-			echo "[$scriptName]  baseImage            : (not supplied)"
+			echo "[$scriptName]  baseImage               : (not supplied)"
 		else
-			echo "[$scriptName]  baseImage            : $baseImage"
+			echo "[$scriptName]  baseImage               : $baseImage"
 		fi
 
 		# 2.2.0 extension for the support as integrated function
 		constructor=$4
 		if [ -z "$constructor" ]; then
-			echo "[$scriptName]  constructor          : (not supplied, will process all directories, supports space separated list)"
+			echo "[$scriptName]  constructor             : (not supplied, will process all directories, supports space separated list)"
 		else
-			echo "[$scriptName]  constructor          : $constructor (supports space separated list)"
+			echo "[$scriptName]  constructor             : $constructor (supports space separated list)"
 		fi
 	fi
+
+	if [ ! -z "$CDAF_DOCKER_BUILD_ARGS" ]; then
+		echo "[$scriptName]   CDAF_DOCKER_BUILD_ARGS = $CDAF_DOCKER_BUILD_ARGS"
+	fi
+
 fi
 
 if [ -z "$AUTOMATIONROOT" ]; then
@@ -62,10 +67,10 @@ if [ -z "$AUTOMATIONROOT" ]; then
 	if [ ! -d "${AUTOMATIONROOT}" ]; then
 		AUTOMATIONROOT='../automation'
 	else
-		echo "[$scriptName]  AUTOMATIONROOT       = $AUTOMATIONROOT (not set, using relative path)"
+		echo "[$scriptName]  AUTOMATIONROOT          = $AUTOMATIONROOT (not set, using relative path)"
 	fi
 else
-	echo "[$scriptName]  AUTOMATIONROOT       = $AUTOMATIONROOT"
+	echo "[$scriptName]  AUTOMATIONROOT          = $AUTOMATIONROOT"
 fi
 
 # 2.6.0 Push Private Registry
@@ -81,55 +86,55 @@ fi
 # 2.6.0 CDAF Solution property support, with environment variable override.
 if [ ! -z "$CDAF_REGISTRY_URL" ]; then
 	registryURL="$CDAF_REGISTRY_URL"
-	echo "[$scriptName]  CDAF_REGISTRY_URL    = $registryURL (loaded from environment variable)"
+	echo "[$scriptName]  CDAF_REGISTRY_URL       = $registryURL (loaded from environment variable)"
 else
 	registryURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_URL")")
 	if [ ! -z "$registryURL" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_URL    = $registryURL (loaded from manifest.txt)"
+		echo "[$scriptName]  CDAF_REGISTRY_URL       = $registryURL (loaded from manifest.txt)"
 	else
-		echo "[$scriptName]  CDAF_REGISTRY_URL    = (not supplied, do not set when pushing to Dockerhub)"
+		echo "[$scriptName]  CDAF_REGISTRY_URL       = (not supplied, do not set when pushing to Dockerhub)"
 	fi
 fi
 
 if [ ! -z "$CDAF_REGISTRY_USER" ]; then
 	registryUser="$CDAF_REGISTRY_USER"
-	echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (loaded from environment variable)"
+	echo "[$scriptName]  CDAF_REGISTRY_USER      = $registryUser (loaded from environment variable)"
 else
 	registryUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_USER")")
 	if [ ! -z "$registryUser" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (loaded from manifest.txt)"
+		echo "[$scriptName]  CDAF_REGISTRY_USER      = $registryUser (loaded from manifest.txt)"
 	else
 		registryUser='.'
-		echo "[$scriptName]  CDAF_REGISTRY_USER   = $registryUser (default)"
+		echo "[$scriptName]  CDAF_REGISTRY_USER      = $registryUser (default)"
 	fi
 fi
 
 if [ ! -z "$CDAF_REGISTRY_TOKEN" ]; then
 	registryToken="$CDAF_REGISTRY_TOKEN"
-	echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${registryToken}) (loaded from environment variable)"
+	echo "[$scriptName]  CDAF_REGISTRY_TOKEN     = $(MASKED ${registryToken}) (loaded from environment variable)"
 else
 	registryToken=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TOKEN")")
 	if [ ! -z "$registryToken" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = $(MASKED ${registryToken}) (loaded from manifest.txt)"
+		echo "[$scriptName]  CDAF_REGISTRY_TOKEN     = $(MASKED ${registryToken}) (loaded from manifest.txt)"
 	else
-		echo "[$scriptName]  CDAF_REGISTRY_TOKEN  = (not supplied)"
+		echo "[$scriptName]  CDAF_REGISTRY_TOKEN     = (not supplied)"
 	fi
 fi
 
 if [ ! -z "$CDAF_REGISTRY_TAG" ]; then
 	registryTags="$CDAF_REGISTRY_TAG"
-	echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (loaded from environment variable, supports space separated list)"
+	echo "[$scriptName]  CDAF_REGISTRY_TAG       = $registryTags (loaded from environment variable, supports space separated list)"
 else
 	registryTags=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_REGISTRY_TAG")")
 	if [ ! -z "$registryTags" ]; then
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (loaded from manifest.txt, supports space separated list)"
+		echo "[$scriptName]  CDAF_REGISTRY_TAG       = $registryTags (loaded from manifest.txt, supports space separated list)"
 	else
 		registryTags='latest'
-		echo "[$scriptName]  CDAF_REGISTRY_TAG    = $registryTags (default, supports space separated list)"
+		echo "[$scriptName]  CDAF_REGISTRY_TAG       = $registryTags (default, supports space separated list)"
 	fi
 fi
 
-echo "[$scriptName]  pwd                  = $imagebuild_workspace"; echo
+echo "[$scriptName]  pwd                     = $imagebuild_workspace"; echo
 
 if [ -z $id ]; then
 	if [ -z "$registryToken" ]; then
@@ -204,7 +209,7 @@ else
 
 			image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
 			export CONTAINER_IMAGE="${baseImage}"
-			executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id}_${image##*/} ${BUILDNUMBER} no $(whoami) $(id -u)"
+			executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id}_${image##*/} ${BUILDNUMBER} no $(id -un) $(id -u) ${CDAF_DOCKER_BUILD_ARGS}"
 			executeExpression "cd '$imagebuild_workspace'"
 		done
 

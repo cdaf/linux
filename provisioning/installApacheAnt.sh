@@ -29,10 +29,6 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-if [ ! -d "$mediaCache" ]; then
-	executeExpression "$elevate mkdir -p $mediaCache"
-fi
-
 # Set parameters
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""

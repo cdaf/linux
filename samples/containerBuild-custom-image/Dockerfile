@@ -7,9 +7,11 @@ FROM ${CONTAINER_IMAGE}
 WORKDIR /solution
 
 # Perform any custom provisioning steps here
-# If not using a CDAF base image
-# RUN curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh | bash -s -- '/opt/provisioning'
-RUN base curl
+# CDAF Provisioning scripts are no longer included in the base image
+RUN curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh | bash -s -- '/opt/provisioning'
+
+# cURL is included in the base image, but this included to verify provisioning scripts are installed
+RUN base.sh curl
 
 # Prepare for non-root build
 ARG userName

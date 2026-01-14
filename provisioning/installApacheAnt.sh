@@ -22,14 +22,6 @@ else
 	echo "[$scriptName]   version    : $version"
 fi
 
-mediaCache="$2"
-if [ -z "$mediaCache" ]; then
-	mediaCache='/.provision'
-	echo "[$scriptName]   mediaCache : $mediaCache (default)"
-else
-	echo "[$scriptName]   mediaCache : $mediaCache"
-fi
-
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami     : $(whoami)"
@@ -45,13 +37,8 @@ fi
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
-if [ ! -f "${mediaCache}/${antSource}" ]; then
-	echo "[$scriptName] Media (${mediaCache}/${antSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${antSource} \"https://archive.apache.org/dist/ant/binaries/${antSource}\""
-fi
+executeExpression "curl -sL $optArg https://archive.apache.org/dist/ant/binaries/${antSource} | tar zx"
 
-executeExpression "cp \"${mediaCache}/${antSource}\" ."
-executeExpression "tar -xf $antSource"
 if [ -d "/opt/$antVersion" ]; then
 	executeExpression "$elevate rm -rf '/opt/$antVersion'"
 fi

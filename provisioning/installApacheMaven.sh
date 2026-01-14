@@ -14,20 +14,12 @@ scriptName='installApacheMaven.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version=$(curl -s https://maven.apache.org/download.cgi | grep 'Downloading Apache Maven')
-	version=${version//'<h1>Downloading Apache Maven '/}
-	version=${version//'</h1>'/}
+	version=$(curl -s https://maven.apache.org/download.cgi | grep '<h2>Apache Maven')
+	version=${version//'<h2>Apache Maven '/}
+	version=${version//'</h2>'/}
 	echo "[$scriptName]   version    : $version (latest)"
 else
 	echo "[$scriptName]   version    : $version"
-fi
-
-mediaPath="$2"
-if [ -z "$mediaPath" ]; then
-	mediaPath='/.provision'
-	echo "[$scriptName]   mediaPath  : $mediaPath (default)"
-else
-	echo "[$scriptName]   mediaPath  : $mediaPath"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -44,26 +36,8 @@ else
 	echo "[$scriptName]   http_proxy : (not set)"
 fi
 
-# Check for media
-echo
-mediaFullPath="$mediaPath/apache-maven-${version}-bin.tar.gz"
-echo "[$scriptName] \$mediaFullPath = $mediaFullPath"
-if [ -f "$mediaFullPath" ]; then
-	echo "[$scriptName] Media found $mediaFullPath"
-else
-	echo "[$scriptName] Media not found, attempting download"
-	if [ ! -d "$mediaPath" ]; then
-		executeExpression "$elevate mkdir -p $mediaPath"
-	fi
-	executeExpression "$elevate curl -s -o $mediaFullPath $optArg https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
-fi
-
-# Set parameters
+executeExpression "curl -sL $optArg https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz | tar zx"
 executeExpression "runTime=\"apache-maven-${version}\""
-executeExpression "sourceFile=\"$runTime-bin.tar.gz\""
-
-executeExpression "cp \"$mediaPath/${sourceFile}\" ."
-executeExpression "tar -xf $sourceFile"
 if [ -d "/opt/$runTime" ]; then
 	executeExpression "$elevate rm -rf '/opt/$runTime'"
 fi

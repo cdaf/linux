@@ -390,7 +390,7 @@ else
 	
 	test=$(helmsman -v 2>/dev/null)
 	if [ $? -eq 0 ]; then
-		echo "    helmsman       : ${test##*v}"
+		echo "    helmsman       : ${test##* }"
 	fi
 
 	test=$(helmfile --version 2>/dev/null)

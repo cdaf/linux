@@ -102,7 +102,7 @@ customProjectList="$SOLUTIONROOT/buildProjects"
 if [ -f "$customProjectList" ]; then
 	dirList=$(cat $customProjectList)
 else
-	dirList=$(find . -mindepth 1 -maxdepth 1 -type d | sort -z)
+	dirList=$(find . -mindepth 1 -maxdepth 1 -type d | sort)
 fi
 
 # Create a list of projects based on directories containing build script entry point

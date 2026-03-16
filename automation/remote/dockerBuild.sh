@@ -78,6 +78,16 @@ else
 	echo "[$scriptName]  optionalArgs             : $optionalArgs"
 fi
 
+test="`docker buildx version 2>&1`"
+if [ $? -eq 0 ]; then
+    buildx_enabled='yes'
+	echo "[$scriptName]  buildx                   : $(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+else
+	echo "[$scriptName]  buildx                   : (not in use)"
+fi
+
+echo
+
 getProp="${CDAF_CORE}/getProperty.sh"
 
 # 2.6.0 Image from Private Registry
@@ -191,6 +201,11 @@ fi
 if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
 fi
+
+if [[ "$buildx_enabled" == 'yes' ]]; then
+	buildCommand+=" --load"
+fi
+
 
 if [ ! -z "$optionalArgs" ]; then
 	buildCommand+=" ${optionalArgs}"

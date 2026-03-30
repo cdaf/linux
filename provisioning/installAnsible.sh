@@ -169,10 +169,10 @@ if [ -z "$fedora" ]; then
 	if [ "$systemWide" == 'yes' ]; then
 
 		executeRetry "$elevate apt-get install -y software-properties-common"
-		executeRetry "$elevate apt-add-repository ppa:ansible/ansible -y"
+		executeRetry "$elevate apt-add-repository --yes --update ppa:ansible/ansible"
 		executeRetry "$elevate apt-get update"
-		executeRetry "$elevate apt-get install -y ansible-core=${ansibleVersion}*"
-			
+		executeRetry "$elevate apt-get install -y ansible-core=${version}*"
+
 	else
 		executeRetry "$elevate apt-get update"
 		executeRetry "$elevate apt-get install -y build-essential libssl-dev libffi-dev python-dev"

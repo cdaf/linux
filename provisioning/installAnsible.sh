@@ -171,7 +171,12 @@ if [ -z "$fedora" ]; then
 		executeRetry "$elevate apt-get install -y software-properties-common"
 		executeRetry "$elevate apt-add-repository --yes --update ppa:ansible/ansible"
 		executeRetry "$elevate apt-get update"
-		executeRetry "$elevate apt-get install -y ansible-core=${version}*"
+
+		if [ -z "$version" ]; then
+			executeRetry "$elevate apt-get install -y ansible-core"
+		else
+			executeRetry "$elevate apt-get install -y ansible-core=${version}*"
+		fi
 
 	else
 		executeRetry "$elevate apt-get update"

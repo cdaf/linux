@@ -244,7 +244,8 @@ fi
 if [ "$skipPermit" == 'no' ]; then
 	echo "[$scriptName] Permit current user to use docker"
 	# Ignore groupadd failure if it already exists
-	executeRetry "${elevate} groupadd -f docker || ${elevate} usermod -aG docker $USER"
+	executeRetry "${elevate} groupadd -f docker"
+	executeRetry "${elevate} usermod -aG docker $USER"
 	executeRetry "newgrp docker"
 fi
 

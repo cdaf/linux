@@ -12,8 +12,7 @@ function executeExpression {
 	fi
 }
 
-echo
-echo "[$scriptName] +-------------------------+"
+echo; echo "[$scriptName] +-------------------------+"
 echo "[$scriptName] | Process Container Tasks |"
 echo "[$scriptName] +-------------------------+"
 TARGET=$1
@@ -83,7 +82,7 @@ fi
 runtimeFiles=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeFiles")
 
 if [ -f "$imageDir" ]; then
-	echo "Found a file instead of directory in workspace, removing $imageDir ..."
+	echo; echo "[$scriptName] Found a file instead of directory in workspace, removing $imageDir ..."
 	executeExpression "rm -v '$imageDir'"
 fi
 
@@ -91,16 +90,19 @@ fi
 if [ -d "$imageDir" ]; then
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=$(eval "echo $fileName")
 		executeExpression "cp -v '$fileName' '$imageDir'"
 	done
+	echo
 
 else
 	echo; echo "[$scriptName] $imageDir does not exist, creating ${imageDir}, with default Dockerfile"; echo
 	executeExpression "mkdir -pv ${imageDir}"
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=$(eval "echo $fileName")
 		executeExpression "cp -v '$fileName' '$imageDir'"
@@ -125,8 +127,7 @@ RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	if [ ! -z "\$user" ]; then \\
 		userdel -f \$user ; \\
 	fi ;  \\
-	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
-	chown \$userName -R /solution
+	adduser \$userName --uid \$userID --disabled-password --gecos ""
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/
@@ -139,21 +140,19 @@ EOF
 ) | tee $imageDir/Dockerfile
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=${fileName##*/}
 		echo "COPY $fileName /solution/deploy/"
 		echo "COPY $fileName /solution/deploy/" >> $imageDir/Dockerfile
 	done
+	echo
 
 	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run"
 	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run" >> $imageDir/Dockerfile
 	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]'
 	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]' >> $imageDir/Dockerfile
 	echo
-fi
-
-if [ -d "automation" ]; then
-	executeExpression "cp -r 'automation' '$imageDir'"
 fi
 
 executeExpression "cp -r propertiesForContainerTasks $imageDir/properties"
@@ -164,7 +163,9 @@ else
 fi
 executeExpression "cd $imageDir"
 
-echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
+fi
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
 executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"

@@ -48,6 +48,9 @@ local.properties
 /*_virtualbox/
 /*_virtualbox.txt
 
+# VS Code
+.vscode/
+
 # CDAF Working Directories and Files
 /buildnumber.counter
 /TasksLocal/

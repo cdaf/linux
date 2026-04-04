@@ -31,8 +31,8 @@ function MASKED {
 }
 
 scriptName='dockerBuild.sh'
+buildCommand='docker build'
 
-echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"; echo
 echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
@@ -81,9 +81,13 @@ fi
 test="`docker buildx version 2>&1`"
 if [ $? -eq 0 ]; then
     buildx_enabled='yes'
-	echo "[$scriptName]  buildx                   : $(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+	echo "[$scriptName]  buildx/buildkit          : $(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
 else
-	echo "[$scriptName]  buildx                   : (not in use)"
+	echo "[$scriptName]  buildx/buildkit          : (not in use)"
+fi
+
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"
 fi
 
 echo
@@ -103,13 +107,15 @@ fi
 baseImage=$7
 if [ ! -z "$baseImage" ]; then
 	if [ ! -z "$CONTAINER_IMAGE" ]; then
-		echo "[$scriptName]  baseImage                : $baseImage (override environment variable '${CONTAINER_IMAGE}')"
+		baseImage=$(eval "echo $(echo ${CONTAINER_IMAGE})")
+		echo "[$scriptName]  baseImage                : $baseImage (override baseImage with environment variable CONTAINER_IMAGE')"
 	else
+		baseImage=$(eval "echo $(echo ${baseImage})")
 		echo "[$scriptName]  baseImage                : $baseImage"
 	fi
 else
 	if [ ! -z "$CONTAINER_IMAGE" ]; then
-		baseImage="$CONTAINER_IMAGE"
+		baseImage=$(eval "echo $(echo ${CONTAINER_IMAGE})")
 		echo "[$scriptName]  baseImage                : $baseImage (loaded from environment variable CONTAINER_IMAGE)"
 	else
 
@@ -178,13 +184,15 @@ else
 	fi
 fi
 
-echo; echo "[$scriptName] List existing images..."
-executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List existing images..."
+	executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+fi
 
-echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
+fi
 executeSuppress "docker system prune -f"
-
-buildCommand='docker build'
 
 if [ ! -z "$tag" ]; then
 	buildCommand+=" --build-arg BUILD_TAG=${tag}"
@@ -203,9 +211,12 @@ if [ ! -z "$userID" ]; then
 fi
 
 if [[ "$buildx_enabled" == 'yes' ]]; then
-	buildCommand+=" --load"
+	if [ ! -d "/tmp/docker-cache" ]; then
+		echo; echo "[$scriptName] Crfeate /tmp/docker-cache for buildx/buildkit"
+		executeExpression "mkdir -p /tmp/docker-cache"
+	fi
+	buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
 fi
-
 
 if [ ! -z "$optionalArgs" ]; then
 	buildCommand+=" ${optionalArgs}"
@@ -244,12 +255,14 @@ else # 2.8.0 default Dockerfilefile
 	dockerfile_name='Dockerfile-db-temp'
 	echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
 
+	if [ -z "$CONTAINER_IMAGE" ]; then
+		CONTAINER_IMAGE='docker.io/cdaf/linux:latest'
+	fi
+
 # Cannot indent heredoc
 (
 cat <<-EOF
-# DOCKER-VERSION 1.2.0
-ARG CONTAINER_IMAGE=docker.io/cdaf/linux:latest
-FROM \${CONTAINER_IMAGE}
+FROM ${baseImage}
 
 # Copy solution, provision and then build
 WORKDIR /solution
@@ -286,7 +299,9 @@ if [[ "$dockerfile_name" == 'Dockerfile-db-temp' ]]; then
 	executeExpression "rm -f $dockerfile_name"
 fi
 
-echo; echo "[$scriptName] List Resulting images..."
-executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List Resulting images..."
+	executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+fi
 
 echo; echo "[$scriptName] --- end ---"

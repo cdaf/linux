@@ -25,8 +25,7 @@ RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
 if [ ! -z "$user" ]; then \
 userdel -f $user ; \
 fi ;  \
-useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName ; \
-chown $userName -R /solution
+useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/

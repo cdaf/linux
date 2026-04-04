@@ -128,7 +128,8 @@ else
 			if [ ! -z "$runtimeImage" ]; then
 				echo "[$scriptName]  baseImage                : $baseImage (not supplied, using containerImage property)"
 			else
-				echo "[$scriptName]  baseImage                : (baseImage not supplied or determined, hardcoded image required in Dockerfile)"
+				baseImage='docker.io/cdaf/linux:latest'
+				echo "[$scriptName]  baseImage                : (baseImage not supplied or determined, set default)"
 			fi
 		fi
 	fi
@@ -255,10 +256,6 @@ else # 2.8.0 default Dockerfilefile
 	dockerfile_name='Dockerfile-db-temp'
 	echo; echo "[$scriptName] ./Dockerfile not found, creating default"; echo
 
-	if [ -z "$CONTAINER_IMAGE" ]; then
-		CONTAINER_IMAGE='docker.io/cdaf/linux:latest'
-	fi
-
 # Cannot indent heredoc
 (
 cat <<-EOF
@@ -276,7 +273,7 @@ RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 		userdel -f \$user ; \\
 	fi ;  \\
 	useradd -m -k /dev/null -u \$userID -s /usr/sbin/nologin -c "" \$userName ; \\
-	chown \$userName -R /solution
+	chown \$userName -R /solution/workspace
 
 USER \$userName
 

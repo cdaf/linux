@@ -112,10 +112,7 @@ else
 # Cannot indent heredoc
 (
 cat <<-EOF
-# DOCKER-VERSION 1.2.0
-# Allow override of image as environment variable
-ARG CONTAINER_IMAGE=docker.io/cdaf/linux:latest
-FROM \${CONTAINER_IMAGE}
+FROM ${CONTAINER_IMAGE}
 
 # Copy solution, provision and then build
 WORKDIR /solution

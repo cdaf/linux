@@ -69,7 +69,7 @@ for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name '*.sh
 done
 
 # Ant version lists to standard error
-test="`ant -version 2>&1`"
+test=$(ant -version 2>&1)
 exit_code=$?
 if [ $exit_code -eq 0 ]; then
 	IFS=' ' read -ra ADDR <<< $test

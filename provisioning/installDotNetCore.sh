@@ -6,8 +6,8 @@
 # Install runtime only
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -s -- 'no'
 
-# Install SDK with specific version
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -s -- 'no'
+# Install SDK with specific major version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -s -- 'no 10'
 
 function executeExpression {
 	echo "$1"

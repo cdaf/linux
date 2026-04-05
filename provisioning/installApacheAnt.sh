@@ -13,9 +13,8 @@ scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	version=$(curl -s https://downloads.apache.org/ant/ | grep 'Release Notes of Apache Ant')
-	version=${version//'<head>Release Notes of Apache Ant '/}
-	version=${version//'</head>'/}
+    URL="https://ant.apache.org/bindownload.cgi"
+	version=$(curl -sL "$URL" | grep -oP 'Apache Ant \K[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
 	echo "[$scriptName]   version    : $version (latest)"
 else
 	version="$1"

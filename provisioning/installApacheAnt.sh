@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Install latest version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -
+
+# Install specific version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- '1.10.16'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -63,13 +70,14 @@ done
 
 # Ant version lists to standard error
 test="`ant -version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Apache Ant install failed!"
-	exit 23700
-else
+exit_code=$?
+if [ $exit_code -eq 0 ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[3]}
 	echo "[$scriptName] Apache Ant version $test"
+else
+	echo "[$scriptName] Apache Ant install failed!"
+	exit $exit_code
 fi	
 
 echo "[$scriptName] --- end ---"

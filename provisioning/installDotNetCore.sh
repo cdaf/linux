@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # Install latest SDK version
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -
 
 # Install runtime only
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- 'no'
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -s -- 'no'
 
 # Install SDK with specific version
-# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- 'no'
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDotNetCore.sh | bash -s -- 'no'
 
 function executeExpression {
 	echo "$1"

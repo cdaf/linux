@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Install latest SDK version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -
+
+# Install runtime only
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- 'no'
+
+# Install SDK with specific version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- 'no'
+
 function executeExpression {
 	echo "$1"
 	eval "$1"
@@ -73,57 +82,10 @@ else
 	echo "[$scriptName]   version : $version"
 fi
 
-if [ "$version" == '2' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-2.2'
-	else
-		packageName='aspnetcore-runtime-2.2'
-	fi	
-elif [ "$version" == '3' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-3.1'
-	else
-		packageName='aspnetcore-runtime-3.1'
-	fi	
-elif [ "$version" == '5' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-5.0'
-	else
-		packageName='aspnetcore-runtime-5.0'
-	fi	
-elif [ "$version" == '6' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-6.0'
-	else
-		packageName='aspnetcore-runtime-6.0'
-	fi
-elif [ "$version" == '7' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-7.0'
-	else
-		packageName='aspnetcore-runtime-7.0'
-	fi
-elif [ "$version" == '8' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-8.0'
-	else
-		packageName='aspnetcore-runtime-8.0'
-	fi	
-elif [ "$version" == '9' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-9.0'
-	else
-		packageName='aspnetcore-runtime-9.0'
-	fi	
-elif [ "$version" == '10' ]; then
-	if [ "$sdk" == 'yes' ]; then
-		packageName='dotnet-sdk-10.0'
-	else
-		packageName='aspnetcore-runtime-10.0'
-	fi	
+if [ "$sdk" == 'yes' ]; then
+	packageName="dotnet-sdk-${version}.0"
 else
-	echo "[$scriptName] Version $version not supported!"
-	exit 6824
+	packageName="aspnetcore-runtime-${version}.0"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -183,6 +145,12 @@ fi
 
 # dotnet core
 test=$(dotnet --version 2>/dev/null)
-echo "[$scriptName] dotnet core : $test"
+exit_code=$?
+if [ $exit_code -eq 0 ]; then
+	echo "[$scriptName] dotnet core version ${test} installed"
+else
+	echo "[$scriptName] dotnet core failed!"
+	exit $exit_code
+fi
 
 echo; echo "[$scriptName] --- end ---"

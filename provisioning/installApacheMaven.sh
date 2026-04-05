@@ -71,7 +71,7 @@ if [ $exit_code -eq 0 ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	echo "Maven version ${ADDR[2]} installed."
 else
-	echo "    Maven instasll failed!"
+	echo "    Maven install failed!"
 	exit $exit_code
 fi
 

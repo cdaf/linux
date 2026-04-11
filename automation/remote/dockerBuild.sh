@@ -211,12 +211,14 @@ if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
 fi
 
-if [[ "$buildx_enabled" == 'yes' ]]; then
-	if [ ! -d "/tmp/docker-cache" ]; then
-		echo; echo "[$scriptName] Crfeate /tmp/docker-cache for buildx/buildkit"
-		executeExpression "mkdir -p /tmp/docker-cache"
+if [[ "$buildx_enabled" == 'yes' ]]; then # buildkit does not cache consistently without explicit local store
+	if ! command -v podman &> /dev/null; then # do not attempt to use with podman
+		if [ ! -d "/tmp/docker-cache" ]; then
+			echo; echo "[$scriptName] Crfeate /tmp/docker-cache for buildx/buildkit"
+			executeExpression "mkdir -p /tmp/docker-cache"
+		fi
+		buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
 	fi
-	buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
 fi
 
 if [ ! -z "$optionalArgs" ]; then

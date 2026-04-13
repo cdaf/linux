@@ -1,11 +1,51 @@
-# This file defines the automation root along with CD emulator value (solutionName)
+solutionName=all
+productName=Comprehensive Test
+
+# Global Error handling additional diagnostics
+# CDAF_ERROR_DIAG=df
+
+# containerBuild minimum configuration, if a Dockerfile is not found, a default file will be used
+# containerImage=cdaf/linux
+
+# containerBuild default process
+# containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
+
+# Immutable image based on the build artefacts
+# constructor=TasksLocal
+
+# CDAF_REGISTRY_URL=${CI_REGISTRY}
+# CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER
+# CDAF_REGISTRY_USER=${CI_REGISTRY_USER}
+# CDAF_REGISTRY_TOKEN=${CI_JOB_TOKEN}
+
+# artifactPrefix=0.0
 productVersion=0.0.1
-productName=My Product Name
-solutionName=myproduct
+# packageFeatures=minimal
 
-# containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
-# containerImage=ubuntu@sha256:6d0e0c26489e33f5a6f0020edface2727db9489744ecc9b4f50c7fa671f23c49
+# imageBuild minimum configuration, if a Dockerfile is not found, a default file will be created
+# buildImage=cdaf/linux
 
-# imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage
+# imageBuild default process
+# imageBuild="$CDAF_CORE/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
+# CDAF_DOCKER_REQUIRED=yes
 
-# processSequence=localTasks.sh remoteTasks.sh
+# defaultBranch=main
+# defaultEnvironment=DESKTOP
+
+# gitRemoteURL=https://github.com/cdaf/${SOLUTION}.git
+# gitUserNameEnvVar=${GIT_USER}
+# gitUserPassEnvVar=${GIT_PASS}
+# gitCustomCleanup="$AUTOMATIONROOT/buildandpackage/clean.sh"
+
+# processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
+
+# containerDeploy minimal config, if directory containerDeploy is found, a customer image build will be attempted
+# runtimeImage=cdaf/linux
+
+# containerDeploy default process
+# containerDeploy="${CDAF_CORE}/containerDeploy.sh" "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"
+# CDAF_HOME_MOUNT=no
+
+# containerDeploy including additional files in image, and retain the resulting image
+# runtimeFiles=$WORKSPACE_ROOT/release.sh $CDAF_CORE/sendCrypt.sh
+# runtimeRetain=yes

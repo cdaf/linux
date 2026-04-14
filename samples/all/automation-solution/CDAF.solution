@@ -15,7 +15,8 @@ solutionName=all
 # CDAF_PUSH_REGISTRY_USER=${CI_REGISTRY_USER}
 # CDAF_PUSH_REGISTRY_TOKEN=${CI_JOB_TOKEN}
 
+# gitUserNameEnvVar & gitUserPassEnvVar are not required for GitLab as the URL contains the token.
 # gitRemoteURL=${CI_REPOSITORY_URL}
-# gitUserNameEnvVar=gitlab-ci-token
-# gitUserPassEnvVar=${CI_JOB_TOKEN}
+# gitUserNameEnvVar=git-user-name
+# gitUserPassEnvVar=git-user-token
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh

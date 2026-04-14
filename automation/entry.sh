@@ -246,10 +246,7 @@ else
 			fi
 			if [ -z "${headAttached}" ]; then
 
-				if [ -z "$userName" ]; then
-					echo "[$scriptName] Workspace is not a Git repository or has detached head, but git credentials not set, skipping ..."; echo
-					skipRemoteBranchCheck='yes'
-				else
+				if [[ "$gitRemoteURL" == *"@"* ]] || [[ -n "$userName" ]]; then
 					if [ -z "$HOME" ]; then
 						tempDir="${TEMP}/.cdaf-cache"
 					else
@@ -284,6 +281,9 @@ else
 					executeExpression "git pull '${gitRemoteURL}'"
 					echo; echo "[$scriptName] Load Remote branches using cache (git ls-remote --heads ${gitRemoteURL})"; echo
 					lsRemote=$(git ls-remote --heads "${gitRemoteURL}")
+				else
+					echo "[$scriptName] Workspace is not a Git repository or has detached head, but git credentials not set, skipping ..."; echo
+					skipRemoteBranchCheck='yes'
 				fi
 
 			else

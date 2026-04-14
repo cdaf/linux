@@ -1,7 +1,7 @@
 # This file defines the automation root along with CD emulator value (solutionName)
 productVersion=0.0.1
-productName=My Product Name
-solutionName=myproduct
+productName=Comprehensive Sample Set
+solutionName=all
 
 # containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
 # containerImage=ubuntu@sha256:6d0e0c26489e33f5a6f0020edface2727db9489744ecc9b4f50c7fa671f23c49
@@ -9,3 +9,13 @@ solutionName=myproduct
 # imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage
 
 # processSequence=localTasks.sh remoteTasks.sh
+
+# CDAF_PUSH_REGISTRY_URL=${CI_REGISTRY}
+# CDAF_PUSH_REGISTRY_TAG=${semver} latest
+# CDAF_PUSH_REGISTRY_USER=${CI_REGISTRY_USER}
+# CDAF_PUSH_REGISTRY_TOKEN=${CI_JOB_TOKEN}
+
+# gitRemoteURL=${CI_REPOSITORY_URL}
+# gitUserNameEnvVar=gitlab-ci-token
+# gitUserPassEnvVar=${CI_JOB_TOKEN}
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh

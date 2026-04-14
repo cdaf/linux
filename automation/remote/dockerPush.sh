@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+### Usage examples
+
+## Nexus passing credentials as arguments
+# $CDAF_CORE/dockerPush.sh "${id}:${BUILDNUMBER}" "${SOLUTION}" "${semver} latest" "${NEXUS_REGISTRY_PASS}" "${NEXUS_REGISTRY_USER}" "${NEXUS_REGISTRY}"
+
+## GitLab using CDAF.solution properties, loading the in-built credentials set by gitlab
+# CDAF_PUSH_REGISTRY_URL=${CI_REGISTRY}
+# CDAF_PUSH_REGISTRY_TAG=${semver} latest
+# CDAF_PUSH_REGISTRY_USER=${CI_REGISTRY_USER}
+# CDAF_PUSH_REGISTRY_TOKEN=${CI_JOB_TOKEN}
+
+# Note the registryContext is prefixed with the GitLab group name
+# $CDAF_CORE/dockerPush.sh "${id}:${BUILDNUMBER}" "my-group/${SOLUTION}"
+
+## DockerHub
+
 function executeExpression {
 	echo "$1"
 	eval $1

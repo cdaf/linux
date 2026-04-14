@@ -228,6 +228,7 @@ else
 						ERRMSG "[GIT_CLEANUP]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!" 6921
 					fi
 					userPass=$(eval "echo $gitUserPassEnvVar")
+					userPass=$(printf "%s" "$userPass" | od -An -tx1 | tr ' ' % | tr -d '\n') # URL encode
 					if [ -z "$userPass" ]; then
 						echo "[$scriptName]   $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
 					else

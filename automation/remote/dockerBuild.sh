@@ -270,6 +270,8 @@ WORKDIR /solution
 ARG userName
 ARG userID
 
+# Move to subdirectory for build, i.e. /solution/workspace
+WORKDIR /solution/workspace
 RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	if [ ! -z "\$user" ]; then \\
 		userdel -f \$user ; \\
@@ -278,9 +280,6 @@ RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	chown \$userName -R /solution/workspace
 
 USER \$userName
-
-# Move to subdirectory for build, i.e. /solution/workspace
-WORKDIR /solution/workspace
 
 CMD ["sleep", "infinity"]
 

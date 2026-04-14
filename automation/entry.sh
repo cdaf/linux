@@ -215,24 +215,27 @@ else
 		if [ -z "$gitRemoteURL" ]; then
 			echo "[$scriptName] gitRemoteURL defined in $SOLUTIONROOT/CDAF.solution but not unresolved, skipping clean-up ..."
 		else
-			echo "[$scriptName] gitRemoteURL = ${gitRemoteURL}, perform branch cleanup ..."
-			if [ -z "$gitUserNameEnvVar" ]; then
-				echo "[$scriptName]   gitRemoteURL defined, but gitUserNameEnvVar not defined, relying on current workspace being up to date"
+			if [[ "$gitRemoteURL" == *"@"* ]]; then
+				echo "[$scriptName] gitRemoteURL includes credentials, do not attempt to load from properties ..."
 			else
-				userName=$(eval "echo $gitUserNameEnvVar")
-				if [ -z "$userName" ]; then
-					echo "[$scriptName]   $gitUserNameEnvVar contains no value, relying on current workspace being up to date"
+				echo "[$scriptName] gitRemoteURL = ${gitRemoteURL}, perform branch cleanup ..."
+				if [ -z "$gitUserNameEnvVar" ]; then
+					echo "[$scriptName]   gitRemoteURL defined, but gitUserNameEnvVar not defined, relying on current workspace being up to date"
 				else
-					userName=${userName//@/%40}
-					if [ -z "$gitUserPassEnvVar" ]; then
-						ERRMSG "[GIT_CLEANUP]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!" 6921
-					fi
-					userPass=$(eval "echo $gitUserPassEnvVar")
-					userPass=$(printf "%s" "$userPass" | od -An -tx1 | tr ' ' % | tr -d '\n') # URL encode
-					if [ -z "$userPass" ]; then
-						echo "[$scriptName]   $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
+					userName=$(eval "echo $gitUserNameEnvVar")
+					if [ -z "$userName" ]; then
+						echo "[$scriptName]   $gitUserNameEnvVar contains no value, relying on current workspace being up to date"
 					else
-						gitRemoteURL=$(echo "https://${userName}:${userPass}@${gitRemoteURL//https:\/\/}")
+						userName=${userName//@/%40}
+						if [ -z "$gitUserPassEnvVar" ]; then
+							ERRMSG "[GIT_CLEANUP]   gitUserNameEnvVar defined, but gitUserPassEnvVar not defined in $SOLUTIONROOT/CDAF.solution!" 6921
+						fi
+						userPass=$(eval "echo $gitUserPassEnvVar")
+						if [ -z "$userPass" ]; then
+							echo "[$scriptName]   $gitUserPassEnvVar contains no value, relying on current workspace being up to date"
+						else
+							gitRemoteURL=$(echo "https://${userName}:${userPass}@${gitRemoteURL//https:\/\/}")
+						fi
 					fi
 				fi
 			fi

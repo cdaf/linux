@@ -12,6 +12,8 @@ stages:
 #  - group: Git Reader
   jobs:
   - template: templates/azure-pipelines-build-template.yml
+    parameters:
+      displayName: CDAF build and Package
 
 - stage: TEST
   displayName: User Acceptence Test
@@ -22,7 +24,7 @@ stages:
   jobs:
   - template: templates/azure-pipelines-deployment-template.yml
     parameters:
-      displayName: CD
+      displayName: User Acceptence Test
       environment: TEST
 
 - stage: PROD
@@ -34,5 +36,5 @@ stages:
   jobs:
   - template: templates/azure-pipelines-deployment-template.yml
     parameters:
-      displayName: CD
+      displayName: Production Gated Deployment
       environment: PROD

@@ -6,6 +6,8 @@ jobs:
   build:
     name: Build and Unit Test
     runs-on: ubuntu-latest
+# Self-hosted agent
+#	runs-on: ubuntu2404-docker 
     steps:
       - name: Checkout
         uses: actions/checkout@v4

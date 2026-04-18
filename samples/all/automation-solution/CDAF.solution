@@ -8,15 +8,23 @@ solutionName=all
 
 # imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage
 
-# processSequence=localTasks.sh remoteTasks.sh
+# processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
 # CDAF_PUSH_REGISTRY_URL=${CI_REGISTRY}
 # CDAF_PUSH_REGISTRY_TAG=${semver} latest
 # CDAF_PUSH_REGISTRY_USER=${CI_REGISTRY_USER}
 # CDAF_PUSH_REGISTRY_TOKEN=${CI_JOB_TOKEN}
 
-# gitUserNameEnvVar & gitUserPassEnvVar are not required for GitLab as the URL contains the token.
+# GitLab does not require gitUserNameEnvVar & gitUserPassEnvVar, the URL contains the user and token.
 # gitRemoteURL=${CI_REPOSITORY_URL}
-# gitUserNameEnvVar=git-user-name
-# gitUserPassEnvVar=git-user-token
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
+
+# GitHub Workspace is in attached head, so don't need credentials
+# gitRemoteURL=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
+
+# Azure DevOps
+# gitRemoteURL=${Build.Repository.Uri}
+# gitUserNameEnvVar=.
+# gitUserPassEnvVar=${SYSTEM_ACCESSTOKEN}
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh

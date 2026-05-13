@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Install Default Tomcat
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/InstallApacheTomcat.sh | bash -
+
+# Install specific version, in named location, with service account and check from media cache
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/InstallApacheTomcat.sh | bash -s -- '10.1.55 /opt/tomcat tomcat /.provision'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"

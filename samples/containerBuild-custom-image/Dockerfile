@@ -14,13 +14,16 @@ RUN curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning.sh 
 RUN base.sh curl
 
 # Prepare for non-root build
+WORKDIR /solution/workspace
 ARG userName
 ARG userID
-RUN useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
-RUN chown $userName:$userName -R /solution
-USER $userName
+RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
+if [ ! -z "$user" ]; then \
+userdel -f $user ; \
+fi ;  \
+useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
 
-# Move to subdirectory for build, i.e. /solution/workspace
-WORKDIR /solution/workspace
+RUN chown $userName:$userName -R /solution/workspace
+USER $userName
 
 CMD ["sleep", "infinity"]

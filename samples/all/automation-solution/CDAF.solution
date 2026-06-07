@@ -1,51 +1,30 @@
-solutionName=all
-productName=Comprehensive Test
-
-# Global Error handling additional diagnostics
-# CDAF_ERROR_DIAG=df
-
-# containerBuild minimum configuration, if a Dockerfile is not found, a default file will be used
-# containerImage=cdaf/linux
-
-# containerBuild default process
-# containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
-
-# Immutable image based on the build artefacts
-# constructor=TasksLocal
-
-# CDAF_REGISTRY_URL=${CI_REGISTRY}
-# CDAF_REGISTRY_TAG=${CI_REGISTRY}/linux/${SOLUTION}:$BUILDNUMBER
-# CDAF_REGISTRY_USER=${CI_REGISTRY_USER}
-# CDAF_REGISTRY_TOKEN=${CI_JOB_TOKEN}
-
-# artifactPrefix=0.0
+# This file defines the automation root along with CD emulator value (solutionName)
 productVersion=0.0.1
-# packageFeatures=minimal
+productName=Comprehensive Sample Set
+solutionName=all
 
-# imageBuild minimum configuration, if a Dockerfile is not found, a default file will be created
-# buildImage=cdaf/linux
+# containerBuild=./automation/processor/containerBuild.sh $SOLUTION $BUILDNUMBER $REVISION $ACTION
+# containerImage=ubuntu@sha256:6d0e0c26489e33f5a6f0020edface2727db9489744ecc9b4f50c7fa671f23c49
 
-# imageBuild default process
-# imageBuild="$CDAF_CORE/imageBuild.sh" ${SOLUTION}_${REVISION} ${BUILDNUMBER} $runtimeImage $constructor
-# CDAF_DOCKER_REQUIRED=yes
-
-# defaultBranch=main
-# defaultEnvironment=DESKTOP
-
-# gitRemoteURL=https://github.com/cdaf/${SOLUTION}.git
-# gitUserNameEnvVar=${GIT_USER}
-# gitUserPassEnvVar=${GIT_PASS}
-# gitCustomCleanup="$AUTOMATIONROOT/buildandpackage/clean.sh"
+# imageBuild=$AUTOMATIONROOT/remote/imageBuild.sh ${SOLUTION}_${REVISION} ${BUILDNUMBER} $containerImage
 
 # processSequence=localTasks.sh remoteTasks.sh containerTasks.sh
 
-# containerDeploy minimal config, if directory containerDeploy is found, a customer image build will be attempted
-# runtimeImage=cdaf/linux
+# CDAF_PUSH_REGISTRY_URL=${CI_REGISTRY}
+# CDAF_PUSH_REGISTRY_TAG=${semver} latest
+# CDAF_PUSH_REGISTRY_USER=${CI_REGISTRY_USER}
+# CDAF_PUSH_REGISTRY_TOKEN=${CI_JOB_TOKEN}
 
-# containerDeploy default process
-# containerDeploy="${CDAF_CORE}/containerDeploy.sh" "${ENVIRONMENT}" "${RELEASE}" "${SOLUTION}" "${BUILDNUMBER}" "${SOLUTION}_${REVISION}_containerdeploy"
-# CDAF_HOME_MOUNT=no
+# GitLab does not require gitUserNameEnvVar & gitUserPassEnvVar, the URL contains the user and token.
+# gitRemoteURL=${CI_REPOSITORY_URL}
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
 
-# containerDeploy including additional files in image, and retain the resulting image
-# runtimeFiles=$WORKSPACE_ROOT/release.sh $CDAF_CORE/sendCrypt.sh
-# runtimeRetain=yes
+# GitHub Workspace is in attached head, so don't need credentials
+# gitRemoteURL=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
+
+# Azure DevOps
+# gitRemoteURL=${Build.Repository.Uri}
+# gitUserNameEnvVar=.
+# gitUserPassEnvVar=${SYSTEM_ACCESSTOKEN}
+# gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh

@@ -46,30 +46,50 @@ TEST:
   only:
     - main
 
+# Commented lines are support for semver setting release
 PROD:
   stage: deploy
   tags:
     - bash
   script: |
     ./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}
+#    export ARTIFACT_PREFIX=$(grep 'artifactPrefix=' ./TasksLocal/manifest.txt | cut -d'=' -f2)
+#    export BUILDNUMBER=$(grep 'BUILDNUMBER=' ./TasksLocal/manifest.txt | cut -d'=' -f2)
+#    echo "RELEASE_VERSION=${ARTIFACT_PREFIX}.${BUILDNUMBER}" >> release.env
+#    echo ; echo "cat release.env" ; echo
+#    cat release.env
   when: manual
   environment: staging
   dependencies:
     - CI
   only:
     - main
+#  artifacts:
+#    reports:
+#      dotenv: release.env  # This makes the variable available to the release keyword
 
-# To apply a hard-dependency on the manual gate, use "needs"
-#VERIFY:
-#  stage: publish
-#  image: cdaf/linux
-#  script: |
-#    ./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}
-#  dependencies:
-#    - CI
-#    - PROD
-#  needs:
-#    - CI
-#    - PROD
-#  only:
-#    - main
+# RELEASE:
+#   stage: .post
+#   tags:
+#    - ubuntu2404-shell
+#   before_script:
+#     - |
+#       GLAB_VERSION="1.58.0"
+#       if ! command -v glab &>/dev/null || ! glab version | grep -qE '([2-9]\.|1\.[6-9][0-9]\.|1\.5[89]\.)'; then
+#         echo "Installing glab ${GLAB_VERSION}..."
+#         curl -sLO "https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VERSION}/downloads/glab_${GLAB_VERSION}_linux_amd64.deb"
+#         sudo dpkg -i "glab_${GLAB_VERSION}_linux_amd64.deb"
+#         rm "glab_${GLAB_VERSION}_linux_amd64.deb"
+#       fi
+#   script:
+#     - echo "Creating release $RELEASE_VERSION"
+#   needs:
+#     - job: PROD
+#       artifacts: true     # this loads release.env so $RELEASE_VERSION is populated
+#   only:
+#     - main
+#   release:
+#     name: "Release $RELEASE_VERSION"
+#     tag_name: "$RELEASE_VERSION"
+#     description: "Automated release $RELEASE_VERSION from pipeline $CI_PIPELINE_ID"
+#     ref: '$CI_COMMIT_SHA'

@@ -1,6 +1,11 @@
 name: CDAF Targetless CD using hosted agent
-# This workflow is triggered on pushes to the repository.
-on: [push]
+# This workflow is triggered on pushes to the repository and pull requests.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
 
 #env:  # Global environment variables
 #  ANYPOINT_ORG_ID: ${{ vars.ANYPOINT_ORG_ID }}

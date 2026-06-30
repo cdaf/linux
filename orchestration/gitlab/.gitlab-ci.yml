@@ -34,6 +34,10 @@ CI:
       - release.sh
     reports:
       junit: "**/test-results/*.xml"
+      coverage_report:
+        coverage_format: cobertura  # or jacoco
+        path: "**/coverage/*.xml"
+  coverage: '/All files.*?\|.*?(\d+\.\d+)%/'       # ← Add this for % display
 
 TEST:
   stage: test
@@ -66,7 +70,7 @@ PROD:
     - main
 #  artifacts:
 #    reports:
-#      dotenv: release.env  # This makes the variable available to the release keyword
+#      dotenv: release.env  # This makes the variable available to the release keyword (see above)
 
 # RELEASE:
 #   stage: .post

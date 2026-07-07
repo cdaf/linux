@@ -78,13 +78,37 @@ else
 	echo "[$scriptName]  optionalArgs             : $optionalArgs"
 fi
 
-test="`docker buildx version 2>&1`"
-if [ $? -eq 0 ]; then
-    buildx_enabled='yes'
-	echo "[$scriptName]  buildx/buildkit          : $(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+# TEST 1: Is 'docker' actually Podman?
+# check --version OR look for 'podman/buildah' inside 'docker info' to catch the RHEL wrapper
+if docker --version 2>&1 | grep -qi "podman" || docker info 2>&1 | grep -qiE "podman|buildah"; then
+    engine="podman"
+	builder='buildah'
+
+# TEST 2: Is it Docker with the modern containerd image store?
 else
-	echo "[$scriptName]  buildx/buildkit          : (not in use)"
+    test="`docker buildx version 2>&1`"
+    if [ $? -eq 0 ]; then
+    	builder='buildx '
+    	builder+=$(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+    else
+    	builder="`docker --version 2>&1`"
+    fi
+	if docker info 2>&1 | grep -qi "io.containerd.snapshotter"; then
+	    engine="docker-containerd"
+	    user_local_cache='yes' # If buildx and containerd, use local cache to avoid CI rebuilds
+	# FALLBACK: It's legacy Docker Engine
+	else
+	    engine="docker-legacy"
+	fi
 fi
+
+if [ $? -eq 0 ]; then
+	echo "[$scriptName]  container ecosystem      : $engine / $builder"
+else
+	echo "[$scriptName]  container ecosystem      : (not in use)"
+fi
+
+echo "[$scriptName]  DOCKER_HOST              : $DOCKER_HOST"
 
 if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
 	echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"
@@ -211,14 +235,8 @@ if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
 fi
 
-if [[ "$buildx_enabled" == 'yes' ]]; then # buildkit does not cache consistently without explicit local store
-	if ! command -v podman &> /dev/null; then # do not attempt to use with podman
-		if [ ! -d "/tmp/docker-cache" ]; then
-			echo; echo "[$scriptName] Crfeate /tmp/docker-cache for buildx/buildkit"
-			executeExpression "mkdir -p /tmp/docker-cache"
-		fi
-		buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
-	fi
+if [[ "$user_local_cache" == 'yes' ]]; then # buildkit/containerd does not cache consistently without explicit local store
+	buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
 fi
 
 if [ ! -z "$optionalArgs" ]; then

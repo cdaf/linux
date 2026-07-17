@@ -14,7 +14,7 @@ scriptName='soapui.sh'
 echo "[scriptName] : --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version='5.5.0'
+	version='5.10.0'
 	echo "[$scriptName]   version    : $version (not supplied, set to default)"
 else
 	echo "[$scriptName]   version    : $version"

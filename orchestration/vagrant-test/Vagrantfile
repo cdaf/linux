@@ -11,7 +11,7 @@
 if ENV['OVERRIDE_IMAGE']
   vagrantBox = ENV['OVERRIDE_IMAGE']
 else
-  vagrantBox = 'cdaf/Ubuntu20'
+  vagrantBox = 'cdaf/Ubuntu22'
 end
 
 # If this environment variable is set, then the location defined will be used for media

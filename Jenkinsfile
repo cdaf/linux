@@ -43,23 +43,6 @@ timeout(time: 6, unit: 'HOURS') {
         '''
       }
 
-      stage ('Test the CDAF sample on Ubuntu 18.04 LTS') {
-        sh '''
-          echo "Test the CDAF sample on Ubuntu 18.04 LTS"
-          export OVERRIDE_IMAGE="cdaf/Ubuntu18"
-          vagrant up
-        '''
-      }
-
-      stage ('Test the CDAF sample on Ubuntu 20.04 LTS') {
-        sh '''
-          echo "Test the CDAF sample on Ubuntu 20.04 LTS"
-          vagrant destroy -f
-          export OVERRIDE_IMAGE="cdaf/Ubuntu20"
-          vagrant up
-        '''
-      }
-
       stage ('Test the CDAF sample on Ubuntu 22.04 LTS') {
         sh '''
           echo "Test the CDAF sample on Ubuntu 22.04 LTS"

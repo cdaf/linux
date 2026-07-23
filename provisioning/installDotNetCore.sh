@@ -149,8 +149,7 @@ exit_code=$?
 if [ $exit_code -eq 0 ]; then
 	echo "[$scriptName] dotnet core version ${test} installed"
 else
-	echo "[$scriptName] dotnet core failed!"
-	exit $exit_code
+	echo "[$scriptName][WARN] dotnet core version (dotnet --version) not detected, restart maybe required. Exit code was ${exit_code}"
 fi
 
 echo; echo "[$scriptName] --- end ---"

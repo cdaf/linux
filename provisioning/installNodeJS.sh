@@ -162,7 +162,7 @@ scriptName='installNodeJS.sh'
 echo; echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version="21"
+	version="24"
 	echo "[$scriptName]   version    : $version (default to latest)"
 else
 	echo "[$scriptName]   version    : $version"

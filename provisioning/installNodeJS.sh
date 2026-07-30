@@ -162,7 +162,29 @@ scriptName='installNodeJS.sh'
 echo; echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version="24"
+
+	INDEX_URL="https://nodejs.org/dist/index.json"
+	DEFAULT_LTS="24"
+	 
+	if ! command -v curl &>/dev/null || ! command -v jq &>/dev/null; then
+	  echo "$DEFAULT_LTS"
+	  exit 0
+	fi
+	 
+	# The index is sorted newest-first. Each entry has an "lts" field that is
+	# either false or the LTS codename (e.g. "Iron"). We grab the first entry
+	# whose "lts" is not false/null, then strip the leading "v" and minor/patch.
+	LTS_VERSION=$(curl -fsSL "$INDEX_URL" 2>/dev/null \
+	  | jq -r '[.[] | select(.lts != false)][0].version' 2>/dev/null)
+	 
+	if [[ -z "$LTS_VERSION" || "$LTS_VERSION" == "null" ]]; then
+	  version="$DEFAULT_LTS"
+    else
+		# Strip leading "v" and everything after the major version number.
+		LTS_MAJOR="${LTS_VERSION#v}"
+		LTS_MAJOR="${LTS_MAJOR%%.*}"
+		version="$LTS_MAJOR"
+	fi
 	echo "[$scriptName]   version    : $version (default to latest)"
 else
 	echo "[$scriptName]   version    : $version"

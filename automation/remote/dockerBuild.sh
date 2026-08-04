@@ -108,7 +108,9 @@ else
 	echo "[$scriptName]  container ecosystem      : (not in use)"
 fi
 
-echo "[$scriptName]  DOCKER_HOST              : $DOCKER_HOST"
+if [ ! -z "DOCKER_HOST" ]; then
+	echo "[$scriptName]  DOCKER_HOST              : $DOCKER_HOST"
+fi
 
 if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
 	echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"

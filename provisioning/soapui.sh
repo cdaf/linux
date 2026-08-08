@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# Usage:
+#   ./soapui.sh              # latest release
+#   ./soapui.sh latest       # latest release (explicit)
+#   ./soapui.sh 5.9.1        # specific version
+#   ./soapui.sh v5.9.1       # 'v' prefix also accepted
+
+# Install (the latest package)
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/soapui.sh | bash -
+
+# Install specific version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/soapui.sh | bash -s -- '5.9.1'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -12,12 +24,14 @@ function executeExpression {
 scriptName='soapui.sh'
 
 echo "[scriptName] : --- start ---"
-version="$1"
-if [ -z "$version" ]; then
-	version='5.5.0'
-	echo "[$scriptName]   version    : $version (not supplied, set to default)"
+version="${1:-latest}"
+if [[ "$version" == "latest" ]]; then
+	echo "[$scriptName]   version    : $version (not supplied, set to ${version})"
+	API_URL="https://api.github.com/repos/SmartBear/soapui/releases/${version}"
 else
 	echo "[$scriptName]   version    : $version"
+    TAG="${version#v}"
+    API_URL="https://api.github.com/repos/SmartBear/soapui/releases/tags/v${TAG}"
 fi
 
 mediaCache="$2"
@@ -39,13 +53,23 @@ if [ ! -d "$mediaCache" ]; then
 	executeExpression "mkdir $mediaCache"
 fi
 
-# Set parameters
-executeExpression "soapuiVersion=\"SoapUI-${version}\""
-executeExpression "soapuiSource=\"${soapuiVersion}-linux-bin.tar.gz\""
+BODY=$(curl -fsSL "$API_URL")
+ 
+# The actual binary links live inside the release notes body as plain
+# markdown links to dl.eviware.com — they are not attached GitHub assets.
+DL_URL=$(echo "$BODY" \
+  | grep -oE 'https://dl\.eviware\.com/soapuios/[0-9.]+/SoapUI-[0-9.]+-linux-bin\.tar\.gz' \
+  | head -n1)
+ 
+if [[ -z "$DL_URL" ]]; then
+  echo "Could not find a linux-bin.tar.gz link for version '$VERSION'." >&2
+  echo "Check available tags: https://github.com/SmartBear/soapui/tags" >&2
+  exit 1
+fi
 
 if [ ! -f ${mediaCache}/${soapuiSource} ]; then
 	echo "[$scriptName] Media (${mediaCache}/${soapuiSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"https://s3.amazonaws.com/downloads.eviware/soapuios/${version}/${soapuiSource}\""
+	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"${DL_URL}""
 fi
 
 executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."

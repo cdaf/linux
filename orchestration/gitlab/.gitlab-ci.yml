@@ -11,7 +11,12 @@ CI:
 
   # To use native container runner with CDAF pre-installed
   image: cdaf/linux
-  script: entry.sh ${CI_PIPELINE_IID} ${CI_COMMIT_BRANCH}
+  script: |
+    if [ -z "$CI_COMMIT_TAG" ]; then
+      entry.sh ${CI_PIPELINE_IID} ${CI_COMMIT_BRANCH}
+    else
+      echo "Release Tag Created: $CI_COMMIT_TAG"
+    fi
   # Self-hosted Runner
   # tags:
   #   - bash
@@ -72,28 +77,18 @@ PROD:
 #    reports:
 #      dotenv: release.env  # This makes the variable available to the release keyword (see above)
 
-# RELEASE:
-#   stage: .post
-#   tags:
-#    - ubuntu2404-shell
-#   before_script:
-#     - |
-#       GLAB_VERSION="1.58.0"
-#       if ! command -v glab &>/dev/null || ! glab version | grep -qE '([2-9]\.|1\.[6-9][0-9]\.|1\.5[89]\.)'; then
-#         echo "Installing glab ${GLAB_VERSION}..."
-#         curl -sLO "https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VERSION}/downloads/glab_${GLAB_VERSION}_linux_amd64.deb"
-#         sudo dpkg -i "glab_${GLAB_VERSION}_linux_amd64.deb"
-#         rm "glab_${GLAB_VERSION}_linux_amd64.deb"
-#       fi
-#   script:
-#     - echo "Creating release $RELEASE_VERSION"
-#   needs:
-#     - job: PROD
-#       artifacts: true     # this loads release.env so $RELEASE_VERSION is populated
-#   only:
-#     - main
-#   release:
-#     name: "Release $RELEASE_VERSION"
-#     tag_name: "$RELEASE_VERSION"
-#     description: "Automated release $RELEASE_VERSION from pipeline $CI_PIPELINE_ID"
-#     ref: '$CI_COMMIT_SHA'
+#RELEASE:
+#  stage: .post
+#  image: registry.gitlab.com/gitlab-org/release-cli:latest
+#  needs:
+#    - job: PUSH
+#      artifacts: true     # loads release.env so $RELEASE_VERSION is populated
+#  only:
+#    - main
+#  script:
+#    - echo "Creating release $RELEASE_VERSION"
+#  release:
+#    name: "Release $RELEASE_VERSION"
+#    tag_name: "$RELEASE_VERSION"
+#    description: "Automated release $RELEASE_VERSION from pipeline $CI_PIPELINE_ID"
+#    ref: '$CI_COMMIT_SHA'

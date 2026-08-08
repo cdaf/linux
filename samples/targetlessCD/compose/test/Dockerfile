@@ -12,7 +12,14 @@ COPY executeTest.sh .
 # Create external user in image
 ARG userName
 ARG userID
-RUN useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
+
+RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
+	if [ ! -z "$user" ]; then \
+		userdel -f $user ; \
+	fi ;  \
+	useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName ; \
+	chown $userName -R /solution/workspace
+
 RUN chown $userName:$userName -R /solution
 USER $userName
 

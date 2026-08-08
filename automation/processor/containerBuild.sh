@@ -103,7 +103,6 @@ if [ ! -z "$imageName" ]; then
 	buildImage="${imageName}_$(echo "$REVISION" | awk '{print tolower($0)}')_containerbuild"
 	echo "[$scriptName]   buildImage             : $buildImage"
 
-	echo "[$scriptName]   DOCKER_HOST            : $DOCKER_HOST"
 	echo "[$scriptName]   pwd                    : $(pwd)"
 	echo "[$scriptName]   hostname               : $(hostname)"
 	echo "[$scriptName]   whoami                 : $(whoami)"

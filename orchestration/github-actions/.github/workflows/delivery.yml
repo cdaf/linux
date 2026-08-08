@@ -28,7 +28,7 @@ jobs:
 #	runs-on: ubuntu2404-docker 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Fetch all history for all tags and branches
         run: |
@@ -109,7 +109,7 @@ jobs:
 #          fi
 
       - name: Artifact Retention
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deploy
           path: release.sh
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy
           path: drop
@@ -141,7 +141,7 @@ jobs:
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Download Artifacts
-#        uses: actions/download-artifact@v4
+#        uses: actions/download-artifact@v8
 #        with:
 #          name: deploy
 #          path: drop
@@ -161,7 +161,7 @@ jobs:
       packages: write
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy
           path: drop

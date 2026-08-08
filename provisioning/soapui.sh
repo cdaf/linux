@@ -69,7 +69,7 @@ fi
 
 if [ ! -f ${mediaCache}/${soapuiSource} ]; then
 	echo "[$scriptName] Media (${mediaCache}/${soapuiSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"${DL_URL}""
+	executeExpression "curl -s -o ${mediaCache}/${soapuiSource} \"${DL_URL}\""
 fi
 
 executeExpression "cp \"${mediaCache}/${soapuiSource}\" ."

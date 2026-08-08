@@ -27,7 +27,7 @@ function executeExpression {
 }
 scriptName='soapui.sh'
 
-echo "[$scriptName] : --- start ---"
+echo "[$scriptName] --- start ---"
 
 version=""
 mediaCache=""
@@ -136,4 +136,4 @@ executeExpression "$elevate mv $soapuiVersion /opt/"
 # Configure to directory on the default PATH
 executeExpression "$elevate ln -s /opt/$soapuiVersion/ /opt/soapui"
 
-echo "[$scriptName] : --- end ---"
+echo "[$scriptName] --- end ---"

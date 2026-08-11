@@ -52,18 +52,18 @@ scriptName='dockerPush.sh'
 echo "[$scriptName] --- start ---"
 imageTag=$(echo "$1" | tr '[:upper:]' '[:lower:]') # imageBuild processes in branches as lowercase
 if [ -z "$imageTag" ]; then
-	echo "[$scriptName] imageTag not supplied!"
+	echo "[$scriptName]  imageTag not supplied!"
 	exit 2501
 else
-	echo "[$scriptName] imageTag        : $imageTag"
+	echo "[$scriptName]  imageTag        : $imageTag"
 fi
 
 registryContext=$2
 if [ -z "$registryContext" ]; then
-	echo "[$scriptName] registryContext not supplied!"
+	echo "[$scriptName]  registryContext not supplied!"
 	exit 2502
 else
-	echo "[$scriptName] registryContext : $registryContext"
+	echo "[$scriptName]  registryContext : $registryContext"
 fi
 
 # 2.6.0 Push Private Registry
@@ -76,71 +76,77 @@ if [ ! -f "$manifest" ]; then
 	fi
 fi
 
+productVersion=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "productVersion")")
+echo "[$scriptName]  productVersion  : $productVersion (loaded from ${manifest})"
+
+artifactPrefix=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "artifactPrefix")")
+echo "[$scriptName]  artifactPrefix  : $artifactPrefix (loaded from ${manifest})"
+
 # 2.6.0 CDAF Solution property support, with environment variable override.
 registryTags=$3
 if [ ! -z "$registryTags" ]; then
-    echo "[$scriptName] registryTags    : $registryTags"
+    echo "[$scriptName]  registryTags    : $registryTags"
 else
 	if [ ! -z "$CDAF_PUSH_REGISTRY_TAG" ]; then
 		registryTags="$CDAF_PUSH_REGISTRY_TAG"
-		echo "[$scriptName] registryTags    : $registryTags (loaded from environment variable, supports space separated list)"
+		echo "[$scriptName]  registryTags    : $registryTags (loaded from environment variable, supports space separated list)"
 	else
 		registryTags=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_PUSH_REGISTRY_TAG")")
 		if [ ! -z "$registryTags" ]; then
-			echo "[$scriptName] registryTags    : $registryTags (loaded from manifest.txt, supports space separated list)"
+			echo "[$scriptName]  registryTags    : $registryTags (loaded from manifest.txt, supports space separated list)"
 		else
 			registryTags='latest'
-			echo "[$scriptName] registryTags    : $registryTags (default, supports space separated list)"
+			echo "[$scriptName]  registryTags    : $registryTags (default, supports space separated list)"
 		fi
 	fi
 fi
 
 registryToken=$4
 if [ ! -z "$registryToken" ]; then
-	echo "[$scriptName] registryToken   : $(MASKED $registryToken) (MASKED)"
+	echo "[$scriptName]  registryToken   : $(MASKED $registryToken) (MASKED)"
 else
 	if [ ! -z "$CDAF_PUSH_REGISTRY_TOKEN" ]; then
 		registryToken="$CDAF_PUSH_REGISTRY_TOKEN"
-		echo "[$scriptName] registryToken   :  $(MASKED ${registryToken}) (loaded from environment variable)"
+		echo "[$scriptName]  registryToken   :  $(MASKED ${registryToken}) (loaded from environment variable)"
 	else
 		registryToken=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_PUSH_REGISTRY_TOKEN")")
 		if [ ! -z "$registryToken" ]; then
-			echo "[$scriptName] registryToken   :  $(MASKED ${registryToken}) (loaded from manifest.txt)"
+			echo "[$scriptName]  registryToken   :  $(MASKED ${registryToken}) (loaded from manifest.txt)"
 		else
-			echo "[$scriptName] registryToken   :  (not supplied, login will not be attempted)"
+			echo "[$scriptName]  registryToken   :  (not supplied, login will not be attempted)"
 		fi
 	fi
 fi
 
 registryUser=$5
 if [ ! -z "$registryUser" ]; then
-	echo "[$scriptName] registryUser    : $registryUser"
+	echo "[$scriptName]  registryUser    : $registryUser"
 else
 	if [ ! -z "$CDAF_PUSH_REGISTRY_USER" ]; then
 		registryUser="$CDAF_PUSH_REGISTRY_USER"
-		echo "[$scriptName] registryUser    : $registryUser (loaded from environment variable)"
+		echo "[$scriptName]  registryUser    : $registryUser (loaded from environment variable)"
 	else
 		registryUser=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_PUSH_REGISTRY_USER")")
 		if [ ! -z "$registryUser" ]; then
-			echo "[$scriptName] registryUser    : $registryUser (loaded from manifest.txt)"
+			echo "[$scriptName]  registryUser    : $registryUser (loaded from manifest.txt)"
 		else
 			registryUser='.'
-			echo "[$scriptName] registryUser    : $registryUser (default)"
+			echo "[$scriptName]  registryUser    : $registryUser (default)"
 		fi
 	fi
 fi
 
 registryURL=$6
 if [ ! -z "$registryURL" ]; then
-	echo "[$scriptName] registryURL     : $registryURL"
+	echo "[$scriptName]  registryURL     : $registryURL"
 else
 	if [ ! -z "$CDAF_PUSH_REGISTRY_URL" ]; then
 		registryURL="$CDAF_PUSH_REGISTRY_URL"
-		echo "[$scriptName] registryURL     : $registryURL (loaded from environment variable)"
+		echo "[$scriptName]  registryURL     : $registryURL (loaded from environment variable)"
 	else
 		registryURL=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "CDAF_PUSH_REGISTRY_URL")")
 		if [ ! -z "$registryURL" ]; then
-			echo "[$scriptName] registryURL     : $registryURL (loaded from manifest.txt)"
+			echo "[$scriptName]  registryURL     : $registryURL (loaded from manifest.txt)"
 		else
 			echo "[$scriptName] registryURL     : (not supplied, do not set when pushing to Dockerhub, do not include HTTPS:// prefix)"
 		fi

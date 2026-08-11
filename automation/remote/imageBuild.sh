@@ -83,6 +83,9 @@ if [ ! -f "$manifest" ]; then
 	fi
 fi
 
+productVersion=$(eval "echo $("${CDAF_CORE}/getProperty.sh" "${manifest}" "productVersion")")
+echo "[$scriptName]  productVersion          = $productVersion (loaded from ${manifest})"
+
 # 2.6.0 CDAF Solution property support, with environment variable override.
 if [ ! -z "$CDAF_REGISTRY_URL" ]; then
 	registryURL="$CDAF_REGISTRY_URL"

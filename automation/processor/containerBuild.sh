@@ -179,9 +179,9 @@ if [ ! -z "$imageName" ]; then
 
 	executeExpression "export MSYS_NO_PATHCONV=1"
 	if [ -z "$mountHome" ] ; then
-		executeExpression "docker run --tty --user $containerUser --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh '$BUILDNUMBER' '$REVISION' 'container_build'"
+		executeExpression "docker run --tty -e 'CDAF_CONTAINER_BUILD=yes' --user $containerUser --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh '$BUILDNUMBER' '$REVISION' '$ACTION'"
 	else
-		executeExpression "docker run --tty --user $containerUser --volume '${mountHome}:/solution/home${volumeOpt}' --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh '$BUILDNUMBER' '$REVISION' 'container_build'"
+		executeExpression "docker run --tty -e 'CDAF_CONTAINER_BUILD=yes' --user $containerUser --volume '${mountHome}:/solution/home${volumeOpt}' --volume '${workspace}:/solution/workspace${volumeOpt}' ${buildCommand} ${buildImage}:${newTag} automation/processor/buildPackage.sh '$BUILDNUMBER' '$REVISION' '$ACTION'"
 	fi
 
 	echo "[$scriptName] List and remove all stopped containers"

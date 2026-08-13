@@ -29,7 +29,7 @@ else
 	echo "[$scriptName]   REVISION       : $REVISION"
 fi
 
-ACTION="$4"
+export ACTION="$4"
 if [ -z "$ACTION" ]; then
 	echo "[$scriptName]   ACTION         : (not passed)"
 else

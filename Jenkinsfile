@@ -31,36 +31,6 @@ timeout(time: 6, unit: 'HOURS') {
         '''
       }
 
-
-      stage ('Review Vagrant Settings') {
-
-        sh '''
-          cat Vagrantfile
-          vagrant box list
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
-        '''
-      }
-
-      stage ('Test the CDAF sample on Ubuntu 22.04 LTS') {
-        sh '''
-          echo "Test the CDAF sample on Ubuntu 22.04 LTS"
-          vagrant destroy -f
-          export OVERRIDE_IMAGE="cdaf/Ubuntu22"
-          vagrant up
-        '''
-      }
-
-      stage ('Test the CDAF sample on Ubuntu Latest') {
-        sh '''
-          echo "Test the CDAF sample on Ubuntu Latest"
-          vagrant destroy -f
-          export OVERRIDE_IMAGE="cdaf/UbuntuLVM"
-          vagrant up
-        '''
-      }
-
     } catch (e) {
 
       currentBuild.result = "FAILED"
@@ -70,11 +40,9 @@ timeout(time: 6, unit: 'HOURS') {
 
     } finally {
 
-      stage ('Destroy VMs and Discard sample vagrantfile') {
+      stage ('Uncondiational stage') {
         sh '''
-          if [ -d ./.vagrant ]; then
-            vagrant destroy -f
-          fi
+          echo "Clean-up steps go here..."
         '''
       }
     }

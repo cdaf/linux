@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Provide password-less sudo access to current user
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/setNoPassSUDO.sh | bash -s -- $(whoami)
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"

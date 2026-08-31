@@ -40,15 +40,10 @@ fi
 if [ -d './automation' ]; then
 	atomicPath='.'
 else
-	echo "[$scriptName] Provisioning directory (./automation) not found in workspace, looking for alternative ..."
-	if [ -d '/vagrant/automation' ]; then
-		atomicPath='/vagrant'
-	else
-		echo "[$scriptName] $atomicPath not found for either Docker or Vagrant, will download latest"
-		executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
-		executeExpression "tar -xzf LU-CDAF.tar.gz"
-		atomicPath='.'
-	fi
+	echo "[$scriptName] $atomicPath not found, will download latest"
+	executeExpression "curl -s -O http://cdaf.io/static/app/downloads/LU-CDAF.tar.gz"
+	executeExpression "tar -xzf LU-CDAF.tar.gz"
+	atomicPath='.'
 fi
 echo "[$scriptName] Using atomicPath $atomicPath"
 

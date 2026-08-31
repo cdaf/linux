@@ -127,13 +127,6 @@ else
 fi
 echo
 
-if [ -f '/home/vagrant/linux-master/automation/CDAF.linux' ]; then
-	test=$(cat /home/vagrant/linux-master/automation/CDAF.linux | grep productVersion)
-	IFS='=' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] CDAF Box Version : $test"
-fi
-
 echo "[$scriptName] List 3rd party components"; echo
 
 test="`git --version 2>&1`"

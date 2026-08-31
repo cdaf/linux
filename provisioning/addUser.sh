@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Add jenkins user to docker group
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/addUser.sh | bash -s -- jenkins docker
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"

@@ -24,8 +24,15 @@ jobs:
   build:
     name: Build and Unit Test
     runs-on: ubuntu-latest
+
 # Self-hosted agent
 #	runs-on: ubuntu2404-docker 
+
+# Required for madrapps/jacoco-report
+#    permissions:
+#      contents: read
+#      pull-requests: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -78,7 +85,7 @@ jobs:
 #          artifact_download_workflow_names: 'CDAF Targetless CD using hosted agent'
 #          overall_coverage_fail_threshold: 80
 
-# Does not require permissions and displays results with apples, however, does not fail build so custom threshold check required
+# See Permission above to use this plugin as it needs the ability to read previous coverage output
 #      - name: Jacoco Report to Summary
 #        id: jacoco
 #        uses: madrapps/jacoco-report@v1.8.0

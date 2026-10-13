@@ -4,3 +4,9 @@ echo "AUTOMATIONROOT = $AUTOMATIONROOT"
 echo "CDAF_CORE      = $CDAF_CORE"
 
 echo "Post-package Tasks"
+
+if [ -n "$ACTION" ]; then
+	echo "ACTION is populated: $ACTION"
+else
+	echo "ACTION is empty"
+fi

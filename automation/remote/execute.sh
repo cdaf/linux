@@ -433,12 +433,18 @@ echo
 # Process Task Execution
 executionList=$(< "$TASK_NAME")
 taskExpression=""
+taskExpressionStartLine=0
+taskExpressionLineCount=0
+taskLineNumber=0
 while IFS= read -r taskLine; do
+	taskLineNumber=$((taskLineNumber + 1))
 	if [ -z "$taskExpression" ]; then
 		taskExpression="$taskLine"
+		taskExpressionStartLine=$taskLineNumber
 	else
 		taskExpression+=$'\n'"$taskLine"
 	fi
+	taskExpressionLineCount=$((taskExpressionLineCount + 1))
 	# CDAF directives remain single-line, while Bash expressions are held until
 	# the parser confirms the entire expression is syntactically complete.
 	if ! bash -n <<< "$taskExpression" >/dev/null 2>&1; then
@@ -446,6 +452,8 @@ while IFS= read -r taskLine; do
 	fi
 	LINE="$taskExpression"
 	taskExpression=""
+	taskExpressionStartLine=0
+	taskExpressionLineCount=0
 	if [[ $LINE == *"REMOVE"* ]] || [[ $LINE == *"REFRSH"* ]] || [[ $LINE == *"VECOPY"* ]]; then
 		set -f # disable globbing, i.e. do not preprocess definitions containing wildcards
 	fi
@@ -602,7 +610,26 @@ while IFS= read -r taskLine; do
 done <<< "$executionList"
 
 if [ -n "$taskExpression" ]; then
-	ERRMSG "Incomplete Bash expression at end of $TASK_NAME" 2
+	expressionEndLine=$((taskExpressionStartLine + taskExpressionLineCount - 1))
+	parserDiagnostic=$(bash -n <<< "$taskExpression" 2>&1 || true)
+	echo
+	echo "[$scriptName][ERRMSG][DIAGNOSTIC] Bash expression in '$TASK_NAME' could not be parsed (source lines $taskExpressionStartLine-$expressionEndLine)."
+	if [ -n "$parserDiagnostic" ]; then
+		echo "[$scriptName][ERRMSG][DIAGNOSTIC] Bash parser output:"
+		while IFS= read -r diagnosticLine; do
+			echo "  $diagnosticLine"
+		done <<< "$parserDiagnostic"
+	else
+		echo "[$scriptName][ERRMSG][DIAGNOSTIC] Bash did not provide a parser message."
+	fi
+	echo "[$scriptName][ERRMSG][DIAGNOSTIC] Unparsed expression with task-file line numbers:"
+	diagnosticLineNumber=$taskExpressionStartLine
+	while IFS= read -r diagnosticLine; do
+		printf '  %5d | %s\n' "$diagnosticLineNumber" "$diagnosticLine"
+		diagnosticLineNumber=$((diagnosticLineNumber + 1))
+	done <<< "$taskExpression"
+	echo "[$scriptName][ERRMSG][DIAGNOSTIC] Check for an unmatched quote or delimiter, or a missing fi, done, esac, closing brace, or closing parenthesis."
+	ERRMSG "Bash expression in '$TASK_NAME' is incomplete or invalid at end of file (lines $taskExpressionStartLine-$expressionEndLine)" 2
 fi
 
 echo; echo "~~~~~~ Shutdown Execution Engine ~~~~~~"

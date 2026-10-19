@@ -11,7 +11,12 @@ CI:
 
   # To use native container runner with CDAF pre-installed
   image: cdaf/linux
-  script: entry.sh ${CI_PIPELINE_IID} ${CI_COMMIT_BRANCH}
+  script: |
+    if [ -z "$CI_COMMIT_TAG" ]; then
+      entry.sh ${CI_PIPELINE_IID} ${CI_COMMIT_BRANCH}
+    else
+      echo "Release Tag Created: $CI_COMMIT_TAG"
+    fi
   # Self-hosted Runner
   # tags:
   #   - bash
@@ -34,6 +39,10 @@ CI:
       - release.sh
     reports:
       junit: "**/test-results/*.xml"
+      coverage_report:
+        coverage_format: cobertura  # or jacoco
+        path: "**/coverage/*.xml"
+  coverage: '/All files.*?\|.*?(\d+\.\d+)%/'       # ← Add this for % display
 
 TEST:
   stage: test
@@ -46,30 +55,40 @@ TEST:
   only:
     - main
 
+# Commented lines are support for semver setting release
 PROD:
   stage: deploy
   tags:
     - bash
   script: |
     ./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}
+#    export ARTIFACT_PREFIX=$(grep 'artifactPrefix=' ./TasksLocal/manifest.txt | cut -d'=' -f2)
+#    export BUILDNUMBER=$(grep 'BUILDNUMBER=' ./TasksLocal/manifest.txt | cut -d'=' -f2)
+#    echo "RELEASE_VERSION=${ARTIFACT_PREFIX}.${BUILDNUMBER}" >> release.env
+#    echo ; echo "cat release.env" ; echo
+#    cat release.env
   when: manual
   environment: staging
   dependencies:
     - CI
   only:
     - main
+#  artifacts:
+#    reports:
+#      dotenv: release.env  # This makes the variable available to the release keyword (see above)
 
-# To apply a hard-dependency on the manual gate, use "needs"
-#VERIFY:
-#  stage: publish
-#  image: cdaf/linux
-#  script: |
-#    ./release.sh ${CI_JOB_NAME} ${CI_PIPELINE_ID}
-#  dependencies:
-#    - CI
-#    - PROD
+#RELEASE:
+#  stage: .post
+#  image: registry.gitlab.com/gitlab-org/release-cli:latest
 #  needs:
-#    - CI
-#    - PROD
+#    - job: PUSH
+#      artifacts: true     # loads release.env so $RELEASE_VERSION is populated
 #  only:
 #    - main
+#  script:
+#    - echo "Creating release $RELEASE_VERSION"
+#  release:
+#    name: "Release $RELEASE_VERSION"
+#    tag_name: "$RELEASE_VERSION"
+#    description: "Automated release $RELEASE_VERSION from pipeline $CI_PIPELINE_ID"
+#    ref: '$CI_COMMIT_SHA'

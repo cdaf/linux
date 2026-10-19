@@ -12,11 +12,12 @@ function executeExpression {
 	fi
 }  
 
-echo
-echo "[$scriptName] Start a container instance, if an instance (based on \"instance\") exists it is"
-echo "[$scriptName] stopped and removed before starting the new instance."
-echo
-echo "[$scriptName] --- start ---"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] Start a container instance, if an instance (based on \"instance\") exists it is"
+	echo "[$scriptName] stopped and removed before starting the new instance."
+fi
+
+echo; echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
 	echo "[$scriptName] imageName not passed, exiting with code 1."
@@ -87,22 +88,27 @@ if [ ! -z "$dockerExpose" ]; then
 	echo "[$scriptName] name            : $name"
 fi
 
-echo
-executeExpression "docker --version"
-
-echo
-echo "List the running containers (before)"
-docker ps
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo
+	executeExpression "docker --version"
+	
+	echo; echo "List the running containers (before)"
+	docker ps
+fi
 
 if [ -z "$dockerExpose" ]; then
-	echo "[$scriptName] Remove any existing containers based on docker ps --filter label=cdaf.${imageName}.container.instance"
+	if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+		echo "[$scriptName] Remove any existing containers based on docker ps --filter label=cdaf.${imageName}.container.instance"
+	fi
 	for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance -aq); do
 		echo "[$scriptName] Stop and remove existing container instance ($instance)"
 		executeExpression "docker stop $containerInstance"
 		executeExpression "docker rm $containerInstance"
 	done
 else
-	echo "[$scriptName] Remove any existing containers based on docker ps --filter label=cdaf.${imageName}.container.instance=${instance}"
+	if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+		echo "[$scriptName] Remove any existing containers based on docker ps --filter label=cdaf.${imageName}.container.instance=${instance}"
+	fi
 	for containerInstance in $(docker ps --filter label=cdaf.${imageName}.container.instance=${instance} -aq); do
 		echo "[$scriptName] Stop and remove existing container instance ($instance)"
 		executeExpression "docker stop $containerInstance"
@@ -120,9 +126,9 @@ if [ ! -z "$dockerExpose" ]; then
 	fi
 fi
 
-echo
-echo "List the running containers (after)"
-docker ps
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "List the running containers (after)"
+	docker ps
+fi
 
-echo
-echo "[$scriptName] --- end ---"
+echo; echo "[$scriptName] --- end ---"

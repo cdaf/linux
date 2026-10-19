@@ -1,5 +1,5 @@
-solutionName=myproduct
-# productName=My Product Name
+solutionName=crypt
+# productName=Cryptography Solution
 
 # Global Error handling additional diagnostics
 # CDAF_ERROR_DIAG=df

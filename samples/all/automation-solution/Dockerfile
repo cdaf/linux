@@ -18,7 +18,7 @@ RUN automation-solution/bootstrapAgent.sh
 RUN chmod 777 -R /solution
 ARG userName
 ARG userID
-RUN adduser $userName -u${userID}
+RUN useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
 USER $userName
 
 # < Apply any user specific tasks here >

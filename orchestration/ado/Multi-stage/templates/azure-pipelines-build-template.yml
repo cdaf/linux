@@ -10,7 +10,9 @@ jobs:
 
       - task: Bash@3
         displayName: CDAF Release Build
-#        env: 
+#        URL and user are not likely to be set as secret, so an explicit mapping is not required, but included for reference
+#        env:
+#          GIT_URL:  $(GIT_URL)
 #          GIT_USER: $(GIT_USER)
 #          GIT_PASS: $(GIT_PASS)
         inputs:
@@ -31,5 +33,31 @@ jobs:
 #          targetType: filePath
 #          filePath: ./automation/entry.sh
 #          arguments: $(Build.BuildNumber) $(Build.SourceBranch) staging@$(Build.ArtifactStagingDirectory)
+
+#      - task: PublishTestResults@2
+#        condition: succeededOrFailed()
+#        inputs:
+#          testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+#          testResultsFiles: '**/test-results/*.xml' 
+#          searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+#          mergeTestResults: true # Optional
+#          failTaskOnFailedTests: true # Optional
+#          testRunTitle: Checkov Results # Optional
+#          buildPlatform: # Optional
+#          buildConfiguration: # Optional
+#          publishRunAttachments: true # Optional
+#         condition: always()
+
+#      - task: UseDotNet@2
+#        inputs:
+#          packageType: sdk
+#          version: '10.x'
+
+#      - task: PublishCodeCoverageResults@2
+#        displayName: 'Publish code coverage'
+#        inputs:
+#          codeCoverageTool: 'Cobertura'
+#          summaryFileLocation: '**/coverage.cobertura.xml'
+#          failIfCoverageEmpty: false
 
       - task: PublishBuildArtifacts@1

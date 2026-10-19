@@ -1,19 +1,10 @@
 # DOCKER-VERSION 1.2.0
 # Allow override of image as environment variable
-ARG CONTAINER_IMAGE
+ARG CONTAINER_IMAGE=docker.io/cdaf/linux:latest
 FROM ${CONTAINER_IMAGE}
-
-ARG HTTP_PROXY
-ENV HTTP_PROXY=$HTTP_PROXY
 
 # Copy solution, provision and then build
 WORKDIR /solution
-
-# Copy all scripts (rely on StoreForLocal to limit this to only scripts required)
-COPY automation automation
-COPY bootstrapTest.sh .
-RUN chmod +x bootstrapTest.sh
-RUN ./bootstrapTest.sh
 
 # Place entry script
 COPY executeTest.sh .
@@ -21,12 +12,15 @@ COPY executeTest.sh .
 # Create external user in image
 ARG userName
 ARG userID
-RUN adduser $userName --uid $userID --disabled-password --gecos ""
-# RUN adduser $userName --uid $userID # CentOS
+
+RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
+	if [ ! -z "$user" ]; then \
+		userdel -f $user ; \
+	fi ;  \
+	useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName ; \
+	chown $userName -R /solution/workspace
+
 RUN chown $userName:$userName -R /solution
 USER $userName
 
-# Move to (empty) subdirectory for mount
-WORKDIR /solution/workspace
-
-CMD ["../executeTest.sh", "target:8000"]
+CMD ["./executeTest.sh", "target:8000"]

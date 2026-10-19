@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/automation/remote/capabilities.sh | bash -
+DEFAULT_IFS=$IFS
 scriptName='capabilities.sh'
 
 versionScript="$1"
@@ -125,13 +127,6 @@ else
 fi
 echo
 
-if [ -f '/home/vagrant/linux-master/automation/CDAF.linux' ]; then
-	test=$(cat /home/vagrant/linux-master/automation/CDAF.linux | grep productVersion)
-	IFS='=' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] CDAF Box Version : $test"
-fi
-
 echo "[$scriptName] List 3rd party components"; echo
 
 test="`git --version 2>&1`"
@@ -219,7 +214,7 @@ else
 			IFS=',' read -ra ADDR <<< ${ADDR[2]}
 			echo "    docker-compose : ${ADDR[0]}"
 		else
-			echo "    docker-compose : ${ADDR[3]}"
+			echo "    docker-compose : ${test##*v}"
 		fi
 	fi
 fi
@@ -376,11 +371,19 @@ else
 	if [ $? -eq 0 ]; then
 		test="${test##*v}"
 		echo "    helm           : ${test%+*}"
+		IFS=$'\n'
+		for line in $(helm plugin list); do
+		    IFS=$DEFAULT_IFS read -ra array <<< "$line"
+		    if [ "${array[0]}" != 'NAME' ]; then
+				echo "      $line"
+			fi
+		done
+		IFS=$DEFAULT_IFS
 	fi
 	
 	test=$(helmsman -v 2>/dev/null)
 	if [ $? -eq 0 ]; then
-		echo "    helmsman       : ${test##*v}"
+		echo "    helmsman       : ${test##* }"
 	fi
 
 	test=$(helmfile --version 2>/dev/null)

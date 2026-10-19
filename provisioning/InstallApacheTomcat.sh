@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Install Default Tomcat
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/InstallApacheTomcat.sh | bash -
+
+# Install specific version, in named location, with service account and check from media cache
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/InstallApacheTomcat.sh | bash -s -- '10.1.55 /opt/tomcat tomcat /.provision'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -88,13 +95,8 @@ if [ ! -z "$(getent passwd $serviceAccount)" ]; then
 	echo "[$scriptName] Tomcat user ($serviceAccount) already exists, no action required."
 else
 	# Create and Configure Deployment user
-	if [ -z "$centos" ]; then
-		echo "[$scriptName] Create the runtime user ($serviceAccount) Ubuntu/Debian"
-		executeExpression "$elevate adduser --disabled-password --gecos \"\" $serviceAccount"
-	else
-		echo "[$scriptName] Create the runtime user ($serviceAccount) CentOS/RHEL"
-		executeExpression "$elevate adduser $serviceAccount"
-	fi
+	echo "[$scriptName] Create the runtime user ($serviceAccount)"
+	executeExpression "$elevate useradd -m -k /dev/null -s /usr/sbin/nologin -c '' $serviceAccount"
 fi
 
 echo; echo "[$scriptName] Create application root directory and change to runtime directory"

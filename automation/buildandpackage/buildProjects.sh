@@ -29,7 +29,7 @@ else
 	echo "[$scriptName]   REVISION       : $REVISION"
 fi
 
-ACTION="$4"
+export ACTION="$4"
 if [ -z "$ACTION" ]; then
 	echo "[$scriptName]   ACTION         : (not passed)"
 else
@@ -102,7 +102,7 @@ customProjectList="$SOLUTIONROOT/buildProjects"
 if [ -f "$customProjectList" ]; then
 	dirList=$(cat $customProjectList)
 else
-	dirList=$(find . -mindepth 1 -maxdepth 1 -type d | sort -z)
+	dirList=$(find . -mindepth 1 -maxdepth 1 -type d | sort)
 fi
 
 # Create a list of projects based on directories containing build script entry point

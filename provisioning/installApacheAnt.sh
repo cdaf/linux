@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Install latest version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -
+
+# Install specific version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- '1.10.16'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -13,21 +20,12 @@ scriptName='installApacheAnt.sh'
 
 echo "[$scriptName] --- start ---"
 if [ -z "$1" ]; then
-	version=$(curl -s https://downloads.apache.org/ant/ | grep 'Release Notes of Apache Ant')
-	version=${version//'<head>Release Notes of Apache Ant '/}
-	version=${version//'</head>'/}
+    URL="https://ant.apache.org/bindownload.cgi"
+	version=$(curl -sL "$URL" | grep -oP 'Apache Ant \K[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
 	echo "[$scriptName]   version    : $version (latest)"
 else
 	version="$1"
 	echo "[$scriptName]   version    : $version"
-fi
-
-mediaCache="$2"
-if [ -z "$mediaCache" ]; then
-	mediaCache='/.provision'
-	echo "[$scriptName]   mediaCache : $mediaCache (default)"
-else
-	echo "[$scriptName]   mediaCache : $mediaCache"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -37,21 +35,12 @@ else
 	echo "[$scriptName]   whoami     : $(whoami) (elevation not required)"
 fi
 
-if [ ! -d "$mediaCache" ]; then
-	executeExpression "$elevate mkdir -p $mediaCache"
-fi
-
 # Set parameters
 executeExpression "antVersion=\"apache-ant-${version}\""
 executeExpression "antSource=\"$antVersion-bin.tar.gz\""
 
-if [ ! -f "${mediaCache}/${antSource}" ]; then
-	echo "[$scriptName] Media (${mediaCache}/${antSource}) not found, attempting download ..."
-	executeExpression "curl -s -o ${mediaCache}/${antSource} \"https://archive.apache.org/dist/ant/binaries/${antSource}\""
-fi
+executeExpression "curl -sL $optArg https://archive.apache.org/dist/ant/binaries/${antSource} | tar zx"
 
-executeExpression "cp \"${mediaCache}/${antSource}\" ."
-executeExpression "tar -xf $antSource"
 if [ -d "/opt/$antVersion" ]; then
 	executeExpression "$elevate rm -rf '/opt/$antVersion'"
 fi
@@ -80,14 +69,15 @@ for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name '*.sh
 done
 
 # Ant version lists to standard error
-test="`ant -version 2>&1`"
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName] Apache Ant install failed!"
-	exit 23700
-else
+test=$(ant -version 2>&1)
+exit_code=$?
+if [ $exit_code -eq 0 ]; then
 	IFS=' ' read -ra ADDR <<< $test
 	test=${ADDR[3]}
 	echo "[$scriptName] Apache Ant version $test"
+else
+	echo "[$scriptName] Apache Ant install failed!"
+	exit $exit_code
 fi	
 
 echo "[$scriptName] --- end ---"

@@ -12,8 +12,7 @@ function executeExpression {
 	fi
 }
 
-echo
-echo "[$scriptName] +-------------------------+"
+echo; echo "[$scriptName] +-------------------------+"
 echo "[$scriptName] | Process Container Tasks |"
 echo "[$scriptName] +-------------------------+"
 TARGET=$1
@@ -21,7 +20,7 @@ if [ -z "$TARGET" ]; then
 	echo "$scriptName TARGET Argument not passed. HALT!"
 	exit 1341
 else
-	echo "[$scriptName]   TARGET         : $TARGET"
+	echo "[$scriptName]   TARGET                 : $TARGET"
 fi
 
 if [ -z "$2" ]; then
@@ -29,7 +28,7 @@ if [ -z "$2" ]; then
 	exit 1342
 else
 	export RELEASE=$2
-	echo "[$scriptName]   RELEASE        : $RELEASE"
+	echo "[$scriptName]   RELEASE                : $RELEASE"
 fi
 
 SOLUTION=$3
@@ -37,7 +36,7 @@ if [ -z "$SOLUTION" ]; then
 	echo "[$scriptName] Solution Name not supplied. HALT!"
 	exit 1343
 else
-	echo "[$scriptName]   SOLUTION       : $SOLUTION"
+	echo "[$scriptName]   SOLUTION               : $SOLUTION"
 fi
 
 BUILDNUMBER=$4
@@ -45,7 +44,7 @@ if [ -z "$BUILDNUMBER" ]; then
 	echo "$scriptName Build Number not passed. HALT!"
 	exit 1344
 else
-	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
+	echo "[$scriptName]   BUILDNUMBER            : $BUILDNUMBER"
 fi
 
 id=$5
@@ -53,19 +52,23 @@ if [ -z "$id" ]; then
 	echo "$scriptName id Number not passed. HALT!"
 	exit 1345
 else
-	echo "[$scriptName]   id             : $id"
+	echo "[$scriptName]   id                     : $id"
 fi
 
 imageDir=$6
 if [ -z "$imageDir" ]; then
 	imageDir='containerDeploy'
-	echo "[$scriptName]   imageDir       : $imageDir (not supplied, default set)"
+	echo "[$scriptName]   imageDir               : $imageDir (not supplied, default set)"
 else
-	echo "[$scriptName]   imageDir       : $imageDir"
+	echo "[$scriptName]   imageDir               : $imageDir"
 fi
 
-echo "[$scriptName]   pwd            : $(pwd)"
-echo "[$scriptName]   WORKSPACE_ROOT : $WORKSPACE_ROOT"
+if [ ! -z "$CDAF_DOCKER_BUILD_ARGS" ]; then
+	echo "[$scriptName]   CDAF_DOCKER_BUILD_ARGS : $CDAF_DOCKER_BUILD_ARGS"
+fi
+
+echo "[$scriptName]   pwd                    : $(pwd)"
+echo "[$scriptName]   WORKSPACE_ROOT         : $WORKSPACE_ROOT"
 
 manifest="${CDAF_CORE}/manifest.txt"
 if [ ! -f "$manifest" ]; then
@@ -79,7 +82,7 @@ fi
 runtimeFiles=$("${CDAF_CORE}/getProperty.sh" "${manifest}" "runtimeFiles")
 
 if [ -f "$imageDir" ]; then
-	echo "Found a file instead of directory in workspace, removing $imageDir ..."
+	echo; echo "[$scriptName] Found a file instead of directory in workspace, removing $imageDir ..."
 	executeExpression "rm -v '$imageDir'"
 fi
 
@@ -87,16 +90,19 @@ fi
 if [ -d "$imageDir" ]; then
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=$(eval "echo $fileName")
 		executeExpression "cp -v '$fileName' '$imageDir'"
 	done
+	echo
 
 else
 	echo; echo "[$scriptName] $imageDir does not exist, creating ${imageDir}, with default Dockerfile"; echo
 	executeExpression "mkdir -pv ${imageDir}"
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=$(eval "echo $fileName")
 		executeExpression "cp -v '$fileName' '$imageDir'"
@@ -106,10 +112,7 @@ else
 # Cannot indent heredoc
 (
 cat <<-EOF
-# DOCKER-VERSION 1.2.0
-# Allow override of image as environment variable
-ARG CONTAINER_IMAGE
-FROM \${CONTAINER_IMAGE}
+FROM ${CONTAINER_IMAGE}
 
 # Copy solution, provision and then build
 WORKDIR /solution
@@ -121,8 +124,7 @@ RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	if [ ! -z "\$user" ]; then \\
 		userdel -f \$user ; \\
 	fi ;  \\
-	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
-	chown \$userName -R /solution
+	adduser \$userName --uid \$userID --disabled-password --gecos ""
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/
@@ -135,21 +137,19 @@ EOF
 ) | tee $imageDir/Dockerfile
 
 	# 2.7.1 Copy the declared list of files into build root
+	echo; echo "[$scriptName] Load files from runtimeFiles property"; echo
 	for fileName in $runtimeFiles; do
 		fileName=${fileName##*/}
 		echo "COPY $fileName /solution/deploy/"
 		echo "COPY $fileName /solution/deploy/" >> $imageDir/Dockerfile
 	done
+	echo
 
 	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run"
 	echo "# Unlike containerBuild the workspace is not volume mounted, this replicates what the remote deploy process does leaving the image ready to run" >> $imageDir/Dockerfile
 	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]'
 	echo 'CMD ["./deploy.sh", "${ENVIRONMENT}"]' >> $imageDir/Dockerfile
 	echo
-fi
-
-if [ -d "automation" ]; then
-	executeExpression "cp -r 'automation' '$imageDir'"
 fi
 
 executeExpression "cp -r propertiesForContainerTasks $imageDir/properties"
@@ -160,12 +160,14 @@ else
 fi
 executeExpression "cd $imageDir"
 
-echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo;echo "[$scriptName] Remove any remaining deploy containers from previous (failed) deployments"
+fi
 id=$(echo "${id}" | tr '[:upper:]' '[:lower:]') # docker image names must be lowercase
 
 executeExpression "'${CDAF_CORE}/dockerRun.sh' ${id}"
 export CDAF_CD_ENVIRONMENT="$ENVIRONMENT"
-executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} no $(whoami) $(id -u)"
+executeExpression "'${CDAF_CORE}/dockerBuild.sh' ${id} ${BUILDNUMBER} no $(whoami) $(id -u) $CDAF_DOCKER_BUILD_ARGS"
 
 # Map run environment variables without prefix
 for envVar in $(env | grep CDAF_CD_); do

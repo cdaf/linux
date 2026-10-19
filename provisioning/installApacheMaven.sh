@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Install latest version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheMaven.sh | bash -
+
+# Install specific version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheMaven.sh | bash -s -- '3.9.14'
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -14,20 +21,12 @@ scriptName='installApacheMaven.sh'
 echo "[$scriptName] --- start ---"
 version="$1"
 if [ -z "$version" ]; then
-	version=$(curl -s https://maven.apache.org/download.cgi | grep 'Downloading Apache Maven')
-	version=${version//'<h1>Downloading Apache Maven '/}
-	version=${version//'</h1>'/}
+	version=$(curl -s https://maven.apache.org/download.cgi | grep '<h2>Apache Maven')
+	version=${version//'<h2>Apache Maven '/}
+	version=${version//'</h2>'/}
 	echo "[$scriptName]   version    : $version (latest)"
 else
 	echo "[$scriptName]   version    : $version"
-fi
-
-mediaPath="$2"
-if [ -z "$mediaPath" ]; then
-	mediaPath='/.provision'
-	echo "[$scriptName]   mediaPath  : $mediaPath (default)"
-else
-	echo "[$scriptName]   mediaPath  : $mediaPath"
 fi
 
 if [ $(whoami) != 'root' ];then
@@ -44,26 +43,8 @@ else
 	echo "[$scriptName]   http_proxy : (not set)"
 fi
 
-# Check for media
-echo
-mediaFullPath="$mediaPath/apache-maven-${version}-bin.tar.gz"
-echo "[$scriptName] \$mediaFullPath = $mediaFullPath"
-if [ -f "$mediaFullPath" ]; then
-	echo "[$scriptName] Media found $mediaFullPath"
-else
-	echo "[$scriptName] Media not found, attempting download"
-	if [ ! -d "$mediaPath" ]; then
-		executeExpression "$elevate mkdir -p $mediaPath"
-	fi
-	executeExpression "$elevate curl -s -o $mediaFullPath $optArg https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz"
-fi
-
-# Set parameters
+executeExpression "curl -sL $optArg https://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz | tar zx"
 executeExpression "runTime=\"apache-maven-${version}\""
-executeExpression "sourceFile=\"$runTime-bin.tar.gz\""
-
-executeExpression "cp \"$mediaPath/${sourceFile}\" ."
-executeExpression "tar -xf $sourceFile"
 if [ -d "/opt/$runTime" ]; then
 	executeExpression "$elevate rm -rf '/opt/$runTime'"
 fi
@@ -82,6 +63,16 @@ echo "[$scriptName] Verify install (reload environment variables first)..."
 for script in $(find /etc/profile.d/ -mindepth 1 -maxdepth 1 -type f -name '*.sh'); do
 	executeExpression "source $script"
 done
-executeExpression "mvn --version"
+
+# Maven version lists to standard error
+test=$(mvn -version 2>&1)
+exit_code=$?
+if [ $exit_code -eq 0 ]; then
+	IFS=' ' read -ra ADDR <<< $test
+	echo "Maven version ${ADDR[2]} installed."
+else
+	echo "    Maven install failed!"
+	exit $exit_code
+fi
 
 echo "[$scriptName] --- end ---"

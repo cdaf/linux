@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Establish a trusted connection, download an run to respond to prompts
+# curl -s -O https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/agent.sh
+# chmod +x agent.sh
+# agent.sh deployer@localhost
+
 set -e
 
 # When the script calls itself remotely, it passes the REMOTE as 

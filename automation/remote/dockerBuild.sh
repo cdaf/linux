@@ -31,8 +31,8 @@ function MASKED {
 }
 
 scriptName='dockerBuild.sh'
+buildCommand='docker build'
 
-echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"; echo
 echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
@@ -78,6 +78,46 @@ else
 	echo "[$scriptName]  optionalArgs             : $optionalArgs"
 fi
 
+# TEST 1: Is 'docker' actually Podman?
+# check --version OR look for 'podman/buildah' inside 'docker info' to catch the RHEL wrapper
+if docker --version 2>&1 | grep -qi "podman" || docker info 2>&1 | grep -qiE "podman|buildah"; then
+    engine="podman"
+	builder='buildah'
+
+# TEST 2: Is it Docker with the modern containerd image store?
+else
+    test="`docker buildx version 2>&1`"
+    if [ $? -eq 0 ]; then
+    	builder='buildx '
+    	builder+=$(echo $test | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+    else
+    	builder="`docker --version 2>&1`"
+    fi
+	if docker info 2>&1 | grep -qi "io.containerd.snapshotter"; then
+	    engine="docker-containerd"
+	    user_local_cache='yes' # If buildx and containerd, use local cache to avoid CI rebuilds
+	# FALLBACK: It's legacy Docker Engine
+	else
+	    engine="docker-legacy"
+	fi
+fi
+
+if [ $? -eq 0 ]; then
+	echo "[$scriptName]  container ecosystem      : $engine / $builder"
+else
+	echo "[$scriptName]  container ecosystem      : (not in use)"
+fi
+
+if [ ! -z "DOCKER_HOST" ]; then
+	echo "[$scriptName]  DOCKER_HOST              : $DOCKER_HOST"
+fi
+
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] Build docker image, resulting image tag will be ${imageName}:${tag}"
+fi
+
+echo
+
 getProp="${CDAF_CORE}/getProperty.sh"
 
 # 2.6.0 Image from Private Registry
@@ -93,13 +133,15 @@ fi
 baseImage=$7
 if [ ! -z "$baseImage" ]; then
 	if [ ! -z "$CONTAINER_IMAGE" ]; then
-		echo "[$scriptName]  baseImage                : $baseImage (override environment variable '${CONTAINER_IMAGE}')"
+		baseImage=$(eval "echo $(echo ${CONTAINER_IMAGE})")
+		echo "[$scriptName]  baseImage                : $baseImage (override baseImage with environment variable CONTAINER_IMAGE')"
 	else
+		baseImage=$(eval "echo $(echo ${baseImage})")
 		echo "[$scriptName]  baseImage                : $baseImage"
 	fi
 else
 	if [ ! -z "$CONTAINER_IMAGE" ]; then
-		baseImage="$CONTAINER_IMAGE"
+		baseImage=$(eval "echo $(echo ${CONTAINER_IMAGE})")
 		echo "[$scriptName]  baseImage                : $baseImage (loaded from environment variable CONTAINER_IMAGE)"
 	else
 
@@ -112,7 +154,8 @@ else
 			if [ ! -z "$runtimeImage" ]; then
 				echo "[$scriptName]  baseImage                : $baseImage (not supplied, using containerImage property)"
 			else
-				echo "[$scriptName]  baseImage                : (baseImage not supplied or determined, hardcoded image required in Dockerfile)"
+				baseImage='docker.io/cdaf/linux:latest'
+				echo "[$scriptName]  baseImage                : (baseImage not supplied or determined, set default)"
 			fi
 		fi
 	fi
@@ -168,13 +211,15 @@ else
 	fi
 fi
 
-echo; echo "[$scriptName] List existing images..."
-executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List existing images..."
+	executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+fi
 
-echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo "[$scriptName] As of 1.13.0 new prune commands, if using older version, suppress error"
+fi
 executeSuppress "docker system prune -f"
-
-buildCommand='docker build'
 
 if [ ! -z "$tag" ]; then
 	buildCommand+=" --build-arg BUILD_TAG=${tag}"
@@ -190,6 +235,14 @@ fi
 
 if [ ! -z "$userID" ]; then
 	buildCommand+=" --build-arg userID=$userID"
+fi
+
+if [[ "$user_local_cache" == 'yes' ]]; then # buildkit/containerd does not cache consistently without explicit local store
+	buildCommand+=" --load --pull=false --build-arg BUILDKIT_INLINE_CACHE=1 --cache-to=type=local,dest=/tmp/docker-cache,mode=max --cache-from=type=local,src=/tmp/docker-cache"
+fi
+
+if [ ! -z "$optionalArgs" ]; then
+	buildCommand+=" ${optionalArgs}"
 fi
 
 if [ ! -z "$tag" ]; then
@@ -228,9 +281,7 @@ else # 2.8.0 default Dockerfilefile
 # Cannot indent heredoc
 (
 cat <<-EOF
-# DOCKER-VERSION 1.2.0
-ARG CONTAINER_IMAGE
-FROM \${CONTAINER_IMAGE}
+FROM ${baseImage}
 
 # Copy solution, provision and then build
 WORKDIR /solution
@@ -239,17 +290,16 @@ WORKDIR /solution
 ARG userName
 ARG userID
 
+# Move to subdirectory for build, i.e. /solution/workspace
+WORKDIR /solution/workspace
 RUN user=\$(id -nu \$userID 2>/dev/null || exit 0) ; \\
 	if [ ! -z "\$user" ]; then \\
 		userdel -f \$user ; \\
 	fi ;  \\
-	adduser \$userName --uid \$userID --disabled-password --gecos "" ; \\
-	chown \$userName -R /solution
+	useradd -m -k /dev/null -u \$userID -s /usr/sbin/nologin -c "" \$userName ; \\
+	chown \$userName -R /solution/workspace
 
 USER \$userName
-
-# Move to subdirectory for build, i.e. /solution/workspace
-WORKDIR /solution/workspace
 
 CMD ["sleep", "infinity"]
 
@@ -267,7 +317,9 @@ if [[ "$dockerfile_name" == 'Dockerfile-db-temp' ]]; then
 	executeExpression "rm -f $dockerfile_name"
 fi
 
-echo; echo "[$scriptName] List Resulting images..."
-executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List Resulting images..."
+	executeExpression "docker images -f label=cdaf.${imageName}.image.version"
+fi
 
 echo; echo "[$scriptName] --- end ---"

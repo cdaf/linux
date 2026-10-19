@@ -3,5 +3,5 @@ artifactPrefix=0.1
 productName=My Product Using Container Build
 solutionName=cb-custom-image
 containerBuild="$AUTOMATIONROOT/processor/containerBuild.sh" $SOLUTION $BUILDNUMBER $REVISION $ACTION
-containerImage=ubuntu:20.04
+containerImage=docker.io/cdaf/linux:latest
 CDAF_DOCKER_REQUIRED=yes

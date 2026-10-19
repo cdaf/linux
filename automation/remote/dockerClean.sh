@@ -18,10 +18,12 @@ function executeSuppress {
 	# There is no exception handling as new host will return errors when removing non existing containers.
 }  
 
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
 echo; echo "[$scriptName] Clean image from registry based on Product label. If a tag is passed,"
 echo "[$scriptName] only images with a tag value less that the one supplied and removed."
-echo
-echo "[$scriptName] --- start ---"
+fi
+
+echo; echo "[$scriptName] --- start ---"
 imageName=$1
 if [ -z "$imageName" ]; then
 	echo "[$scriptName] imageName not supplied! Exit with code 1."
@@ -44,22 +46,26 @@ else
 	fi
 fi
 
-echo
-echo "[$scriptName] List images (before)"
-executeExpression "docker images"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List images (before)"
+	executeExpression "docker images"
+fi
 
-echo
-echo "[$scriptName] Remove untagged orphaned (dangling) images"
 for imageID in $(docker images -aq -f dangling=true); do
+	if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+		echo; echo "[$scriptName] Remove untagged orphaned (dangling) image $imageID"
+	fi
 	executeSuppress "docker rmi -f $imageID"
-done	
+done
 
-echo
-echo "[$scriptName] Remove the image (ignore failures), this process relies on the following"
-echo "[$scriptName] dockerfile label where @imageName@ is replaced with the product name."
-echo "[$scriptName]   LABEL cdaf.@imageName@.image.version"
-echo "[$scriptName]   docker images --filter label=cdaf.${imageName}.image.version -a"
-echo "[$scriptName] Note: The actual image version value is ignored."
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] Remove the image (ignore failures), this process relies on the following"
+	echo "[$scriptName] dockerfile label where @imageName@ is replaced with the product name."
+	echo "[$scriptName]   LABEL cdaf.@imageName@.image.version"
+	echo "[$scriptName]   docker images --filter label=cdaf.${imageName}.image.version -a"
+	echo "[$scriptName] Note: The actual image version value is ignored."
+fi
+
 if [ -z "$tag" ]; then
 	for imageID in $(docker images --filter label=cdaf.${imageName}.image.version -aq); do
 		executeSuppress "docker rmi -f $imageID"
@@ -80,9 +86,9 @@ else
 	done	
 fi
 
-echo
-echo "[$scriptName] List images (after)"
-executeExpression "docker images"
+if [ "${CDAF_LOG_LEVEL}" == 'DEBUG' ]; then
+	echo; echo "[$scriptName] List images (after)"
+	executeExpression "docker images"
+fi
 
-echo
-echo "[$scriptName] --- end ---"
+echo; echo "[$scriptName] --- end ---"

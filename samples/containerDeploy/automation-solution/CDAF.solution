@@ -4,7 +4,7 @@ artifactPrefix=0.0
 
 # Provisioned with common tools, see https://hub.docker.com/repository/docker/cdaf/linux/general
 # containerImage=ubuntu:20.04
-runtimeImage=cdaf/linux
+deployImage=docker.io/cdaf/linux:latest
 
 processSequence=containerTasks.sh
 

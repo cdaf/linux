@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Install with defaults
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -
+
+# Install explicit version
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installDocker.sh | bash -s -- '26.1.3'
+
 function executeRetry {
 	counter=1
 	max=5
@@ -56,15 +62,23 @@ else
 fi
 
 if [ -z "$3" ]; then
-	compose='1.26.2'
-	echo "[$scriptName]   compose      : $compose (default)"
+	version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name)
+	version=${version##*v}
+	version=${version%\"*}
+	echo "[$scriptName]   compose      : ${version} (latest)"
 else
-	echo "[$scriptName]   compose      : $compose"
+	echo "[$scriptName]   compose      : ${version}"
 fi
 
 if [ $(whoami) != 'root' ];then
 	elevate='sudo'
 	echo "[$scriptName]   whoami       : $(whoami)"
+	if [ -z "$4" ]; then
+		skipPermit='no'
+		echo "[$scriptName]   skipPermit   : ${skipPermit} (default)"
+	else
+		echo "[$scriptName]   whoami       : ${skipPermit}"
+	fi
 else
 	echo "[$scriptName]   whoami       : $(whoami) (elevation not required)"
 fi
@@ -144,7 +158,7 @@ if [ -z "$package" ]; then
 				echo "[$scriptName] yum check-update (note: a normal exit code is non zero)"
 				yum check-update
 			fi
-			executeRetry "${elevate} yum install -y docker docker-compose"
+			executeRetry "${elevate} yum install -y docker"
 			executeRetry "${elevate} systemctl enable docker.service"
 			executeRetry "${elevate} systemctl start docker.service"
 			executeRetry "${elevate} systemctl status docker.service --no-pager"
@@ -175,7 +189,7 @@ if [ -z "$package" ]; then
 
 			echo "[$scriptName] Install Ubuntu Canonical docker.io ($install)"
 			executeRetry "${elevate} apt-get update"
-			executeRetry "${elevate} apt-get install -y docker.io docker-compose"
+			executeRetry "${elevate} apt-get install -y docker.io"
 
 		else # latest
 
@@ -195,7 +209,7 @@ if [ -z "$package" ]; then
 	fi
 fi
 
-executeRetry "${elevate} curl -sL 'https://github.com/docker/compose/releases/download/${compose}/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
+executeRetry "${elevate} curl -f -sL 'https://github.com/docker/compose/releases/download/v${version}/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose"
 executeRetry "${elevate} chmod +x /usr/local/bin/docker-compose"
 
 if [ "$check" == 'yes' ] ; then
@@ -204,23 +218,35 @@ if [ "$check" == 'yes' ] ; then
 	echo
 	test=$(docker --version 2>&1)
 	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Docker           : (not installed)"
+		echo "[$scriptName] Docker         : (not installed)"
 	else
 		IFS=' ' read -ra ADDR <<< $test
 		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "[$scriptName] Docker           : ${ADDR[0]}"
+		echo "[$scriptName] Docker         : ${ADDR[0]}"
 	fi
 	
 	test=$(docker-compose --version 2>&1)
-	if [[ "$test" == *"not found"* ]]; then
-		echo "[$scriptName] Docker compose   : (not installed)"
-	else
-		IFS=' ' read -ra ADDR <<< $test
-		IFS=',' read -ra ADDR <<< ${ADDR[2]}
-		echo "[$scriptName] Docker compose   : ${ADDR[0]}"
+	if [ $? -eq 0 ]; then
+		unset IFS
+		read -ra ADDR <<< $test
+		echo $test | grep , > /dev/null
+		if [ $? -eq 0 ]; then
+			IFS=',' read -ra ADDR <<< ${ADDR[2]}
+			echo "[$scriptName] docker-compose : ${ADDR[0]}"
+		else
+			echo "[$scriptName] docker-compose : ${test##*v}"
+		fi
 	fi
 else
 	echo "[$scriptName] Do not check docker version as binary install with \$startDaemon set to $startDaemon"
 fi
-echo 
-echo "[$scriptName] --- end ---"
+
+if [ "$skipPermit" == 'no' ]; then
+	echo "[$scriptName] Permit current user to use docker"
+	# Ignore groupadd failure if it already exists
+	executeRetry "${elevate} groupadd -f docker"
+	executeRetry "${elevate} usermod -aG docker $USER"
+	executeRetry "newgrp docker"
+fi
+
+echo ; echo "[$scriptName] --- end ---"

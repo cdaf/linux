@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Add jenkins user to docker group
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/addUser.sh | bash -s -- jenkins docker
+
 function executeExpression {
 	echo "[$scriptName] $1"
 	eval "$1"
@@ -16,13 +19,6 @@ echo
 echo "[$scriptName] Create a new user, optionally, in a predetermined group"
 echo
 echo "[$scriptName] --- start ---"
-test=$(yum --version 2>&1)
-if [[ "$test" == *"not found"* ]]; then
-	echo "[$scriptName]   Debian based : $(uname -mrs)"
-else
-	echo "[$scriptName]   Fedora based : $(uname -mrs)"
-fi
-
 username=$1
 if [ -z "$username" ]; then
 	username='deployer'
@@ -70,11 +66,7 @@ fi
 
 userExists=$(id -u $username 2> /dev/null )
 if [ -z "$userExists" ]; then # User does not exist, create the user in the group
-	if [[ "$test" == *"not found"* ]]; then
-		executeExpression "$elevate adduser --disabled-password --gecos \"\" --ingroup $groupname $username"
-	else
-		executeExpression "$elevate adduser -g $groupname $username"
-	fi
+	executeExpression "$elevate useradd -m -k /dev/null -s /bin/bash -c '' $username -g $groupname"
 else # Just add the user to the group
 	echo "[$scriptName] username $username exists"
 	executeExpression "$elevate usermod -a -G $groupname $username"

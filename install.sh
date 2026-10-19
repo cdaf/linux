@@ -67,7 +67,7 @@ if [ -z "$version" ]; then
 	test="`unzip 2>&1`"
 	if [ $? -ne 0 ]; then
 		echo "unzip, not installed, installing"
-		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/automation/provisioning/base.sh | bash -" # default package is unzip
+		executeExpression "curl -s https://raw.githubusercontent.com/cdaf/linux/master/provisioning/base.sh | bash -" # default package is unzip
 		test="`unzip 2>&1`"
 		if [ $? -ne 0 ]; then
 			echo "Could not install unzip!"; exit 4624
@@ -82,7 +82,7 @@ if [ -z "$version" ]; then
 		echo "  unzip             : $test"
 	fi
 	executeExpression "curl -s https://codeload.github.com/cdaf/linux/zip/master --output linux-master.zip"
-	executeExpression "unzip -o linux-master.zip"
+	executeExpression "unzip -qq -o linux-master.zip"
 	executeExpression "rm linux-master.zip"
 
 	executeExpression "cd linux-master/automation"
@@ -105,16 +105,6 @@ if [ ! -z "${CDAF_INSTALL_PATH}" ]; then
     executeExpression "chmod +x ${installPath}/addPath.sh"
     executeExpression "${installPath}/addPath.sh ${installPath}/remote"
     executeExpression "${installPath}/addPath.sh ${installPath}"
-fi
-
-echo "${installPath}/remote/capabilities.sh"
-eval "${installPath}/remote/capabilities.sh"
-exitCode=$?
-# Check execution normal, anything other than 0 is an exception
-if [ "$exitCode" != "0" ]; then
-	echo "[$scriptName][ERROR] $EXECUTABLESCRIPT returned $exitCode, list install directory contents and exit..."
-	ls -al -R
-	exit $exitCode
 fi
 
 echo "[$scriptName] --- end ---"

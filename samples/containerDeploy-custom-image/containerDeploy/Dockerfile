@@ -1,6 +1,6 @@
 # DOCKER-VERSION 1.2.0
 # Allow override of image as environment variable
-ARG CONTAINER_IMAGE
+ARG CONTAINER_IMAGE=docker.io/cdaf/linux:latest
 FROM ${CONTAINER_IMAGE}
 
 # Copy solution, provision and then build
@@ -25,8 +25,7 @@ RUN user=$(id -nu $userID 2>/dev/null || exit 0) ; \
 if [ ! -z "$user" ]; then \
 userdel -f $user ; \
 fi ;  \
-adduser $userName --uid $userID --disabled-password --gecos "" ; \
-chown $userName -R /solution
+useradd -m -k /dev/null -u $userID -s /usr/sbin/nologin -c "" $userName
 
 # Import CDAF package into immutable machine
 COPY properties/* /solution/deploy/

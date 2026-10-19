@@ -179,7 +179,7 @@ else
 fi
 export REVISION="$REVISION"
 
-ACTION="$3"
+export ACTION="$3"
 echo "[$scriptName]   ACTION          : $ACTION"
 caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
 
@@ -272,7 +272,7 @@ fi
 #---------------------------------------------------------------------
 # Configuration Management transformation only if not within container
 #---------------------------------------------------------------------
-if [[ "$ACTION" != 'container_build' ]]; then
+if [[ "$CDAF_CONTAINER_BUILD" != 'yes' ]]; then
 
 	# Properties generator (added in release 1.7.8, extended to list in 1.8.11, moved from build to pre-process 1.8.14), added container tasks 2.4.0
 	configManagementList=()
@@ -387,9 +387,9 @@ fi
 #--------------------------------------------------------------------------
 # Do not load and log containerBuild properties when executing in container
 #--------------------------------------------------------------------------
-if [[ "$ACTION" == 'container_build' ]]; then
+if [[ "$CDAF_CONTAINER_BUILD" == 'yes' ]]; then
 
-	echo ; echo "[$scriptName] ACTION = $ACTION, Executing build in container..."
+	echo ; echo "[$scriptName] \$CDAF_CONTAINER_BUILD = $CDAF_CONTAINER_BUILD, Executing build in container..."
 
 else
 
@@ -462,8 +462,8 @@ else
 	#---------------------------------------------------------------------
 	if [ ! -z "$containerBuild" ] || [ ! -z "$imageBuild" ]; then
 		# 2.5.5 support conditional containerBuild based on environment variable
-		if [ ! -z "$CDAF_SKIP_CONTAINER_BUILD" ] || [[ "$ACTION" == 'skip_container_build' ]]; then
-			loggingList+=("[$scriptName] \$ACTION = $ACTION, container build defined (${containerBuild}) but skipped ...")
+		if [ ! -z "$CDAF_SKIP_CONTAINER_BUILD" ]; then
+			loggingList+=("[$scriptName] \$CDAF_SKIP_CONTAINER_BUILD = $CDAF_SKIP_CONTAINER_BUILD, container build defined (${containerBuild}) but skipped ...")
 			unset containerBuild
 			unset imageBuild
 		else
@@ -527,7 +527,7 @@ fi
 #--------------------------------------------------------------------------
 
 # 2.4.4 Pre-Build Tasks, exclude from container_build to avoid performing twice
-if [ -f "$prebuildTasks" ] && [[ "$ACTION" != 'container_build' ]]; then
+if [ -f "$prebuildTasks" ] && [[ "$CDAF_CONTAINER_BUILD" != 'yes' ]]; then
 	# Set properties for execution engine
 
 	echo; echo "Process Pre-Build Tasks ..."
@@ -585,7 +585,7 @@ fi
 # Build process complete, start image and file packaging
 #-------------------------------------------------------
 
-if [[ "$ACTION" != 'container_build' ]]; then
+if [[ "$CDAF_CONTAINER_BUILD" != 'yes' ]]; then
 
 	# 2.2.0 Image Build as incorperated function, no longer conditional on containerBuild, but do not attempt if within containerbuild
 	if [ ! -z "$imageBuild" ]; then

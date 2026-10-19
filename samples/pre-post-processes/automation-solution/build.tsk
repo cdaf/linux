@@ -4,3 +4,7 @@ echo "AUTOMATIONROOT = $AUTOMATIONROOT"
 echo "CDAF_CORE      = $CDAF_CORE"
 
 echo "Solution Level Build"
+
+for count in {0..4}; do
+	echo "$count"
+done

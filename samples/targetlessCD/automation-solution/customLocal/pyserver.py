@@ -1,5 +1,5 @@
 import os
-from http.server import HTTPServer, CGIHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 # Make sure the server is created at current directory
 os.chdir('.')
@@ -9,7 +9,7 @@ listening_port=os.environ.get('LISTENING_PORT')
 
 print("Using Environment Variable LISTENING_PORT : " + listening_port)
 
-server_object = HTTPServer(server_address=('0.0.0.0', int(listening_port)), RequestHandlerClass=CGIHTTPRequestHandler)
+server_object = HTTPServer(server_address=('0.0.0.0', int(listening_port)), RequestHandlerClass=SimpleHTTPRequestHandler)
 
 print("Running server ...")
 

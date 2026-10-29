@@ -120,6 +120,19 @@ if [ -f "${SOLUTIONROOT}/storeFor" ]; then
 fi
 
 cd "$WORK_DIR_DEFAULT"
+postpackageTasks="$SOLUTIONROOT/wrap.tsk"
+if [ -f $postpackageTasks ]; then
+	echo; echo "Process Remote Post-Package Task ..."
+	pwd
+	ls -al
+	"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
+	exitCode=$?
+	if [ "$exitCode" != "0" ]; then
+		echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$postpackageTasks\" \"$ACTION\") failed! Returned $exitCode"
+		exit $exitCode
+	fi
+fi
+
 echo; echo "[$scriptName] Create the package (tarball) file, excluding git or svn control files"; echo
 tar -zcv --exclude='.git' --exclude='.svn' -f ../$SOLUTION-$BUILDNUMBER.tar.gz .
 

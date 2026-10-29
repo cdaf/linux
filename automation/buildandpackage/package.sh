@@ -82,7 +82,7 @@ else
 	echo "none ($prepackageTasks)"
 fi
 
-printf "[$scriptName]   Post-package Tasks       : "
+printf "[$scriptName]   Post-package Task        : "
 postpackageTasks="$SOLUTIONROOT/wrap.tsk"
 if [ -f $postpackageTasks ]; then
 	echo "found ($postpackageTasks)"
@@ -193,12 +193,14 @@ else
 	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
 	if [ -f $postpackageTasks ]; then
 		echo; echo "Process Post-Package Tasks ..."
+		cd "$LOCAL_WORK_DIR"
 		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 		exitCode=$?
 		if [ "$exitCode" != "0" ]; then
 			echo "[$scriptName] Linear deployment activity (\"$CDAF_CORE/execute.sh\" \"$SOLUTION\" \"$BUILDNUMBER\" \"$SOLUTIONROOT\" \"$postpackageTasks\" \"$ACTION\") failed! Returned $exitCode"
 			exit $exitCode
 		fi
+		cd ..
 	fi
 
 	# 1.7.8 Only create the remote package if there is a remote target folder or a artefact definition list, if folder exists

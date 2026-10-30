@@ -240,11 +240,11 @@ function REPLAC {
 	plaintext="$4"
 	# Mac OSX sed
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s|${token}|${value}|g\" ${fileName}"
+		executeFunction="sed -i '' -- \"s�${token}�${value}�g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s|${token}|${value}|g\" ${fileName}"
+		executeFunction="sed -i -- \"s�${token}�${value}�g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//|/•}")
+	printable=$(echo "${executeFunction//�/•}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else

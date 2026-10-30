@@ -192,7 +192,7 @@ else
 
 	# Process optional post-packaging tasks (Task driver support added in release 0.8.2)
 	if [ -f $postpackageTasks ]; then
-		echo; echo "Process Post-Package Tasks ..."
+		echo; echo "Process Local Post-Package Tasks ..."
 		cd "$LOCAL_WORK_DIR"
 		"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 		exitCode=$?

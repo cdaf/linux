@@ -123,8 +123,6 @@ cd "$WORK_DIR_DEFAULT"
 postpackageTasks="$SOLUTIONROOT/wrap.tsk"
 if [ -f $postpackageTasks ]; then
 	echo; echo "Process Remote Post-Package Task ..."
-	pwd
-	ls -al
 	"$CDAF_CORE/execute.sh" "$SOLUTION" "$BUILDNUMBER" "$SOLUTIONROOT" "$postpackageTasks" "$ACTION" 2>&1
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then

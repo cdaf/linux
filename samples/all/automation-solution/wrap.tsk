@@ -1,1 +1,3 @@
-PROPLD $TARGET/CDAF.solution
+echo "Execute After Packaging but Prior to self-extracting release creation."
+echo "Local and Remote execution is in respective working directories."
+echo "  pwd : $(pwd)"

@@ -77,7 +77,8 @@ if [ $exit_code -eq 0 ]; then
 	echo "[$scriptName] Apache Ant version $test"
 else
 	echo "[$scriptName] Apache Ant install failed!"
+	ant -version
 	exit $exit_code
-fi	
+fi
 
 echo "[$scriptName] --- end ---"

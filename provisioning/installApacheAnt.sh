@@ -3,8 +3,9 @@
 # Install latest version
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -
 
-# Install specific version
+# Install specific version (positional or named)
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- '1.10.16'
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheAnt.sh | bash -s -- -version '1.10.16'
 
 function executeExpression {
 	echo "[$scriptName] $1"
@@ -18,13 +19,56 @@ function executeExpression {
 }  
 scriptName='installApacheAnt.sh'
 
+function usage {
+	echo "Usage: $scriptName [-version <version>] [-help]"
+	echo "       $scriptName [<version>]"
+	echo ""
+	echo "  -version  Apache Ant version to install, default is latest"
+	echo "  -help     Display this message"
+	echo ""
+	echo "Requires JAVA_HOME to be set."
+}
+
+# Support named parameters, with the first non-option argument treated as version (positional)
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-help|--help|-h|-\?)
+			usage
+			exit 0
+			;;
+		-version)
+			if [ -z "$2" ]; then
+				echo "[$scriptName] -version requires a value!"
+				usage
+				exit 1
+			fi
+			version="$2"
+			shift 2
+			;;
+		-*)
+			echo "[$scriptName] Unknown option $1"
+			usage
+			exit 1
+			;;
+		*)
+			version="$1"
+			shift
+			;;
+	esac
+done
+
 echo "[$scriptName] --- start ---"
-if [ -z "$1" ]; then
+if [ -z "$JAVA_HOME" ]; then
+	echo "[$scriptName] JAVA_HOME is not set, Apache Ant requires Java, install Java and set JAVA_HOME before proceeding!"
+	exit 1
+fi
+echo "[$scriptName]   JAVA_HOME  : $JAVA_HOME"
+
+if [ -z "$version" ]; then
     URL="https://ant.apache.org/bindownload.cgi"
 	version=$(curl -sL "$URL" | grep -oP 'Apache Ant \K[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
 	echo "[$scriptName]   version    : $version (latest)"
 else
-	version="$1"
 	echo "[$scriptName]   version    : $version"
 fi
 

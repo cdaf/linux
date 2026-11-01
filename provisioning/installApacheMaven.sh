@@ -3,8 +3,9 @@
 # Install latest version
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheMaven.sh | bash -
 
-# Install specific version
+# Install specific version (positional or named)
 # curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheMaven.sh | bash -s -- '3.9.14'
+# curl -s https://raw.githubusercontent.com/cdaf/linux/refs/heads/master/provisioning/installApacheMaven.sh | bash -s -- -version '3.9.14'
 
 function executeExpression {
 	echo "[$scriptName] $1"
@@ -18,8 +19,51 @@ function executeExpression {
 }  
 scriptName='installApacheMaven.sh'
 
+function usage {
+	echo "Usage: $scriptName [-version <version>] [-help]"
+	echo "       $scriptName [<version>]"
+	echo ""
+	echo "  -version  Apache Maven version to install, default is latest"
+	echo "  -help     Display this message"
+	echo ""
+	echo "Requires JAVA_HOME to be set."
+}
+
+# Support named parameters, with the first non-option argument treated as version (positional)
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-help|--help|-h|-\?)
+			usage
+			exit 0
+			;;
+		-version)
+			if [ -z "$2" ]; then
+				echo "[$scriptName] -version requires a value!"
+				usage
+				exit 1
+			fi
+			version="$2"
+			shift 2
+			;;
+		-*)
+			echo "[$scriptName] Unknown option $1"
+			usage
+			exit 1
+			;;
+		*)
+			version="$1"
+			shift
+			;;
+	esac
+done
+
 echo "[$scriptName] --- start ---"
-version="$1"
+if [ -z "$JAVA_HOME" ]; then
+	echo "[$scriptName] JAVA_HOME is not set, Apache Maven requires Java, install Java and set JAVA_HOME before proceeding!"
+	exit 1
+fi
+echo "[$scriptName]   JAVA_HOME  : $JAVA_HOME"
+
 if [ -z "$version" ]; then
 	version=$(curl -s https://maven.apache.org/download.cgi | grep '<h2>Apache Maven')
 	version=${version//'<h2>Apache Maven '/}

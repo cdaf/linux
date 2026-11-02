@@ -47,6 +47,9 @@ else
 	fileWithoutComments=$(sed -e 's/#.*$//' -e '/^ *$/d' <<< $decryptedFileInMemory)
 fi
 
+# Single byte delimiter avoids clashing with values containing a pipe
+delim=$'\x95'
+
 while read -r LINE; do
     IFS="\=" read -r name value <<< "$LINE"
 	if [ -z "$TOKENISED" ]; then
@@ -76,9 +79,9 @@ while read -r LINE; do
 
 			# Mac OSX sed
 			if [[ "$OSTYPE" == "darwin"* ]]; then
-				sed -i '' -- "s•${name}•${value}•g" ${TOKENISED}
+				LC_ALL=C sed -i '' -- "s${delim}${name}${delim}${value}${delim}g" ${TOKENISED}
 			else
-				sed -i -- "s•${name}•${value}•g" ${TOKENISED}
+				LC_ALL=C sed -i -- "s${delim}${name}${delim}${value}${delim}g" ${TOKENISED}
 			fi
 		else
 			( exit 0 )

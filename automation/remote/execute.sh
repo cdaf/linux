@@ -252,7 +252,8 @@ function REPLAC {
 	else
 		echo "${printable}"
 	fi
-	eval "$executeFunction"
+	# C locale so sed accepts the non-UTF-8 delimiter
+	LC_ALL=C eval "$executeFunction"
 	exitCode=$?
 	if [ "$exitCode" != "0" ]; then
 		ERRMSG "Exception! ${executeFunction} returned $exitCode" $exitCode

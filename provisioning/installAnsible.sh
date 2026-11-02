@@ -63,8 +63,85 @@ function executeIgnore {
 
 scriptName='installAnsible.sh'
 
+function showHelp {
+	printf '%s\n' \
+		"Usage: $scriptName [yes|no] [version]" \
+		"       $scriptName [-systemWide yes|no] [-version version] [-ansibleCore yes|no]" \
+		"" \
+		"  -systemWide yes|no  Install system-wide (default: yes), or for the current user." \
+		"  -version version   Install the specified version (default: repository default)." \
+		"  -ansibleCore yes|no Install ansible-core from PyPI in a virtual environment (default: no)." \
+		"                     Uses /opt for system-wide installs, or the current user's home." \
+		"  -help              Show this help and exit (also the default with no arguments)." \
+		"" \
+		"Named options may be supplied in any order. Positional values fill unset options."
+}
+
+if [ "$#" -eq 0 ]; then
+	showHelp
+	exit 0
+fi
+
+systemWide=''
+version=''
+ansibleCore='no'
+systemWideSupplied='no'
+versionSupplied='no'
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		-help|--help|-h)
+			showHelp
+			exit 0
+			;;
+		-systemWide|--systemWide|-version|--version|-ansibleCore|--ansibleCore)
+			if [ "$#" -lt 2 ] || [ -z "$2" ] || [[ "$2" == -* ]]; then
+				echo "[$scriptName] $1 requires a value." >&2
+				showHelp >&2
+				exit 1
+			fi
+			case "$1" in
+				-systemWide|--systemWide)
+					systemWide=$2
+					systemWideSupplied='yes'
+					;;
+				-version|--version)
+					version=$2
+					versionSupplied='yes'
+					;;
+				-ansibleCore|--ansibleCore)
+					ansibleCore=$2
+					;;
+			esac
+			shift 2
+			;;
+		-*)
+			echo "[$scriptName] Unknown parameter: $1" >&2
+			showHelp >&2
+			exit 1
+			;;
+		*)
+			if [ "$systemWideSupplied" == 'no' ]; then
+				systemWide=$1
+				systemWideSupplied='yes'
+			elif [ "$versionSupplied" == 'no' ]; then
+				version=$1
+				versionSupplied='yes'
+			else
+				echo "[$scriptName] Unexpected argument: $1" >&2
+				showHelp >&2
+				exit 1
+			fi
+			shift
+			;;
+	esac
+done
+
+if [ "$ansibleCore" != 'yes' ] && [ "$ansibleCore" != 'no' ]; then
+	echo "[$scriptName] -ansibleCore expects yes or no." >&2
+	exit 1
+fi
+
 echo "[$scriptName] --- start ---"
-systemWide=$1
 if [ -z "$systemWide" ]; then
 	systemWide='yes'
 	echo "[$scriptName]   systemWide : $systemWide (default)"
@@ -76,7 +153,6 @@ else
 	fi
 fi
 
-version=$2
 if [ -z "$version" ]; then
 	echo "[$scriptName]   version    : Not supplied, will use default"
 else
@@ -131,7 +207,43 @@ if [ "$fedora" == 'yes' ]; then
 	distro=$(echo "${ADDR[0]##* }")
 fi
 
-if [ -z "$fedora" ]; then
+if [ "$ansibleCore" == 'yes' ]; then
+	if [ -z "$fedora" ]; then
+		executeRetry "$elevate apt-get update"
+		executeRetry "$elevate env DEBIAN_FRONTEND=noninteractive apt-get install -y python3-venv"
+	elif [ "$distro" -gt 7 ]; then
+		executeRetry "$elevate dnf install -y python3 python3-pip"
+	else
+		executeRetry "$elevate yum install -y python3 python3-pip"
+	fi
+
+	coreElevate=''
+	if [ "$systemWide" == 'yes' ]; then
+		coreEnvironment="/opt/ansible-core${ansibleVersion}"
+		coreElevate=$elevate
+	else
+		coreEnvironment="$HOME/ansible-core${ansibleVersion}"
+	fi
+	corePackage='ansible-core'
+	if [ -n "$version" ]; then
+		corePackage="ansible-core==${version}"
+	fi
+	printf -v coreEnvironmentQuoted '%q' "$coreEnvironment"
+	printf -v corePackageQuoted '%q' "$corePackage"
+	executeRetry "$coreElevate python3 -m venv $coreEnvironmentQuoted"
+	executeRetry "$coreElevate $coreEnvironmentQuoted/bin/python -m pip install $corePackageQuoted"
+	if [ "$systemWide" == 'yes' ]; then
+		executeRetry "$coreElevate mkdir -p /usr/local/bin"
+		for coreCommand in "$coreEnvironment"/bin/ansible*; do
+			printf -v coreCommandQuoted '%q' "$coreCommand"
+			printf -v coreLinkQuoted '%q' "/usr/local/bin/${coreCommand##*/}"
+			executeRetry "$coreElevate ln -sf $coreCommandQuoted $coreLinkQuoted"
+		done
+	else
+		echo "[$scriptName] Activate this environment with: source $coreEnvironmentQuoted/bin/activate"
+	fi
+	export PATH="$coreEnvironment/bin:$PATH"
+elif [ -z "$fedora" ]; then
 	echo "[$scriptName] Debian/Ubuntu, update repositories using apt-get"
 	echo
 	echo "[$scriptName] Check that APT is available"
@@ -168,19 +280,19 @@ if [ -z "$fedora" ]; then
 	echo
 	if [ "$systemWide" == 'yes' ]; then
 
-		executeRetry "$elevate apt-get install -y software-properties-common"
+		executeRetry "$elevate env DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common"
 		executeRetry "$elevate apt-add-repository --yes --update ppa:ansible/ansible"
 		executeRetry "$elevate apt-get update"
 
 		if [ -z "$version" ]; then
-			executeRetry "$elevate apt-get install -y ansible-core"
+			executeRetry "$elevate env DEBIAN_FRONTEND=noninteractive apt-get install -y ansible-core"
 		else
-			executeRetry "$elevate apt-get install -y ansible-core=${version}*"
+			executeRetry "$elevate env DEBIAN_FRONTEND=noninteractive apt-get install -y ansible-core=${version}*"
 		fi
 
 	else
 		executeRetry "$elevate apt-get update"
-		executeRetry "$elevate apt-get install -y build-essential libssl-dev libffi-dev python-dev"
+		executeRetry "$elevate env DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libssl-dev libffi-dev python-dev"
 	fi
 	
 else
@@ -209,7 +321,7 @@ else
 	fi
 fi
 
-if [ "$systemWide" == 'no' ]; then
+if [ "$systemWide" == 'no' ] && [ "$ansibleCore" != 'yes' ]; then
 	echo
 	echo "[$scriptName] Install to current users ($(whoami)) home directory ($HOME)."
 	echo
@@ -231,13 +343,12 @@ if [ "$systemWide" == 'no' ]; then
 	fi
 fi
 
-test=$(ansible-playbook --version 2>&1)
-if [[ $test == *"not found"* ]]; then
-	echo "[$scriptName] Anisble playbook not installed!"; exit 99
+if ! test=$(ansible-playbook --version 2>&1); then
+	echo "[$scriptName] Ansible playbook version check failed: $test"; exit 99
+elif [[ "$test" =~ ^ansible-playbook[[:space:]]+(\[core[[:space:]]+)?([0-9][[:alnum:].+-]*) ]]; then
+	echo "[$scriptName] Ansible playbook version : ${BASH_REMATCH[2]}"
 else
-	IFS=' ' read -ra ADDR <<< $test
-	test=${ADDR[1]}
-	echo "[$scriptName] Anisble playbook version : $test"
+	echo "[$scriptName] Unable to determine Ansible playbook version: $test"; exit 99
 fi	
 echo 
 echo "[$scriptName] --- end ---"

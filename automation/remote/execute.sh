@@ -238,13 +238,15 @@ function REPLAC {
 	token="$2"
 	value="$3"
 	plaintext="$4"
+	# Single byte 0x95 delimiter avoids clashing with values containing a pipe
+	delim=$'\x95'
 	# Mac OSX sed
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		executeFunction="sed -i '' -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i '' -- \"s${delim}${token}${delim}${value}${delim}g\" ${fileName}"
 	else
-		executeFunction="sed -i -- \"s•${token}•${value}•g\" ${fileName}"
+		executeFunction="sed -i -- \"s${delim}${token}${delim}${value}${delim}g\" ${fileName}"
 	fi
-	printable=$(echo "${executeFunction//•/â€¢}")
+	printable=$(echo "${executeFunction//${delim}/•}")
 	if [ -z "$4" ]; then
 		echo "${printable//${value}/*****}"
 	else

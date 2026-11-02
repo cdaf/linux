@@ -1,22 +1,28 @@
 echo "CDAF Version : $($CDAF_CORE/capabilities.sh cdaf)"
 
 echo "Variable validation based on properties.varchk in SOLUTIONROOT ($SOLUTIONROOT)"
-export PASS='Password1'
+
+export PASS="$password"
+echo $PASS
 
 VARCHK
 
+echo "Prior to detokenisation"
 echo 'Detokenisation Example : %token%' > tokenised.file
 echo 'Variable token Example : %passwd%' >> tokenised.file
 echo 'Explicit token Example : @token@' >> tokenised.file
 cat tokenised.file
+
+echo "Properties File to be applied"
 echo 'token=value1' > properties.file
 echo 'passwd=$PASS' >> properties.file
 cat properties.file
 
+echo "Detokenise and verify variable expansion works"
 DETOKN tokenised.file properties.file resolve
+cat tokenised.file | grep $resolved
 
 REPLAC tokenised.file @token@ value2
-
 cat tokenised.file
 
 echo "Robust URL Check"

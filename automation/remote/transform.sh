@@ -62,9 +62,9 @@ while read -r LINE; do
    	    if [ $? -eq 0 ]; then
 			if [[ "$propldAction" == "resolve" ]]; then
 				echo "Found ${name}, replacing with ${value}"
-				value=$(eval resolveContent "$value")
+				value=$(resolveContent "$value")
 			elif [[ "$propldAction" == "reveal" ]]; then
-				value=$(eval resolveContent "$value")
+				value=$(resolveContent "$value")
 				echo "Found ${name}, replacing with ${value}"
 			else
 				if [ -z "$3" ]; then

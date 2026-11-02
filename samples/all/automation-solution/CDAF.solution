@@ -28,3 +28,6 @@ solutionName=all
 # gitUserNameEnvVar=.
 # gitUserPassEnvVar=${SYSTEM_ACCESSTOKEN}
 # gitCustomCleanup=$AUTOMATIONROOT/buildandpackage/clean.sh
+
+password=Pa|\x23w0rd!
+resolved=Pa|#w0rd!

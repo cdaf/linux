@@ -7,6 +7,7 @@ FROM ${CONTAINER_IMAGE}
 WORKDIR /solution
 
 # Apply custom provisioning steps here
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN npm install -g anypoint-cli-v4 && \
   anypoint-cli-v4 plugins:install anypoint-cli-account-plugin && \
   anypoint-cli-v4 plugins:install anypoint-cli-exchange-plugin && \

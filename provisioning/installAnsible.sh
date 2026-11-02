@@ -72,15 +72,12 @@ function showHelp {
 		"  -version version   Install the specified version (default: repository default)." \
 		"  -ansibleCore yes|no Install ansible-core from PyPI in a virtual environment (default: no)." \
 		"                     Uses /opt for system-wide installs, or the current user's home." \
-		"  -help              Show this help and exit (also the default with no arguments)." \
+		"  -help              Show this help and exit." \
+		"" \
+		"All arguments are optional; with none supplied, defaults are used." \
 		"" \
 		"Named options may be supplied in any order. Positional values fill unset options."
 }
-
-if [ "$#" -eq 0 ]; then
-	showHelp
-	exit 0
-fi
 
 systemWide=''
 version=''

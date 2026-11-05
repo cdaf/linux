@@ -83,7 +83,10 @@ fi
 
 if [ "$installType" == 'rancher' ]; then
 	echo; echo "[$scriptName] Install Rancher Server container instance"
-	executeRetry "sudo docker run -d --restart=unless-stopped --name=rancher-server -p 8080:8080 rancher/server"
+	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
+	fi
+	executeRetry "sudo docker run -d $CDAF_DOCKER_RUN_ARGS --restart=unless-stopped --name=rancher-server -p 8080:8080 rancher/server"
 
 	echo; echo "[$scriptName] List running containers"
 	executeRetry "sudo docker ps"
@@ -162,7 +165,7 @@ else
 	fi
 
 	echo; echo "[$scriptName] Register with token"
-	executeRetry "sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v1.2.11 $baseURL/v1/scripts/$TOKEN"
+	executeRetry "sudo docker run -d $CDAF_DOCKER_RUN_ARGS --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v1.2.11 $baseURL/v1/scripts/$TOKEN"
 	echo	
 fi
 

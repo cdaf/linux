@@ -118,6 +118,10 @@ fi
 
 if [ ! -z "$dockerExpose" ]; then
 	echo
+	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+		echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
+		dockerOpt+=" $CDAF_DOCKER_RUN_ARGS"
+	fi
 	# Labels, other than instance, are for filter purposes, only instance is important in run context. 
 	if [ -z "$registry" ]; then
 		executeExpression "docker run -d -p ${publishedPort}:${dockerExpose} --name $name $dockerOpt --label cdaf.${imageName}.container.instance=$instance --label cdaf.${imageName}.container.environment=$environment ${imageName}:${tag}"

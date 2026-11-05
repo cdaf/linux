@@ -158,9 +158,12 @@ if [ ! -z "$imageName" ]; then
 	prefix=$(echo "$SOLUTION" | tr '[:lower:]' '[:upper:]') # Environment Variables are uppercase by convention
 	echo "prefix = CDAF_${prefix}_CB_"
 	env | grep "CDAF_${prefix}_CB_"
+	if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+		buildCommand+=" $CDAF_DOCKER_RUN_ARGS"
+	fi
 	for envVar in $(env | grep "CDAF_${prefix}_CB_"); do
 		envVar=$(echo ${envVar//CDAF_${prefix}_CB_})
-		buildCommand+=" $CDAF_DOCKER_RUN_ARGS --env '${envVar}'"
+		buildCommand+=" --env '${envVar}'"
 	done
 
 	# :Z flag sets Podman to label the volume content as "private unshared" with SELinux. This label allows the container to write to the volume. https://www.tutorialworks.com/podman-rootless-volumes/

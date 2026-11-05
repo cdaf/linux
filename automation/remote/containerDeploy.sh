@@ -187,6 +187,11 @@ for runOpt in $(env | grep CDAF_OPT_); do
 	buildCommand+=" $(echo ${runOpt#*=})"
 done
 
+if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+	echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
+	buildCommand+=" $CDAF_DOCKER_RUN_ARGS"
+fi
+
 # If a build number is not passed, use the CDAF emulator
 executeExpression "export MSYS_NO_PATHCONV=1"
 if [ -z "$HOME" ] || [[ $CDAF_HOME_MOUNT == 'no' ]]; then

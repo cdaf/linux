@@ -39,7 +39,10 @@ else
 fi
 
 echo "Install registry (version 2) ..."
-executeIgnore "docker run -d -p $registryPort:5000 --restart=always --name registry registry:2"
+if [ ! -z "$CDAF_DOCKER_RUN_ARGS" ]; then
+	echo "[$scriptName]   CDAF_DOCKER_RUN_ARGS : $CDAF_DOCKER_RUN_ARGS"
+fi
+executeIgnore "docker run -d -p $registryPort:5000 $CDAF_DOCKER_RUN_ARGS --restart=always --name registry registry:2"
 
 if [ ! -z "$initialImage" ]; then
 	echo "Pull initial image ($initialImage) ..."

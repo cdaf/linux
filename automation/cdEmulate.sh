@@ -33,10 +33,49 @@ function ERRMSG {
 	fi
 }
 
-# Check Action
-ACTION="$1"
-
 scriptName=${0##*/}
+
+# Arguments, positional ACTION is supported as well as named options
+ACTION=''
+SKIPENV=''
+HELP=''
+while [ $# -gt 0 ]; do
+	option=$(echo "$1" | tr '[A-Z]' '[a-z]')
+	case "$option" in
+		-help|--help)
+			HELP='yes'
+			;;
+		-skipenv|--skipenv)
+			SKIPENV='yes'
+			;;
+		-action|--action)
+			shift
+			ACTION="$1"
+			;;
+		*)
+			if [ -z "$ACTION" ]; then
+				ACTION="$1"
+			fi
+			;;
+	esac
+	shift
+done
+
+if [ -n "$HELP" ]; then
+	echo
+	echo "[$scriptName] Usage: $scriptName [[-ACTION] <action>] [-skipenv] [-help]"
+	echo
+	echo "  -ACTION  Optional, positional (first argument). One of:"
+	echo "             cionly       build and package only"
+	echo "             buildonly    build only"
+	echo "             packageonly  package only"
+	echo "             cdonly       delivery only, build number is not incremented"
+	echo "           When not supplied, CI and CD are both executed."
+	echo "  -skipenv Do not load environment variables from .env in the solution root."
+	echo "  -help    Display this message and exit."
+	echo
+	exit 0
+fi
 
 # Reload any environment variables
 if [ -f "/etc/bash.bashrc" ]; then
@@ -49,6 +88,33 @@ fi
 echo; echo "[$scriptName] --------------------"
 echo "[$scriptName] Initialise Emulation"
 echo "[$scriptName] --------------------"
+
+# Find the solution root early so .env can be loaded from it
+for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
+	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
+		SOLUTIONROOT="$directoryName"
+	fi
+done
+if [ ! -z "$SOLUTIONROOT" ]; then
+	export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
+fi
+
+if [ -z "$SKIPENV" ] && [ ! -z "$SOLUTIONROOT" ] && [ -f "$SOLUTIONROOT/.env" ]; then
+	echo "[$scriptName]   Loading environment variables from $SOLUTIONROOT/.env"
+	while IFS= read -r line || [ -n "$line" ]; do
+		line="${line%$'\r'}"
+		if [[ "$line" =~ ^[[:space:]]*([^#=[:space:]][^=]*)=(.*)$ ]]; then
+			envName="${BASH_REMATCH[1]}"
+			envValue="${BASH_REMATCH[2]}"
+			envName="${envName%"${envName##*[![:space:]]}"}"
+			envValue="${envValue#"${envValue%%[![:space:]]*}"}"
+			envValue="${envValue%"${envValue##*[![:space:]]}"}"
+			if [[ "$envName" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+				export "$envName=$envValue"
+			fi
+		fi
+	done < "$SOLUTIONROOT/.env"
+fi
 if [ -z "${ACTION}" ]; then
 	echo "[$scriptName]   ACTION         : (not supplied, options cionly, buildonly, packageonly or cdonly)"
 else
@@ -84,13 +150,7 @@ echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT (derived from invocation)
 CDAF_CORE="${AUTOMATIONROOT}/remote"
 
 printf "[$scriptName]   SOLUTIONROOT   : "
-for directoryName in $(find . -maxdepth 1 -mindepth 1 -type d); do
-	if [ -f "$directoryName/CDAF.solution" ] && [ "$directoryName" != "$LOCAL_WORK_DIR" ] && [ "$directoryName" != "$REMOTE_WORK_DIR" ]; then
-		SOLUTIONROOT="$directoryName"
-	fi
-done
 if [ ! -z "$SOLUTIONROOT" ]; then
-	export SOLUTIONROOT="$( cd "$SOLUTIONROOT" && pwd )"
 	echo "$SOLUTIONROOT (CDAF.solution found)"
 else
 	ERRMSG "[SOLUTION_NOT_FOUND] No directory found containing CDAF.solution, please create a single occurance of this file." 7612

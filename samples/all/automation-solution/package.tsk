@@ -1,1 +1,3 @@
-echo "Execute after build but Prior to Packaging"
+echo "Check .env variable loaded"
+env | grep TEST_ENV_LOAD
+

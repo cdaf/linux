@@ -42,10 +42,87 @@ function ERRMSG {
 # Entry point for branch based targetless CD
 scriptName='entry.sh'
 
+# Arguments, positional BUILDNUMBER BRANCH ACTION are supported as well as named options
+BUILDNUMBER=''
+BRANCH=''
+ACTION=''
+HELP=''
+parameterNames=(BUILDNUMBER BRANCH ACTION)
+positionalArguments=()
+namedParameters=()
+while [ $# -gt 0 ]; do
+	option=$(echo "$1" | tr '[A-Z]' '[a-z]')
+	case "$option" in
+		-help|--help)
+			HELP='yes'
+			;;
+		-buildnumber|--buildnumber|-branch|--branch|-action|--action)
+			if [ $# -lt 2 ] || [[ "$2" == -* ]]; then
+				echo "[$scriptName][ERROR] Missing value for $1. Use -help for usage." >&2
+				exit 2
+			fi
+			parameterName=$(echo "${option#-}" | tr '[a-z]' '[A-Z]')
+			parameterName="${parameterName#-}"
+			shift
+			printf -v "$parameterName" '%s' "$1"
+			namedParameters+=("$parameterName")
+			;;
+		--)
+			shift
+			positionalArguments+=("$@")
+			break
+			;;
+		-*)
+			echo "[$scriptName][ERROR] Unknown option $1. Use -help for usage." >&2
+			exit 2
+			;;
+		*)
+			positionalArguments+=("$1")
+			;;
+	esac
+	shift
+done
+
+if [ -n "$HELP" ]; then
+	echo
+	echo "[$scriptName] Usage: $scriptName [[-BUILDNUMBER] <number>] [[-BRANCH] <branch>] [[-ACTION] <action>] [-help]"
+	echo
+	echo "  -BUILDNUMBER  Optional, positional (first argument). When not supplied, a local counter file is used."
+	echo "  -BRANCH       Optional, positional (second argument). When not supplied, \$CDAF_BRANCH_NAME or the Git workspace branch is used."
+	echo "  -ACTION       Optional, positional (third argument). One of:"
+	echo "                  cionly       build and package only"
+	echo "                  buildonly    build only"
+	echo "                  packageonly  package only"
+	echo "                  cdonly       delivery only"
+	echo "                  clean        clean build workspace"
+	echo "                When not supplied, CI and CD are both executed."
+	echo "  Named options accept one or two leading dashes and are case-insensitive."
+	echo "  Positional arguments fill parameters not supplied by name. Use -- to end options."
+	echo "  -help         Display this message and exit."
+	echo
+	exit 0
+fi
+
+# Bind positional values to parameters not supplied by name, regardless of option order.
+positionIndex=0
+for parameterName in "${parameterNames[@]}"; do
+	named=''
+	for namedParameter in "${namedParameters[@]}"; do
+		if [ "$parameterName" == "$namedParameter" ]; then named='yes'; break; fi
+	done
+	if [ -z "$named" ] && [ "$positionIndex" -lt "${#positionalArguments[@]}" ]; then
+		printf -v "$parameterName" '%s' "${positionalArguments[$positionIndex]}"
+		positionIndex=$((positionIndex + 1))
+	fi
+done
+if [ "$positionIndex" -lt "${#positionalArguments[@]}" ]; then
+	echo "[$scriptName][ERROR] Too many positional arguments. Use -help for usage." >&2
+	exit 2
+fi
+
 echo; echo "[$scriptName] ---------- start ----------"
 export AUTOMATIONROOT="$( cd "$(dirname "$0")" && pwd )"
 
-BUILDNUMBER="$1"
 if [ -z "$BUILDNUMBER" ]; then
 	# Use a simple text file (${HOME}/buildnumber.counter) for incremental build number
 	if [ -f "${HOME}/buildnumber.counter" ]; then
@@ -62,7 +139,6 @@ else
 	echo "[$scriptName]   BUILDNUMBER    : $BUILDNUMBER"
 fi
 
-BRANCH="$2"
 if [ -z "$BRANCH" ]; then
 	if [ -z "$CDAF_BRANCH_NAME" ]; then
 		BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
@@ -92,7 +168,6 @@ else
 	fi
 fi
 
-ACTION="$3"
 echo "[$scriptName]   ACTION         : $ACTION"
 
 echo "[$scriptName]   AUTOMATIONROOT : $AUTOMATIONROOT (derived from invocation)"

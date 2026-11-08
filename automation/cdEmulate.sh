@@ -37,6 +37,8 @@ scriptName=${0##*/}
 
 # Arguments, positional ACTION is supported as well as named options
 ACTION=''
+RELEASE=''
+OPT_ARG=''
 SKIPENV=''
 HELP=''
 while [ $# -gt 0 ]; do
@@ -52,6 +54,14 @@ while [ $# -gt 0 ]; do
 			shift
 			ACTION="$1"
 			;;
+		-release|--release)
+			shift
+			RELEASE="$1"
+			;;
+		-opt_arg|--opt_arg)
+			shift
+			OPT_ARG="$1"
+			;;
 		*)
 			if [ -z "$ACTION" ]; then
 				ACTION="$1"
@@ -63,7 +73,7 @@ done
 
 if [ -n "$HELP" ]; then
 	echo
-	echo "[$scriptName] Usage: $scriptName [[-ACTION] <action>] [-skipenv] [-help]"
+	echo "[$scriptName] Usage: $scriptName [[-ACTION] <action>] [-RELEASE <release>] [-OPT_ARG <optional argument>] [-skipenv] [-help]"
 	echo
 	echo "  -ACTION  Optional, positional (first argument). One of:"
 	echo "             cionly       build and package only"
@@ -71,6 +81,8 @@ if [ -n "$HELP" ]; then
 	echo "             packageonly  package only"
 	echo "             cdonly       delivery only, build number is not incremented"
 	echo "           When not supplied, CI and CD are both executed."
+	echo "  -RELEASE Optional, forwarded to the delivery process (delivery.sh / release.sh)."
+	echo "  -OPT_ARG Optional, forwarded to the delivery process (delivery.sh / release.sh)."
 	echo "  -skipenv Do not load environment variables from .env in the solution root."
 	echo "  -help    Display this message and exit."
 	echo
@@ -120,6 +132,18 @@ if [ -z "${ACTION}" ]; then
 else
 	echo "[$scriptName]   ACTION         : $ACTION"
 	caseinsensitive=$(echo "$ACTION" | tr '[A-Z]' '[a-z]')
+fi
+
+if [ -z "${RELEASE}" ]; then
+	echo "[$scriptName]   RELEASE        : (not supplied)"
+else
+	echo "[$scriptName]   RELEASE        : $RELEASE (forwarded to delivery process)"
+fi
+
+if [ -z "${OPT_ARG}" ]; then
+	echo "[$scriptName]   OPT_ARG        : (not supplied)"
+else
+	echo "[$scriptName]   OPT_ARG        : $OPT_ARG (forwarded to delivery process)"
 fi
 
 # Use a simple text file (${HOME}/BUILDNUMBER.counter) for incremental build number
@@ -226,10 +250,10 @@ if [ "$caseinsensitive" != "cionly" ] && [ "$caseinsensitive" != "buildonly" ] &
 		sleep 1
 	fi
 
-	$cdProcess "$CDAF_DELIVERY"
+	$cdProcess "$CDAF_DELIVERY" "$RELEASE" "$OPT_ARG"
 	exitCode=$?
 	if [ $exitCode -ne 0 ]; then
-		ERRMSG "[CD_FAILURE] CD Failed with exit code $exitCode! $cdProcess \"$CDAF_DELIVERY\"" $exitCode
+		ERRMSG "[CD_FAILURE] CD Failed with exit code $exitCode! $cdProcess \"$CDAF_DELIVERY\" \"$RELEASE\" \"$OPT_ARG\"" $exitCode
 	fi
 fi
 
